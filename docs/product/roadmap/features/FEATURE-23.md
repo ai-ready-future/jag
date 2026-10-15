@@ -21,6 +21,8 @@ An rg command and a jag command with the same arguments and no question give the
 
 Source: user request to the orchestrator of 2026-10-15. The user said, word for word: "lets also add a story or feature to ensure and verify parity with rg .. the idea being that an rg command and a jag command with the same exact arguments should return exactly the same thing . including the coloring of the output lets use this as a testing strategy .. then assign the work to the new rolesin the team that can absorb this work, run it and codify it so that it can be executed again in the future as an e2e test ... plan this work in the plan as a story or add to a story we may already have about feature parity and behvaior parity then lets have the team work on it when possible".
 
+Open decisions for the spec: DECISION-18, DECISION-32, DECISION-34, and DECISION-38 make grep the reference for jag. rg is different from grep in these ways: other color codes, a file heading with line numbers in a terminal, `<stdin>` in place of `(standard input)`, more options, and the program name at the start of each error message. For each difference, the spec asks the user which tool is the reference, or STORY-67 records the difference as deliberate.
+
 <!-- STATUS:START (generated, do not edit) -->
 
 ## Status
