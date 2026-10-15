@@ -84,7 +84,7 @@ names.
 | # | Decision | Choice | Source |
 |---|---|---|---|
 | 1 | Specs | One spec for STORY-65, STORY-66, and STORY-67. The three stories share one test set and one list of decisions | Orchestrator TASK for FEATURE-23 |
-| 2 | The reference | rg 15.2.0, with no rg config file. For the same arguments with no `--ask`, jag gives the same stdout, stderr, color codes, and exit code as rg. A difference stays only when a user ANSWER records it | User ANSWER of 2026-10-15 (Q1 option 1); ADR-0022 (merged in `ee7debb`, status `proposed` until a card accepts it); the pin of ADR-0021 (merged in `a9f966d`, status `proposed` until a card accepts it) |
+| 2 | The reference | rg 15.2.0, with no rg config file. For the same arguments with no `--ask`, jag gives the same stdout, stderr, color codes, and exit code as rg. A difference stays only when a user ANSWER records it | User ANSWER of 2026-10-15 (Q1 option 1); ADR-0022 (merged in `ee7debb`, status `accepted` (PR #129)); the pin of ADR-0021 (merged in `a9f966d`, status `accepted` (PR #129)) |
 | 3 | The scope | A search with no `--ask`: text mode and `--json` mode. `--setup`, `--check`, and `--forget-key` are not searches, and no case runs them. The ranked layout of `--ask` does not change | ADR-0022, Consequences; DECISION-31 |
 | 4 | Color codes in all text modes | The rg color codes also in the ranked text of `--ask`: path `ESC[0m ESC[35m`, line number `ESC[0m ESC[32m`, match `ESC[0m ESC[1m ESC[31m`, each closed with `ESC[0m`. The separators get no color | DECISION-38 (PR #121) names no mode; probe of rg 15.2.0 |
 | 5 | The `<stdin>` label in all modes | `src/search.rs` `STANDARD_INPUT_LABEL` becomes `<stdin>`. This changes the plain text, the ranked text, the `path` of the JSON document, and the path in the snippets that go to the model | DECISION-18 (PR #121) names no mode |
@@ -106,7 +106,7 @@ names.
 | 21 | JSON with no question (card D) | Decided, option 1: `--json` keeps the one JSON document of jag, as a recorded difference. The case `json` records it | Card D (F23-Q6), user ANSWER via hitl, 2026-10-15, option 1; ADR-0008 |
 | 22 | rg hints (card E) | Decided, option 1: jag gives the rg message with the same first part and the same exit code, with no sentence that names an option that jag does not have (`--pcre2`, `--multiline`, `-U`, `--debug`). The list of similar options after `unrecognized flag` comes from jag's own options, with the rule of rg. These are recorded differences | Card E (F23-Q7), user ANSWER via hitl, 2026-10-15, option 1 |
 | 23 | Layout options with `--ask` or `--json` | `-n`, `-N`, `-H`, `-I`, `--heading`, and `--no-heading` are a usage error with `--ask` or `--json`, as `-l`, `-c`, and `-q` are today. `-g` and `--sort` work in all modes. `--sort` has no effect on the ranked order | Inferred from `src/cli.rs` (`conflicts_with_all = MODES`) |
-| 24 | The test form | ADR-0021: one cargo integration test `tests/rg_parity.rs`, the cases in `tests/parity/cases.yaml`, the fixture trees in `tests/parity/fixtures/`, the stored jag bytes in `tests/parity/expected/`, the pin in `tests/parity/rg.sha256`, and `scripts/parity/install-rg.sh`. Three modes: pipe, color, and terminal | ADR-0021 (merged in `a9f966d`, status `proposed` until a card accepts it); the round of the user ANSWERs in PR #127 (head `778d4c3`) |
+| 24 | The test form | ADR-0021: one cargo integration test `tests/rg_parity.rs`, the cases in `tests/parity/cases.yaml`, the fixture trees in `tests/parity/fixtures/`, the stored jag bytes in `tests/parity/expected/`, the pin in `tests/parity/rg.sha256`, and `scripts/parity/install-rg.sh`. Three modes: pipe, color, and terminal | ADR-0021 (merged in `a9f966d`, status `accepted` (PR #129)); the round of the user ANSWERs in PR #127 (head `778d4c3`) |
 | 25 | The first test set | The 76 cases of the section "The first test set", with the fixture trees of the section "The fixture trees" | CRITERION-110; the probes of 2026-10-15 |
 | 26 | Stdin files of the cases | `tests/parity/stdin/<name>`. A case names its file with `stdin: <name>` | ADR-0021 in PR #127 (head `778d4c3`) |
 | 27 | Owners and pull requests | Two pull requests. The tester opens the test PR (STORY-65 and STORY-66). The implementer opens the code PR (STORY-67). The verifier runs the cases on the code PR. See "Owners" | Orchestrator TASK ("The tester codifies the tests; the verifier runs the cases"); `docs/adlc.md`, the roles |
@@ -447,8 +447,8 @@ test that checks `(standard input)`).
 
 1. Done on 2026-10-15: the ANSWERs of cards A to E are in this spec, and
    this PR sets the stories `ready` (rule 11). Before the code PR and the
-   test PR merge, PR #127 (the ADR round of the ANSWERs) merges. A card
-   accepts ADR-0021 and ADR-0022. The planner changes the PRD pages ("For
+   test PR merge, PR #127 (the ADR round of the ANSWERs) merges. ADR-0021
+   and ADR-0022 are accepted (PR #129). The planner changes the PRD pages ("For
    the planner").
 2. Tester (STORY-65, STORY-66): the test PR from `main`, with each file of
    the tester in "Files". The parity test fails on this PR until step 3
