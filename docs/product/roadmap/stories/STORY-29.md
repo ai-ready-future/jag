@@ -19,7 +19,7 @@ parent: /features/FEATURE-11.md
 milestone: /milestones/MILESTONE-01.md
 traces:
 - to: prd:/decisions/DECISION-29.md
-  hash: 9fd4ee
+  hash: 5a18f0
 ---
 
 # STORY-29: Read text output by default

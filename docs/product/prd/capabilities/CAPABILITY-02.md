@@ -47,7 +47,7 @@ The user gives a folder, a term, and a question in plain language. jag finds the
 - subject of: [DECISION-11: When nothing answers well, jag labels the best results and exits 1](../decisions/DECISION-11.md)
 - subject of: [DECISION-12: The cost limit has a default that the user can change](../decisions/DECISION-12.md)
 - subject of: [DECISION-13: Reaching the cost limit has its own exit code](../decisions/DECISION-13.md)
-- subject of: [DECISION-14: A folder search works like grep -r and skips noise files](../decisions/DECISION-14.md)
+- subject of: [DECISION-14: A folder search works as rg does and skips noise files](../decisions/DECISION-14.md)
 - subject of: [DECISION-31: The command takes the term and the paths, and the question only from --ask](../decisions/DECISION-31.md)
 - subject of: [DECISION-32: A term with no question works as plain rg](../decisions/DECISION-32.md)
 - subject of: [DECISION-33: The term is a regular expression, and -F makes it fixed text](../decisions/DECISION-33.md)

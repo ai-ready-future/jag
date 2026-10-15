@@ -13,13 +13,13 @@
 * [DECISION-11: When nothing answers well, jag labels the best results and exits 1](DECISION-11.md) - When no result answers the question well, jag shows the best results with a clear no-good-answer label and exits with code 1.
 * [DECISION-12: The cost limit has a default that the user can change](DECISION-12.md) - jag has a fixed default cost limit, stated as a count of results to score, and the user can change it with an option.
 * [DECISION-13: Reaching the cost limit has its own exit code](DECISION-13.md) - When jag reaches the cost limit, it returns the ranked results, says how many matches it skipped, and exits with its own code; exit 1 wins when nothing answers well.
-* [DECISION-14: A folder search works like grep -r and skips noise files](DECISION-14.md) - jag searches each subfolder, skips binary, hidden, and ignored files, and says how many files it skipped.
+* [DECISION-14: A folder search works as rg does and skips noise files](DECISION-14.md) - jag searches each subfolder and skips binary, hidden, and ignored files, as rg does; only --ask and --json say how many files it skipped.
 * [DECISION-15: A result path has the same form as in grep](DECISION-15.md) - The path of each result follows the form of the folder that the user gave.
 * [DECISION-16: A joined result shows its line range and marks each matching line](DECISION-16.md) - A result gives its first and last line, and it marks each line that matches the term.
-* [DECISION-17: jag cuts a very long line and marks the cut](DECISION-17.md) - A result shows the exact source text, and jag cuts each line that is longer than a fixed length.
+* [DECISION-17: With --ask or --json, jag cuts a very long line and marks the cut](DECISION-17.md) - A result shows the exact source text; with --ask or --json, jag cuts each line that is longer than a fixed length.
 * [DECISION-18: Piped text has the label <stdin>](DECISION-18.md) - A result from piped text uses the rg label <stdin> and the line numbers of the piped text.
 * [DECISION-19: The size limit counts characters](DECISION-19.md) - The limit on the text that jag returns is a count of characters.
-* [DECISION-20: A default size limit always applies](DECISION-20.md) - jag always applies a default size limit for an agent; the user can raise it or turn it off.
+* [DECISION-20: A default size limit applies with --ask or --json](DECISION-20.md) - With --ask or --json, jag applies a default size limit for an agent; the user can raise it or turn it off. With no question, no default limit applies.
 * [DECISION-21: jag leaves out whole results with the lowest rank first](DECISION-21.md) - To stay in the limit, jag removes whole results, starting with the lowest rank.
 * [DECISION-22: All text that jag writes to standard output counts toward the size limit](DECISION-22.md) - Labels, the structured wrapper, and notices on standard output count; text on the error stream does not.
 * [DECISION-23: jag cuts a top result that is larger than the limit](DECISION-23.md) - When the top result alone is larger than the limit, jag cuts it, marks the cut, and says so.
@@ -33,16 +33,16 @@
 * [DECISION-31: The command takes the term and the paths, and the question only from --ask](DECISION-31.md) - The form is jag [OPTIONS] TERM [PATH...], with the term first as in rg. The question comes only from the option --ask "QUESTION".
 * [DECISION-32: A term with no question works as plain rg](DECISION-32.md) - With no question, that is with no --ask option, jag makes no model call, has no cost, and works as rg.
 * [DECISION-33: The term is a regular expression, and -F makes it fixed text](DECISION-33.md) - The term is a regular expression, as in rg; the -F option makes it fixed text.
-* [DECISION-34: Release 1 keeps the options that people use most](DECISION-34.md) - jag keeps a fixed set of options that people use most; any other option is a usage error that names it.
+* [DECISION-34: Release 1 keeps the rg options that people use most](DECISION-34.md) - jag keeps a fixed set of rg options that people use most, in the rg form; any other option gives the rg text unrecognized flag and exit code 2.
 * [DECISION-35: With no path, jag searches the current folder or reads the pipe](DECISION-35.md) - With no path, jag searches the current folder, or reads standard input when text comes in through a pipe.
 * [DECISION-36: The user can give any mix of files and folders](DECISION-36.md) - jag accepts several paths, and each path can be a file or a folder, as in rg.
 * [DECISION-37: jag shows progress only in a terminal](DECISION-37.md) - While jag ranks, it shows a progress line on the error stream only when that stream is a terminal.
 * [DECISION-38: Color works as rg --color=auto](DECISION-38.md) - jag colors the output only in a terminal, with the rg color codes, and --color=never or always changes that.
 * [DECISION-39: When the user stops jag, it stops at once with no partial results](DECISION-39.md) - On Ctrl-C or a closed pipe, jag stops, starts no new model call, and shows no partial results.
 * [DECISION-40: The cost is the billed amount in US dollars](DECISION-40.md) - jag shows the amount that the service billed, in US dollars; with no billed figure, it shows a labeled estimate.
-* [DECISION-41: In text mode, the cost line goes to the error stream after each search](DECISION-41.md) - Text mode writes a cost line to the error stream after each search, also in a pipe; structured mode has a cost field.
+* [DECISION-41: With --ask in text mode, the cost line goes to the error stream after each search](DECISION-41.md) - With --ask, text mode writes a cost line to the error stream after each search, also in a pipe; structured mode has a cost field; with no question, text mode writes no cost line.
 * [DECISION-42: The report counts results scored and results skipped](DECISION-42.md) - jag shows the results it scored and the results that the cost limit skipped; together they are all results found.
-* [DECISION-43: A search with no model call reports a cost of zero and the reason](DECISION-43.md) - With no question, jag makes no model call, reports a cost of zero, and says why.
+* [DECISION-43: A search with no model call reports a cost of zero and the reason](DECISION-43.md) - With no question, jag makes no model call; with --json, it reports a cost of zero and says why.
 * [DECISION-44: A failed or stopped search reports the cost up to that point](DECISION-44.md) - The error message gives the cost that jag paid before the failure or the stop.
 * [DECISION-45: A missing cost figure never fails the search](DECISION-45.md) - When the service gives no cost figure, jag shows the count and marks the cost as not available.
 * [DECISION-46: jag scores each search again and does not reuse scores](DECISION-46.md) - Release 1 keeps no scores between searches; a repeated search pays the model service again.

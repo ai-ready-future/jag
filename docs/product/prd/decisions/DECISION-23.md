@@ -22,7 +22,7 @@ When the top result alone is larger than the limit, jag shows that result cut to
 ## Links
 
 - about: [CAPABILITY-04: Limit on the text that jag returns](../capabilities/CAPABILITY-04.md)
-- about: [DECISION-17: jag cuts a very long line and marks the cut](DECISION-17.md)
+- about: [DECISION-17: With --ask or --json, jag cuts a very long line and marks the cut](DECISION-17.md)
 - traced by: [FEATURE-09: Size limit on the text that jag returns](../../roadmap/features/FEATURE-09.md)
 - traced by: [STORY-27: Cut a top result that is larger than the limit](../../roadmap/stories/STORY-27.md)
 <!-- LINKS:END -->

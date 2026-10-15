@@ -1,22 +1,25 @@
 ---
 type: Decision
-title: jag cuts a very long line and marks the cut
-description: A result shows the exact source text, and jag cuts each line that is
-  longer than a fixed length.
+title: With --ask or --json, jag cuts a very long line and marks the cut
+description: A result shows the exact source text; with --ask or --json, jag cuts
+  each line that is longer than a fixed length.
 status: stable
-decided_at: '2026-10-06'
+decided_at: '2026-10-15'
 alternatives:
 - Always show the full line, and let the output size limit drop the whole result
 - Show a shorter summary of the line in place of the source text
+- Cut a very long line in each mode, also with no question
 about:
 - /capabilities/CAPABILITY-03.md
 - /decisions/DECISION-10.md
 - /capabilities/CAPABILITY-04.md
 ---
 
-# DECISION-17: jag cuts a very long line and marks the cut
+# DECISION-17: With --ask or --json, jag cuts a very long line and marks the cut
 
-A result shows the exact source text. When a line is longer than a fixed length, jag cuts it and marks the cut, so the reader knows that text is missing. One long line, such as a line of a minified file or a long log line, can't use most of the output size limit.
+A result shows the exact source text. When a line is longer than a fixed length, jag cuts it and marks the cut, so the reader knows that text is missing. One long line, such as a line of a minified file or a long log line, can't use most of the output size limit. This applies with `--ask` or `--json`. In a search with no `--ask` and no `--json`, jag shows the full line, as rg does.
+
+Source: the user, hitl answer of 2026-10-15 (FEATURE-23, card B option 1: with no question, jag writes no notice and has no limit that rg does not have).
 
 <!-- LINKS:START (generated, do not edit) -->
 
