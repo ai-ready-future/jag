@@ -6,6 +6,13 @@ description: As a shell power user (PERSONA-04), I want rg and jag with the same
   of rg.
 status: draft
 state: backlog
+github:
+  number: 114
+  node_id: I_kwDOVKMnL88AAAABXgIzrw
+  url: https://github.com/ai-ready-future/jag/issues/114
+  pushed_hash: 6a0e1f
+  synced:
+    state: backlog
 parent: /features/FEATURE-23.md
 milestone: /milestones/MILESTONE-02.md
 ---
