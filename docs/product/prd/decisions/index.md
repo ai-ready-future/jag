@@ -32,7 +32,7 @@
 * [DECISION-30: Structured mode always writes a complete output](DECISION-30.md) - With no results, structured mode writes an empty result list and the summary fields.
 * [DECISION-31: The command takes the term and the paths, and the question only from --ask](DECISION-31.md) - The form is jag [OPTIONS] TERM [PATH...], with the term first as in grep. The question comes only from the option --ask "QUESTION".
 * [DECISION-32: A term with no question works as plain rg](DECISION-32.md) - With no question, that is with no --ask option, jag makes no model call, has no cost, and works as rg.
-* [DECISION-33: The term is a regular expression, and -F makes it fixed text](DECISION-33.md) - The term is a regular expression, as in grep; the -F option makes it fixed text.
+* [DECISION-33: The term is a regular expression, and -F makes it fixed text](DECISION-33.md) - The term is a regular expression, as in rg; the -F option makes it fixed text.
 * [DECISION-34: Release 1 keeps the options that people use most](DECISION-34.md) - jag keeps a fixed set of options that people use most; any other option is a usage error that names it.
 * [DECISION-35: With no path, jag searches the current folder or reads the pipe](DECISION-35.md) - With no path, jag searches the current folder, or reads standard input when text comes in through a pipe.
 * [DECISION-36: The user can give any mix of files and folders](DECISION-36.md) - jag accepts several paths, and each path can be a file or a folder, as in grep.

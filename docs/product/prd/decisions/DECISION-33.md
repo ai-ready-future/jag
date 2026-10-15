@@ -1,13 +1,14 @@
 ---
 type: Decision
 title: The term is a regular expression, and -F makes it fixed text
-description: The term is a regular expression, as in grep; the -F option makes it
-  fixed text.
+description: The term is a regular expression, as in rg; the -F option makes it fixed
+  text.
 status: stable
-decided_at: '2026-10-07'
+decided_at: '2026-10-15'
 alternatives:
 - The term is always fixed text
 - Fixed text by default, and an option makes it a regular expression
+- A regular expression as in grep
 about:
 - /capabilities/CAPABILITY-06.md
 - /capabilities/CAPABILITY-02.md
@@ -15,7 +16,9 @@ about:
 
 # DECISION-33: The term is a regular expression, and -F makes it fixed text
 
-The term is a regular expression, as in grep. The `-F` option makes the term fixed text.
+The term is a regular expression, as in rg: it uses the pattern rules of rg. The `-F` option makes the term fixed text.
+
+Source of the change from grep to rg: the user, hitl answer of 2026-10-15 (FEATURE-23, Q1 option 1: rg is the reference for jag with no question).
 
 <!-- LINKS:START (generated, do not edit) -->
 
