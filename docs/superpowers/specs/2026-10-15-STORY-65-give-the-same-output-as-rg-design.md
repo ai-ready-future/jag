@@ -100,8 +100,8 @@ names.
 | 15 | Binary files | As rg: a file that the command line names gets the binary rule "convert" of `grep-searcher`, and the printer writes `binary file matches (found "\0" byte around offset N)`. A file of a walk gets the rule "quit", with no message | Probe; rg 15.2.0 `crates/core/flags/hiargs.rs` |
 | 16 | Ignore files | As rg: `.ignore`, `.rgignore`, and `.gitignore` (only inside a git repository), and the ignore files of the parent folders. Hidden files are skipped in a walk. A path of the command line is always searched | Probe: jag does not read `.rgignore` today; rg 15.2.0 `walk_builder` |
 | 17 | Usage error text with `--ask` or `--json` | The rg error texts apply when the command line has no `--ask` and no `--json` before the first `--`. Else jag keeps its own failure texts with the cause and the fix (CV-1), and the JSON error document with `--json` | ADR-0022 covers a search with no `--ask`; CV-1; IF-5 |
-| 18 | Program name, help, version, and own options (card A) | Decided, option 1: jag keeps its name, `-h`, `--help`, `--version`, and its own options (`--ask`, `--json`, `--check`, `--setup`, `--forget-key`, `--max-chars`, `--no-max-chars`, `--max-scored`, `--timeout`, `--retry-wait`, `--base-url`, `--model`). The test reads "jag" and "rg" or "ripgrep" as the same name in an error line: `rg:` at the start of an rg stderr line reads as `jag:`, and each `ripgrep` in rg stderr reads as `jag`. It changes no other byte, nothing in the stdout of rg, and nothing in the output of jag | Card A (F23-Q3), user ANSWER via hitl, 2026-10-15, option 1; ADR-0021, section "Run", in PR #127 (head `778d4c3`) |
-| 19 | Notices and limits with no question (card B) | Decided, option 1: in plain text mode, jag writes no cost line, no count of skipped files, cuts no long line, and has no default size limit. It writes full lines, no notice, and the rg exit codes (decision 12). `--max-chars N` still works when the user gives it, with exit code 8. `--no-max-chars` is accepted and changes nothing. `--json` and `--ask` keep all four | Card B (F23-Q4), user ANSWER via hitl, 2026-10-15, option 1. The planner changes DECISION-14, DECISION-17, DECISION-20, DECISION-41, and DECISION-43 |
+| 18 | Program name, help, version, and own options (card A) | Decided, option 1: jag keeps its name, `-h`, `--help`, `-V`, `--version`, and its own options (`--ask`, `--json`, `--check`, `--setup`, `--forget-key`, `--max-chars`, `--no-max-chars`, `--max-scored`, `--timeout`, `--retry-wait`, `--base-url`, `--model`). The test reads "jag" and "rg" or "ripgrep" as the same name in an error line: `rg:` at the start of an rg stderr line reads as `jag:`, and each `ripgrep` in rg stderr reads as `jag`. It changes no other byte, nothing in the stdout of rg, and nothing in the output of jag | Card A (F23-Q3), user ANSWER via hitl, 2026-10-15, option 1; ADR-0021, section "Run", in PR #127 (head `778d4c3`) |
+| 19 | Notices and limits with no question (card B) | Decided, option 1: in plain text mode, jag writes no cost line, no count of skipped files, cuts no long line, and has no default size limit. It writes full lines, no notice, and the rg exit codes (decision 12). `--max-chars N` still works when the user gives it, with its size notice on stderr and exit code 8. With no question, no rank exists, so "the lowest rank first" of DECISION-21 does not apply: jag writes whole results in the rg order (decision 9) and stops at the limit. It writes the first results while they fit in N characters, and leaves out each result after them. A result is one match line, or one group of lines with `-A`, `-B`, or `-C`. When the first result alone is larger than N, jag cuts it as DECISION-23 says. `--no-max-chars` is accepted and changes nothing. `--json` and `--ask` keep all four | Card B (F23-Q4), user ANSWER via hitl, 2026-10-15, option 1. The planner changes DECISION-14, DECISION-17, DECISION-20, DECISION-41, and DECISION-43 |
 | 20 | The option set (card C) | Decided, option 1: the current set in the rg form. `-g`/`--glob` replace `--include` and `--exclude`. New: `-n`, `-N`, `-H`, `-I`, `--heading`, `--no-heading`, and `--sort` with `path` or `none`. `--color` takes its value as rg does (`--color always` and `--color=always`), with no `--colour`. Each other option gives the rg text `unrecognized flag`, with exit 2. `--sort` with another value gives the rg text `error parsing flag --sort: choice 'X' is unrecognized`, with exit 2. rg accepts `modified`, `accessed`, and `created`, so these are recorded differences | Card C (F23-Q5), user ANSWER via hitl, 2026-10-15, option 1. The card names `--sort path`; `--sort none` gives the same output as rg (Q1), and ADR-0021 in PR #127 (head `778d4c3`) names `path` and `none`. The planner changes DECISION-34 |
 | 21 | JSON with no question (card D) | Decided, option 1: `--json` keeps the one JSON document of jag, as a recorded difference. The case `json` records it | Card D (F23-Q6), user ANSWER via hitl, 2026-10-15, option 1; ADR-0008 |
 | 22 | rg hints (card E) | Decided, option 1: jag gives the rg message with the same first part and the same exit code, with no sentence that names an option that jag does not have (`--pcre2`, `--multiline`, `-U`, `--debug`). The list of similar options after `unrecognized flag` comes from jag's own options, with the rule of rg. These are recorded differences | Card E (F23-Q7), user ANSWER via hitl, 2026-10-15, option 1 |
@@ -169,7 +169,7 @@ PR #127 (head `778d4c3`) holds the ADR round of the ANSWERs:
 | `src/search/sequence.rs` (new) | The haystacks in rg order: paths of the command line, `-`, and the walk with the rg settings (decisions 8, 9, 15, 16) | implementer |
 | `src/search.rs` | `STANDARD_INPUT_LABEL` = `<stdin>` (decision 5) | implementer |
 | `src/output/printer.rs` (new) | The `grep-printer` builders with the rg settings (decision 7) | implementer |
-| `src/output.rs` | The rg color codes in the ranked text (decision 4); no cost line and no notices in plain text mode (decision 19) | implementer |
+| `src/output.rs` | The rg color codes in the ranked text (decision 4); no cost line and no notices in plain text mode, but the size notice of `--max-chars` (decision 19) | implementer |
 | `src/search/filter.rs`, `src/search/walk.rs` | The `--include` and `--exclude` globs become `-g`/`--glob` (decision 20) | implementer |
 | `tests/*.rs` | Each test that checks the grep form now checks the rg form | implementer |
 | `README.md` | The plain search texts: the `<stdin>` label, `-` as stdin, the color rule, the exit codes, the options, and the notices (decisions 5, 6, 12, 14, 19, and 20) | implementer |
@@ -215,7 +215,7 @@ keeps the jag form.
 | D21 | Long line | Full line | Cut with ` [+N chars]` | Fix (card B) |
 | D22 | Size limit | None, exit 0 | 20,000 characters, notice, exit 8 | Fix (card B) |
 | D23 | `--include`, `--exclude`, `-g`, `-n`, `-N`, `-H`, `-I`, `--heading`, `--sort`, `--colour`, `--color VALUE` | rg form | jag form | Fix (card C). Each rg option that card C does not keep is a recorded difference |
-| D24 | `-h`, `--help`, `--version`, jag-only options | rg text | jag text | Recorded difference (card A) |
+| D24 | `-h`, `--help`, `-V`, `--version`, jag-only options | rg text | jag text | Recorded difference (card A) |
 | D25 | `--json` | JSON lines with times | One document | Recorded difference (card D) |
 
 ### The plain text pipeline (decisions 7, 8, 9, 12, 13, 15, 16)
@@ -243,7 +243,9 @@ keeps the jag form.
    defaults as in rg. `-l`, `-c`, and `-q` use the summary printer with the
    kinds `PathWithMatch`, `Count`, and `Quiet`.
 4. The printer writes into a buffer for each haystack. When the search of
-   the haystack is complete, jag writes the buffer to stdout.
+   the haystack is complete, jag writes the buffer to stdout. With
+   `--max-chars N`, jag writes whole results in this order until the next
+   result does not fit, and then stops (decision 19).
 5. jag records `matched` and `errored`, and gives the exit code of decision
    12. A closed pipe ends the search with no message.
 
@@ -386,7 +388,9 @@ The pull request that changes that version also changes
 
 A name that starts with `.` is stored with `dot-` in its place (ADR-0021).
 The text of each file is given with `\n` for a new line and `\0` for a NUL
-byte. No fixture holds a private name.
+byte. No fixture holds a private name. No fixture name, path, or argument
+contains `rg:` or `ripgrep`, so the name rule of decision 18 hides no
+difference.
 
 | Tree | File | Bytes |
 |---|---|---|
