@@ -22,6 +22,7 @@ The `sofa` skill fills these values when it copies the template.
 | Product docs | `docs/product/prd`, `docs/product/roadmap` |
 | ADR folder | `docs/adr`. The list of ADRs and their status is in `docs/adr/README.md` |
 | Extra context files | `/home/jazz/dev/github.com/ai-ready-future/jag-private/docs/handoff.md`. It is not in git. Since FEATURE-19 step B10, the main folder is a new clone of the public repo. `docs/handoff.md` stays only in the old folder `jag-private`; it was not copied. It points to the source of the earlier prototype. |
+| Build | This machine has no `cargo`. Build and test jag in Docker with the image `rust:1.99` (the version in `rust-toolchain.toml`). The built binary runs on the host. |
 
 Repository rules:
 - Never read, print or commit the keys in `~/.config/jag/`.
@@ -59,10 +60,12 @@ Repository rules:
 | retro | `claude-opus-5-5` | `medium` | 1 | The user changes or adds a role | — | `RETRO` signal | Updated `docs/adlc.md` on `main` |
 | planner | `claude-opus-5-5` | `medium` | 1 | Scope change, gap in PRD or roadmap, milestone done | prd:plan, prd:review, prd:explore | Gap or change | PR that updates PRD or roadmap |
 | projecter | `claude-sonnet-5-5` | `medium` | 1 | A PR that changes `docs/product` merges | prd:roadmap-sync | Merged roadmap | Board that matches `main` |
-| architect | `claude-opus-5-5` | `high` | 1 | On request, or when a verifier reports an ADR finding | adr:* | Design question or ADR finding | Answer, ADR verdict, or PR with new or changed ADR |
+| architect | `claude-opus-5-5` | `high` | 1 | On request, or when a reviewer reports an ADR finding | adr:* | Design question or ADR finding | Answer, ADR verdict, or PR with new or changed ADR |
 | specifier | `claude-opus-5-5` | `xhigh` | 1–2 | The orchestrator assigns a feature | prd:specifying-stories | Feature id | PR with the spec in the feature folder |
 | implementer | `claude-sonnet-5-5` | `high` | 1–4 | The orchestrator assigns a merged spec | relay (non-interactive), productivity:wrapping-up-sessions | Spec on `main` | PR, then merge and clean-up |
-| verifier | `claude-opus-5-5` | `high` | 1–4 | An implementer opens a PR | pr-flow:reviewing-prs, adr:reviewing-adr-adherence | PR number | Approve or request changes |
+| reviewer | `claude-opus-5-5` | `high` | 1–4 | A PR is open | pr-flow:reviewing-prs, adr:reviewing-adr-adherence | PR number | Approve or request changes |
+| verifier | `claude-opus-5-5` | `high` | 1–4 | An implementer opens a code PR | verify, ui-judge:* | PR number and spec | Approve or request changes, and test scenarios for the tester |
+| tester | `claude-sonnet-5-5` | `high` | 1 | A verifier sends test scenarios | ui-judge:* | Test scenarios | PR with new or changed e2e tests |
 | chores | `claude-sonnet-5-5` | `medium` | 1 | A manual step is necessary | — | Chore request | Checked state, after it guides the user through a user step if necessary |
 
 Model and Effort: use the exact values in the table.
@@ -74,7 +77,9 @@ Model and Effort: use the exact values in the table.
 - As soon as a story gets the state `ready` on `main`, assign its spec to a free implementer at once. If no implementer is free, start a new implementer (the maximum is 4). Do not wait for other stories or features.
 - Start a feature only when the features it depends on are merged, unless a user `ANSWER` allows an early start (rule 11).
 - Run 2 features at the same time only if they do not change the same area.
-- Start more implementers and verifiers when the queue grows. The maximum is 4 of each.
+- Start more implementers, reviewers and verifiers when the queue grows. The maximum is 4 of each.
+- Send each code PR to a reviewer and to a verifier at the same time. Send a document PR or a test PR only to a reviewer.
+- Send the test scenarios of each verifier to the tester.
 - Start a second specifier when 2 features are ready for a spec. The maximum is 2 specifiers.
 - Give each `ASK` a priority before you send it to hitl: `blocks code now` or `blocks later`.
 - Stop extra sessions when they have no work.
@@ -109,7 +114,7 @@ Model and Effort: use the exact values in the table.
 - Answers design questions with the ADRs.
 - If the ADR folder does not exist, creates it with `adr:scaffolding-adr-corpora`.
 - Lands new or changed ADRs through a PR.
-- Decides each ADR finding from a verifier (section 4, "ADR finding flow"). Gives 1 verdict: `no ADR change`, `contradicts ADR-NNNN`, or `needs an ADR`.
+- Decides each ADR finding from a reviewer (section 4, "ADR finding flow"). Gives 1 verdict: `no ADR change`, `contradicts ADR-NNNN`, or `needs an ADR`.
 - For `contradicts` and `needs an ADR`, sends an `ASK` to the orchestrator with the options and a recommendation. Does not write or change an ADR before the `ANSWER`.
 - After the `ANSWER`, writes the new or changed ADR with `status: proposed` and lands it through a PR. The ADR names the `ANSWER`. Then the architect sends an `ASK` for the card that accepts the ADR.
 
@@ -130,17 +135,36 @@ Model and Effort: use the exact values in the table.
 - Works in its own worktree. Uses relay in non-interactive mode.
 - Runs tests and lint before it opens the PR.
 - Sends `REVIEW` with the PR number.
-- Fixes the comments when the verifier requests changes.
-- After the verifier approves: merges the PR, then runs `productivity:wrapping-up-sessions`. No worktree or branch must stay after the merge.
+- Fixes the comments when the reviewer or the verifier requests changes.
+- After the reviewer and the verifier approve: merges the PR, then runs `productivity:wrapping-up-sessions`. No worktree or branch must stay after the merge.
 
-**verifier**
+**reviewer**
 - Reviews a PR with `pr-flow:reviewing-prs`.
-- Checks the PR against the spec criteria, the tests and the ADRs.
+- Checks the code and the tests against the spec criteria and the ADRs. The verifier runs the product.
 - Checks ADR adherence on each PR with `adr:reviewing-adr-adherence`. Looks for 2 problems: a change that contradicts an accepted ADR, and a change that is expensive to undo and has no ADR.
 - Does not decide an ADR finding alone. Requests changes, writes the finding in the PR comment, and sends it to the orchestrator for the architect (section 4, "ADR finding flow").
-- Posts the result as a PR comment. The first line is `VERDICT: APPROVE` or `VERDICT: CHANGES`. The account cannot approve its own PR, so the verifier does not use `gh pr review`.
-- Document PRs (only files in `docs/` change): if a fix does not block, give the exact text of the fix with the approval. The author applies this text and merges with no new check. Code PRs always get a new check after a fix.
+- Posts the result as a PR comment. The first line is `VERDICT: APPROVE` or `VERDICT: CHANGES`. The second line is `Role: reviewer`. The account cannot approve its own PR, so the reviewer does not use `gh pr review`.
+- Document PRs (only files in `docs/` change): if a fix does not block, give the exact text of the fix with the approval. The author applies this text and merges with no new check. Code PRs and test PRs always get a new check after a fix.
 - Sends the result to the orchestrator.
+
+**verifier**
+- Checks a code PR against the criteria of its spec. Runs the product from the PR branch as a user does. Does not review the code (the reviewer does that).
+- For a CLI (for example jag), builds the binary and runs the jag binary in a terminal. For a web app, uses Playwright (`ui-judge` skills) to go to the pages and use them.
+- Uses real input and the real program. No mocks.
+- Builds and runs the PR head in its own worktree (`git worktree add --detach <path> <PR head>`), never in the main folder. Removes the worktree after the result.
+- Writes in the PR comment each command or step, the result, and the spec criterion that it checks.
+- Posts the result as a PR comment. The first line is `VERDICT: APPROVE` or `VERDICT: CHANGES`. The second line is `Role: verifier`. The account cannot approve its own PR, so the verifier does not use `gh pr review`.
+- Sends the result to the orchestrator. Also sends a list of test scenarios for the tester. Each scenario gives the steps, the expected result and the spec criterion.
+
+**tester**
+- Writes and keeps the e2e tests. The tests check only the final user functions, as a QA engineer does.
+- A test runs the built program as a user does: commands in a terminal, a local script, Playwright in a browser, or another e2e method.
+- No mocks and no unit tests.
+- Writes tests from the scenarios of the verifiers. Changes or removes a test when a spec changes the behavior.
+- Before the first test, sends a design question to the orchestrator for the architect: where the tests go and how they run. The architect records the answer in an ADR.
+- A test PR changes only the e2e tests in the place that the ADR of the tester names.
+- Runs all e2e tests before it opens the PR. Sends `REVIEW` with the PR number. A reviewer checks the PR. After the approval, merges it with squash (rule 12).
+- Does not change the product code. If a test fails on `main`, sends a `BLOCKED` message with the scenario and the output.
 
 **chores**
 - Does manual setup steps that do not need the user (for example: labels, checks, config).
@@ -156,16 +180,17 @@ roadmap (main)
   → stories get the state ready (rule 11)
   → orchestrator at once assigns the spec to a free implementer (or starts one)
   → implementer: code PR → REVIEW
-  → verifier: approve | request changes
-       request changes → implementer fixes → verifier (max 3 rounds)
+  → reviewer (code) and verifier (functions), at the same time: approve | request changes
+       request changes → implementer fixes → reviewer and verifier (max 3 rounds)
        after 3 rounds  → hitl ASK
   → implementer: merge → wrap-up (no worktree, no branch left)
+  → tester: e2e tests from the verifier scenarios → test PR → reviewer → merge (does not block done, unless the spec says so)
   → orchestrator: mark done, send SYNC to projecter if roadmap changed
 ```
 
 Side flows:
 - Design question from any role → architect.
-- ADR finding from a verifier → architect → hitl (section 4, "ADR finding flow").
+- ADR finding from a reviewer → architect → hitl (section 4, "ADR finding flow").
 - Gap in PRD or roadmap → planner → PR → projecter `SYNC`.
 - User decision → hitl.
 - Manual step → chores.
@@ -174,22 +199,22 @@ Side flows:
 ### ADR finding flow
 
 ```
-verifier: ADR finding → VERDICT: CHANGES → orchestrator
+reviewer: ADR finding → VERDICT: CHANGES → orchestrator
   → orchestrator: finding → architect (starts the architect if it is not running)
-  → architect: verdict → orchestrator → verifier and implementer
-       no ADR change          → verifier: new VERDICT for the PR
+  → architect: verdict → orchestrator → reviewer and implementer
+       no ADR change          → reviewer: new VERDICT for the PR
        contradicts ADR-NNNN   → ASK (change the code | change the ADR | deviate)
        needs an ADR           → ASK (accept the decision | change the code)
   → hitl: card → ANSWER
   → architect: ADR PR (status proposed) if the ANSWER changes an ADR, adds one, or deviates (`deviates_from`) → merge
   → implementer: code fix if the ANSWER says so
-  → verifier: new check of the code PR
+  → reviewer and verifier: new check of the code PR
 ```
 
 - The orchestrator gives the `ASK` the priority `blocks code now`.
 - The implementer does not change the code for an ADR finding before the `ANSWER`. An ADR finding and its new check are not one of the 3 review rounds.
-- The code PR does not merge until the `ANSWER` is in, the ADR PR (if there is one) is merged, and the verifier approves. In the new check, the ADR of the merged ADR PR is the decision for the finding.
-- On the ADR PR of the architect, the verifier checks that the ADR names the `ANSWER`. A change of an ADR that the `ANSWER` orders is not an ADR finding.
+- The code PR does not merge until the `ANSWER` is in, the ADR PR (if there is one) is merged, and the reviewer and the verifier approve the last code. In the new check, the ADR of the merged ADR PR is the decision for the finding.
+- On the ADR PR of the architect, the reviewer checks that the ADR names the `ANSWER`. A change of an ADR that the `ANSWER` orders is not an ADR finding.
 - An ADR finding from a review is the exception to "Write the ADR now ... Do not stop to ask" in `docs/adr/CLAUDE.md`. The user decides the direction first, because the review found a conflict.
 
 ## 5. Message format
@@ -218,7 +243,7 @@ Types:
 
 1. Make a worktree from `origin/main`.
 2. Change `docs/adlc.md` only.
-3. Open a PR. Send `REVIEW` to the orchestrator. A verifier checks it as a document PR (section 3, verifier). After the approval, merge it with squash (rule 12).
+3. Open a PR. Send `REVIEW` to the orchestrator. A reviewer checks it as a document PR (section 3, reviewer). After the approval, merge it with squash (rule 12).
 4. Remove the worktree and the branch.
 5. Send `DONE` to the orchestrator. The orchestrator sends `RELOAD` to all sessions.
 
@@ -272,8 +297,9 @@ The orchestrator starts each session from the main folder:
 cd <main folder> && claude --bg -n <prefix>-<role>[-n] --model <model> [--effort <effort>] --permission-mode bypassPermissions "<start prompt>"
 ```
 
-Use the Model and Effort columns in section 3 for `--model` and `--effort` (for example, a verifier uses `--model claude-opus-5-5 --effort high`).
-A live session does not change its model or effort after `RELOAD`. If section 3 changes the model or the effort of a role, restart each session of that role when it has no work.
+Use the Model and Effort columns in section 3 for `--model` and `--effort` (for example, a reviewer uses `--model claude-opus-5-5 --effort high`).
+A live session does not change its model or effort after `RELOAD`. If section 3 changes the model, the effort or the name of a role, restart each session of that role when it has no work.
+If a role gets a new name and a new role gets the old name, the orchestrator stops each live session of the old name before it sends `RELOAD`. Then it starts the session again with the new name. Else, after the `RELOAD`, the session reads the new role that has the old name.
 
 Start prompt:
 
@@ -302,3 +328,4 @@ Send a DONE message to the orchestrator when you are ready. Then wait for TASK m
 | 2026-10-15 | Rule 11: added the exception for a user `ANSWER` (FEATURE-18). Added rule 12: squash merge only, and a hash check of the author and the committer after each merge. The "Extra context files" row points to `docs/handoff.md` in the old folder `jag-private`. Section 4 points to the rule 11 exception. The repository rules point to the "Extra context files" row | Verifier comments on PR #94 and PR #95. A rebase merge wrote the account address as committer in `3ead9ae`. Since FEATURE-19 step B10, the main folder is a new clone and has no `docs/handoff.md` |
 | 2026-10-15 | Rule 11: FEATURE-18 used the exception until FEATURE-19 was `done` | Verifier comment on PR #100. FEATURE-19 is `done` (`d023dd1`). STORY-48 to STORY-51 are now `ready` by the base rule |
 | 2026-10-15 | The verifier checks ADR adherence on each PR (`adr:reviewing-adr-adherence`): a contradiction of an accepted ADR, or a change that needs an ADR. The architect decides each finding. Hitl asks the user. The architect writes the ADR after the `ANSWER`. Added the "ADR finding flow" to section 4. The retro fast path (section 6) gets a verifier check and a squash merge. The verifier posts a `VERDICT` comment and does not use `gh pr review` | The user asked for this change. The review must catch ADR problems, and the user decides ADR changes. Verifier comment on PR #103: section 6 and the verifier line did not agree with how the team works |
+| 2026-10-15 | Changed the name of the verifier role to reviewer (it reviews PRs). Added a new verifier role: it runs the product from the PR branch (a terminal for a CLI, Playwright for a web app), checks the spec criteria, and sends test scenarios. Added the tester role: it writes and keeps the e2e tests, with no mocks and no unit tests. Added the Build row to section 1. Section 8 restarts a session when its role name changes, and stops a session of the old name before `RELOAD`. The verifier uses its own worktree and checks the last code after an ADR `ANSWER`. The tester sends design questions through the orchestrator. Defined a test PR | The user asked for this change. A review of the code does not show that the functions work for the user |
