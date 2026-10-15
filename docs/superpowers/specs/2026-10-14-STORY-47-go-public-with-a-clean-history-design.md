@@ -129,7 +129,7 @@ Facts on 2026-10-14 (`main` at `daca59a`):
 | 22 | Actions event policy | A repository Actions policy of the new repository, not an organization policy. Its rule `restrict_action_events` allows only the events in its list, so the list holds each event of the workflows: `pull_request`, `pull_request_target`, `push`, and `workflow_dispatch`. The policy (2026-10-15): id 7541, the name "jag: allowed workflow events", `enforcement: active`, and all workflows (`workflow_path` includes `~ALL`). A repository policy needs no `admin:org` scope: the token of 404pilo reads it with `gh api repos/ai-ready-future/jag/actions/policies/7541`. One change (2026-10-15): this decision first gave an organization policy | human:404pilo, 2026-10-15 (user decision: a repository policy, not an organization policy); CRITERION-99 and its source (GitHub changelog, 2026-09-17); FEATURE-17 spec decision 8; GitHub REST docs, "Get a repository Actions policy" and the Actions policy rule `restrict_action_events` |
 | 23 | Fork approval setting | After the new repository is public (step C2), it holds the `pull_request` workflows of each outside contributor until a maintainer approves them (`all_external_contributors`). GitHub uses this setting only for public repositories. It does not hold `pull_request_target`: such workflows "will always run, regardless of approval settings" | This spec, from GitHub docs (context7 `/github/docs`), the setting "Approval for running fork pull request workflows from contributors" |
 | 24 | Wiki | The new repository has no wiki. The wiki of the private repository has no page, and the docs are in `docs/` | Inferred: `git ls-remote` of the wiki on 2026-10-14 (not found) |
-| 25 | When each story is done | STORY-47: after step A1. STORY-52: after steps B13 and C6. STORY-60: after steps B7 and B8, and after step C5 with a test fork pull request on or after 2026-11-02. STORY-61: after step C4. A code merge alone does not finish STORY-52, STORY-60, or STORY-61 | CRITERION-76, CRITERION-86, CRITERION-87, and CRITERION-99 to CRITERION-103 |
+| 25 | When each story is done | STORY-47: after step A1. STORY-52: after steps B13 and C6. STORY-60: after steps B7, B8, and C5. All three are done (2026-10-15): policy 7541, run 38666599603, and run 38723932234. STORY-61: after step C4. A code merge alone does not finish STORY-52, STORY-60, or STORY-61. One change (2026-10-15): STORY-60 no longer waits for a test fork pull request on or after 2026-11-02. That test is a follow-up, not a done condition (see "Follow-up") | CRITERION-76, CRITERION-86, CRITERION-87, and CRITERION-99 to CRITERION-103. The change of STORY-60: human:404pilo, 2026-10-15 (user decision, given to the orchestrator: "lets change that specific decision .. lets make progress and finish the roadmap .and just take a note to go back to this later") |
 | 26 | Story state | STORY-47, STORY-52, STORY-60, and STORY-61 are `ready`. The spec is in this pull request, and FEATURE-19 has no open blocker (FEATURE-17 is `done`). The ASKs of decisions 11, 12, 13, and 30 have their ANSWERs (human:404pilo, 2026-10-14). STORY-59 is removed from the roadmap | `docs/adlc.md` rule 11; the ANSWERs of decisions 11, 12, 13, and 30 |
 | 27 | Tests | Bash tests in `scripts/private-data/test.sh` with invented patterns, made at test time. The `private-data-tests` workflow downloads git-filter-repo as decision 6 says | FEATURE-17 spec decision 7 |
 | 28 | Pattern check for the clean step | Before the clean, the step checks each pattern line with Python `re` on bytes. A line with `==>`, or a line that Python cannot compile, gives exit 2 and the line number only. git-filter-repo cuts a line at the last `==>`, and compiles it with `re.compile` and no flags | This spec, from git-filter-repo 2.47.0 (`get_replace_text`) |
@@ -806,16 +806,16 @@ issue, a pull request, or the board.
   event policy works in a public repository, where GitHub blocks
   `pull_request_target` by default from 2026-11-02. Before 2026-11-02, this
   run does not test the policy, because GitHub does not block the event yet.
-  Then chores does one more test fork pull request on or after 2026-11-02.
+  One more test fork pull request on or after 2026-11-02 is a follow-up, not
+  a part of this step (decision 25, "Follow-up").
 
   Done on 2026-10-15. When the repository became public (C1), GitHub
   detached the fork of B8, `404pilo/jag` (PR #1, run 38666599603). It is no
   longer a fork of the new repository. So C5 used a new fork,
   `404pilo/jag-fork-test`: PR #89, closed with no merge, and run
   38723932234 of `private-data` (event `pull_request_target`), which
-  passed. The test fork pull request on or after 2026-11-02 is not done
-  yet. It uses a fork of the public repository, for example
-  `404pilo/jag-fork-test`.
+  passed. The test fork pull request on or after 2026-11-02 is in
+  "Follow-up".
 - **C6. chores:** check the private repository:
 
   ```
@@ -846,6 +846,20 @@ C6.
 - No change: `Cargo.toml`, the STORY-01 spec, and the rows "Repository" and
   "Main folder" of `docs/adlc.md` (see "What the name `jag` changes").
 
+### Follow-up
+
+This item is open. It is not a done condition of a story (decision 25). The
+orchestrator sends the task on or after 2026-11-02.
+
+- chores, on or after 2026-11-02: make one test fork pull request from
+  `404pilo/jag-fork-test`, as B8 says. Check that the `private-data` check
+  runs on `pull_request_target` and passes. From 2026-11-02, GitHub blocks
+  `pull_request_target` by default in a public repository, so this run is
+  the first test of policy 7541 (decision 22) with that block. Close the
+  pull request with no merge, and record the URL of the run. When the check
+  does not start, does not pass, or waits for an approval, open a bug issue
+  in `ai-ready-future/jag`.
+
 ### Other features
 
 - FEATURE-17 (done): this spec adds two modes to its check. Its pull request
@@ -875,7 +889,7 @@ No output holds the word, a key value, or a pattern text.
 | CRITERION-76 The history scan lists each finding and never shows the value | Cases `hist-a` to `hist-n`, and go-public step A1 |
 | CRITERION-86 The new public repository gets one clean history, after the scan | Cases `clean-a` to `clean-k`, and step A8 |
 | CRITERION-87 A second scan is clean before the new repository becomes public | Cases `hist-f`, `hist-g`, `hist-h`, and `hist-m`, and step B13 |
-| CRITERION-99 The Actions event policy lets the check run on fork pull requests | Step B7 (chores reads policy 7541 again) proves that the policy allows the event. Step B8 proves that the check runs. The test fork pull request of step C5 on or after 2026-11-02 proves both in the public repository |
+| CRITERION-99 The Actions event policy lets the check run on fork pull requests | Step B7 (chores reads policy 7541 again) proves that the policy allows the event. Step B8 proves that the check runs before the repository becomes public, and step C5 proves it after. The test fork pull request on or after 2026-11-02 is a follow-up, not a part of this proof (decision 25, "Follow-up") |
 | CRITERION-100 The project board becomes public after the new repository | Steps C1, C3, and C4, in this order. Chores records the time of each |
 | CRITERION-101 The project board holds no private data when it becomes public | Cases `text-a` to `text-f`, and steps B11 and B12 |
 | CRITERION-102 The private repository stays private | Case `clean-e`, and step C6 |
@@ -999,8 +1013,8 @@ One implementer pull request can hold steps 1 to 3.
 - `gitleaks git` reads a mirror clone. Cases `hist-a` to `hist-n` show it.
 - A repository Actions policy is enough for the check of a fork pull
   request; an organization policy is not necessary (decision 22). Checked on
-  2026-10-15: policy 7541 is `active`. The test fork pull request of step C5
-  on or after 2026-11-02 proves it.
+  2026-10-15: policy 7541 is `active`. The follow-up test fork pull request
+  on or after 2026-11-02 tests it (see "Follow-up").
 - GitHub keeps a moved issue on the board, also a closed one. All issues
   move, so it keeps each parent link and each sub-issue link.
 - `gh issue transfer` moves a closed issue, and the issue keeps its state and
@@ -1049,8 +1063,10 @@ One implementer pull request can hold steps 1 to 3.
 - The repository becomes public before 2026-11-02. Then B8 and C5 do not
   test the policy, because GitHub does not block `pull_request_target` yet
   (and never in a private repository). Signal: the date of C5. Mitigation:
-  the read of the policy in B7 is the proof of the policy, and chores does
-  one more test fork pull request on or after 2026-11-02.
+  the read of the policy in B7 is the proof of the policy. The follow-up
+  test fork pull request on or after 2026-11-02 tests the policy (see
+  "Follow-up"). When the check does not start, does not pass, or waits for
+  an approval, chores opens a bug issue.
 - The event policy blocks an event that a later workflow needs, for example
   the release workflow of FEATURE-18. Signal: the workflow does not start.
   Mitigation: add the event to policy 7541.
@@ -1113,7 +1129,9 @@ One implementer pull request can hold steps 1 to 3.
   repository stays private in both cases.
 - The deletion of the test repositories `404pilo/jag` (the fork of B8,
   which GitHub detached) and `404pilo/jag-fork-test` (the fork of C5). The
-  user can do it later. They hold only the public history and invented text.
+  user can do it later. Keep `404pilo/jag-fork-test` until the follow-up is
+  done (see "Follow-up"). They hold only the public history and invented
+  text.
 - A guard against guesses through the result of the check on fork pull
   requests (decision 12). The user answered "Do not check on this. Not a
   concern atm." STORY-59 (CRITERION-98) is removed from the roadmap.
