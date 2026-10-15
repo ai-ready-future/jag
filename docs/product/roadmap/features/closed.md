@@ -13,7 +13,7 @@ generated:
 
 * [FEATURE-01: Store a key one time](FEATURE-01.md) - The user stores a TypeSafe key one time; jag finds it on each search, never shows it, and tells a new user where to get one.
 * [FEATURE-04: Rank matching lines by a question](FEATURE-04.md) - The user runs `jag --ask "QUESTION" TERM [PATH...]`, and jag ranks the lines that match the term by how well they answer the question, and labels weak results.
-* [FEATURE-05: Search a folder as grep -r does](FEATURE-05.md) - jag searches each subfolder of a folder, skips binary, hidden, and ignored files, and says how many files it skipped.
+* [FEATURE-05: Search a folder as rg does](FEATURE-05.md) - jag searches each subfolder of a folder, skips binary, hidden, and ignored files, and with --ask or --json says how many files it skipped.
 * [FEATURE-06: Cost limit on scoring](FEATURE-06.md) - When a term matches too many lines, jag scores only the best part up to a cost limit that the user can change, and says how many matches it skipped.
 * [FEATURE-08: File, line, and snippet for each result](FEATURE-08.md) - Each result shows the file, the line range, and the exact source text, with each matching line marked, so the person or the agent can open the source at that line.
 * [FEATURE-09: Size limit on the text that jag returns](FEATURE-09.md) - jag never writes more characters than the size limit, leaves out whole results with the lowest rank first, and says how many it left out and how to raise the limit.

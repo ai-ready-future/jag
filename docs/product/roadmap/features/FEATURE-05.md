@@ -1,8 +1,8 @@
 ---
 type: Feature
-title: Search a folder as grep -r does
+title: Search a folder as rg does
 description: jag searches each subfolder of a folder, skips binary, hidden, and ignored
-  files, and says how many files it skipped.
+  files, and with --ask or --json says how many files it skipped.
 status: draft
 state: done
 actual_end_date: '2026-10-14'
@@ -22,9 +22,11 @@ traces:
   hash: 5abd16
 ---
 
-# FEATURE-05: Search a folder as grep -r does
+# FEATURE-05: Search a folder as rg does
 
-jag searches each subfolder of a folder, skips binary, hidden, and ignored files, and says how many files it skipped.
+jag searches each subfolder of a folder, skips binary, hidden, and ignored files, and with `--ask` or `--json` says how many files it skipped (DECISION-14).
+
+Source of the change from grep to rg: the user, hitl answer of 2026-10-15 (FEATURE-23, Q1 option 1: rg is the reference for jag with no question). Source of the count only with `--ask` or `--json`: the user, hitl answer of 2026-10-15 (FEATURE-23, card B option 1).
 
 <!-- STATUS:START (generated, do not edit) -->
 

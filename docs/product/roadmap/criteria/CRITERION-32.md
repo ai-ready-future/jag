@@ -1,15 +1,17 @@
 ---
 type: AcceptanceCriterion
-title: The path has the same form as in grep
+title: The path has the same form as in rg
 description: The path of each result follows the form of the path that the user gave,
-  as in grep.
+  as in rg.
 status: draft
 item: /stories/STORY-21.md
 ---
 
-# CRITERION-32: The path has the same form as in grep
+# CRITERION-32: The path has the same form as in rg
 
-The path of each result follows the form of the path that the user gave, as in grep.
+The path of each result follows the form of the path that the user gave, as in rg.
+
+Source of the change from grep to rg: the user, hitl answer of 2026-10-15 (FEATURE-23, Q1 option 1: rg is the reference for jag with no question).
 
 <!-- LINKS:START (generated, do not edit) -->
 

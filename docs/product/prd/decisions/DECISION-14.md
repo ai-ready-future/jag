@@ -25,5 +25,5 @@ Source of the change from grep -r to rg: the user, hitl answer of 2026-10-15 (FE
 
 - about: [CAPABILITY-02: Term and question search](../capabilities/CAPABILITY-02.md)
 - subject of: [DECISION-36: The user can give any mix of files and folders](DECISION-36.md)
-- traced by: [FEATURE-05: Search a folder as grep -r does](../../roadmap/features/FEATURE-05.md)
+- traced by: [FEATURE-05: Search a folder as rg does](../../roadmap/features/FEATURE-05.md)
 <!-- LINKS:END -->

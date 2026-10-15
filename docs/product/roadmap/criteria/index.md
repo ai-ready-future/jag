@@ -60,7 +60,7 @@
 * [CRITERION-18: The command takes the term, the question, and the paths](CRITERION-18.md) - jag accepts the form `jag --ask "QUESTION" TERM [PATH...]`, with the term first as in rg.
 * [CRITERION-19: The best answer comes first](CRITERION-19.md) - jag returns the results that match the term in order of how well they answer the question, with the best answer first.
 * [CRITERION-20: The term is a regular expression](CRITERION-20.md) - jag reads the term as a regular expression, as rg does.
-* [CRITERION-71: A term with no matches makes no model call](CRITERION-71.md) - When the term matches no line, jag makes no model call, writes no results, and exits with code 1, as grep does.
+* [CRITERION-71: A term with no matches makes no model call](CRITERION-71.md) - When the term matches no line, jag makes no model call, writes no results, and exits with code 1, as rg does.
 * [CRITERION-85: A ranked search says how many files it skipped](CRITERION-85.md) - When the user searches a folder with a term and a question, jag tells the user how many files it skipped.
 
 ## STORY-14: See the lines around a match
@@ -97,7 +97,7 @@
 ## STORY-21: See the file, the line, and the snippet of a result
 
 * [CRITERION-31: Each result shows the file, the line, and the snippet](CRITERION-31.md) - Each result shows the file, the line number, and the snippet.
-* [CRITERION-32: The path has the same form as in grep](CRITERION-32.md) - The path of each result follows the form of the path that the user gave, as in grep.
+* [CRITERION-32: The path has the same form as in rg](CRITERION-32.md) - The path of each result follows the form of the path that the user gave, as in rg.
 
 ## STORY-22: See the line range of a joined result
 
@@ -156,7 +156,7 @@
 
 ## STORY-33: Search with a term and no question
 
-* [CRITERION-53: A term with no question works as grep](CRITERION-53.md) - With a term and no question, jag returns the matching lines as grep does.
+* [CRITERION-53: A term with no question works as rg](CRITERION-53.md) - With a term and no question, jag returns the matching lines as rg does.
 * [CRITERION-54: A search with no question costs nothing](CRITERION-54.md) - With no question, jag makes no model call and the search costs nothing.
 
 ## STORY-34: Use plain grep with no key
@@ -178,7 +178,7 @@
 
 ## STORY-38: Keep the grep exit codes
 
-* [CRITERION-58: jag keeps the grep exit codes](CRITERION-58.md) - jag exits with code 0 when it returns a result, code 1 when it finds no match, and code 2 for a usage error, as grep does.
+* [CRITERION-58: jag keeps the rg exit codes](CRITERION-58.md) - jag exits with code 0 when it returns a result, code 1 when it finds no match, and code 2 for a usage error, as rg does.
 
 ## STORY-39: Search with no path
 
@@ -188,7 +188,7 @@
 ## STORY-40: Search a mix of files and folders
 
 * [CRITERION-61: The user can give any mix of files and folders](CRITERION-61.md) - jag accepts several paths, and each path can be a file or a folder.
-* [CRITERION-70: A path that does not exist is an error](CRITERION-70.md) - When a path does not exist, jag names the path on the error stream and exits with code 2, as grep does.
+* [CRITERION-70: A path that does not exist is an error](CRITERION-70.md) - When a path does not exist, jag names the path on the error stream and exits with code 2, as rg does.
 
 ## STORY-41: See progress only in a terminal
 

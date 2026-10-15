@@ -37,7 +37,7 @@ As a shell power user (PERSONA-04), I want jag to skip binary, hidden, and ignor
 
 ## Links
 
-- parent: [FEATURE-05: Search a folder as grep -r does](../features/FEATURE-05.md)
+- parent: [FEATURE-05: Search a folder as rg does](../features/FEATURE-05.md)
 - milestone: [MILESTONE-01: Make it work](../milestones/MILESTONE-01.md)
 - criterion or run of: [CRITERION-23: jag skips noise files](../criteria/CRITERION-23.md)
 - criterion or run of: [CRITERION-24: The folder walk counts the files it skipped](../criteria/CRITERION-24.md)

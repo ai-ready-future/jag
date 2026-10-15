@@ -32,7 +32,7 @@ The user gives a folder, a term, and a question, and gets ranked lines that show
 - traces: [CAPABILITY-02: Term and question search](../../prd/capabilities/CAPABILITY-02.md)
 - traces: [CAPABILITY-03: File and line for each result](../../prd/capabilities/CAPABILITY-03.md)
 - child: [FEATURE-04: Rank matching lines by a question](../features/FEATURE-04.md)
-- child: [FEATURE-05: Search a folder as grep -r does](../features/FEATURE-05.md)
+- child: [FEATURE-05: Search a folder as rg does](../features/FEATURE-05.md)
 - child: [FEATURE-06: Cost limit on scoring](../features/FEATURE-06.md)
 - child: [FEATURE-08: File, line, and snippet for each result](../features/FEATURE-08.md)
 - child: [STORY-45: Run the held-out evaluation before release](../stories/STORY-45.md)
