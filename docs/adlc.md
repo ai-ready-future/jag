@@ -59,10 +59,10 @@ Repository rules:
 | retro | `claude-opus-5-5` | `medium` | 1 | The user changes or adds a role | — | `RETRO` signal | Updated `docs/adlc.md` on `main` |
 | planner | `claude-opus-5-5` | `medium` | 1 | Scope change, gap in PRD or roadmap, milestone done | prd:plan, prd:review, prd:explore | Gap or change | PR that updates PRD or roadmap |
 | projecter | `claude-sonnet-5-5` | `medium` | 1 | A PR that changes `docs/product` merges | prd:roadmap-sync | Merged roadmap | Board that matches `main` |
-| architect | `claude-opus-5-5` | `high` | 1 | Only on request | adr:* | Design question | Answer, or PR with new or changed ADR |
+| architect | `claude-opus-5-5` | `high` | 1 | On request, or when a verifier reports an ADR finding | adr:* | Design question or ADR finding | Answer, ADR verdict, or PR with new or changed ADR |
 | specifier | `claude-opus-5-5` | `xhigh` | 1–2 | The orchestrator assigns a feature | prd:specifying-stories | Feature id | PR with the spec in the feature folder |
 | implementer | `claude-sonnet-5-5` | `high` | 1–4 | The orchestrator assigns a merged spec | relay (non-interactive), productivity:wrapping-up-sessions | Spec on `main` | PR, then merge and clean-up |
-| verifier | `claude-opus-5-5` | `high` | 1–4 | An implementer opens a PR | pr-flow:reviewing-prs | PR number | Approve or request changes |
+| verifier | `claude-opus-5-5` | `high` | 1–4 | An implementer opens a PR | pr-flow:reviewing-prs, adr:reviewing-adr-adherence | PR number | Approve or request changes |
 | chores | `claude-sonnet-5-5` | `medium` | 1 | A manual step is necessary | — | Chore request | Checked state, after it guides the user through a user step if necessary |
 
 Model and Effort: use the exact values in the table.
@@ -109,6 +109,9 @@ Model and Effort: use the exact values in the table.
 - Answers design questions with the ADRs.
 - If the ADR folder does not exist, creates it with `adr:scaffolding-adr-corpora`.
 - Lands new or changed ADRs through a PR.
+- Decides each ADR finding from a verifier (section 4, "ADR finding flow"). Gives 1 verdict: `no ADR change`, `contradicts ADR-NNNN`, or `needs an ADR`.
+- For `contradicts` and `needs an ADR`, sends an `ASK` to the orchestrator with the options and a recommendation. Does not write or change an ADR before the `ANSWER`.
+- After the `ANSWER`, writes the new or changed ADR with `status: proposed` and lands it through a PR. The ADR names the `ANSWER`. Then the usual hitl card accepts the ADR, as for each proposed ADR.
 
 **specifier**
 - One feature gives one spec.
@@ -133,6 +136,8 @@ Model and Effort: use the exact values in the table.
 **verifier**
 - Reviews a PR with `pr-flow:reviewing-prs`.
 - Checks the PR against the spec criteria, the tests and the ADRs.
+- Checks ADR adherence on each PR with `adr:reviewing-adr-adherence`. Looks for 2 problems: a change that contradicts an accepted ADR, and a change that is expensive to undo and has no ADR.
+- Does not decide an ADR finding alone. Requests changes, writes the finding in the PR comment, and sends it to the orchestrator for the architect (section 4, "ADR finding flow").
 - Approves or requests changes on GitHub with `gh pr review`.
 - Document PRs (only files in `docs/` change): if a fix does not block, give the exact text of the fix with the approval. The author applies this text and merges with no new check. Code PRs always get a new check after a fix.
 - Sends the result to the orchestrator.
@@ -160,10 +165,29 @@ roadmap (main)
 
 Side flows:
 - Design question from any role → architect.
+- ADR finding from a verifier → architect → hitl (section 4, "ADR finding flow").
 - Gap in PRD or roadmap → planner → PR → projecter `SYNC`.
 - User decision → hitl.
 - Manual step → chores.
 - User changes a role → retro.
+
+### ADR finding flow
+
+```
+verifier: ADR finding → request changes → orchestrator
+  → architect: verdict
+       no ADR change     → verifier continues the review
+       contradicts ADR   → ASK (change the code | change the ADR | deviate)
+       needs an ADR      → ASK (accept the decision | change the code)
+  → hitl: card → ANSWER
+  → architect: ADR PR (status proposed) if the ANSWER changes an ADR or adds one
+  → implementer: code fix if the ANSWER says so
+  → verifier: new check of the code PR
+```
+
+- The orchestrator gives the `ASK` the priority `blocks code now`.
+- The code PR does not merge until the `ANSWER` is in and the verifier approves.
+- An ADR finding from a review is the exception to "Write the ADR now ... Do not stop to ask" in `docs/adr/CLAUDE.md`. The user decides the direction first, because the review found a conflict.
 
 ## 5. Message format
 
@@ -274,3 +298,4 @@ Send a DONE message to the orchestrator when you are ready. Then wait for TASK m
 | 2026-10-14 | Removed the ADR count from the ADR folder row in section 1. The row points to `docs/adr/README.md` | The count (10) was out of date: `main` has 18 accepted ADRs. A count goes out of date again |
 | 2026-10-15 | Rule 11: added the exception for a user `ANSWER` (FEATURE-18). Added rule 12: squash merge only, and a hash check of the author and the committer after each merge. The "Extra context files" row points to `docs/handoff.md` in the old folder `jag-private`. Section 4 points to the rule 11 exception. The repository rules point to the "Extra context files" row | Verifier comments on PR #94 and PR #95. A rebase merge wrote the account address as committer in `3ead9ae`. Since FEATURE-19 step B10, the main folder is a new clone and has no `docs/handoff.md` |
 | 2026-10-15 | Rule 11: FEATURE-18 used the exception until FEATURE-19 was `done` | Verifier comment on PR #100. FEATURE-19 is `done` (`d023dd1`). STORY-48 to STORY-51 are now `ready` by the base rule |
+| 2026-10-15 | The verifier checks ADR adherence on each PR (`adr:reviewing-adr-adherence`): a contradiction of an accepted ADR, or a change that needs an ADR. The architect decides each finding. Hitl asks the user. The architect writes the ADR after the `ANSWER`. Added the "ADR finding flow" to section 4 | The user asked for this change. The review must catch ADR problems, and the user decides ADR changes |
