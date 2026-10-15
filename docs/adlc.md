@@ -103,7 +103,7 @@ Model and Effort: use the exact values in the table.
   - `team`: send it to the role that must act.
 
   When the cause is gone, send a `TASK` to the blocked session with the cause that is gone and the next step (for example `TASK · orchestrator → tester-1 · the token has the workflow scope: push the CI commit`).
-- Status check every 10 minutes (`/loop 10m`, started when the orchestrator starts or after a `RELOAD`). The result: the status table matches the live sessions, and each stuck session gets 1 `STATUS` message. A session is stuck if 1 of these is true:
+- Status check every 10 minutes (`/loop 10m`, started when the orchestrator starts, or after a `RELOAD` if it does not run). The result: the status table matches the live sessions, and each stuck session gets 1 `STATUS` message. A session is stuck if 1 of these is true:
   - It is idle, it has an open item in the table, and it sent no message for that item.
   - Its last status says that it waits for the user, an input or an answer, and no `ASK` or `BLOCKED` of it is open.
   - It is busy and its timeline has no new line for 30 minutes.
