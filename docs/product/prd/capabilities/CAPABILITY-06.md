@@ -29,7 +29,7 @@ jag works in a shell pipe, uses options and exit codes like grep, and returns fa
 - subject of: [DECISION-31: The command takes the term and the paths, and the question only from --ask](../decisions/DECISION-31.md)
 - subject of: [DECISION-32: A term with no question works as plain rg](../decisions/DECISION-32.md)
 - subject of: [DECISION-33: The term is a regular expression, and -F makes it fixed text](../decisions/DECISION-33.md)
-- subject of: [DECISION-34: Release 1 keeps the options that people use most](../decisions/DECISION-34.md)
+- subject of: [DECISION-34: Release 1 keeps the rg options that people use most](../decisions/DECISION-34.md)
 - subject of: [DECISION-35: With no path, jag searches the current folder or reads the pipe](../decisions/DECISION-35.md)
 - subject of: [DECISION-36: The user can give any mix of files and folders](../decisions/DECISION-36.md)
 - subject of: [DECISION-37: jag shows progress only in a terminal](../decisions/DECISION-37.md)

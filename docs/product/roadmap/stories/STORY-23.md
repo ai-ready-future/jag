@@ -41,6 +41,6 @@ As an agent builder (PERSONA-01), I want jag to cut each line that is longer tha
 
 - parent: [FEATURE-08: File, line, and snippet for each result](../features/FEATURE-08.md)
 - milestone: [MILESTONE-01: Make it work](../milestones/MILESTONE-01.md)
-- traces: [DECISION-17: jag cuts a very long line and marks the cut](../../prd/decisions/DECISION-17.md)
+- traces: [DECISION-17: With --ask or --json, jag cuts a very long line and marks the cut](../../prd/decisions/DECISION-17.md)
 - criterion or run of: [CRITERION-34: jag cuts a very long line and marks the cut](../criteria/CRITERION-34.md)
 <!-- LINKS:END -->

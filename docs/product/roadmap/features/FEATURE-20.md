@@ -61,7 +61,7 @@ After each search, jag reports how many results it scored and skipped, and the b
 - milestone: [MILESTONE-02: Make it good](../milestones/MILESTONE-02.md)
 - traces: [CAPABILITY-07: Show the cost of a search](../../prd/capabilities/CAPABILITY-07.md)
 - traces: [DECISION-40: The cost is the billed amount in US dollars](../../prd/decisions/DECISION-40.md)
-- traces: [DECISION-41: In text mode, the cost line goes to the error stream after each search](../../prd/decisions/DECISION-41.md)
+- traces: [DECISION-41: With --ask in text mode, the cost line goes to the error stream after each search](../../prd/decisions/DECISION-41.md)
 - traces: [DECISION-42: The report counts results scored and results skipped](../../prd/decisions/DECISION-42.md)
 - traces: [DECISION-43: A search with no model call reports a cost of zero and the reason](../../prd/decisions/DECISION-43.md)
 - traces: [DECISION-44: A failed or stopped search reports the cost up to that point](../../prd/decisions/DECISION-44.md)
