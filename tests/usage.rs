@@ -372,20 +372,61 @@ fn a_bad_setting_variable_gives_exit_2_before_the_key_and_names_the_variable() {
     assert!(!error.contains("ftp"), "{error}");
 }
 
+// FEATURE-23, decision 33: with no question, jag checks the value of each of
+// its own options before the search, with no key, and the options have no other
+// effect.
 #[test]
-fn a_blank_address_or_model_option_has_no_effect_in_a_search_with_no_question() {
+fn a_bad_value_of_an_option_of_jag_exits_2_in_a_search_with_no_question() {
     let dir = tempfile::tempdir().expect("temporary folder");
     write(dir.path(), "a.txt", b"needle\n");
-    for option in ["--base-url", "--model"] {
+    let bad = "SENTINEL-SENTINEL-SENTINEL";
+    let cases: [(&str, &str); 7] = [
+        ("--max-chars", bad),
+        ("--timeout", bad),
+        ("--retry-wait", bad),
+        ("--max-scored", bad),
+        ("--base-url", "notaurl"),
+        ("--base-url", " "),
+        ("--model", " "),
+    ];
+    for (option, value) in cases {
         let home = home();
         let output = jag_bare(home.path())
-            .args([option, " ", "needle"])
+            .args([option, value, "needle"])
             .arg(dir.path())
             .output()
             .expect("run jag");
-        assert_eq!(output.status.code(), Some(0), "{option}");
-        assert!(output.stderr.is_empty(), "{option}");
+        let err = String::from_utf8_lossy(&output.stderr).into_owned();
+        assert_eq!(output.status.code(), Some(2), "{option} {value}");
+        assert!(output.stdout.is_empty(), "{option} {value}");
+        assert!(err.starts_with("jag: "), "{option}: {err}");
+        assert!(err.contains(option), "{option}: {err}");
+        assert!(!err.contains("SENTINEL"), "{option}: {err}");
     }
+}
+
+#[test]
+fn a_good_value_of_an_option_of_jag_has_no_effect_in_a_search_with_no_question() {
+    let dir = tempfile::tempdir().expect("temporary folder");
+    write(dir.path(), "a.txt", b"needle\n");
+    let home = home();
+    jag_bare(home.path())
+        .args([
+            "--timeout",
+            "5",
+            "--retry-wait",
+            "5",
+            "--max-scored",
+            "5",
+            "--base-url",
+            "https://example.invalid",
+            "--model",
+            "m",
+            "needle",
+        ])
+        .arg(dir.path())
+        .assert()
+        .code(0);
 }
 
 #[test]
@@ -564,10 +605,16 @@ fn a_bad_size_option_comes_before_the_key_and_a_bad_variable_after() {
         .arg(dir.path())
         .assert()
         .code(3);
-    // With no question, jag reads no key, so the variable gives exit 2.
+    // With no question, jag reads no variable (FEATURE-23, decision 32), so a
+    // bad variable has no effect. A bad option still gives exit 2.
     jag_bare(home.path())
         .env("JAG_MAX_CHARS", "abc")
         .args(["needle"])
+        .arg(dir.path())
+        .assert()
+        .code(0);
+    jag_bare(home.path())
+        .args(["--max-chars", "abc", "needle"])
         .arg(dir.path())
         .assert()
         .code(2);

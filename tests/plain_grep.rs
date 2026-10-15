@@ -275,10 +275,11 @@ fn criterion_54_the_options_of_the_model_have_no_effect() {
     assert_eq!(run.code, Some(0));
     assert_eq!(run.stdout, THREE_LINES);
 
-    // The options of the model are not read: a bad value has no effect.
+    // jag checks the value of its own options (FEATURE-23, decision 33).
     let run = run_bare(root.path(), &["--timeout", "abc", "needle", "dir"]);
-    assert_eq!(run.code, Some(0));
-    assert_eq!(run.stdout, THREE_LINES);
+    assert_eq!(run.code, Some(2));
+    assert_eq!(run.stdout, "");
+    assert!(run.stderr.starts_with("jag: the value of --timeout"));
     assert!(server.requests().is_empty());
 }
 

@@ -116,19 +116,6 @@ pub fn size_limit(env: &Env, option: Option<SizeLimit>) -> Result<SizeLimit, Con
     ))
 }
 
-/// The size limit of a search with no question (FEATURE-23, decision 19): the
-/// option, else `JAG_MAX_CHARS`, else no limit. A blank variable counts as not
-/// set.
-pub fn plain_size_limit(
-    env: &Env,
-    option: Option<SizeLimit>,
-) -> Result<Option<usize>, ConfigError> {
-    if let Some(option) = option {
-        return Ok(option.chars());
-    }
-    size_limit_variable(env)
-}
-
 #[cfg(test)]
 mod tests {
     use std::path::PathBuf;

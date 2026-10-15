@@ -18,8 +18,8 @@ use termcolor::{Buffer, BufferWriter, ColorChoice, ColorSpec, WriteColor};
 
 use super::grep::{MatchOptions, Report, build_matcher, context_lines, words};
 use super::rg_text::{NO_PATTERN, NOTHING_SEARCHED, line};
-use super::{Cli, colored, size_option};
-use crate::config::{Env, plain_size_limit};
+use super::{Cli, colored, own_options};
+use crate::config::Env;
 use crate::failure::Failure;
 use crate::output::{SizeReport, size_notice};
 use crate::search::filter::{FileFilter, current_dir};
@@ -46,12 +46,6 @@ pub(super) fn run(cli: &Cli, env: &Env) -> ExitCode {
 /// The text of a failure with the form of jag (decision 19).
 fn failure_text(failure: Failure) -> String {
     failure.render()
-}
-
-/// The size limit: the option, else `JAG_MAX_CHARS`, else none (decision 19).
-fn size_limit(cli: &Cli, env: &Env) -> Result<Option<usize>, String> {
-    let option = size_option(cli).map_err(|error| failure_text(Failure::from(error)))?;
-    plain_size_limit(env, option).map_err(|error| failure_text(Failure::from(error)))
 }
 
 /// What the options say about the layout of the output.
@@ -264,7 +258,7 @@ fn search_one<M: Matcher>(
 }
 
 fn search(cli: &Cli, env: &Env) -> Result<u8, String> {
-    let limit = size_limit(cli, env)?;
+    let limit = own_options(cli).map_err(failure_text)?;
     let all_words = words(cli);
     // With -e, each word is a path. With no -e, the first word is the term.
     let (terms, path_words): (Vec<&str>, Vec<&std::ffi::OsStr>) = if cli.terms.is_empty() {

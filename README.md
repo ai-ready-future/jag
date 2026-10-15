@@ -235,7 +235,9 @@ $ jag --ask="-v or --verbose?" verbose src
   value `modified` of `--sort`, do not have the hints of `rg`. The option
   `--colour` does not exist.
 - With no question, `--timeout`, `--retry-wait`, `--max-scored`,
-  `--base-url`, and `--model` have no effect on the search.
+  `--base-url`, and `--model` have no effect on the search. jag still checks
+  their values before the search: a bad value is a usage error with exit code
+  2, and jag needs no key. jag reads none of the variables of these settings.
 
 ## Where jag searches
 
@@ -269,16 +271,17 @@ $ printf 'one\nneedle here\n' | jag -n needle
 
 jag never writes more characters to standard output than a size limit. The
 default limit is 20,000 characters with `--ask` or `--json`. A search with no
-question has no limit, as `rg` has none, unless you give `--max-chars` or
-`JAG_MAX_CHARS`. Then jag writes whole results up to the limit and the notice
-below. To change the limit:
+question has no limit, as `rg` has none, unless you give `--max-chars`. Then
+jag writes whole results up to the limit and the notice below. To change the
+limit:
 
 ```
 $ jag --max-chars 40000 --ask "QUESTION" TERM PATH...
 $ jag --no-max-chars TERM PATH...
 ```
 
-You can also set the variable `JAG_MAX_CHARS`. The option wins over the
+With `--ask` or `--json`, you can also set the variable `JAG_MAX_CHARS`. The
+option wins over the variable. With no question, jag does not read the
 variable. The smallest limit is 1,000. A value that is not a whole number of
 1,000 or more is a usage error with exit code 2. `--no-max-chars` turns the
 limit off.

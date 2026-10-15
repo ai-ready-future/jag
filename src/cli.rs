@@ -634,6 +634,22 @@ fn search_args(cli: &Cli) -> Result<SearchArgs<'_>, Failure> {
     })
 }
 
+/// The values of the options that only jag has, in a search with no question
+/// (FEATURE-23, decision 33): jag checks them before the search, with no key.
+/// Gives the size limit: only `--max-chars` sets one, and `JAG_MAX_CHARS` does
+/// not (decision 32).
+fn own_options(cli: &Cli) -> Result<Option<usize>, Failure> {
+    let times = time_options(cli)?;
+    cli.cost_limit
+        .as_deref()
+        .map(|text| parse_cost_limit(text, SettingSource::Option))
+        .transpose()
+        .map_err(Failure::from)?;
+    let size = size_option(cli).map_err(Failure::from)?;
+    address_options(cli, times)?;
+    Ok(size.and_then(SizeLimit::chars))
+}
+
 /// The checks of `--timeout` and `--retry-wait`, in this order.
 fn time_options(cli: &Cli) -> Result<(Option<Duration>, Option<Duration>), Failure> {
     let timeout = parse_option(cli.timeout.as_deref(), TimeSetting::Timeout)?;
