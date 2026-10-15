@@ -5,7 +5,8 @@ description: As an agent builder (PERSONA-01), I want the private-data check to 
   on each fork pull request in the new public repository, so that no fork pull request
   skips the check.
 status: draft
-state: ready
+state: done
+actual_end_date: '2026-10-15'
 github:
   number: 85
   node_id: I_kwDOVKMnL88AAAABXTM-FA

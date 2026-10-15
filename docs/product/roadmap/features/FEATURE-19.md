@@ -5,7 +5,8 @@ description: A scan lists the private data in the history. A new public reposito
   gets a clean history, and a second scan finds none. The private repository stays
   private.
 status: draft
-state: backlog
+state: done
+actual_end_date: '2026-10-15'
 github:
   number: 23
   node_id: I_kwDOVKMnL88AAAABXTLdpA
@@ -39,7 +40,7 @@ Decision (DECISION-51): jag goes public as a new public repository with a clean 
 | [STORY-47: Check the full history before jag goes public](../stories/STORY-47.md) | done | - | - | - | - |
 | [STORY-52: Create the new public repository with a clean history](../stories/STORY-52.md) | done | - | - | - | - |
 | [STORY-59: Limit guesses through the check results of fork pull requests](../stories/STORY-59.md) | cancelled | - | - | - | - |
-| [STORY-60: Run the private-data check on fork pull requests in the new public repository](../stories/STORY-60.md) | ready | - | - | - | - |
+| [STORY-60: Run the private-data check on fork pull requests in the new public repository](../stories/STORY-60.md) | done | - | - | - | - |
 | [STORY-61: Make the project board and all issues public with the new repository](../stories/STORY-61.md) | done | - | - | - | - |
 <!-- STATUS:END -->
 
