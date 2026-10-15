@@ -58,7 +58,7 @@ Each result shows the file, the line range, and the exact source text, with each
 - traces: [DECISION-15: A result path has the same form as in grep](../../prd/decisions/DECISION-15.md)
 - traces: [DECISION-16: A joined result shows its line range and marks each matching line](../../prd/decisions/DECISION-16.md)
 - traces: [DECISION-17: jag cuts a very long line and marks the cut](../../prd/decisions/DECISION-17.md)
-- traces: [DECISION-18: Piped text has the label (standard input)](../../prd/decisions/DECISION-18.md)
+- traces: [DECISION-18: Piped text has the label <stdin>](../../prd/decisions/DECISION-18.md)
 - blocks: [FEATURE-09: Size limit on the text that jag returns](FEATURE-09.md)
 - blocks: [FEATURE-11: Text output for a person and structured output for an agent](FEATURE-11.md)
 - child: [STORY-21: See the file, the line, and the snippet of a result](../stories/STORY-21.md)

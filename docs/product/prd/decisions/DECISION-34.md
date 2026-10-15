@@ -1,22 +1,25 @@
 ---
 type: Decision
-title: Release 1 keeps the grep options that people use most
-description: jag keeps a fixed set of grep options; any other option is a usage error
-  that names it.
+title: Release 1 keeps the options that people use most
+description: jag keeps a fixed set of options that people use most; any other option
+  is a usage error that names it.
 status: stable
-decided_at: '2026-10-07'
+decided_at: '2026-10-15'
 alternatives:
 - The same set, and jag ignores an unknown option with a warning
 - All GNU grep options, with a usage error for options that have no meaning in a ranked
   search
+- Keep grep as the reference for the options
 about:
 - /capabilities/CAPABILITY-06.md
 - /decisions/DECISION-05.md
 ---
 
-# DECISION-34: Release 1 keeps the grep options that people use most
+# DECISION-34: Release 1 keeps the options that people use most
 
-Release 1 keeps these grep options: `-i`, `-w`, `-F`, `-e`, `-A`, `-B`, `-C`, `-l`, `-c`, `-q`, `--include`, and `--exclude`. Any other option is a usage error. jag names the option and exits with code 2.
+Release 1 keeps these options: `-i`, `-w`, `-F`, `-e`, `-A`, `-B`, `-C`, `-l`, `-c`, `-q`, `--include`, and `--exclude`. Any other option is a usage error. jag names the option and exits with code 2.
+
+Source of the change from grep to rg: the user, hitl answer of 2026-10-15 (FEATURE-23, Q1 option 1: rg is the reference for jag with no question). rg 15.1.0 has no `--include` and no `--exclude` option. It uses `-g` or `--glob`. The FEATURE-23 spec decides what jag does with these 2 options.
 
 <!-- LINKS:START (generated, do not edit) -->
 
