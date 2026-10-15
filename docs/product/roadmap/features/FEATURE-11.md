@@ -31,7 +31,7 @@ traces:
 - to: prd:/decisions/DECISION-28.md
   hash: dc4887
 - to: prd:/decisions/DECISION-29.md
-  hash: 9fd4ee
+  hash: 5a18f0
 - to: prd:/decisions/DECISION-30.md
   hash: c7e96e
 - to: prd:/constraints/CONSTRAINT-05.md

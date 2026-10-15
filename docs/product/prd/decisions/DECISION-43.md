@@ -16,11 +16,9 @@ about:
 
 # DECISION-43: A search with no model call reports a cost of zero and the reason
 
-When a search makes no model call, jag reports a cost of zero and gives the reason, such as "no question": in the cost line of text mode with `--ask`, and in the cost fields of `--json`. In a search with no `--ask` and no `--json`, jag writes no cost line (DECISION-41).
+When a search makes no model call, jag reports a cost of zero and gives the reason, such as "no question": in the cost line of text mode with `--ask`, and in the cost fields of `--json`. In a search with no `--ask` and no `--json`, jag writes no cost line (DECISION-41). jag does not reuse scores in release 1 (DECISION-46).
 
 Source: the user, hitl answer of 2026-10-15 (FEATURE-23, card B option 1: with no question, jag writes no notice and has no limit that rg does not have).
-
- jag does not reuse scores in release 1 (DECISION-46).
 
 <!-- LINKS:START (generated, do not edit) -->
 
