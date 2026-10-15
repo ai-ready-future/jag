@@ -491,7 +491,7 @@
   args: ["two$", "crlf.txt"]
   tree: basic
 - id: two-e-path
-  args: ["--sort", "path", "-e", "alpha", "gamma", "a.txt"]
+  args: ["-e", "alpha", "gamma", "a.txt"]
   tree: basic
 - id: unicode-class
   args: ["\\w+é", "utf8.txt"]
@@ -518,3 +518,9 @@
 - id: long-match
   args: ["y+", "long.txt"]
   tree: limits
+- id: two-e-path-sorted
+  args: ["--sort", "path", "-e", "alpha", "gamma", "a.txt"]
+  tree: basic
+- id: missing-and-match-threads
+  args: ["foo", "nope.txt", "a.txt"]
+  tree: basic
