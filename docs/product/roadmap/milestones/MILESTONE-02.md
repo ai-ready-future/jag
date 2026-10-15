@@ -29,7 +29,7 @@ This milestone holds the capabilities that make jag better to use and easier to 
 
 | Item | State | Progress | Owner | Blocked by | Drift |
 | --- | --- | --- | --- | --- | --- |
-| [EPIC-04: A shell user keeps their habits](../epics/EPIC-04.md) | done | 5/5 (100%) | - | - | - |
+| [EPIC-04: A shell user keeps their habits](../epics/EPIC-04.md) | ready | 5/6 (83%) | - | - | - |
 | [EPIC-05: Safe public release](../epics/EPIC-05.md) | ready | 2/4 (50%) | - | - | - |
 | [FEATURE-02: Readiness check](../features/FEATURE-02.md) | done | 3/3 (100%) | - | FEATURE-01 | - |
 | [FEATURE-03: Clear failure when the model is not available](../features/FEATURE-03.md) | done | 4/4 (100%) | - | FEATURE-01 | - |
@@ -42,6 +42,7 @@ This milestone holds the capabilities that make jag better to use and easier to 
 | [FEATURE-20: Show the cost of a search](../features/FEATURE-20.md) | done | 4/4 (100%) | - | FEATURE-04, FEATURE-11 | - |
 | [FEATURE-21: Send the model calls through an AI gateway](../features/FEATURE-21.md) | done | 2/2 (100%) | - | FEATURE-04 | - |
 | [FEATURE-22: Check that jag is ready before the first publish](../features/FEATURE-22.md) | backlog | 0/3 (0%) | - | - | - |
+| [FEATURE-23: Give the same output as rg for the same arguments](../features/FEATURE-23.md) | backlog | 0/3 (0%) | - | - | - |
 <!-- STATUS:END -->
 
 <!-- LINKS:START (generated, do not edit) -->
@@ -66,6 +67,7 @@ This milestone holds the capabilities that make jag better to use and easier to 
 - item of: [FEATURE-20: Show the cost of a search](../features/FEATURE-20.md)
 - item of: [FEATURE-21: Send the model calls through an AI gateway](../features/FEATURE-21.md)
 - item of: [FEATURE-22: Check that jag is ready before the first publish](../features/FEATURE-22.md)
+- item of: [FEATURE-23: Give the same output as rg for the same arguments](../features/FEATURE-23.md)
 - item of: [STORY-06: Check the five items of readiness](../stories/STORY-06.md)
 - item of: [STORY-07: Use the check result as an exit code](../stories/STORY-07.md)
 - item of: [STORY-08: Run the check for almost no cost](../stories/STORY-08.md)
@@ -104,4 +106,7 @@ This milestone holds the capabilities that make jag better to use and easier to 
 - item of: [STORY-62: Use jag on real work before the first publish](../stories/STORY-62.md)
 - item of: [STORY-63: Audit jag for security vulnerabilities before the first publish](../stories/STORY-63.md)
 - item of: [STORY-64: Audit the license and the compliance before the first publish](../stories/STORY-64.md)
+- item of: [STORY-65: Compare rg and jag output on a parity test set](../stories/STORY-65.md)
+- item of: [STORY-66: Run the rg parity cases as e2e tests in CI](../stories/STORY-66.md)
+- item of: [STORY-67: Fix each rg parity difference or record it as deliberate](../stories/STORY-67.md)
 <!-- LINKS:END -->

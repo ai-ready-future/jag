@@ -21,4 +21,5 @@ Limits: some users cannot send their text to an outside model service, and each 
 - served by: [NEED-10: Find specific lines, such as one kind of error](../needs/NEED-10.md)
 - served by: [NEED-11: Too many matches unless the exact text is known](../needs/NEED-11.md)
 - served by: [NEED-12: grep, but it understands](../needs/NEED-12.md)
+- traced by: [FEATURE-23: Give the same output as rg for the same arguments](../../roadmap/features/FEATURE-23.md)
 <!-- LINKS:END -->
