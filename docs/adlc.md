@@ -82,6 +82,7 @@ Model and Effort: use the exact values in the table.
 - Send the test scenarios of each verifier to the tester.
 - Start a second specifier when 2 features are ready for a spec. The maximum is 2 specifiers.
 - Give each `ASK` a priority before you send it to hitl: `blocks code now` or `blocks later`.
+- An `ASK` with a `revisit:` line goes to the owner of the page: the planner for a PRD decision, the architect for an ADR. An `ASK` with the line `owner: planner` goes to hitl in the batch of its feature. Send its `ANSWER` to the planner and a copy to the specifier.
 - Stop extra sessions when they have no work.
 - After a retro merge, tell every live session to read `docs/adlc.md` again.
 - After a PR that changes `docs/product` merges, send a `SYNC` to the projecter.
@@ -105,6 +106,8 @@ Model and Effort: use the exact values in the table.
 **planner**
 - Reads and updates the PRD and the roadmap with the prd skills.
 - Lands each change through a PR.
+- After the user answers a rule card (section 4, "Ask the Rule"), writes 1 PRD decision page for the rule. The page has the line `Principle: <rule>.` with the rule word for word from the chosen option, and the date of the answer. Sends no card for this page. If the chosen option named a change to a PRD decision, changes that page in the same PR.
+- When a rule page changes, runs the drift check and sends 1 `TASK` to the orchestrator for 1 follow-up feature. Asks a card only for a done feature that the new answer did not name.
 
 **projecter**
 - Copies the roadmap on `main` to the board tool. Never edits the board in a way that `main` does not show.
@@ -117,6 +120,7 @@ Model and Effort: use the exact values in the table.
 - Decides each ADR finding from a reviewer (section 4, "ADR finding flow"). Gives 1 verdict: `no ADR change`, `contradicts ADR-NNNN`, or `needs an ADR`.
 - For `contradicts` and `needs an ADR`, sends an `ASK` to the orchestrator with the options and a recommendation. Does not write or change an ADR before the `ANSWER`.
 - After the `ANSWER`, writes the new or changed ADR with `status: proposed` and lands it through a PR. The ADR names the `ANSWER`. Then the architect sends an `ASK` for the card that accepts the ADR.
+- After a spec PR with the ADR of a rule merges (section 4, "Ask the Rule"), sets that ADR to `status: accepted` in an ADR PR and names the `ANSWER` of the rule card. The `ANSWER` is the card that accepts it. No second card is necessary.
 
 **specifier**
 - One feature gives one spec.
@@ -126,9 +130,8 @@ Model and Effort: use the exact values in the table.
 - Uses effort `xhigh`. The goal is a specifier that needs the user as little as possible.
 - Infers each decision from the ADRs, the system design (`docs/product/system-design.md`), the PRD and the merged specs first. Records the source of each inferred decision in the spec.
 - Does not ask the user to confirm a decision that an ADR or the system design states, or that is clearly inferred from them.
-- Asks only for the decisions that it cannot infer.
-- Prefers questions about guidelines (a rule or a priority that applies to many cases) to questions about 1 detail. Then it infers the details from the answer.
-- Before it sends the cards, finds the questions whose answer also answers other questions. It sends those questions first, or only those questions.
+- Asks the user with the method "Ask the Rule" (section 4). It asks for the rule, not for the value. It infers each detail from the rule and records the source of each detail.
+- Does not decide against a PRD decision or an accepted ADR alone. It sends an `ASK` with a `revisit:` line (section 4, "Ask the Rule").
 
 **implementer**
 - One spec gives one PR.
@@ -143,6 +146,7 @@ Model and Effort: use the exact values in the table.
 - Checks the code and the tests against the spec criteria and the ADRs. The verifier runs the product.
 - Checks ADR adherence on each PR with `adr:reviewing-adr-adherence`. Looks for 2 problems: a change that contradicts an accepted ADR, and a change that is expensive to undo and has no ADR.
 - Does not decide an ADR finding alone. Requests changes, writes the finding in the PR comment, and sends it to the orchestrator for the architect (section 4, "ADR finding flow").
+- In a spec PR, opens the source of each inferred row (section 4, "Ask the Rule"). Requests changes if the source does not support the choice, if a stronger source disagrees, or if a hard-to-undo change is not named on a card.
 - Posts the result as a PR comment. The first line is `VERDICT: APPROVE` or `VERDICT: CHANGES`. The second line is `Role: reviewer`. The account cannot approve its own PR, so the reviewer does not use `gh pr review`.
 - Document PRs (only files in `docs/` change): if a fix does not block, give the exact text of the fix with the approval. The author applies this text and merges with no new check. Code PRs and test PRs always get a new check after a fix.
 - Sends the result to the orchestrator.
@@ -192,6 +196,7 @@ roadmap (main)
 Side flows:
 - Design question from any role → architect.
 - ADR finding from a reviewer → architect → hitl (section 4, "ADR finding flow").
+- Rule question from the specifier → hitl. A `revisit:` → planner or architect (section 4, "Ask the Rule").
 - Gap in PRD or roadmap → planner → PR → projecter `SYNC`.
 - User decision → hitl.
 - Manual step → chores.
@@ -217,6 +222,28 @@ reviewer: ADR finding → VERDICT: CHANGES → orchestrator
 - The code PR does not merge until the `ANSWER` is in, the ADR PR (if there is one) is merged, and the reviewer and the verifier approve the last code. In the new check, the ADR of the merged ADR PR is the decision for the finding.
 - On the ADR PR of the architect, the reviewer checks that the ADR names the `ANSWER`. A change of an ADR that the `ANSWER` orders is not an ADR finding.
 - An ADR finding from a review is the exception to "Write the ADR now ... Do not stop to ask" in `docs/adr/CLAUDE.md`. The user decides the direction first, because the review found a conflict.
+
+### Ask the Rule
+
+The specifier asks the user for the rule, not for the value. The steps, in this order:
+
+1. Write the full decision table of the feature before you send a card. Read `main` again just before you send.
+2. Read the PRD decision pages first. A page with the line `Principle:` holds a rule from an earlier answer. Inherit from it. If that page and a proposed ADR give the same choice, inherit from the page.
+3. For each open row, write the rule that decides it. Put the rows that 1 rule decides in 1 group. Ask about the rule, not about 1 row.
+4. Send a rule card only if its answer decides 2 or more open rows, changes a PRD decision or an ADR, or decides a thing that is hard to undo. Hard to undo: a done feature, a public option, released behavior, public data, money.
+5. In each rule card, add the block `This answer decides:` with at most 5 lines, in plain words. 1 line can name a group of rows. Name each PRD decision and each ADR that changes, each done feature that changes, and each public option that goes away or changes.
+6. Write each card so that its answer does not depend on another card in the same batch.
+7. Round 1: at most 2 rule cards. A priority question that changes the order of features or a `blocked_by` link goes in the same batch, with the line `owner: planner`.
+8. Record each rule answer as 1 row with the source `human:<login>, <date>`. Each row that you derive from it gets the confidence `inferred`, the source `derived from row <n>`, and a place in the Assumptions list.
+9. Infer each other row only with 1 source that a reviewer can open. The sources, from strong to weak: an accepted ADR or a PRD decision page, a row of a built spec, the behavior of the reference program (rg) at its pinned version, a line of the jag code. A weak source does not count if a stronger source disagrees. A row with no source stays open.
+10. When you infer a row, take the option that you would mark `[recommended]`. Do not infer a hard-to-undo row unless a rule card named it.
+11. If the user answers "other" or a different rule, record the answer as the rule row. Remove the rows that you derived from the old rule and derive them again. Send again each card of the same batch whose premise changed.
+12. Round 2: at most 2 cards, only for rows that stay open. There is no round 3. After round 2, give each open row the recommended option with the source `default after round cap`, and name the row in the PR body. If that row is hard to undo, send `BLOCKED` with the cause.
+13. Put the inferred rows with their sources, the stories that need no build, and the spec groups in the body of the spec PR. The reviewer approval is the answer "reject none". Send these as 1 card only if you send round 2, or if the reviewer rejects a row.
+14. Do not decide against an accepted ADR or a PRD decision that no card named. Send an `ASK` with the line `revisit: <page>`, the row, and the change that you recommend. A `revisit:` of an ADR follows the ADR finding flow. A `revisit:` of a PRD decision goes to the planner, who sends a card only if the chosen option did not name the change.
+15. Until the owner decides, keep the current choice of the ADR or the PRD in that row and mark it `pending revisit`. Keep only the dependent stories in `backlog`. Write the rest of the spec.
+
+The ADR of a rule: `prd:specifying-stories` (step 5) writes 1 ADR with `status: proposed` for each rule row, and no ADR for a derived row. The `ANSWER` of the rule card is the card that accepts that ADR (see the architect).
 
 ## 5. Message format
 
@@ -255,7 +282,8 @@ Always use this layout, in this order:
 1. The header: `from <role> → "<title>"`. The title tells the topic of the question in a few plain words.
 2. The related line: `Related: <background in plain words>`. If there is no useful background, do not write this line.
 3. The question, in 1 sentence.
-4. The options list: 1 bullet for each option, with the pros and the cons indented below it.
+4. The decides block, for a rule card only (section 4, "Ask the Rule"): the line `This answer decides:` and at most 5 lines below it. Each line names 1 detail, or 1 group of details, that the recommended option decides.
+5. The options list: 1 bullet for each option, with the pros and the cons indented below it.
 
 Example (markdown source):
 
@@ -284,6 +312,7 @@ Rules:
 - Question IDs: Hitl keeps the question ID for itself. It uses the ID in the `ANSWER` message to the orchestrator, but not in the card.
 - Options: Do not number the options. Start each option with a short bold name and a colon, then the description. Do not use tables, because tables do not show correctly on a mobile screen.
 - Recommended option: Put the text `[recommended]` at the end of the option. Do not write a separate recommendation line.
+- Decides block: Write the lines in plain words, with no IDs. Name each public option that goes away or changes, each done feature that changes, and each PRD decision or ADR that changes. The user can veto 1 line with the answer `other: but <line>`.
 - Pros and cons: Write `**Pros:** ✅` and `**Cons:** ❌`. Give each option 1 or more pros and 1 or more cons. Put each pro and each con on its own indented bullet. Keep each bullet to a short phrase.
 - Emojis: Use only ✅ and ❌, and only on the Pros and Cons lines.
 - No repeated text: Give each fact 1 time only. For example, put the background in the related line, not in each option.
@@ -331,3 +360,4 @@ Send a DONE message to the orchestrator when you are ready. Then wait for TASK m
 | 2026-10-15 | The verifier checks ADR adherence on each PR (`adr:reviewing-adr-adherence`): a contradiction of an accepted ADR, or a change that needs an ADR. The architect decides each finding. Hitl asks the user. The architect writes the ADR after the `ANSWER`. Added the "ADR finding flow" to section 4. The retro fast path (section 6) gets a verifier check and a squash merge. The verifier posts a `VERDICT` comment and does not use `gh pr review` | The user asked for this change. The review must catch ADR problems, and the user decides ADR changes. Verifier comment on PR #103: section 6 and the verifier line did not agree with how the team works |
 | 2026-10-15 | Changed the name of the verifier role to reviewer (it reviews PRs). Added a new verifier role: it runs the product from the PR branch (a terminal for a CLI, Playwright for a web app), checks the spec criteria, and sends test scenarios. Added the tester role: it writes and keeps the e2e tests, with no mocks and no unit tests. Added the Build row to section 1. Section 8 restarts a session when its role name changes, and stops a session of the old name before `RELOAD`. The verifier uses its own worktree and checks the last code after an ADR `ANSWER`. The tester sends design questions through the orchestrator. Defined a test PR | The user asked for this change. A review of the code does not show that the functions work for the user |
 | 2026-10-15 | Reviewer: for a release readiness check, a reviewer session does the security review and writes `docs/release-readiness.md` in a docs PR. A different reviewer session reviews that PR | FEATURE-22 spec decision 18 (PR #112). Reviewer comment on PR #112: the reviewer role did not open PRs |
+| 2026-10-15 | Added the method "Ask the Rule" to section 4: the specifier asks for the rule, not for the value; at most 2 rule cards, then at most 2 more; each rule card has a `This answer decides:` block; the specifier infers each detail from the rule with the recommended option and a source that a reviewer can open; a change to a PRD decision or an ADR goes as a `revisit:` line to the planner or the architect. The planner writes 1 PRD decision page for each rule. The architect accepts the ADR of a rule with the `ANSWER`. The reviewer opens the source of each inferred row. Section 7 gets the decides block | The user asked for this change. The FEATURE-23 spec sent 7 cards in 2 rounds, and the 5 detail cards all followed from the first rule answer. With this method, FEATURE-23 sends 2 cards in 1 batch |
