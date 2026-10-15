@@ -22,7 +22,7 @@ When the user gives no path, jag searches the current folder, as rg does. When t
 ## Links
 
 - about: [CAPABILITY-06: Feels like grep](../capabilities/CAPABILITY-06.md)
-- about: [DECISION-18: Piped text has the label (standard input)](DECISION-18.md)
+- about: [DECISION-18: Piped text has the label <stdin>](DECISION-18.md)
 - traced by: [FEATURE-14: Files, folders, and piped text](../../roadmap/features/FEATURE-14.md)
 - traced by: [STORY-39: Search with no path](../../roadmap/stories/STORY-39.md)
 <!-- LINKS:END -->

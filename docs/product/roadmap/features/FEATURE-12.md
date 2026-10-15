@@ -45,7 +45,7 @@ With a term and no question, jag returns the matching lines as grep does, makes 
 - parent: [EPIC-04: A shell user keeps their habits](../epics/EPIC-04.md)
 - milestone: [MILESTONE-02: Make it good](../milestones/MILESTONE-02.md)
 - traces: [CAPABILITY-06: Feels like grep](../../prd/capabilities/CAPABILITY-06.md)
-- traces: [DECISION-32: A term with no question works as plain grep](../../prd/decisions/DECISION-32.md)
+- traces: [DECISION-32: A term with no question works as plain rg](../../prd/decisions/DECISION-32.md)
 - traces: [DECISION-49: Plain grep mode needs no key](../../prd/decisions/DECISION-49.md)
 - blocks: [FEATURE-13: Common grep options and exit codes](FEATURE-13.md)
 - child: [STORY-33: Search with a term and no question](../stories/STORY-33.md)
