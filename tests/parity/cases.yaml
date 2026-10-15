@@ -5,7 +5,7 @@
 #   tree        the fixture tree in tests/parity/fixtures
 #   modes       pipe, color, terminal; default: all three
 #   stdin       a file in tests/parity/stdin; default: /dev/null
-#   env         extra variables of the environment
+#   env         extra variables of the environment; null removes a variable (TERM)
 #   deliberate  a recorded difference: answer names the user ANSWER; the stored
 #               jag bytes are in tests/parity/expected/<id>/
 
@@ -290,3 +290,231 @@
   modes: [pipe]
   deliberate:
     answer: "hitl ANSWER of 2026-10-15, card D (F23-Q6), option 1"
+- id: flag-after-path
+  args: ["foo", "a.txt", "-i"]
+  tree: basic
+- id: after-short
+  args: ["-A1", "foo", "ctx.txt"]
+  tree: basic
+- id: after-long
+  args: ["--after-context=1", "foo", "ctx.txt"]
+  tree: basic
+- id: context-long
+  args: ["--context", "1", "foo", "ctx.txt"]
+  tree: basic
+- id: after-twice
+  args: ["-A", "1", "-A", "3", "foo", "ctx.txt"]
+  tree: basic
+- id: after-negative
+  args: ["-A", "-1", "foo", "a.txt"]
+  tree: basic
+  modes: [pipe]
+- id: after-huge
+  args: ["-A", "99999999999999999999", "foo", "a.txt"]
+  tree: basic
+  modes: [pipe]
+- id: context-zero
+  args: ["-C", "0", "foo", "ctx.txt"]
+  tree: basic
+- id: after-before
+  args: ["-A", "1", "-B", "3", "foo", "ctx.txt"]
+  tree: basic
+- id: context-four
+  args: ["-C", "4", "foo", "ctx.txt"]
+  tree: basic
+- id: heading-context
+  args: ["--heading", "--sort", "path", "-A", "1", "foo", "a.txt", "ctx.txt"]
+  tree: basic
+- id: last-l-c
+  args: ["--sort", "path", "-l", "-c", "foo", "a.txt", "b.rs"]
+  tree: basic
+- id: last-c-l
+  args: ["--sort", "path", "-c", "-l", "foo", "a.txt", "b.rs"]
+  tree: basic
+- id: last-q-c
+  args: ["-q", "-c", "foo", "a.txt"]
+  tree: basic
+- id: last-c-q
+  args: ["-c", "-q", "foo", "a.txt"]
+  tree: basic
+- id: last-big-n-little-n
+  args: ["--sort", "path", "-N", "-n", "foo", "a.txt", "sub/c.txt"]
+  tree: basic
+- id: last-big-i-big-h
+  args: ["-I", "-H", "foo", "a.txt"]
+  tree: basic
+- id: last-heading
+  args: ["--heading", "--no-heading", "--sort", "path", "foo", "a.txt", "sub/c.txt"]
+  tree: basic
+  modes: [terminal]
+- id: last-sort
+  args: ["--sort", "path", "--sort", "none", "foo", "a.txt"]
+  tree: basic
+  modes: [pipe]
+- id: glob-bad-bracket
+  args: ["--sort", "path", "-g", "a[", "foo", "."]
+  tree: basic
+  modes: [pipe]
+- id: glob-bad-brace
+  args: ["--sort", "path", "-g", "{a", "foo", "."]
+  tree: basic
+  modes: [pipe]
+- id: glob-bad-range
+  args: ["--sort", "path", "-g", "[z-a]", "foo", "."]
+  tree: basic
+  modes: [pipe]
+- id: glob-empty
+  args: ["--sort", "path", "-g", "", "foo", "."]
+  tree: basic
+- id: glob-missing-value
+  args: ["foo", ".", "-g"]
+  tree: basic
+  modes: [pipe]
+- id: glob-equals
+  args: ["--sort", "path", "--glob=*.rs", "foo", "."]
+  tree: basic
+- id: glob-twice
+  args: ["--sort", "path", "-g", "*.txt", "-g", "!a.txt", "foo", "."]
+  tree: basic
+- id: glob-hidden
+  args: ["--sort", "path", "-g", ".hidden*", "foo", "."]
+  tree: basic
+- id: glob-dir-no-path
+  args: ["--sort", "path", "-g", "sub/**", "foo"]
+  tree: basic
+- id: glob-not-file
+  args: ["-g", "!*.txt", "foo", "a.txt"]
+  tree: basic
+- id: trailing-slash
+  args: ["--sort", "path", "foo", "sub/"]
+  tree: basic
+- id: dot-slash
+  args: ["--sort", "path", "foo", "./sub"]
+  tree: basic
+- id: space-name
+  args: ["foo", "sp ace.txt"]
+  tree: names
+- id: space-walk
+  args: ["--sort", "path", "foo", "."]
+  tree: names
+- id: missing-files
+  args: ["-l", "foo", "nope.txt"]
+  tree: basic
+- id: missing-count
+  args: ["-c", "foo", "nope.txt"]
+  tree: basic
+- id: file-as-folder
+  args: ["foo", "a.txt/x"]
+  tree: basic
+- id: binary-two
+  args: ["--sort", "path", "foo", "bin.dat", "a.txt"]
+  tree: basic
+- id: binary-count
+  args: ["-c", "foo", "bin.dat"]
+  tree: basic
+- id: binary-files
+  args: ["-l", "foo", "bin.dat"]
+  tree: basic
+- id: binary-context
+  args: ["-A", "1", "foo", "bin.dat"]
+  tree: basic
+- id: stdin-count
+  args: ["-c", "foo"]
+  tree: basic
+  stdin: lines.txt
+- id: stdin-files
+  args: ["-l", "foo"]
+  tree: basic
+  stdin: lines.txt
+- id: stdin-big-h
+  args: ["-H", "foo"]
+  tree: basic
+  stdin: lines.txt
+- id: stdin-n
+  args: ["-n", "foo"]
+  tree: basic
+  stdin: lines.txt
+- id: stdin-context-dash
+  args: ["-C", "1", "foo", "-"]
+  tree: basic
+  stdin: lines.txt
+- id: stdin-twice
+  args: ["foo", "-", "-"]
+  tree: basic
+  stdin: lines.txt
+- id: stdin-ignore-case
+  args: ["-i", "FOO"]
+  tree: basic
+  stdin: lines.txt
+- id: stdin-empty
+  args: ["foo"]
+  tree: basic
+  stdin: empty.txt
+- id: stdin-nul
+  args: ["foo"]
+  tree: basic
+  stdin: nul.txt
+- id: no-color-empty
+  args: ["foo", "a.txt"]
+  tree: basic
+  modes: [terminal]
+  env: {NO_COLOR: ""}
+- id: term-unset
+  args: ["foo", "a.txt"]
+  tree: basic
+  modes: [terminal]
+  env: {TERM: null}
+- id: no-color-always
+  args: ["--color", "always", "foo", "a.txt"]
+  tree: basic
+  modes: [pipe]
+  env: {NO_COLOR: "1"}
+- id: color-auto
+  args: ["--color", "auto", "foo", "a.txt"]
+  tree: basic
+- id: color-ansi
+  args: ["--color", "ansi", "foo", "a.txt"]
+  tree: basic
+- id: color-always-never
+  args: ["--color", "always", "--color", "never", "foo", "a.txt"]
+  tree: basic
+- id: ignore-case-utf8
+  args: ["-i", "CAFÉ", "utf8.txt"]
+  tree: basic
+- id: word-ignore-case
+  args: ["-w", "-i", "foo", "a.txt"]
+  tree: basic
+- id: fixed-ignore-case
+  args: ["-F", "-i", "FOO", "a.txt"]
+  tree: basic
+- id: crlf-anchor
+  args: ["two$", "crlf.txt"]
+  tree: basic
+- id: two-e-path
+  args: ["--sort", "path", "-e", "alpha", "gamma", "a.txt"]
+  tree: basic
+- id: unicode-class
+  args: ["\\w+é", "utf8.txt"]
+  tree: basic
+- id: latin1-dot
+  args: ["caf.", "latin1.txt"]
+  tree: basic
+- id: repeat-big
+  args: ["a{99999}", "a.txt"]
+  tree: basic
+  modes: [pipe]
+- id: ignore-log
+  args: ["--sort", "path", "foo", "."]
+  tree: ignore-log
+- id: ignore-build
+  args: ["--sort", "path", "foo", "."]
+  tree: ignore-build
+- id: ignore-prec
+  args: ["--sort", "path", "foo", "."]
+  tree: ignore-prec
+- id: empty-lines
+  args: ["needle", "big.txt"]
+  tree: bigfile
+- id: long-match
+  args: ["y+", "long.txt"]
+  tree: limits
