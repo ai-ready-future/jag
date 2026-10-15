@@ -10,8 +10,7 @@ use std::path::{Path, PathBuf};
 
 use grep_regex::RegexMatcher;
 use jag::search::{
-    FileFilter, GlobKind, ScanOptions, ScanReport, SkipCounts, Source, WalkWarning, WarningKind,
-    scan,
+    FileFilter, ScanOptions, ScanReport, SkipCounts, Source, WalkWarning, WarningKind, scan,
 };
 use tempfile::TempDir;
 
@@ -532,60 +531,73 @@ fn paths_that_do_not_exist_give_warnings_in_the_order_of_the_command_line() {
     }
 }
 
-// FEATURE-13: the globs of --include and --exclude, and the files with no match.
-fn filtered(globs: &[(GlobKind, &str)]) -> ScanOptions {
-    let globs: Vec<(GlobKind, String)> = globs
-        .iter()
-        .map(|(kind, glob)| (*kind, (*glob).to_owned()))
-        .collect();
+// FEATURE-13 and FEATURE-23: the globs of -g, and the files with no match.
+fn filtered(globs: &[&str]) -> ScanOptions {
+    let globs: Vec<String> = globs.iter().map(|glob| (*glob).to_owned()).collect();
     ScanOptions {
-        files: FileFilter::new(&globs).expect("valid globs"),
+        files: FileFilter::new(&globs, Path::new("/")).expect("valid globs"),
         ..options()
     }
 }
 
 #[test]
-fn an_include_glob_searches_only_the_files_that_match_and_the_skip_counts_do_not_change() {
+fn a_glob_searches_only_the_files_that_match_and_a_file_that_it_leaves_out_is_not_skipped() {
     let dir = TempDir::new().expect("temporary folder");
     let root = dir.path();
     write(root, "a.txt", b"needle\n");
     write(root, "dir/c.rs", b"needle\n");
-    write(root, ".hidden.rs", b"needle\n");
+    write(root, ".hidden.txt", b"needle\n");
     let matcher = RegexMatcher::new("needle").expect("a valid pattern");
     let plain = scan(&[root.to_path_buf()], &matcher, &options());
-    let report = scan(
-        &[root.to_path_buf()],
-        &matcher,
-        &filtered(&[(GlobKind::Include, "*.rs")]),
-    );
+    assert_eq!(plain.skipped.hidden, 1);
+    let report = scan(&[root.to_path_buf()], &matcher, &filtered(&["*.rs"]));
     assert_eq!(names(&report, root), ["dir/c.rs"]);
-    assert_eq!(report.skipped, plain.skipped);
-    assert_eq!(report.skipped.hidden, 1);
+    assert_eq!(report.skipped, SkipCounts::default());
 }
 
+// As in rg, a glob that matches a hidden file brings it in.
 #[test]
-fn a_glob_applies_to_a_file_that_the_user_names() {
+fn a_glob_that_matches_a_hidden_file_searches_it() {
+    let dir = TempDir::new().expect("temporary folder");
+    let root = dir.path();
+    write(root, ".hidden.rs", b"needle\n");
+    let matcher = RegexMatcher::new("needle").expect("a valid pattern");
+    let report = scan(&[root.to_path_buf()], &matcher, &filtered(&["*.rs"]));
+    assert_eq!(names(&report, root), [".hidden.rs"]);
+}
+
+// As in rg, a glob that leaves out a folder leaves out the files in it.
+#[test]
+fn a_glob_with_a_bang_leaves_out_a_folder_and_its_files() {
+    let dir = TempDir::new().expect("temporary folder");
+    let root = dir.path();
+    write(root, "a.txt", b"needle\n");
+    write(root, "sub/x.rs", b"needle\n");
+    let matcher = RegexMatcher::new("needle").expect("a valid pattern");
+    let report = scan(&[root.to_path_buf()], &matcher, &filtered(&["!sub"]));
+    assert_eq!(names(&report, root), ["a.txt"]);
+}
+
+// As in rg, a glob never applies to a path that the user names.
+#[test]
+fn a_glob_does_not_apply_to_a_file_that_the_user_names() {
     let dir = TempDir::new().expect("temporary folder");
     let root = dir.path();
     write(root, "a.txt", b"needle\n");
     let matcher = RegexMatcher::new("needle").expect("a valid pattern");
     let file = root.join("a.txt");
-    let skipped = scan(
+    let report = scan(std::slice::from_ref(&file), &matcher, &filtered(&["*.rs"]));
+    assert_eq!(report.files.len(), 1);
+    let report = scan(
         std::slice::from_ref(&file),
         &matcher,
-        &filtered(&[(GlobKind::Include, "*.rs")]),
+        &filtered(&["!*.txt"]),
     );
-    assert!(skipped.files.is_empty());
-    let kept = scan(
-        std::slice::from_ref(&file),
-        &matcher,
-        &filtered(&[(GlobKind::Exclude, "*.rs")]),
-    );
-    assert_eq!(kept.files.len(), 1);
+    assert_eq!(report.files.len(), 1);
 }
 
 #[test]
-fn a_file_with_no_match_is_kept_only_when_the_option_says_so_and_a_binary_file_never() {
+fn a_file_with_no_match_and_a_binary_file_give_no_result() {
     let dir = TempDir::new().expect("temporary folder");
     let root = dir.path();
     write(root, "a.txt", b"needle\nneedle\n");
@@ -594,13 +606,6 @@ fn a_file_with_no_match_is_kept_only_when_the_option_says_so_and_a_binary_file_n
     let matcher = RegexMatcher::new("needle").expect("a valid pattern");
     let report = scan(&[root.to_path_buf()], &matcher, &options());
     assert_eq!(names(&report, root), ["a.txt"]);
-    let keep = ScanOptions {
-        keep_files_with_no_match: true,
-        ..options()
-    };
-    let report = scan(&[root.to_path_buf()], &matcher, &keep);
-    assert_eq!(names(&report, root), ["a.txt", "b.txt"]);
     assert_eq!(report.files[0].lines.len(), 2);
-    assert!(report.files[1].lines.is_empty());
     assert_eq!(report.skipped.binary, 1);
 }

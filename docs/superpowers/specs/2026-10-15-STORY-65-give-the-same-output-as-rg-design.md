@@ -84,19 +84,19 @@ names.
 | # | Decision | Choice | Source |
 |---|---|---|---|
 | 1 | Specs | One spec for STORY-65, STORY-66, and STORY-67. The three stories share one test set and one list of decisions | Orchestrator TASK for FEATURE-23 |
-| 2 | The reference | rg 15.2.0, with no rg config file. For the same arguments with no `--ask`, jag gives the same stdout, stderr, color codes, and exit code as rg. A difference stays only when a user ANSWER records it | User ANSWER of 2026-10-15 (Q1 option 1); ADR-0022 (merged in `ee7debb`, status `proposed` until a card accepts it); the pin of ADR-0021 (merged in `a9f966d`, status `proposed` until a card accepts it) |
+| 2 | The reference | rg 15.2.0, with no rg config file. For the same arguments with no `--ask`, jag gives the same stdout, stderr, color codes, and exit code as rg. A difference stays only when a user ANSWER records it | User ANSWER of 2026-10-15 (Q1 option 1); ADR-0022 (merged in `ee7debb`, status `accepted` (PR #129)); the pin of ADR-0021 (merged in `a9f966d`, status `accepted` (PR #129)) |
 | 3 | The scope | A search with no `--ask`: text mode and `--json` mode. `--setup`, `--check`, and `--forget-key` are not searches, and no case runs them. The ranked layout of `--ask` does not change | ADR-0022, Consequences; DECISION-31 |
 | 4 | Color codes in all text modes | The rg color codes also in the ranked text of `--ask`: path `ESC[0m ESC[35m`, line number `ESC[0m ESC[32m`, match `ESC[0m ESC[1m ESC[31m`, each closed with `ESC[0m`. The separators get no color | DECISION-38 (PR #121) names no mode; probe of rg 15.2.0 |
-| 5 | The `<stdin>` label in all modes | `src/search.rs` `STANDARD_INPUT_LABEL` becomes `<stdin>`. This changes the plain text, the ranked text, the `path` of the JSON document, and the path in the snippets that go to the model | DECISION-18 (PR #121) names no mode |
+| 5 | The `<stdin>` label in all modes | `src/search.rs` `STANDARD_INPUT_LABEL` becomes `<stdin>`. This changes the plain text, the ranked text, and the path in the snippets that go to the model. The `path` of the JSON document stays `null` for stdin, for a result and for a warning, as on `main` | DECISION-18 (PR #121) names no mode. DECISION-18 names the label, not the JSON document. FEATURE-11 spec decision 13: `path` is "`null` for standard input, in the place of the label `(standard input)`, because no file has that path". Card D (decision 21): `--json` keeps the one JSON document of jag. FEATURE-14 spec decision 16, and the test `criterion_35_a_result_of_piped_text_has_a_null_path_in_structured_mode` in `tests/input.rs`. Verifier-1 on PR #135, comment 6203773333, note 1 |
 | 6 | Color auto rule | As rg: color only when stdout is a terminal, `TERM` is set and is not `dumb`, and `NO_COLOR` is not set. This applies to all text modes | DECISION-38; rg 15.2.0 `crates/core/flags/defs.rs` (the `--color` help) |
 | 7 | The printer of plain text mode | jag writes the plain text output with `grep-printer` 0.3.1 and `termcolor` 1.4.1, with the settings that rg 15.2.0 uses. These are the versions in the `Cargo.lock` of rg 15.2.0. ADR-0001: no change (architect, 2026-10-15). The new crates follow ADR-0012 (a reason in the PR): the implementer gives the reason in the body of the code PR | A spike gave byte-identical output to `rg --sort path` in 14 of 14 layouts; architect answer of 2026-10-15 (the crates write output and do not find matches; ADR-0022 holds the output contract); ADR-0012 (a new outside crate needs a reason in the pull request) |
 | 8 | The search of plain text mode | A new sequential pipeline, as rg: the walk of `ignore` with the settings of `HiArgs::walk_builder` of rg 15.2.0, sorted by file name, with one thread. `grep-searcher` searches each file. The printer writes the result of each file to stdout when that file is complete. The ranked search and `--json` keep the scan of `src/search/walk.rs` | rg 15.2.0 `crates/core/flags/hiargs.rs` and `crates/core/main.rs`; decision 7 |
 | 9 | Order of files | Paths of the command line in their order. Inside a folder, the order of `ignore` `sort_by_file_name`: by name, folder by folder. So `ord/sub/x.txt` comes before `ord/sub.txt`. jag uses this order also with no `--sort` | Probe: rg with more than one file and no `--sort` gives a different order in each run; rg with `--sort path` gives this order |
 | 10 | Cases with more than one file | A case that can match in more than one file has `--sort path` in its arguments, or the case searches one file | ADR-0021, open point "Order"; decision 9 |
-| 11 | Error texts | The rg 15.2.0 text of each error, in the form that rg gives with one thread. The section "The error texts" lists the forms | Q1; probe: rg gives a shorter path error with more than one thread, and `--sort path` or one file gives one thread |
+| 11 | Error texts | The rg 15.2.0 text of each error. rg writes an error of the walk (a path that does not exist, an empty path, or a folder that it cannot read) in two forms: with one thread `P: IO error for operation on P: <error>`, and with more than one thread `P: <error>`. jag chooses the form with the thread rule of rg 15.2.0, also when it searches with one thread (decision 8). An error of a file search has one form. The section "The error texts" gives the rule and the forms | Derived from row 2 (Q1): ADR-0022, Decision ("jag differs from rg only where a user `ANSWER` records a deliberate difference"); rg 15.2.0 `crates/core/flags/hiargs.rs` (`threads`, `is_one_file`) and `crates/core/main.rs` (`search`, `search_parallel`); probes of 2026-10-15 (verifier-1 on PR #135, comment 6203457295; specifier, 12 CPUs) |
 | 12 | Exit codes of a search with no `--ask` | As rg 15.2.0 (`crates/core/main.rs`): 0 when a line matched and (`-q` is on, or no error happened); 2 when an error happened; else 1. An error is any path or file that jag cannot read, not only a path that does not exist. A usage error gives 2. Ctrl-C gives 130 | Q1; probe: a file with no read permission gives rg exit 2 and jag exit 0 |
 | 13 | Streaming and Ctrl-C | In plain text mode, jag writes the result of each file when that file is complete, as rg does. On Ctrl-C, jag stops and exits with 130, and the text that it already wrote stays. The "no partial result" rule of CV-4 stays for `--ask` and `--json` | Q1; decision 8 |
-| 14 | `-` as a path | `-` reads stdin, as rg does. Its label is `<stdin>`. An empty path gives the rg path error, not a usage error | Q1; probe: `rg foo -` and `rg foo ''`. This changes FEATURE-14 decision 8 |
+| 14 | `-` as a path | `-` reads stdin, as rg does, in each mode: with no `--ask`, with `--json`, and with `--ask`. For `-` alone, and for `-` with other paths, jag searches each path, as rg does. The label of stdin is `<stdin>`, and its JSON `path` is `null` (decision 5). An empty path gives the path error, not a usage error, in each mode: jag searches the other paths and exits with 2. With no `--ask` and no `--json`, the text is the rg text (decision 11). With `--ask` or `--json`, the text is the jag warning of a path that does not exist (decision 17; FEATURE-14 decisions 7 and 16): `jag: the path  does not exist` on the error stream, and `{"path":"","text":"the path  does not exist"}` in the JSON document | Q1; probe: `rg foo -` and `rg foo ''`. This changes FEATURE-14 decision 8. Each mode: decision 3 (`--json` with no `--ask` is in the scope of Q1), and FEATURE-14 decision 8 as replaced on 2026-10-15 ("`-` reads standard input, as rg does, with the label `<stdin>`, and the empty path gives the rg path error, not a usage error"; it names no mode). The usage errors of `-` and `""` are only in the old text of that decision. Verifier-1 on PR #135, comment 6203773333, note 2 |
 | 15 | Binary files | As rg: a file that the command line names gets the binary rule "convert" of `grep-searcher`, and the printer writes `binary file matches (found "\0" byte around offset N)`. A file of a walk gets the rule "quit", with no message | Probe; rg 15.2.0 `crates/core/flags/hiargs.rs` |
 | 16 | Ignore files | As rg: `.ignore`, `.rgignore`, and `.gitignore` (only inside a git repository), and the ignore files of the parent folders. Hidden files are skipped in a walk. A path of the command line is always searched | Probe: jag does not read `.rgignore` today; rg 15.2.0 `walk_builder` |
 | 17 | Usage error text with `--ask` or `--json` | The rg error texts apply when the command line has no `--ask` and no `--json` before the first `--`. Else jag keeps its own failure texts with the cause and the fix (CV-1), and the JSON error document with `--json` | ADR-0022 covers a search with no `--ask`; CV-1; IF-5 |
@@ -106,13 +106,16 @@ names.
 | 21 | JSON with no question (card D) | Decided, option 1: `--json` keeps the one JSON document of jag, as a recorded difference. The case `json` records it | Card D (F23-Q6), user ANSWER via hitl, 2026-10-15, option 1; ADR-0008 |
 | 22 | rg hints (card E) | Decided, option 1: jag gives the rg message with the same first part and the same exit code, with no sentence that names an option that jag does not have (`--pcre2`, `--multiline`, `-U`, `--debug`). The list of similar options after `unrecognized flag` comes from jag's own options, with the rule of rg. These are recorded differences | Card E (F23-Q7), user ANSWER via hitl, 2026-10-15, option 1 |
 | 23 | Layout options with `--ask` or `--json` | `-n`, `-N`, `-H`, `-I`, `--heading`, and `--no-heading` are a usage error with `--ask` or `--json`, as `-l`, `-c`, and `-q` are today. `-g` and `--sort` work in all modes. `--sort` has no effect on the ranked order | Inferred from `src/cli.rs` (`conflicts_with_all = MODES`) |
-| 24 | The test form | ADR-0021: one cargo integration test `tests/rg_parity.rs`, the cases in `tests/parity/cases.yaml`, the fixture trees in `tests/parity/fixtures/`, the stored jag bytes in `tests/parity/expected/`, the pin in `tests/parity/rg.sha256`, and `scripts/parity/install-rg.sh`. Three modes: pipe, color, and terminal | ADR-0021 (merged in `a9f966d`, status `proposed` until a card accepts it); the round of the user ANSWERs in PR #127 (head `778d4c3`) |
-| 25 | The first test set | The 76 cases of the section "The first test set", with the fixture trees of the section "The fixture trees" | CRITERION-110; the probes of 2026-10-15 |
+| 24 | The test form | ADR-0021: one cargo integration test `tests/rg_parity.rs`, the cases in `tests/parity/cases.yaml`, the fixture trees in `tests/parity/fixtures/`, the stored jag bytes in `tests/parity/expected/`, the pin in `tests/parity/rg.sha256`, and `scripts/parity/install-rg.sh`. Three modes: pipe, color, and terminal | ADR-0021 (merged in `a9f966d`, status `accepted` (PR #129)); the round of the user ANSWERs in PR #127 (head `778d4c3`) |
+| 25 | The first test set | The 80 cases of the section "The first test set", with the fixture trees of the section "The fixture trees" | CRITERION-110; the probes of 2026-10-15 |
 | 26 | Stdin files of the cases | `tests/parity/stdin/<name>`. A case names its file with `stdin: <name>` | ADR-0021 in PR #127 (head `778d4c3`) |
 | 27 | Owners and pull requests | Two pull requests. The tester opens the test PR (STORY-65 and STORY-66). The implementer opens the code PR (STORY-67). The verifier runs the cases on the code PR. See "Owners" | Orchestrator TASK ("The tester codifies the tests; the verifier runs the cases"); `docs/adlc.md`, the roles |
 | 28 | Merge order | The code PR merges first. The test PR merges after it, so `main` never has a parity test that fails | Decision 27; `cargo test` stops after the first test binary that fails, so a red parity test hides the results of other tests |
 | 29 | Done | All three stories are done only after both pull requests merge and the parity test passes in the `rust` job on `main` | `docs/adlc.md` ("does not block done, unless the spec says so") |
 | 30 | Story state | STORY-65, STORY-66, and STORY-67 are `ready`: this spec is in this PR, no feature blocks them, and the ANSWERs of cards A to E are in. The ADR round of the ANSWERs is open in PR #127 (head `778d4c3`) | `docs/adlc.md` rule 11; orchestrator messages of 2026-10-15 |
+| 31 | The rg config file | jag reads no rg config file: it does not read `RIPGREP_CONFIG_PATH`, and writes no message for it. The reference is rg with no config file (decision 2), so jag gives the output of rg with no `RIPGREP_CONFIG_PATH`, also when the variable is set. This is not a recorded difference. No parity case sets the variable | Derived from row 2 (Q1): ADR-0021, Context ("with no rg config") and Run ("`RIPGREP_CONFIG_PATH` is not set"); decision 20 (card C): an rg config file can hold rg options that jag does not have; verifier-1 on PR #135, comment 6203457295: jag does not read the variable |
+| 32 | `JAG_MAX_CHARS` with no question | With no `--ask` and no `--json`, jag does not read `JAG_MAX_CHARS`: the variable sets no limit, and a bad value gives no error. Only `--max-chars N` sets a limit (decision 19). With `--ask` or `--json`, the variable applies as before (FEATURE-09 spec decision 8) | Derived from row 19 (card B: "has no default size limit"; "`--max-chars N` still works when the user gives it"); DECISION-20: "In a search with no `--ask` and no `--json`, no default limit applies, as in rg. When the user gives `--max-chars N`, that limit applies"; reviewer-1 on PR #135, comment 6203613885 |
+| 33 | Values of jag's own options with no question | With no `--ask` and no `--json`, jag still checks the value of each of its own options on the command line: `--max-chars`, `--timeout`, `--retry-wait`, `--max-scored`, `--base-url`, and `--model`. It checks them before the search, with no key. A bad value gives the jag text of the option (the cause and the fix, CV-1) and exit 2, as with `--ask`. Other than `--max-chars`, the options have no effect. jag does not read the variables of these settings with no question (decision 32 for `JAG_MAX_CHARS`). This is an exception to decision 17: rg has no text for an option that only jag has | Derived from row 18 (card A: jag keeps its own options); FEATURE-21 spec (STORY-57 and STORY-58 done), "Plain grep with no question": "With no question, `--timeout`, `--retry-wait`, `--max-scored`, `--base-url`, and `--model` have no effect. jag still checks their values."; FEATURE-03 spec decision 11: jag checks the options with the other arguments, before the key, and the variables with the model settings; probe of jag `main` 55b3652: `jag --timeout abc foo a.txt` gives the text and exit 2; reviewer-1 on PR #135, comment 6203613885 |
 
 ## Design
 
@@ -172,7 +175,7 @@ PR #127 (head `778d4c3`) holds the ADR round of the ANSWERs:
 | `src/output.rs` | The rg color codes in the ranked text (decision 4); no cost line and no notices in plain text mode, but the size notice of `--max-chars` (decision 19) | implementer |
 | `src/search/filter.rs`, `src/search/walk.rs` | The `--include` and `--exclude` globs become `-g`/`--glob` (decision 20) | implementer |
 | `tests/*.rs` | Each test that checks the grep form now checks the rg form | implementer |
-| `README.md` | The plain search texts: the `<stdin>` label, `-` as stdin, the color rule, the exit codes, the options, and the notices (decisions 5, 6, 12, 14, 19, and 20) | implementer |
+| `README.md` | The plain search texts: the `<stdin>` label, `-` as stdin, the color rule, the exit codes, the options, and the notices (decisions 5, 6, 12, 14, 19, 20, 32, and 33) | implementer |
 | `tests/rg_parity.rs` (new) | The harness of ADR-0021 | tester |
 | `Cargo.toml` `[dev-dependencies]` | `rustix` with the features `pty` and `termios` (ADR-0021) | tester |
 | `tests/parity/cases.yaml` (new) | The first test set | tester |
@@ -188,7 +191,9 @@ PR #127 (head `778d4c3`) holds the ADR round of the ANSWERs:
 
 Each row is one difference that the probe found. "Fix" means that the code PR
 changes jag to the rg form. "Recorded difference" means that a user ANSWER
-keeps the jag form.
+keeps the jag form. D26 and D27 come from verifier-1 on PR #135, comment 6203457295, on the head
+`077db2c` of that PR. D28 and D29 come from reviewer-1 on PR #135, comment 6203613885, on the head
+`31bedf4`.
 
 | # | What | rg 15.2.0 | jag on `main` | Action |
 |---|---|---|---|---|
@@ -202,7 +207,7 @@ keeps the jag form.
 | D8 | `-l` and `-c` with color | rg color codes on the path | grep codes | Fix |
 | D9 | Binary file of the command line | `binary file matches (found "\0" byte around offset 3)` on stdout, exit 0 | Skipped, exit 1 | Fix |
 | D10 | Stdin label | No label with stdin alone; `<stdin>` with other files | `(standard input):1:` | Fix |
-| D11 | `-` and the empty path | `-` reads stdin; `''` gives the path error, exit 2 | Usage error | Fix |
+| D11 | `-` and the empty path | `-` reads stdin; `''` gives the path error, exit 2 | Usage error | Fix, in each mode (decision 14) |
 | D12 | `.rgignore` | Read | Not read | Fix |
 | D13 | Read error | `rg: u.txt: Permission denied (os error 13)`, exit 2 | `jag: cannot read u.txt: permission denied`, exit 0 | Fix |
 | D14 | Path that does not exist | `rg: nope.txt: IO error for operation on nope.txt: No such file or directory (os error 2)` | `jag: the path nope.txt does not exist` | Fix (name rule of card A) |
@@ -217,6 +222,10 @@ keeps the jag form.
 | D23 | `--include`, `--exclude`, `-g`, `-n`, `-N`, `-H`, `-I`, `--heading`, `--sort`, `--colour`, `--color VALUE` | rg form | jag form | Fix (card C). Each rg option that card C does not keep is a recorded difference |
 | D24 | `-h`, `--help`, `-V`, `--version`, jag-only options | rg text | jag text | Recorded difference (card A) |
 | D25 | `--json` | JSON lines with times | One document | Recorded difference (card D) |
+| D26 | `RIPGREP_CONFIG_PATH` is set | rg reads the file. If it cannot read it, rg writes `rg: failed to read the file specified in RIPGREP_CONFIG_PATH: ...` and searches | jag does not read it | No change: the reference is rg with no config file (decision 31) |
+| D27 | Walk error with more than one thread: `foo nope.txt a.txt` (no `--sort`) | `rg: nope.txt: No such file or directory (os error 2)` | `jag: nope.txt: IO error for operation on nope.txt: No such file or directory (os error 2)` | Fix (decision 11) |
+| D28 | `JAG_MAX_CHARS=1000`, no question | No effect | A limit of 1,000 characters, the notice, and exit 8 | Fix (decision 32) |
+| D29 | A bad value of an option that only jag has, no question: `--timeout abc foo a.txt` | `rg: unrecognized flag --timeout`, exit 2 | No check, exit 0 | Fix: the jag text and exit 2 (decision 33). The text stays a recorded difference (card A) |
 
 ### The plain text pipeline (decisions 7, 8, 9, 12, 13, 15, 16)
 
@@ -264,17 +273,33 @@ is `jag` (card A, option 1).
 
 | Error | Text | Exit |
 |---|---|---|
-| Path that does not exist | `<name>: P: IO error for operation on P: No such file or directory (os error 2)` | 2 |
-| Path that jag cannot read | `<name>: P: Permission denied (os error 13)` | 2 |
-| Empty path | `<name>: : IO error for operation on : No such file or directory (os error 2)` | 2 |
+| Path that does not exist | One thread: `<name>: P: IO error for operation on P: No such file or directory (os error 2)`. More than one thread: `<name>: P: No such file or directory (os error 2)` | 2 |
+| Folder that jag cannot read | One thread: `<name>: P: IO error for operation on P: Permission denied (os error 13)`. More than one thread: `<name>: P: Permission denied (os error 13)` | 2 |
+| File that jag cannot read | `<name>: P: Permission denied (os error 13)`, in both forms | 2 |
+| Empty path | One thread: `<name>: : IO error for operation on : No such file or directory (os error 2)`. More than one thread: `<name>: : No such file or directory (os error 2)` | 2 |
 | Bad pattern | `<name>: regex parse error:` then the lines of the `grep-regex` error | 2 |
 | Unknown option | `<name>: unrecognized flag --X`, then an empty line and `similar flags that are available: ...` when the rule of rg finds similar names in jag's options | 2 |
 | Bad value | `<name>: error parsing flag -A: value is not a valid number: invalid digit found in string` | 2 |
 | Bad choice | `<name>: error parsing flag --color: choice 'X' is unrecognized` | 2 |
+| Bad value of an option that only jag has (decision 33) | The jag text of the option, with the cause and the fix. For example: `jag: the value of --timeout is not a whole number of seconds from 1 to 60.` and `Use a number such as --timeout 10.` | 2 |
 | Missing value | `<name>: missing value for flag -A: missing argument for option '-A'` | 2 |
 | No pattern | `<name>: <name> requires at least one pattern to execute a search` | 2 |
 | Nothing searched | `<name>: No files were searched, which means <name> probably applied a filter you didn't expect.` (card E option 1 drops the `--debug` line) | 2 |
 | Look-around or `\n` in the pattern | The rg text with no hint sentence (card E option 1) | 2 |
+
+The thread rule (decision 11) comes from `HiArgs` of rg 15.2.0
+(`crates/core/flags/hiargs.rs`). rg uses one thread when one of these is
+true:
+
+- The last `--sort` of the command line has the value `path`. `--sort none` sets no sort, so it does not give one thread.
+- The command line names exactly one path, and that path is `-` or is not a
+  folder (`is_one_file`). A path that does not exist is not a folder.
+- `std::thread::available_parallelism` gives 1, or gives an error.
+
+Else rg uses more than one thread: with no path (`jag foo`), with one
+folder, or with more than one path. jag has no `-j` (card C). Only the form
+of a walk error follows the rule. The order of the files and the search stay
+as decisions 8 and 9 say.
 
 clap stays the parser (ADR-0012). `src/cli/rg_text.rs` maps each clap error
 kind to the rg text. The rg source of each text is
@@ -335,6 +360,8 @@ stderr. `deliberate: X`: the stored jag bytes, with the ANSWER of card X
 | term-dumb | `foo a.txt` | basic | terminal | `TERM=dumb` | rg |
 | missing-path | `foo nope.txt` | basic | all | | rg |
 | missing-and-match | `--sort path foo nope.txt a.txt` | basic | all | | rg |
+| missing-and-match-threads | `foo nope.txt a.txt` | basic | all | | rg |
+| missing-sort-none | `--sort none foo nope.txt a.txt` | basic | all | | rg |
 | quiet-missing | `-q --sort path foo nope.txt a.txt` | basic | all | | rg |
 | empty-path | `foo ''` | basic | all | | rg |
 | bad-regex | `'(' a.txt` | basic | all | | rg |
@@ -364,6 +391,8 @@ stderr. `deliberate: X`: the stored jag bytes, with the ANSWER of card X
 | many | `foo many.txt` | limits | all | | rg |
 | limits-walk | `--sort path foo .` | limits | all | | rg |
 | max-chars | `--max-chars 1000 foo many.txt` | limits | pipe | | deliberate: A |
+| max-chars-variable | `foo many.txt` | limits | pipe | `JAG_MAX_CHARS=1000` | rg |
+| max-chars-variable-bad | `foo a.txt` | basic | pipe | `JAG_MAX_CHARS=abc` | rg |
 | help-short | `-h` | basic | pipe | | deliberate: A |
 | help-long | `--help` | basic | pipe | | deliberate: A |
 | version | `--version` | basic | pipe | | deliberate: A |
@@ -432,7 +461,9 @@ The stdin file `tests/parity/stdin/lines.txt` holds `a foo\nb\nfoo c\n`.
 | CRITERION-112 | `tests/rg_parity.rs`, color mode (`--color=always` in a pipe) and terminal mode (stdout on a pseudo terminal) |
 | CRITERION-113 | The `rust` job of `ci.yml` (Linux and macOS) and the `build` job of `release.yml` run `scripts/parity/install-rg.sh`, set `JAG_PARITY_RG`, and run `cargo test --locked`. The environment of each run is empty, plus `HOME`, `TERM`, and the env of the case (ADR-0021), so `RIPGREP_CONFIG_PATH` is not set. In the test PR, the tester pushes one commit that changes one stored byte, links the failed run that shows the difference, and then pushes a second commit that reverts it |
 | CRITERION-114 | Each case passes against rg, or has `deliberate: { answer: ... }` that names a user ANSWER (date, card, and option). The test checks that jag gives the stored bytes and that rg does not. The reviewer checks each `answer:` against the ANSWER of the card |
-| Decisions 12 and 13 (no parity case) | The code PR tests them in `tests/`: a test makes a file with mode 000 in a temporary folder and checks the rg text and exit 2; a second test sends SIGINT during a plain search and checks exit 130 and the text that jag already wrote. A test that runs as root skips the mode 000 check |
+| Decisions 32 and 33 (tests in `tests/`) | `tests/size_limit.rs`: with `--json`, `JAG_MAX_CHARS=1000` still gives the limit, the notice, and exit 8. `tests/usage.rs`: with no `--ask` and no `--json`, each of `--max-chars abc`, `--timeout abc`, `--retry-wait abc`, `--max-scored abc`, `--base-url notaurl`, and `--model ''` gives exit 2, the jag text of the option, and no stdout. The parity cases `max-chars-variable` and `max-chars-variable-bad` check decision 32 against rg |
+| Decisions 5 and 14 (tests in `tests/`) | `tests/input.rs`: with `--json`, stdin `a foo` and `foo - a.txt` give a result with `path` `null` and a result with `path` `a.txt`, and exit 0. With `--json`, `foo '' a.txt` gives the warning `{"path":"","text":"the path  does not exist"}`, the result of `a.txt`, and exit 2. The unit test of `search_args` in `src/cli.rs`: with `--ask`, `-` with another path and `""` with another path give no usage error |
+| Decisions 11, 12, and 13 (tests in `tests/`) | The code PR tests them in `tests/`: a test makes a file with mode 000 in a temporary folder and checks the rg text and exit 2; a test makes a folder with mode 000 and checks both forms of decision 11 (`foo` with no path, and `--sort path foo .`) and exit 2; a second test sends SIGINT during a plain search and checks exit 130 and the text that jag already wrote. A test that runs as root skips the mode 000 check |
 
 The implementer also changes the unit tests and the integration tests of
 `tests/` that check the grep form: at least `tests/plain_grep.rs`,
@@ -447,8 +478,8 @@ test that checks `(standard input)`).
 
 1. Done on 2026-10-15: the ANSWERs of cards A to E are in this spec, and
    this PR sets the stories `ready` (rule 11). Before the code PR and the
-   test PR merge, PR #127 (the ADR round of the ANSWERs) merges. A card
-   accepts ADR-0021 and ADR-0022. The planner changes the PRD pages ("For
+   test PR merge, PR #127 (the ADR round of the ANSWERs) merges. ADR-0021
+   and ADR-0022 are accepted (PR #129). The planner changes the PRD pages ("For
    the planner").
 2. Tester (STORY-65, STORY-66): the test PR from `main`, with each file of
    the tester in "Files". The parity test fails on this PR until step 3
@@ -469,6 +500,24 @@ test that checks `(standard input)`).
 
 ## Assumptions
 
+- Decision 11 (the form of a walk error) is derived from row 2 (Q1) with
+  ADR-0022 and the rg 15.2.0 source. `missing-and-match-threads` and
+  `missing-sort-none` give the form of more than one thread only on a
+  machine with more than one CPU. On
+  a machine with one CPU, rg and jag both give the form of one thread.
+- Decision 31 (no rg config file) is derived from row 2 (Q1) with ADR-0021.
+- Decision 32 (`JAG_MAX_CHARS` with no question) is derived from row 19
+  (card B) with DECISION-20.
+- Decision 33 (the checks of jag's own options) is derived from row 18
+  (card A) with the FEATURE-21 spec and the FEATURE-03 spec.
+- Decision 5 (the JSON `path` of stdin stays `null`) comes from the
+  FEATURE-11 spec decision 13 and card D (decision 21). DECISION-18 names
+  the label, not the JSON document. A `<stdin>` path would change the JSON
+  document of a done feature, and no card named that change.
+- Decision 14 in each mode is derived from row 2 (Q1) with decision 3 for
+  `--json`, and from FEATURE-14 decision 8 as replaced on 2026-10-15 for
+  `--ask`. No source keeps the usage error of `-` with other paths, or of
+  the empty path, with `--ask` or `--json`.
 - Decision 23 (layout options with `--ask` or `--json`) comes from the code
   convention `conflicts_with_all = MODES` in `src/cli.rs`.
 - The snippet path that jag sends to the model changes from
@@ -493,7 +542,8 @@ test that checks `(standard input)`).
 ## Out of scope
 
 - The ranked layout of `--ask`, and the JSON document of `--json`, except
-  the color codes (decision 4) and the `<stdin>` label (decision 5).
+  the color codes (decision 4) and the `<stdin>` label of the ranked layout
+  (decision 5). The JSON `path` of stdin stays `null`.
 - `--setup`, `--check`, and `--forget-key` (ADR-0022).
 - rg options that card C does not keep. With card C option 1, each one is a
   recorded difference.

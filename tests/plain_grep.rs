@@ -1,5 +1,6 @@
 //! End-to-end tests of a search with no question, and of the option `--ask`
 //! (FEATURE-12, CRITERION-53, CRITERION-54, CRITERION-68, decisions 1 and 2).
+//! The text of a search with no question is the text of rg (FEATURE-23).
 //!
 //! Each test sets HOME to a temporary folder. A test that proves "no model
 //! call" uses the fake server and checks that it has no request.
@@ -18,8 +19,7 @@ use serde_json::Value;
 use tempfile::TempDir;
 
 const USAGE_ERROR: &str = "jag: the command line is not valid. Run jag --help to see the usage.\n";
-const THREE_LINES: &str =
-    "dir/a.txt:1:needle one\ndir/a.txt:3:needle two\ndir/sub/b.txt:1:x needle\n";
+const THREE_LINES: &str = "dir/a.txt:needle one\ndir/a.txt:needle two\ndir/sub/b.txt:x needle\n";
 
 struct Run {
     code: Option<i32>,
@@ -74,20 +74,17 @@ fn run_bare(cwd: &Path, args: &[&str]) -> Run {
 }
 
 #[test]
-fn criterion_53_the_matching_lines_come_as_grep_gives_them() {
+fn criterion_53_the_matching_lines_come_as_rg_gives_them_and_no_cost_line_comes() {
     let root = example();
     let server = FakeServer::constant(0.9);
     let run = run(&server, root.path(), &["needle", "dir"]);
     assert_eq!(run.code, Some(0));
     assert_eq!(run.stdout, THREE_LINES);
-    assert_eq!(
-        run.stderr,
-        "jag: cost $0.000000 (no question): scored 0 of 3 results, skipped 0.\n"
-    );
+    assert_eq!(run.stderr, "");
 }
 
 #[test]
-fn criterion_53_the_lines_are_the_lines_of_the_grep_program() {
+fn criterion_53_the_lines_are_the_lines_of_rg_in_the_order_of_the_names() {
     let root = folder();
     write(
         root.path(),
@@ -96,21 +93,11 @@ fn criterion_53_the_lines_are_the_lines_of_the_grep_program() {
     );
     write(root.path(), "two.txt", b"before\nthe needle is here\n");
     write(root.path(), "sub/three.txt", b"no match\nneedle\nnothing\n");
-    let jag_run = run_bare(root.path(), &["needle", "."]);
-    let grep = std::process::Command::new("grep")
-        .args(["-rnH", "needle", "."])
-        .current_dir(root.path())
-        .output()
-        .expect("run grep");
-    let sorted = |text: &str| {
-        let mut lines: Vec<String> = text.lines().map(str::to_owned).collect();
-        lines.sort();
-        lines
-    };
-    assert_eq!(jag_run.code, Some(0));
+    let run = run_bare(root.path(), &["needle", "."]);
+    assert_eq!(run.code, Some(0));
     assert_eq!(
-        sorted(&jag_run.stdout),
-        sorted(&String::from_utf8_lossy(&grep.stdout))
+        run.stdout,
+        "./one.txt:needle first\n./one.txt:needle again\n./sub/three.txt:needle\n./two.txt:the needle is here\n"
     );
 }
 
@@ -118,26 +105,21 @@ fn criterion_53_the_lines_are_the_lines_of_the_grep_program() {
 fn criterion_53_one_file_shows_its_path() {
     let root = example();
     let run = run_bare(root.path(), &["needle", "dir/a.txt"]);
-    assert_eq!(
-        run.stdout,
-        "dir/a.txt:1:needle one\ndir/a.txt:3:needle two\n"
-    );
+    // One file: rg gives no path (FEATURE-23, decision 2).
+    assert_eq!(run.stdout, "needle one\nneedle two\n");
 }
 
 #[test]
-fn criterion_53_a_carriage_return_stays_and_a_long_line_is_cut() {
+fn criterion_53_a_carriage_return_stays_and_a_long_line_is_not_cut() {
     let root = folder();
     write(root.path(), "crlf.txt", b"needle\r\n");
     let run = run_bare(root.path(), &["needle", "crlf.txt"]);
-    assert_eq!(run.stdout, "crlf.txt:1:needle\r\n");
+    assert_eq!(run.stdout, "needle\r\n");
 
     let long = format!("needle{}", "x".repeat(394));
     write(root.path(), "long.txt", format!("{long}\n").as_bytes());
     let run = run_bare(root.path(), &["needle", "long.txt"]);
-    assert_eq!(
-        run.stdout,
-        format!("long.txt:1:{} [+100 chars]\n", &long[..300])
-    );
+    assert_eq!(run.stdout, format!("{long}\n"));
 }
 
 #[test]
@@ -146,29 +128,26 @@ fn criterion_53_no_match_exits_1_and_a_bad_term_exits_2() {
     let run = run_bare(root.path(), &["absent", "dir"]);
     assert_eq!(run.code, Some(1));
     assert_eq!(run.stdout, "");
-    assert_eq!(
-        run.stderr,
-        "jag: cost $0.000000 (no question): scored 0 of 0 results, skipped 0.\n"
-    );
+    assert_eq!(run.stderr, "");
 
     let run = run_bare(root.path(), &["(", "dir"]);
     assert_eq!(run.code, Some(2));
-    assert!(run.stderr.contains("not a valid regular expression"));
+    assert_eq!(run.stdout, "");
+    assert!(
+        run.stderr.starts_with("jag: regex parse error:\n"),
+        "{}",
+        run.stderr
+    );
 }
 
 #[test]
-fn criterion_53_a_hidden_file_is_skipped_with_the_notice() {
+fn criterion_53_a_hidden_file_is_skipped_with_no_notice() {
     let root = example();
     write(root.path(), "dir/.h.txt", b"needle\n");
     let run = run_bare(root.path(), &["needle", "dir"]);
     assert_eq!(run.code, Some(0));
     assert_eq!(run.stdout, THREE_LINES);
-    assert!(
-        run.stderr
-            .contains("jag: skipped 1 files and folders (0 binary, 1 hidden, 0 ignored)"),
-        "{}",
-        run.stderr
-    );
+    assert_eq!(run.stderr, "");
 }
 
 #[test]
@@ -177,7 +156,7 @@ fn criterion_53_the_lines_follow_the_order_of_the_paths_on_the_command_line() {
     write(root.path(), "a.txt", b"needle a\n");
     write(root.path(), "b.txt", b"needle b\n");
     let run = run_bare(root.path(), &["needle", "b.txt", "a.txt"]);
-    assert_eq!(run.stdout, "b.txt:1:needle b\na.txt:1:needle a\n");
+    assert_eq!(run.stdout, "b.txt:needle b\na.txt:needle a\n");
 }
 
 #[test]
@@ -188,7 +167,7 @@ fn criterion_53_a_path_that_is_given_two_times_gives_its_lines_two_times() {
     let run = run_bare(root.path(), &["needle", "b.txt", "a.txt", "b.txt"]);
     assert_eq!(
         run.stdout,
-        "b.txt:1:needle b\na.txt:1:needle a\nb.txt:1:needle b\n"
+        "b.txt:needle b\na.txt:needle a\nb.txt:needle b\n"
     );
 }
 
@@ -200,20 +179,28 @@ fn criterion_53_paths_that_overlap_give_the_lines_at_each_place_of_the_command_l
     let run = run_bare(root.path(), &["needle", "d", "d/sub", "d"]);
     assert_eq!(
         run.stdout,
-        "d/a.txt:1:needle a\nd/sub/c.txt:1:needle c\n\
-         d/sub/c.txt:1:needle c\n\
-         d/a.txt:1:needle a\nd/sub/c.txt:1:needle c\n"
+        "d/a.txt:needle a\nd/sub/c.txt:needle c\n\
+         d/sub/c.txt:needle c\n\
+         d/a.txt:needle a\nd/sub/c.txt:needle c\n"
     );
 }
 
 #[test]
-fn criterion_53_color_always_gives_the_bytes_of_grep() {
+fn criterion_53_color_always_gives_the_bytes_of_rg() {
     let root = folder();
     write(root.path(), "a.txt", b"needle one\n");
+    write(root.path(), "b.txt", b"needle two\n");
+    // One file: no path.
     let run = run_bare(root.path(), &["--color=always", "needle", "a.txt"]);
+    assert_eq!(run.stdout, "\x1b[0m\x1b[1m\x1b[31mneedle\x1b[0m one\n");
+    // More than one file: the path has the color, the separator has none.
+    let run = run_bare(
+        root.path(),
+        &["--color", "always", "needle", "a.txt", "b.txt"],
+    );
     assert_eq!(
         run.stdout,
-        "\x1b[35m\x1b[Ka.txt\x1b[m\x1b[K\x1b[36m\x1b[K:\x1b[m\x1b[K\x1b[32m\x1b[K1\x1b[m\x1b[K\x1b[36m\x1b[K:\x1b[m\x1b[K\x1b[01;31m\x1b[Kneedle\x1b[m\x1b[K one\n"
+        "\x1b[0m\x1b[35ma.txt\x1b[0m:\x1b[0m\x1b[1m\x1b[31mneedle\x1b[0m one\n\x1b[0m\x1b[35mb.txt\x1b[0m:\x1b[0m\x1b[1m\x1b[31mneedle\x1b[0m two\n"
     );
 }
 
@@ -278,10 +265,7 @@ fn criterion_54_the_options_of_the_model_have_no_effect() {
     );
     assert_eq!(run.code, Some(0));
     assert_eq!(run.stdout, THREE_LINES);
-    assert_eq!(
-        run.stderr,
-        "jag: cost $0.000000 (no question): scored 0 of 3 results, skipped 0.\n"
-    );
+    assert_eq!(run.stderr, "");
 
     let run = self::run(
         &server,
@@ -291,13 +275,11 @@ fn criterion_54_the_options_of_the_model_have_no_effect() {
     assert_eq!(run.code, Some(0));
     assert_eq!(run.stdout, THREE_LINES);
 
+    // jag checks the value of its own options (FEATURE-23, decision 33).
     let run = run_bare(root.path(), &["--timeout", "abc", "needle", "dir"]);
     assert_eq!(run.code, Some(2));
-    assert!(
-        run.stderr.contains("the value of --timeout"),
-        "{}",
-        run.stderr
-    );
+    assert_eq!(run.stdout, "");
+    assert!(run.stderr.starts_with("jag: the value of --timeout"));
     assert!(server.requests().is_empty());
 }
 
@@ -307,10 +289,7 @@ fn criterion_68_no_key_is_needed_and_none_is_asked_for() {
     let run = run_bare(root.path(), &["needle", "dir"]);
     assert_eq!(run.code, Some(0));
     assert_eq!(run.stdout, THREE_LINES);
-    assert_eq!(
-        run.stderr,
-        "jag: cost $0.000000 (no question): scored 0 of 3 results, skipped 0.\n"
-    );
+    assert_eq!(run.stderr, "");
 
     let run = run_bare(root.path(), &["--json", "needle", "dir"]);
     assert_eq!(run.code, Some(0));
@@ -397,7 +376,7 @@ fn decision_1_a_word_after_the_term_is_a_path() {
     let server = FakeServer::constant(0.9);
     let run = run(&server, root.path(), &["needle", "my notes"]);
     assert_eq!(run.code, Some(0));
-    assert_eq!(run.stdout, "my notes/a.txt:1:needle\n");
+    assert_eq!(run.stdout, "my notes/a.txt:needle\n");
     assert!(server.requests().is_empty());
 }
 
@@ -408,18 +387,16 @@ fn decision_1_the_old_form_makes_no_call_and_names_the_path() {
     let run = run(
         &server,
         root.path(),
-        &["needle", "which line says retry", "dir"],
+        &["--sort", "path", "needle", "which line says retry", "dir"],
     );
     assert!(server.requests().is_empty());
     assert_eq!(run.stdout, THREE_LINES);
-    // FEATURE-14, decisions 7 and 20: the warning of a path that does not
-    // exist, and exit 2 at the end.
+    // FEATURE-23, decisions 11 and 12: the error text of rg for a path that
+    // does not exist, and exit 2 at the end.
     assert_eq!(run.code, Some(2));
-    assert!(
-        run.stderr
-            .contains("jag: the path which line says retry does not exist"),
-        "{}",
-        run.stderr
+    assert_eq!(
+        run.stderr,
+        "jag: which line says retry: IO error for operation on which line says retry: No such file or directory (os error 2)\n"
     );
 }
 
@@ -430,7 +407,7 @@ fn decision_2_after_a_double_dash_ask_is_a_term() {
     let server = FakeServer::constant(0.9);
     let run = run(&server, root.path(), &["--", "--ask", "dir"]);
     assert_eq!(run.code, Some(0));
-    assert_eq!(run.stdout, "dir/a.txt:1:use --ask here\n");
+    assert_eq!(run.stdout, "dir/a.txt:use --ask here\n");
     assert!(server.requests().is_empty());
 }
 

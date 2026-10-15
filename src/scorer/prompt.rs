@@ -192,7 +192,7 @@ mod tests {
         one.source = Source::StandardInput;
         let body: serde_json::Value =
             serde_json::from_str(&request_body("m", "q", &[one])).expect("json");
-        assert_eq!(body["state"]["snippets"][0]["path"], "(standard input)");
+        assert_eq!(body["state"]["snippets"][0]["path"], "<stdin>");
     }
 
     #[test]

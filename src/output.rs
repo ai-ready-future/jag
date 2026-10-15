@@ -16,7 +16,7 @@ use crate::failure::Failure;
 use crate::scorer::cost::{Cost, NoCallReason};
 use crate::scorer::{PROMPT_VERSION, THRESHOLD};
 use crate::search::snippet::{Snippet, SnippetLine, Source, char_count, char_prefix};
-use crate::search::walk::{FileMatches, SkipCounts, WalkWarning};
+use crate::search::walk::{SkipCounts, WalkWarning};
 
 /// The first line on standard output when no result answers well.
 pub const NO_GOOD_ANSWER: &str =
@@ -240,21 +240,22 @@ pub fn write_json(out: &mut dyn Write, summary: &Summary, results: &[&Snippet]) 
 /// C-output does not use the matcher (FEATURE-15, decision 10).
 pub type Paint<'a> = &'a dyn Fn(&[u8]) -> Vec<Range<usize>>;
 
-/// The colors of GNU grep with its default `GREP_COLORS` (decision 7).
-const MATCH: &str = "01;31";
-const PATH: &str = "35";
-const NUMBER: &str = "32";
-const SEPARATOR: &str = "36";
+/// The colors of rg with its default settings (FEATURE-23, decision 4): the
+/// reset, then the style. A colored item ends with the reset. The separators
+/// have no color.
+const MATCH: &str = "\x1b[0m\x1b[1m\x1b[31m";
+const PATH: &str = "\x1b[0m\x1b[35m";
+const NUMBER: &str = "\x1b[0m\x1b[32m";
 
 /// Write `item`, in `code` when `colored`. A colored item is
-/// `ESC[<code>m ESC[K <item> ESC[m ESC[K`, byte for byte as grep.
+/// `ESC[0m <style> <item> ESC[0m`, byte for byte as rg.
 fn item(out: &mut dyn Write, colored: bool, code: &str, bytes: &[u8]) -> io::Result<()> {
     if !colored {
         return out.write_all(bytes);
     }
-    write!(out, "\x1b[{code}m\x1b[K")?;
+    out.write_all(code.as_bytes())?;
     out.write_all(bytes)?;
-    out.write_all(b"\x1b[m\x1b[K")
+    out.write_all(b"\x1b[0m")
 }
 
 /// Write the text of a matching line, with each match in `MATCH`. An empty
@@ -383,7 +384,7 @@ fn block(snippet: &Snippet, separator: bool, paint: Option<Paint>) -> Vec<u8> {
     let mut bytes = Vec::new();
     // A write to a `Vec` does not fail.
     if separator {
-        let _ = item(&mut bytes, paint.is_some(), SEPARATOR, b"--");
+        bytes.extend_from_slice(b"--");
         bytes.push(b'\n');
     }
     let label = snippet.source.label();
@@ -395,7 +396,7 @@ fn block(snippet: &Snippet, separator: bool, paint: Option<Paint>) -> Vec<u8> {
 
 /// Write `label`, then the results, inside `limit`. `separator` puts `--`
 /// between two results. The fit, the cut, and the report are the same for
-/// `write_text` and `write_lines`.
+/// `write_text`.
 fn write_fitted(
     out: &mut dyn Write,
     label: &[u8],
@@ -480,7 +481,7 @@ fn write_fitted(
 /// A result has the form of `grep -n` with lines around the match:
 /// `path:N:text` for a matching line, `path-N-text` for another line, and
 /// `--` between two results (decision 27). `path` is the path as typed, or
-/// `(standard input)`. `text` is the first bytes of the line as the file holds
+/// `<stdin>`. `text` is the first bytes of the line as the file holds
 /// them. A line that jag cut ends with ` [+N chars]`, with N the count of cut
 /// characters.
 ///
@@ -504,104 +505,6 @@ pub fn write_text(
         no_good_answer,
         size,
     })
-}
-
-/// Write the lines of a search with no question (FEATURE-12): one
-/// `path:N:text` line for each line of `results`, in that order, and no label
-/// line. With `groups`, `--` stands between two results, as grep with a
-/// context option (FEATURE-13, decision 15). With no `groups`, no `--`, as
-/// grep with no context option. The size limit applies as for `write_text`
-/// (FEATURE-09).
-pub fn write_lines(
-    out: &mut dyn Write,
-    results: &[Snippet],
-    paint: Option<Paint>,
-    groups: bool,
-    limit: Option<usize>,
-) -> io::Result<SizeReport> {
-    let results: Vec<&Snippet> = results.iter().collect();
-    write_fitted(out, b"", &results, groups, paint, limit)
-}
-/// Write each of `items` as one whole line, inside `limit` (`None` for no
-/// limit). The lines that fit come from the top. The report says how many
-/// lines jag left out (FEATURE-13, decision 19 and 20; FEATURE-09).
-fn write_whole_lines(
-    out: &mut dyn Write,
-    items: &[Vec<u8>],
-    limit: Option<usize>,
-) -> io::Result<SizeReport> {
-    let kept = match limit {
-        None => items.len(),
-        Some(limit) => {
-            let mut sums = vec![0usize];
-            for bytes in items {
-                sums.push(sums[sums.len() - 1] + char_count(bytes));
-            }
-            fitting_count(items.len(), limit, |k| sums[k])
-        }
-    };
-    for bytes in &items[..kept] {
-        out.write_all(bytes)?;
-    }
-    Ok(SizeReport {
-        shown: kept,
-        left_out: items.len() - kept,
-        top_result_cut: 0,
-    })
-}
-
-/// The bytes of one line: the parts of `parts` with their color codes when
-/// `colored`, and `\n` at the end.
-fn colored_line(colored: bool, parts: &[(&str, &[u8])]) -> Vec<u8> {
-    let mut bytes = Vec::new();
-    // A write to a `Vec` does not fail.
-    for (code, text) in parts {
-        let _ = item(&mut bytes, colored, code, text);
-    }
-    bytes.push(b'\n');
-    bytes
-}
-
-/// Write the path of each file with a match, one path on each line, in the
-/// order of `files` (FEATURE-13, decision 19). The path is in `PATH` when
-/// `colored`. The size limit applies, with each line as one whole item.
-pub fn write_files(
-    out: &mut dyn Write,
-    files: &[FileMatches],
-    colored: bool,
-    limit: Option<usize>,
-) -> io::Result<SizeReport> {
-    let items: Vec<Vec<u8>> = files
-        .iter()
-        .filter(|file| !file.lines.is_empty())
-        .map(|file| colored_line(colored, &[(PATH, file.source.label())]))
-        .collect();
-    write_whole_lines(out, &items, limit)
-}
-
-/// Write `path:N` for each file of `files`, in that order: N is the count of
-/// matching lines (FEATURE-13, decision 20). The path is in `PATH` and the `:`
-/// in `SEPARATOR` when `colored`. The size limit applies, with each line as
-/// one whole item.
-pub fn write_counts(
-    out: &mut dyn Write,
-    files: &[FileMatches],
-    colored: bool,
-    limit: Option<usize>,
-) -> io::Result<SizeReport> {
-    let items: Vec<Vec<u8>> = files
-        .iter()
-        .map(|file| {
-            let count = file.lines.len().to_string();
-            let mut line = colored_line(colored, &[(PATH, file.source.label()), (SEPARATOR, b":")]);
-            // The line ends with `\n`: put the count before it.
-            line.pop();
-            line.extend_from_slice(count.as_bytes());
-            line.push(b'\n');
-            line
-        })
-        .collect();
-    write_whole_lines(out, &items, limit)
 }
 
 /// The second sentence of the size notice, and the field `size_limit_fix`.
@@ -820,9 +723,9 @@ fn write_line(
     let colored = paint.is_some();
     let separator: &[u8] = if line.is_match { b":" } else { b"-" };
     item(out, colored, PATH, label)?;
-    item(out, colored, SEPARATOR, separator)?;
+    out.write_all(separator)?;
     item(out, colored, NUMBER, line.number.to_string().as_bytes())?;
-    item(out, colored, SEPARATOR, separator)?;
+    out.write_all(separator)?;
     match paint {
         Some(paint) if line.is_match => {
             write_painted(out, &line.text, line.cut > 0, paint)?;
@@ -944,10 +847,7 @@ mod tests {
         let mut result = snippet("a", &[(6, "before", false), (7, "found", true)]);
         result.source = Source::StandardInput;
         let (text, _) = write(&[(result, 0.9)]);
-        assert_eq!(
-            text,
-            "(standard input)-6-before\n(standard input):7:found\n"
-        );
+        assert_eq!(text, "<stdin>-6-before\n<stdin>:7:found\n");
     }
 
     #[test]
@@ -1315,23 +1215,27 @@ mod tests {
         String::from_utf8(out).expect("text")
     }
 
-    fn paint(code: &str, text: &str) -> String {
-        format!("\x1b[{code}m\x1b[K{text}\x1b[m\x1b[K")
+    /// An item as rg paints it: the reset, the style, the item, the reset.
+    fn paint(style: &str, text: &str) -> String {
+        format!("\x1b[0m{style}{text}\x1b[0m")
     }
 
-    /// `path`, a separator, a number, a separator, as grep colors them.
+    const PATH_STYLE: &str = "\x1b[35m";
+    const NUMBER_STYLE: &str = "\x1b[32m";
+    const MATCH_STYLE: &str = "\x1b[1m\x1b[31m";
+
+    /// `path`, a separator, a number, a separator, as rg colors them. The
+    /// separators have no color.
     fn head(path: &str, separator: &str, number: u64) -> String {
         format!(
-            "{}{}{}{}",
-            paint("35", path),
-            paint("36", separator),
-            paint("32", &number.to_string()),
-            paint("36", separator)
+            "{}{separator}{}{separator}",
+            paint(PATH_STYLE, path),
+            paint(NUMBER_STYLE, &number.to_string()),
         )
     }
 
     #[test]
-    fn a_colored_result_has_the_bytes_of_grep_color_always() {
+    fn a_colored_result_has_the_bytes_of_rg_color_always() {
         let ranked = [(
             snippet("a.txt", &[(1, "x needle y", true), (2, "ctx", false)]),
             0.9,
@@ -1341,29 +1245,29 @@ mod tests {
             format!(
                 "{}x {} y\n{}ctx\n",
                 head("a.txt", ":", 1),
-                paint("01;31", "needle"),
+                paint(MATCH_STYLE, "needle"),
                 head("a.txt", "-", 2)
             )
         );
-        // The exact bytes of the spec.
+        // The exact bytes of `rg --color=always`.
         assert!(colored(&ranked).starts_with(
-            "\x1b[35m\x1b[Ka.txt\x1b[m\x1b[K\x1b[36m\x1b[K:\x1b[m\x1b[K\x1b[32m\x1b[K1\x1b[m\x1b[K\x1b[36m\x1b[K:\x1b[m\x1b[Kx \x1b[01;31m\x1b[Kneedle\x1b[m\x1b[K y\n"
+            "\x1b[0m\x1b[35ma.txt\x1b[0m:\x1b[0m\x1b[32m1\x1b[0m:x \x1b[0m\x1b[1m\x1b[31mneedle\x1b[0m y\n"
         ));
     }
 
     #[test]
-    fn two_results_have_a_colored_double_dash_between_them() {
+    fn two_results_have_a_double_dash_with_no_color_between_them() {
         let ranked = [
             (snippet("a", &[(1, "needle", true)]), 0.9),
             (snippet("b", &[(1, "needle", true)]), 0.8),
         ];
-        assert!(colored(&ranked).contains("\n\x1b[36m\x1b[K--\x1b[m\x1b[K\n"));
+        assert!(colored(&ranked).contains("\n--\n"));
     }
 
     #[test]
     fn two_matches_on_a_line_give_two_colored_items() {
         let ranked = [(snippet("a", &[(1, "needle and needle", true)]), 0.9)];
-        let match_item = paint("01;31", "needle");
+        let match_item = paint(MATCH_STYLE, "needle");
         assert_eq!(
             colored(&ranked),
             format!("{}{match_item} and {match_item}\n", head("a", ":", 1))
@@ -1377,7 +1281,7 @@ mod tests {
         let mut out = Vec::new();
         write_text(&mut out, &ranked, Some(&empty), None).expect("write");
         let text = String::from_utf8(out).expect("text");
-        assert!(!text.contains("01;31"));
+        assert!(!text.contains(MATCH_STYLE));
         // A line around the match is not searched for matches.
         assert!(text.contains(&format!("{}needle\n", head("a", "-", 1))));
     }
@@ -1386,7 +1290,7 @@ mod tests {
     fn standard_input_has_the_color_of_a_path() {
         let mut result = snippet("a", &[(1, "x", true)]);
         result.source = Source::StandardInput;
-        assert!(colored(&[(result, 0.9)]).starts_with(&paint("35", "(standard input)")));
+        assert!(colored(&[(result, 0.9)]).starts_with(&paint(PATH_STYLE, "<stdin>")));
     }
 
     #[test]
@@ -1405,7 +1309,7 @@ mod tests {
             format!(
                 "{}{} x [+5 chars]\n",
                 head("a", ":", 1),
-                paint("01;31", "needle")
+                paint(MATCH_STYLE, "needle")
             )
         );
     }
@@ -1414,128 +1318,6 @@ mod tests {
     fn the_label_line_has_no_color() {
         let ranked = [(snippet("a", &[(1, "needle", true)]), 0.1)];
         assert!(colored(&ranked).starts_with(&format!("{NO_GOOD_ANSWER}\n")));
-    }
-
-    fn lines_text(results: &[Snippet], paint: Option<Paint>) -> String {
-        let mut out = Vec::new();
-        write_lines(&mut out, results, paint, false, None).expect("write");
-        String::from_utf8(out).expect("text")
-    }
-
-    #[test]
-    fn write_lines_gives_one_line_for_each_result_with_no_separator() {
-        let results = [
-            snippet("a.txt", &[(1, "x", true)]),
-            snippet("a.txt", &[(3, "y", true)]),
-            snippet("b.txt", &[(2, "z", true)]),
-        ];
-        assert_eq!(
-            lines_text(&results, None),
-            "a.txt:1:x\na.txt:3:y\nb.txt:2:z\n"
-        );
-        assert_eq!(lines_text(&[], None), "");
-    }
-
-    #[test]
-    fn write_lines_names_standard_input_and_marks_a_cut() {
-        let mut input = snippet("a", &[(1, "x", true)]);
-        input.source = Source::StandardInput;
-        assert_eq!(lines_text(&[input], None), "(standard input):1:x\n");
-        let mut cut = snippet("a", &[(1, "xxx", true)]);
-        cut.lines[0].cut = 7;
-        assert_eq!(lines_text(&[cut], None), "a:1:xxx [+7 chars]\n");
-    }
-
-    #[test]
-    fn write_lines_gives_the_bytes_of_write_text_for_the_same_result() {
-        let find = |line: &[u8]| {
-            line.iter()
-                .enumerate()
-                .filter(|(_, byte)| **byte == b'x')
-                .map(|(at, _)| at..at + 1)
-                .collect::<Vec<_>>()
-        };
-        let result = snippet("a.txt", &[(1, "axb", true)]);
-        let mut text = Vec::new();
-        write_text(&mut text, &[(result.clone(), 0.9)], Some(&find), None).expect("write");
-        let lines = lines_text(&[result], Some(&find));
-        assert_eq!(lines.as_bytes(), text);
-        assert!(lines.contains("\x1b[01;31m"));
-    }
-
-    #[test]
-    fn write_lines_with_groups_writes_a_double_dash_between_two_results() {
-        let results = [
-            snippet("a.txt", &[(3, "3", false), (4, "X", true), (5, "5", false)]),
-            snippet("b.txt", &[(1, "X", true)]),
-        ];
-        let mut out = Vec::new();
-        write_lines(&mut out, &results, None, true, None).expect("write");
-        assert_eq!(
-            String::from_utf8(out).expect("text"),
-            "a.txt-3-3\na.txt:4:X\na.txt-5-5\n--\nb.txt:1:X\n"
-        );
-        let mut out = Vec::new();
-        write_lines(&mut out, &results, Some(&find_needle), true, None).expect("write");
-        let text = String::from_utf8(out).expect("text");
-        assert!(text.contains(&format!("\n{}\n", paint("36", "--"))));
-        assert!(text.starts_with(&head("a.txt", "-", 3)));
-    }
-
-    fn found(path: &str, count: u64) -> FileMatches {
-        FileMatches {
-            source: crate::search::Source::File(PathBuf::from(path)),
-            lines: (1..=count)
-                .map(|number| crate::search::walk::MatchLine {
-                    line_number: number,
-                    text: b"needle".to_vec(),
-                })
-                .collect(),
-        }
-    }
-
-    #[test]
-    fn write_files_gives_each_path_with_a_match_one_time_for_each_place() {
-        let files = [found("a.txt", 2), found("b.txt", 0), found("a.txt", 1)];
-        let mut out = Vec::new();
-        write_files(&mut out, &files, false, None).expect("write");
-        assert_eq!(out, b"a.txt\na.txt\n");
-        let mut out = Vec::new();
-        write_files(&mut out, &files[..1], true, None).expect("write");
-        assert_eq!(out, b"\x1b[35m\x1b[Ka.txt\x1b[m\x1b[K\n");
-    }
-
-    #[test]
-    fn write_counts_gives_path_and_count_also_for_no_match() {
-        let files = [found("a.txt", 2), found("b.txt", 0)];
-        let mut out = Vec::new();
-        write_counts(&mut out, &files, false, None).expect("write");
-        assert_eq!(out, b"a.txt:2\nb.txt:0\n");
-        // The bytes of `grep --color=always -c needle a.txt b.txt`.
-        let mut out = Vec::new();
-        write_counts(&mut out, &files[..1], true, None).expect("write");
-        assert_eq!(
-            out,
-            b"\x1b[35m\x1b[Ka.txt\x1b[m\x1b[K\x1b[36m\x1b[K:\x1b[m\x1b[K2\n"
-        );
-    }
-
-    #[test]
-    fn write_files_and_write_counts_fit_whole_lines_inside_the_limit() {
-        let files = [found("a.txt", 2), found("b.txt", 1), found("c.txt", 1)];
-        // `a.txt\n` has 6 characters, so 2 lines fit in 12.
-        let mut out = Vec::new();
-        let size = write_files(&mut out, &files, false, Some(12)).expect("write");
-        assert_eq!(out, b"a.txt\nb.txt\n");
-        assert_eq!((size.shown, size.left_out), (2, 1));
-        // `a.txt:2\n` has 8 characters, so 1 line fits in 12.
-        let mut out = Vec::new();
-        let size = write_counts(&mut out, &files, false, Some(12)).expect("write");
-        assert_eq!(out, b"a.txt:2\n");
-        assert_eq!((size.shown, size.left_out), (1, 2));
-        let mut out = Vec::new();
-        let size = write_counts(&mut out, &files, false, None).expect("write");
-        assert_eq!(size.left_out, 0);
     }
 
     #[test]
@@ -1797,28 +1579,6 @@ mod tests {
         let (text, size) = limited(&ranked, 10);
         assert_eq!(text, "");
         assert_eq!(size.size, report(0, 1, 0));
-    }
-
-    #[test]
-    fn write_lines_has_the_limit_and_cuts_a_first_line() {
-        let lines: Vec<Snippet> = (0..30)
-            .map(|number| {
-                snippet(
-                    &format!("d/r{number:02}.txt"),
-                    &[(1, &format!("n {}", "x".repeat(97)), true)],
-                )
-            })
-            .collect();
-        let mut out = Vec::new();
-        let size = write_lines(&mut out, &lines, None, false, Some(1000)).expect("write");
-        assert_eq!(size, report(8, 22, 0));
-        assert_eq!(String::from_utf8_lossy(&out).chars().count(), 896);
-        let mut out = Vec::new();
-        let size = write_lines(&mut out, &lines, None, false, Some(60)).expect("write");
-        assert_eq!(size.shown, 1);
-        assert_eq!(size.left_out, 29);
-        assert!(size.top_result_cut > 0);
-        assert!(String::from_utf8_lossy(&out).chars().count() <= 60);
     }
 
     #[test]

@@ -3,7 +3,7 @@ type: adr
 title: Check rg parity with a cargo test that runs a pinned rg and jag
 description: Open this when you add or change an rg parity case, a fixture, a deliberate difference, the rg pin, or how the parity tests run in CI.
 area: quality
-status: proposed
+status: accepted
 date: 2026-10-15
 supersedes: null
 superseded_by: null

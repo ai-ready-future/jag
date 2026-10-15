@@ -129,15 +129,13 @@ fn criterion_88_the_cost_line_comes_after_the_cost_limit_notice() {
 }
 
 #[test]
-fn criterion_88_plain_grep_writes_the_cost_line() {
+fn criterion_88_plain_grep_writes_no_cost_line() {
+    // FEATURE-23: a search with no question writes what rg writes.
     let server = FakeServer::constant(0.8);
     let root = folder(3);
     let run = run_with(&server, root.path(), &[], &[], false);
     assert_eq!(run.code, Some(0));
-    assert_eq!(
-        run.stderr,
-        "jag: cost $0.000000 (no question): scored 0 of 3 results, skipped 0.\n"
-    );
+    assert_eq!(run.stderr, "");
 }
 
 #[test]
@@ -282,9 +280,6 @@ fn criterion_90_the_field_and_the_line_hold_the_same_values() {
         )
     };
     assert_same(&none(&[]), &none(&args), "no_call");
-
-    let plain = |extra: &[&str]| run_with(&server, root.path(), extra, &[], false);
-    assert_same(&plain(&[]), &plain(&args), "no_call");
 }
 
 // CRITERION-91: zero and the reason when there is no call.
@@ -334,16 +329,10 @@ fn criterion_91_plain_grep_makes_no_call_with_a_match_and_with_none() {
     };
     let hit = grep("needle", &[]);
     assert_eq!(hit.code, Some(0));
-    assert_eq!(
-        hit.stderr,
-        "jag: cost $0.000000 (no question): scored 0 of 3 results, skipped 0.\n"
-    );
+    assert_eq!(hit.stderr, "");
     let miss = grep("absent", &[]);
     assert_eq!(miss.code, Some(1));
-    assert_eq!(
-        miss.stderr,
-        "jag: cost $0.000000 (no question): scored 0 of 0 results, skipped 0.\n"
-    );
+    assert_eq!(miss.stderr, "");
     for term in ["needle", "absent"] {
         let json = grep(term, &["--json"]);
         let document = json.document();

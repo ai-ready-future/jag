@@ -631,16 +631,12 @@ fn plain_grep_has_the_size_limit_and_makes_no_call() {
         &["--max-chars", "1000", "needle"],
         &[],
     );
-    assert_eq!(run.chars(), 904);
-    assert_eq!(shown_names(&run.stdout), names(0, 7));
+    // Each line is `d/rNN.txt:` and 100 characters: 111 characters with the
+    // new line. Nine whole results fit in 1000 characters.
+    assert_eq!(run.chars(), 999);
+    assert_eq!(shown_names(&run.stdout), names(0, 8));
     assert!(!run.stdout.contains("--"));
-    assert_eq!(
-        run.stderr,
-        format!(
-            "{}jag: cost $0.000000 (no question): scored 0 of 30 results, skipped 0.\n",
-            notice(8, 30, "1000")
-        )
-    );
+    assert_eq!(run.stderr, notice(9, 30, "1000"));
     assert_eq!(run.code, Some(8));
     assert!(server.requests().is_empty());
 }
@@ -666,21 +662,46 @@ fn plain_grep_in_a_document_fits_the_limit() {
     assert!(server.requests().is_empty());
 }
 
+// FEATURE-23, decision 32: with no question, jag does not read
+// `JAG_MAX_CHARS`. A good value sets no limit, and a bad value gives no error.
+// With `--json`, the variable applies.
 #[test]
-fn plain_grep_reads_no_key_so_a_bad_variable_gives_exit_2() {
+fn plain_grep_does_not_read_the_variable_of_the_size_limit() {
     let root = ranked_folder();
     let home = folder();
+    for value in ["abc", "1000"] {
+        let run = run_of(
+            jag_bare(home.path())
+                .current_dir(root.path())
+                .env("JAG_MAX_CHARS", value)
+                .args(["needle", "d"])
+                .output()
+                .expect("run jag"),
+        );
+        assert_eq!(run.code, Some(0), "{value}");
+        assert_eq!(run.stdout.lines().count(), 30, "{value}");
+        assert_eq!(run.stderr, "", "{value}");
+    }
+    let run = run_of(
+        jag_bare(home.path())
+            .current_dir(root.path())
+            .env("JAG_MAX_CHARS", "1000")
+            .args(["--json", "needle", "d"])
+            .output()
+            .expect("run jag"),
+    );
+    assert_eq!(run.code, Some(8));
+    let document: Value = serde_json::from_str(&run.stdout).expect("one document");
+    assert!(document["left_out"].as_u64().unwrap_or(0) > 0);
     let run = run_of(
         jag_bare(home.path())
             .current_dir(root.path())
             .env("JAG_MAX_CHARS", "abc")
-            .args(["needle", "d"])
+            .args(["--json", "needle", "d"])
             .output()
             .expect("run jag"),
     );
     assert_eq!(run.code, Some(2));
-    assert_eq!(run.stdout, "");
-    assert!(run.stderr.contains("JAG_MAX_CHARS is not a whole number"));
     // With a question, the key comes first.
     let run = run_of(
         jag_bare(home.path())
