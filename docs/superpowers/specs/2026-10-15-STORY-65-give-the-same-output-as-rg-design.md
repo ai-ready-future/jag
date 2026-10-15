@@ -107,13 +107,15 @@ names.
 | 22 | rg hints (card E) | Decided, option 1: jag gives the rg message with the same first part and the same exit code, with no sentence that names an option that jag does not have (`--pcre2`, `--multiline`, `-U`, `--debug`). The list of similar options after `unrecognized flag` comes from jag's own options, with the rule of rg. These are recorded differences | Card E (F23-Q7), user ANSWER via hitl, 2026-10-15, option 1 |
 | 23 | Layout options with `--ask` or `--json` | `-n`, `-N`, `-H`, `-I`, `--heading`, and `--no-heading` are a usage error with `--ask` or `--json`, as `-l`, `-c`, and `-q` are today. `-g` and `--sort` work in all modes. `--sort` has no effect on the ranked order | Inferred from `src/cli.rs` (`conflicts_with_all = MODES`) |
 | 24 | The test form | ADR-0021: one cargo integration test `tests/rg_parity.rs`, the cases in `tests/parity/cases.yaml`, the fixture trees in `tests/parity/fixtures/`, the stored jag bytes in `tests/parity/expected/`, the pin in `tests/parity/rg.sha256`, and `scripts/parity/install-rg.sh`. Three modes: pipe, color, and terminal | ADR-0021 (merged in `a9f966d`, status `accepted` (PR #129)); the round of the user ANSWERs in PR #127 (head `778d4c3`) |
-| 25 | The first test set | The 78 cases of the section "The first test set", with the fixture trees of the section "The fixture trees" | CRITERION-110; the probes of 2026-10-15 |
+| 25 | The first test set | The 80 cases of the section "The first test set", with the fixture trees of the section "The fixture trees" | CRITERION-110; the probes of 2026-10-15 |
 | 26 | Stdin files of the cases | `tests/parity/stdin/<name>`. A case names its file with `stdin: <name>` | ADR-0021 in PR #127 (head `778d4c3`) |
 | 27 | Owners and pull requests | Two pull requests. The tester opens the test PR (STORY-65 and STORY-66). The implementer opens the code PR (STORY-67). The verifier runs the cases on the code PR. See "Owners" | Orchestrator TASK ("The tester codifies the tests; the verifier runs the cases"); `docs/adlc.md`, the roles |
 | 28 | Merge order | The code PR merges first. The test PR merges after it, so `main` never has a parity test that fails | Decision 27; `cargo test` stops after the first test binary that fails, so a red parity test hides the results of other tests |
 | 29 | Done | All three stories are done only after both pull requests merge and the parity test passes in the `rust` job on `main` | `docs/adlc.md` ("does not block done, unless the spec says so") |
 | 30 | Story state | STORY-65, STORY-66, and STORY-67 are `ready`: this spec is in this PR, no feature blocks them, and the ANSWERs of cards A to E are in. The ADR round of the ANSWERs is open in PR #127 (head `778d4c3`) | `docs/adlc.md` rule 11; orchestrator messages of 2026-10-15 |
 | 31 | The rg config file | jag reads no rg config file: it does not read `RIPGREP_CONFIG_PATH`, and writes no message for it. The reference is rg with no config file (decision 2), so jag gives the output of rg with no `RIPGREP_CONFIG_PATH`, also when the variable is set. This is not a recorded difference. No parity case sets the variable | Derived from row 2 (Q1): ADR-0021, Context ("with no rg config") and Run ("`RIPGREP_CONFIG_PATH` is not set"); decision 20 (card C): an rg config file can hold rg options that jag does not have; verifier-1 on PR #135, comment 6203457295: jag does not read the variable |
+| 32 | `JAG_MAX_CHARS` with no question | With no `--ask` and no `--json`, jag does not read `JAG_MAX_CHARS`: the variable sets no limit, and a bad value gives no error. Only `--max-chars N` sets a limit (decision 19). With `--ask` or `--json`, the variable applies as before (FEATURE-09 spec decision 8) | Derived from row 19 (card B: "has no default size limit"; "`--max-chars N` still works when the user gives it"); DECISION-20: "In a search with no `--ask` and no `--json`, no default limit applies, as in rg. When the user gives `--max-chars N`, that limit applies"; reviewer-1 on PR #135, comment 6203613885 |
+| 33 | Values of jag's own options with no question | With no `--ask` and no `--json`, jag still checks the value of each of its own options on the command line: `--max-chars`, `--timeout`, `--retry-wait`, `--max-scored`, `--base-url`, and `--model`. It checks them before the search, with no key. A bad value gives the jag text of the option (the cause and the fix, CV-1) and exit 2, as with `--ask`. Other than `--max-chars`, the options have no effect. jag does not read the variables of these settings with no question (decision 32 for `JAG_MAX_CHARS`). This is an exception to decision 17: rg has no text for an option that only jag has | Derived from row 18 (card A: jag keeps its own options); FEATURE-21 spec (STORY-57 and STORY-58 done), "Plain grep with no question": "With no question, `--timeout`, `--retry-wait`, `--max-scored`, `--base-url`, and `--model` have no effect. jag still checks their values."; FEATURE-03 spec decision 11: jag checks the options with the other arguments, before the key, and the variables with the model settings; probe of jag `main` 55b3652: `jag --timeout abc foo a.txt` gives the text and exit 2; reviewer-1 on PR #135, comment 6203613885 |
 
 ## Design
 
@@ -173,7 +175,7 @@ PR #127 (head `778d4c3`) holds the ADR round of the ANSWERs:
 | `src/output.rs` | The rg color codes in the ranked text (decision 4); no cost line and no notices in plain text mode, but the size notice of `--max-chars` (decision 19) | implementer |
 | `src/search/filter.rs`, `src/search/walk.rs` | The `--include` and `--exclude` globs become `-g`/`--glob` (decision 20) | implementer |
 | `tests/*.rs` | Each test that checks the grep form now checks the rg form | implementer |
-| `README.md` | The plain search texts: the `<stdin>` label, `-` as stdin, the color rule, the exit codes, the options, and the notices (decisions 5, 6, 12, 14, 19, and 20) | implementer |
+| `README.md` | The plain search texts: the `<stdin>` label, `-` as stdin, the color rule, the exit codes, the options, and the notices (decisions 5, 6, 12, 14, 19, 20, 32, and 33) | implementer |
 | `tests/rg_parity.rs` (new) | The harness of ADR-0021 | tester |
 | `Cargo.toml` `[dev-dependencies]` | `rustix` with the features `pty` and `termios` (ADR-0021) | tester |
 | `tests/parity/cases.yaml` (new) | The first test set | tester |
@@ -190,7 +192,8 @@ PR #127 (head `778d4c3`) holds the ADR round of the ANSWERs:
 Each row is one difference that the probe found. "Fix" means that the code PR
 changes jag to the rg form. "Recorded difference" means that a user ANSWER
 keeps the jag form. D26 and D27 come from verifier-1 on PR #135, comment 6203457295, on the head
-`077db2c` of that PR.
+`077db2c` of that PR. D28 and D29 come from reviewer-1 on PR #135, comment 6203613885, on the head
+`31bedf4`.
 
 | # | What | rg 15.2.0 | jag on `main` | Action |
 |---|---|---|---|---|
@@ -221,6 +224,8 @@ keeps the jag form. D26 and D27 come from verifier-1 on PR #135, comment 6203457
 | D25 | `--json` | JSON lines with times | One document | Recorded difference (card D) |
 | D26 | `RIPGREP_CONFIG_PATH` is set | rg reads the file. If it cannot read it, rg writes `rg: failed to read the file specified in RIPGREP_CONFIG_PATH: ...` and searches | jag does not read it | No change: the reference is rg with no config file (decision 31) |
 | D27 | Walk error with more than one thread: `foo nope.txt a.txt` (no `--sort`) | `rg: nope.txt: No such file or directory (os error 2)` | `jag: nope.txt: IO error for operation on nope.txt: No such file or directory (os error 2)` | Fix (decision 11) |
+| D28 | `JAG_MAX_CHARS=1000`, no question | No effect | A limit of 1,000 characters, the notice, and exit 8 | Fix (decision 32) |
+| D29 | A bad value of an option that only jag has, no question: `--timeout abc foo a.txt` | `rg: unrecognized flag --timeout`, exit 2 | No check, exit 0 | Fix: the jag text and exit 2 (decision 33). The text stays a recorded difference (card A) |
 
 ### The plain text pipeline (decisions 7, 8, 9, 12, 13, 15, 16)
 
@@ -276,6 +281,7 @@ is `jag` (card A, option 1).
 | Unknown option | `<name>: unrecognized flag --X`, then an empty line and `similar flags that are available: ...` when the rule of rg finds similar names in jag's options | 2 |
 | Bad value | `<name>: error parsing flag -A: value is not a valid number: invalid digit found in string` | 2 |
 | Bad choice | `<name>: error parsing flag --color: choice 'X' is unrecognized` | 2 |
+| Bad value of an option that only jag has (decision 33) | The jag text of the option, with the cause and the fix. For example: `jag: the value of --timeout is not a whole number of seconds from 1 to 60.` and `Use a number such as --timeout 10.` | 2 |
 | Missing value | `<name>: missing value for flag -A: missing argument for option '-A'` | 2 |
 | No pattern | `<name>: <name> requires at least one pattern to execute a search` | 2 |
 | Nothing searched | `<name>: No files were searched, which means <name> probably applied a filter you didn't expect.` (card E option 1 drops the `--debug` line) | 2 |
@@ -385,6 +391,8 @@ stderr. `deliberate: X`: the stored jag bytes, with the ANSWER of card X
 | many | `foo many.txt` | limits | all | | rg |
 | limits-walk | `--sort path foo .` | limits | all | | rg |
 | max-chars | `--max-chars 1000 foo many.txt` | limits | pipe | | deliberate: A |
+| max-chars-variable | `foo many.txt` | limits | pipe | `JAG_MAX_CHARS=1000` | rg |
+| max-chars-variable-bad | `foo a.txt` | basic | pipe | `JAG_MAX_CHARS=abc` | rg |
 | help-short | `-h` | basic | pipe | | deliberate: A |
 | help-long | `--help` | basic | pipe | | deliberate: A |
 | version | `--version` | basic | pipe | | deliberate: A |
@@ -453,6 +461,7 @@ The stdin file `tests/parity/stdin/lines.txt` holds `a foo\nb\nfoo c\n`.
 | CRITERION-112 | `tests/rg_parity.rs`, color mode (`--color=always` in a pipe) and terminal mode (stdout on a pseudo terminal) |
 | CRITERION-113 | The `rust` job of `ci.yml` (Linux and macOS) and the `build` job of `release.yml` run `scripts/parity/install-rg.sh`, set `JAG_PARITY_RG`, and run `cargo test --locked`. The environment of each run is empty, plus `HOME`, `TERM`, and the env of the case (ADR-0021), so `RIPGREP_CONFIG_PATH` is not set. In the test PR, the tester pushes one commit that changes one stored byte, links the failed run that shows the difference, and then pushes a second commit that reverts it |
 | CRITERION-114 | Each case passes against rg, or has `deliberate: { answer: ... }` that names a user ANSWER (date, card, and option). The test checks that jag gives the stored bytes and that rg does not. The reviewer checks each `answer:` against the ANSWER of the card |
+| Decisions 32 and 33 (tests in `tests/`) | `tests/size_limit.rs`: with `--json`, `JAG_MAX_CHARS=1000` still gives the limit, the notice, and exit 8. `tests/usage.rs`: with no `--ask` and no `--json`, each of `--max-chars abc`, `--timeout abc`, `--retry-wait abc`, `--max-scored abc`, `--base-url notaurl`, and `--model ''` gives exit 2, the jag text of the option, and no stdout. The parity cases `max-chars-variable` and `max-chars-variable-bad` check decision 32 against rg |
 | Decisions 11, 12, and 13 (tests in `tests/`) | The code PR tests them in `tests/`: a test makes a file with mode 000 in a temporary folder and checks the rg text and exit 2; a test makes a folder with mode 000 and checks both forms of decision 11 (`foo` with no path, and `--sort path foo .`) and exit 2; a second test sends SIGINT during a plain search and checks exit 130 and the text that jag already wrote. A test that runs as root skips the mode 000 check |
 
 The implementer also changes the unit tests and the integration tests of
@@ -496,6 +505,10 @@ test that checks `(standard input)`).
   machine with more than one CPU. On
   a machine with one CPU, rg and jag both give the form of one thread.
 - Decision 31 (no rg config file) is derived from row 2 (Q1) with ADR-0021.
+- Decision 32 (`JAG_MAX_CHARS` with no question) is derived from row 19
+  (card B) with DECISION-20.
+- Decision 33 (the checks of jag's own options) is derived from row 18
+  (card A) with the FEATURE-21 spec and the FEATURE-03 spec.
 - Decision 23 (layout options with `--ask` or `--json`) comes from the code
   convention `conflicts_with_all = MODES` in `src/cli.rs`.
 - The snippet path that jag sends to the model changes from
