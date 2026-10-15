@@ -4,8 +4,7 @@ title: A shell user keeps their habits
 description: jag works in a pipe, uses grep-like options and exit codes, and is fast
   enough to replace grep.
 status: draft
-state: done
-actual_end_date: '2026-10-14'
+state: ready
 github:
   number: 5
   node_id: I_kwDOVKMnL88AAAABXTLDfA
@@ -34,4 +33,5 @@ jag works in a pipe, uses grep-like options and exit codes, and is fast enough t
 - child: [FEATURE-14: Files, folders, and piped text](../features/FEATURE-14.md)
 - child: [FEATURE-15: Good behavior in a terminal and in a pipe](../features/FEATURE-15.md)
 - child: [FEATURE-16: Fast enough to replace grep](../features/FEATURE-16.md)
+- child: [FEATURE-23: Give the same output as rg for the same arguments](../features/FEATURE-23.md)
 <!-- LINKS:END -->
