@@ -552,11 +552,13 @@ fn check_rg_version(rg: &Path) {
         .unwrap_or_else(|e| panic!("run {} --version: {e}", rg.display()));
     let text = String::from_utf8_lossy(&output.stdout);
     let wanted = format!("ripgrep {}", pinned_version());
+    // The version must end at a space or at the end of the line, so that
+    // "ripgrep 15.2.01" is not "ripgrep 15.2.0".
+    let first = text.lines().next().unwrap_or("");
     assert!(
-        text.starts_with(&wanted),
-        "{} must be {wanted} (tests/parity/rg.sha256), but it says: {}",
+        first == wanted || first.starts_with(&format!("{wanted} ")),
+        "{} must be {wanted} (tests/parity/rg.sha256), but it says: {first}",
         rg.display(),
-        text.lines().next().unwrap_or("")
     );
 }
 
@@ -572,10 +574,6 @@ fn jag_gives_the_same_output_as_rg() {
         .ok()
         .map(|list| list.split(',').map(str::to_string).collect());
 
-    let home = tempfile::Builder::new()
-        .prefix("jag-parity-home-")
-        .tempdir()
-        .expect("make a folder");
     let mut details = Vec::new();
     let mut summary = Vec::new();
     let mut runs = 0;
@@ -592,6 +590,12 @@ fn jag_gives_the_same_output_as_rg() {
             .tempdir()
             .expect("make a folder");
         copy_tree(&parity_dir().join("fixtures").join(&case.tree), work.path());
+        // An empty `HOME` for each case: a file that a program writes there
+        // does not reach the next case.
+        let home = tempfile::Builder::new()
+            .prefix("jag-parity-home-")
+            .tempdir()
+            .expect("make a folder");
         for mode in case.modes() {
             runs += 1;
             let label = format!("{} [{}]", case.id, mode.name());
