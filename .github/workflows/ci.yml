@@ -43,6 +43,13 @@ jobs:
 
       - run: cargo fmt --check
       - run: cargo clippy --locked -- -D warnings
+      # The pinned rg for the rg parity test (ADR-0021). GitHub sets CI, so the
+      # test fails when JAG_PARITY_RG is not set.
+      - name: Install the pinned rg
+        run: |
+          set -euo pipefail
+          rg=$(scripts/parity/install-rg.sh "$RUNNER_TEMP/rg")
+          echo "JAG_PARITY_RG=$rg" >> "$GITHUB_ENV"
       - run: cargo test --locked
       - run: cargo test --locked --release --test speed
 
