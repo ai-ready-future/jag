@@ -82,7 +82,7 @@ Model and Effort: use the exact values in the table.
 - Send the test scenarios of each verifier to the tester.
 - Start a second specifier when 2 features are ready for a spec. The maximum is 2 specifiers.
 - Give each `ASK` a priority before you send it to hitl: `blocks code now` or `blocks later`.
-- An `ASK` with a `revisit:` line goes to the owner of the page: the planner for a PRD decision, the architect for an ADR. An `ASK` with the line `owner: planner` goes to hitl in the batch of its feature. Send its `ANSWER` to the planner and a copy to the specifier.
+- An `ASK` with a `revisit:` line goes to the owner of the page: the planner for a PRD decision, the architect for an ADR. An `ASK` with the line `owner: planner` goes to hitl in the batch of its feature. Send its `ANSWER` to the planner and a copy to the specifier. Send the `ANSWER` of a rule card to the specifier and the planner. If the chosen option names a change to an accepted ADR, also send it to the architect. The architect changes that ADR in an ADR PR that names the `ANSWER`.
 - Stop extra sessions when they have no work.
 - After a retro merge, tell every live session to read `docs/adlc.md` again.
 - After a PR that changes `docs/product` merges, send a `SYNC` to the projecter.
@@ -233,17 +233,17 @@ The specifier asks the user for the rule, not for the value. The steps, in this 
 4. Send a rule card only if its answer decides 2 or more open rows, changes a PRD decision or an ADR, or decides a thing that is hard to undo. Hard to undo: a done feature, a public option, released behavior, public data, money.
 5. In each rule card, add the block `This answer decides:` with at most 5 lines, in plain words. 1 line can name a group of rows. Name each PRD decision and each ADR that changes, each done feature that changes, and each public option that goes away or changes.
 6. Write each card so that its answer does not depend on another card in the same batch.
-7. Round 1: at most 2 rule cards. A priority question that changes the order of features or a `blocked_by` link goes in the same batch, with the line `owner: planner`.
+7. Round 1: at most 2 rule cards. A priority question that changes the order of features or a `blocked_by` link goes in the same batch, with the line `owner: planner`. The batch has at most 4 cards (hitl).
 8. Record each rule answer as 1 row with the source `human:<login>, <date>`. Each row that you derive from it gets the confidence `inferred`, the source `derived from row <n>`, and a place in the Assumptions list.
-9. Infer each other row only with 1 source that a reviewer can open. The sources, from strong to weak: an accepted ADR or a PRD decision page, a row of a built spec, the behavior of the reference program (rg) at its pinned version, a line of the jag code. A weak source does not count if a stronger source disagrees. A row with no source stays open.
+9. Infer each other row only with 1 source that a reviewer can open. The sources, from strong to weak: an accepted ADR, a PRD decision page, or a `decided` area of the system design with an accepted ADR, a row of a built spec, the behavior of the reference program (rg) at its pinned version, a line of the jag code. A weak source does not count if a stronger source disagrees. A row with no source stays open.
 10. When you infer a row, take the option that you would mark `[recommended]`. Do not infer a hard-to-undo row unless a rule card named it.
 11. If the user answers "other" or a different rule, record the answer as the rule row. Remove the rows that you derived from the old rule and derive them again. Send again each card of the same batch whose premise changed.
-12. Round 2: at most 2 cards, only for rows that stay open. There is no round 3. After round 2, give each open row the recommended option with the source `default after round cap`, and name the row in the PR body. If that row is hard to undo, send `BLOCKED` with the cause.
-13. Put the inferred rows with their sources, the stories that need no build, and the spec groups in the body of the spec PR. The reviewer approval is the answer "reject none". Send these as 1 card only if you send round 2, or if the reviewer rejects a row.
-14. Do not decide against an accepted ADR or a PRD decision that no card named. Send an `ASK` with the line `revisit: <page>`, the row, and the change that you recommend. A `revisit:` of an ADR follows the ADR finding flow. A `revisit:` of a PRD decision goes to the planner, who sends a card only if the chosen option did not name the change.
+12. Round 2: at most 2 cards, only for rows that stay open. A card that you send again (step 11) counts as a round 2 card. There is no round 3. After round 2, give each open row the recommended option with the source `default after round cap`, and name the row in the PR body. If that row is hard to undo, send `BLOCKED` with the cause.
+13. Put the inferred rows with their sources, the stories that need no build, and the spec groups in the body of the spec PR. The reviewer approval is the answer "reject none". Do not ask the ledger question of the skill. Send these as 1 card only if you send round 2, or if the reviewer rejects a row.
+14. Do not decide against an accepted ADR or a PRD decision that no card named. Send an `ASK` with the line `revisit: <page>`, the row, and the change that you recommend. A `revisit:` of an ADR goes to the architect, and the ADR finding flow continues from the verdict of the architect. A `revisit:` of a PRD decision goes to the planner, who sends a card only if the chosen option did not name the change.
 15. Until the owner decides, keep the current choice of the ADR or the PRD in that row and mark it `pending revisit`. Keep only the dependent stories in `backlog`. Write the rest of the spec.
 
-The ADR of a rule: `prd:specifying-stories` (step 5) writes 1 ADR with `status: proposed` for each rule row, and no ADR for a derived row. The `ANSWER` of the rule card is the card that accepts that ADR (see the architect).
+The ADR of a rule: `prd:specifying-stories` (step 5) writes 1 ADR with `status: proposed` for each rule row that binds code outside the stories of the feature (the rule of step 5), and no ADR for a derived row. The ADR holds only what the rule card showed: the chosen option and the lines of `This answer decides:`. The `ANSWER` of the rule card is the card that accepts that ADR (see the architect).
 
 ## 5. Message format
 
