@@ -38,3 +38,13 @@ source	relation	target	target_state	target_status	source_area	target_area	note
 0019-give-the-new-public-repository-the-name-ai-ready-future-jag.md	related	0010-ship-jag-on-github-releases-crates-io-and-npm.md	live	accepted	deployment	deployment	-
 0020-name-the-release-archives-and-the-npm-platform-packages-by.md	parent_spec	docs/superpowers/specs/2026-10-14-STORY-48-install-jag-from-github-releases-crates-io-or-npm-design.md	doc	-	deployment	-	-
 0020-name-the-release-archives-and-the-npm-platform-packages-by.md	related	0010-ship-jag-on-github-releases-crates-io-and-npm.md	live	accepted	deployment	deployment	-
+0021-check-rg-parity-with-a-cargo-test-that-runs-a-pinned-rg-and.md	parent_spec	docs/product/roadmap/features/FEATURE-23.md	doc	-	quality	-	-
+0021-check-rg-parity-with-a-cargo-test-that-runs-a-pinned-rg-and.md	related	0001-find-matches-with-the-ripgrep-libraries.md	live	accepted	quality	context	-
+0021-check-rg-parity-with-a-cargo-test-that-runs-a-pinned-rg-and.md	related	0012-use-clap-serde-saphyr-and-rpassword-as-the-outside-crates.md	live	accepted	quality	building-blocks	-
+0021-check-rg-parity-with-a-cargo-test-that-runs-a-pinned-rg-and.md	related	0020-name-the-release-archives-and-the-npm-platform-packages-by.md	live	accepted	quality	deployment	-
+0022-use-rg-as-the-reference-for-the-output-of-jag-with-no.md	parent_spec	docs/product/roadmap/features/FEATURE-23.md	doc	-	contracts	-	-
+0022-use-rg-as-the-reference-for-the-output-of-jag-with-no.md	related	0001-find-matches-with-the-ripgrep-libraries.md	live	accepted	contracts	context	-
+0022-use-rg-as-the-reference-for-the-output-of-jag-with-no.md	related	0006-run-setup-the-readiness-check-and-key-removal-as-options.md	live	accepted	contracts	contracts	-
+0022-use-rg-as-the-reference-for-the-output-of-jag-with-no.md	related	0007-number-the-exit-codes-above-2-from-3-to-8.md	live	accepted	contracts	contracts	-
+0022-use-rg-as-the-reference-for-the-output-of-jag-with-no.md	related	0008-write-structured-output-as-one-json-document.md	live	accepted	contracts	contracts	-
+0022-use-rg-as-the-reference-for-the-output-of-jag-with-no.md	related	0018-take-the-question-only-from-the-ask-option.md	live	accepted	contracts	contracts	-
