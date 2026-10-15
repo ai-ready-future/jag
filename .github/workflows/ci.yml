@@ -45,3 +45,30 @@ jobs:
       - run: cargo clippy --locked -- -D warnings
       - run: cargo test --locked
       - run: cargo test --locked --release --test speed
+
+  # The tests of the release tools (FEATURE-18). Not a required check.
+  release-tools:
+    name: release-tools (${{ matrix.os }}, node ${{ matrix.node }})
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - os: ubuntu-24.04
+            node: '18'
+          - os: ubuntu-24.04
+            node: '24'
+          - os: macos-15
+            node: '24'
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version: ${{ matrix.node }}
+          package-manager-cache: false
+
+      - run: python3 -I -m unittest discover -s scripts/release -p 'test_*.py'
+      - run: node --test npm/jag/test/launcher.test.js

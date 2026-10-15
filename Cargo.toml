@@ -6,6 +6,10 @@ rust-version = "1.99"
 license = "MIT"
 description = "Grep with a model that ranks the matches by how well they answer your question"
 repository = "https://github.com/ai-ready-future/jag"
+readme = "README.md"
+keywords = ["grep", "search", "cli", "llm"]
+categories = ["command-line-utilities", "text-processing"]
+include = ["/src/**", "/Cargo.toml", "/Cargo.lock", "/README.md", "/LICENSE"]
 
 [lib]
 name = "jag"

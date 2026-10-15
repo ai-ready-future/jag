@@ -5,6 +5,51 @@ question. The package on crates.io is `jag-grep`. The command is `jag`.
 
 This release has the key setup only. The search comes later.
 
+## Install
+
+jag runs on Linux (x86_64 and arm64) and on macOS (arm64 and x86_64). Each
+way gives the same version.
+
+With npm (Node.js 18 or later):
+
+```
+$ npm install -g @airf/jag
+```
+
+Or run jag with no install:
+
+```
+$ npx @airf/jag --help
+```
+
+With cargo (Rust 1.99 or later). This builds jag from source in some
+minutes:
+
+```
+$ cargo install --locked jag-grep
+```
+
+From GitHub Releases: download the archive for your system and its
+`.sha256` file from the latest release. Then check the archive, open it, and
+move `jag` to a folder in your `PATH`:
+
+```
+$ sha256sum -c jag-<version>-<target>.tar.gz.sha256        # Linux
+$ shasum -a 256 -c jag-<version>-<target>.tar.gz.sha256    # macOS
+$ tar -xzf jag-<version>-<target>.tar.gz
+$ mv jag-<version>-<target>/jag ~/.local/bin/
+```
+
+The targets are `x86_64-unknown-linux-musl`, `aarch64-unknown-linux-musl`,
+`aarch64-apple-darwin`, and `x86_64-apple-darwin`.
+
+On macOS, a browser marks each file that it downloads, and macOS then stops
+`jag`. Download with `curl -LO`, or remove the mark:
+`xattr -d com.apple.quarantine jag`.
+
+On Linux, a question to the model needs the CA certificates of the system
+(the package `ca-certificates`).
+
 ## Store your TypeSafe key
 
 Get a key at <https://console.typesafe.ai/keys>. Then run:
