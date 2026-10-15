@@ -24,11 +24,11 @@ traces:
 - to: prd:/decisions/DECISION-40.md
   hash: e87c28
 - to: prd:/decisions/DECISION-41.md
-  hash: 06e65a
+  hash: 5bd88c
 - to: prd:/decisions/DECISION-42.md
   hash: 2b7875
 - to: prd:/decisions/DECISION-43.md
-  hash: 5d45be
+  hash: cbbb4f
 - to: prd:/decisions/DECISION-44.md
   hash: 50c0de
 - to: prd:/decisions/DECISION-45.md

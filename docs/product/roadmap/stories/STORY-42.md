@@ -19,7 +19,7 @@ parent: /features/FEATURE-15.md
 milestone: /milestones/MILESTONE-02.md
 traces:
 - to: prd:/decisions/DECISION-38.md
-  hash: 20bf23
+  hash: bb2367
 ---
 
 # STORY-42: Color the matches as grep does

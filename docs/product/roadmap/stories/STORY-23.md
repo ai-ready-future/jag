@@ -19,7 +19,7 @@ parent: /features/FEATURE-08.md
 milestone: /milestones/MILESTONE-01.md
 traces:
 - to: prd:/decisions/DECISION-17.md
-  hash: c6c1de
+  hash: b950f7
 ---
 
 # STORY-23: Cut a very long line and mark the cut

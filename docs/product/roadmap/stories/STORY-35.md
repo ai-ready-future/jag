@@ -21,7 +21,7 @@ traces:
 - to: prd:/decisions/DECISION-33.md
   hash: ad5e5b
 - to: prd:/decisions/DECISION-34.md
-  hash: 47da48
+  hash: 4b0eee
 ---
 
 # STORY-35: Use the common grep options

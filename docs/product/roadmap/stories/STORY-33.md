@@ -19,7 +19,7 @@ parent: /features/FEATURE-12.md
 milestone: /milestones/MILESTONE-02.md
 traces:
 - to: prd:/decisions/DECISION-32.md
-  hash: 0d8491
+  hash: 9f60c6
 ---
 
 # STORY-33: Search with a term and no question
