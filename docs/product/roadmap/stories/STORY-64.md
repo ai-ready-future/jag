@@ -5,7 +5,7 @@ description: As an agent builder (PERSONA-01), I want a license and compliance a
   before the first publish, so that I can use jag and its packages with no license
   problem.
 status: draft
-state: backlog
+state: ready
 github:
   number: 109
   node_id: I_kwDOVKMnL88AAAABXf0ASg
@@ -13,6 +13,7 @@ github:
   pushed_hash: 1ff339
   synced:
     state: backlog
+spec: docs/superpowers/specs/2026-10-15-STORY-62-check-that-jag-is-ready-before-the-first-publish-design.md
 parent: /features/FEATURE-22.md
 milestone: /milestones/MILESTONE-02.md
 ---

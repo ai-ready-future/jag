@@ -5,7 +5,7 @@ description: As an agent builder (PERSONA-01), I want a security audit of the co
   the dependencies, and the release workflow before the first publish, so that the
   first release has no known high vulnerability.
 status: draft
-state: backlog
+state: ready
 github:
   number: 108
   node_id: I_kwDOVKMnL88AAAABXfz4sQ
@@ -13,6 +13,7 @@ github:
   pushed_hash: 3dfe14
   synced:
     state: backlog
+spec: docs/superpowers/specs/2026-10-15-STORY-62-check-that-jag-is-ready-before-the-first-publish-design.md
 parent: /features/FEATURE-22.md
 milestone: /milestones/MILESTONE-02.md
 ---
