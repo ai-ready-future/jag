@@ -105,11 +105,11 @@ struct Cli {
     context: Option<String>,
 
     /// Show only the path of each file with a match (not with --ask or --json)
-    #[arg(short = 'l', long = "files-with-matches", overrides_with = "files_with_matches", conflicts_with_all = MODES)]
+    #[arg(short = 'l', long = "files-with-matches", overrides_with_all = ["files_with_matches", "count"], conflicts_with_all = MODES)]
     files_with_matches: bool,
 
     /// Show only the count of matching lines of each file (not with --ask or --json)
-    #[arg(short = 'c', long = "count", overrides_with = "count", conflicts_with_all = MODES)]
+    #[arg(short = 'c', long = "count", overrides_with_all = ["count", "files_with_matches"], conflicts_with_all = MODES)]
     count: bool,
 
     /// Write nothing to standard output: give only the exit code (not with --ask or --json)

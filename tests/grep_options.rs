@@ -584,10 +584,24 @@ fn criterion_55_q_writes_nothing_and_l_and_c_lose_to_it() {
 }
 
 #[test]
-fn criterion_55_l_wins_over_c() {
+fn criterion_55_the_last_of_l_and_c_wins() {
     let root = two_files();
     let run = run_bare(root.path(), &["-c", "-l", "needle", "a.txt"]);
     assert_eq!(run.stdout, "a.txt\n");
+    let run = run_bare(root.path(), &["-l", "-c", "needle", "a.txt"]);
+    assert_eq!(run.stdout, "2\n");
+}
+
+#[test]
+fn a_glob_that_does_not_parse_gives_the_text_of_rg() {
+    let root = two_files();
+    let run = run_bare(root.path(), &["-g", "a[", "needle", "a.txt"]);
+    assert_eq!(run.code, Some(2));
+    assert_eq!(run.stdout, "");
+    assert_eq!(
+        run.stderr,
+        "jag: error parsing glob 'a[': unclosed character class; missing ']'\n"
+    );
 }
 
 #[test]

@@ -126,7 +126,8 @@ pub(super) enum Report {
 }
 
 impl Report {
-    /// The report of the options: `-q` wins, then `-l`, then `-c` (rg).
+    /// The report of the options: `-q` wins, then the last of `-l` and `-c`
+    /// (rg).
     pub(super) fn of(cli: &Cli) -> Report {
         if cli.quiet {
             Report::Quiet
@@ -324,8 +325,9 @@ mod tests {
         ] {
             let cli = parsed(list);
             assert!(cli.ignore_case && cli.word && cli.fixed, "{list:?}");
-            assert!(cli.files_with_matches && cli.count && cli.quiet, "{list:?}");
+            assert!(cli.count && cli.quiet, "{list:?}");
         }
+        assert!(parsed(&["-l", "t", "p"]).files_with_matches);
         let cli = parsed(&["-iA2", "t", "p"]);
         assert!(cli.ignore_case);
         assert_eq!(cli.after.as_deref(), Some("2"));
@@ -690,7 +692,7 @@ mod tests {
     }
 
     #[test]
-    fn q_wins_then_l_then_c() {
+    fn q_wins_then_the_last_of_l_and_c() {
         let report = |list: &[&str]| {
             let mut all = list.to_vec();
             all.extend_from_slice(&["t", "p"]);
@@ -699,6 +701,7 @@ mod tests {
         assert_eq!(report(&[]), Report::Lines);
         assert_eq!(report(&["-c"]), Report::Counts);
         assert_eq!(report(&["-c", "-l"]), Report::Files);
+        assert_eq!(report(&["-l", "-c"]), Report::Counts);
         assert_eq!(report(&["-l", "-c", "-q"]), Report::Quiet);
     }
 

@@ -421,8 +421,8 @@ unknown option: jag gives the error text of `rg` for it and exit code 2.
   number, and `--` stands between two groups of lines, as in `rg`.
 - `-l`, `-c`, and `-q` work only with no `--ask` and with no `--json`. `-c`
   writes `path:N` for more than one file, and `N` for one file. A file with no
-  match has no line. If you give more than one of the three, `-q` wins, then
-  `-l`, then `-c`.
+  match has no line. If you give more than one of the three, `-q` wins. Of
+  `-l` and `-c`, the last one wins.
 - The size limit applies to `-l` and `-c` only when you set it: each line is
   one whole item. When the limit leaves out lines, jag writes the size notice
   and exits with 8. `-q` writes nothing, so the limit has no effect on it.

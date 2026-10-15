@@ -16,13 +16,13 @@ use grep_printer::{ColorSpecs, Standard, StandardBuilder, Summary, SummaryBuilde
 use grep_searcher::{BinaryDetection, Searcher, SearcherBuilder, Sink};
 use termcolor::{Buffer, BufferWriter, ColorChoice, ColorSpec, WriteColor};
 
-use super::grep::{MatchOptions, Report, build_matcher, context_lines, file_filter, words};
+use super::grep::{MatchOptions, Report, build_matcher, context_lines, words};
 use super::rg_text::{NO_PATTERN, NOTHING_SEARCHED, line};
 use super::{Cli, colored, size_option};
 use crate::config::{Env, plain_size_limit};
 use crate::failure::Failure;
 use crate::output::{SizeReport, size_notice};
-use crate::search::filter::current_dir;
+use crate::search::filter::{FileFilter, current_dir};
 use crate::search::sequence::{Haystack, Item, Places, Sequence};
 use crate::search::snippet::{char_count, char_prefix};
 
@@ -282,7 +282,9 @@ fn search(cli: &Cli, env: &Env) -> Result<u8, String> {
         .map_err(failure_text)?
         .map_or((0, 0), |lines| (lines.before, lines.after));
     let cwd = current_dir();
-    let files = file_filter(&cli.globs, &cwd).map_err(failure_text)?;
+    // A glob that does not parse gives the text of the `ignore` crate, as rg
+    // does (decision 11).
+    let files = FileFilter::new(&cli.globs, &cwd).map_err(|error| line(&error.to_string()))?;
     let matcher =
         build_matcher(&terms, MatchOptions::of(cli)).map_err(|error| line(&error.to_string()))?;
 
