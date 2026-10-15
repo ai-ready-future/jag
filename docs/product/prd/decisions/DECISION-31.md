@@ -1,10 +1,10 @@
 ---
 type: Decision
 title: The command takes the term and the paths, and the question only from --ask
-description: The form is jag [OPTIONS] TERM [PATH...], with the term first as in grep.
+description: The form is jag [OPTIONS] TERM [PATH...], with the term first as in rg.
   The question comes only from the option --ask "QUESTION".
 status: stable
-decided_at: '2026-10-14'
+decided_at: '2026-10-15'
 alternatives:
 - 'The term, then the question, then the paths: jag TERM "QUESTION" [PATH...]'
 - 'The question comes first: jag "QUESTION" TERM [PATH...]'
@@ -18,9 +18,11 @@ about:
 
 # DECISION-31: The command takes the term and the paths, and the question only from --ask
 
-The user types `jag [OPTIONS] TERM [PATH...]`. The term comes first, as in grep, then the paths. The question comes only from the option `--ask "QUESTION"`, also written `--ask=QUESTION`. The option has no short form. Each word after the term is a path, so jag never has to guess if a word is a question or a path. With no `--ask`, jag works as plain grep (DECISION-32).
+The user types `jag [OPTIONS] TERM [PATH...]`. The term comes first, as in rg, then the paths. The question comes only from the option `--ask "QUESTION"`, also written `--ask=QUESTION`. The option has no short form. Each word after the term is a path, so jag never has to guess if a word is a question or a path. With no `--ask`, jag works as plain rg (DECISION-32).
 
 Source: the user, hitl answer of 2026-10-14 (FEATURE-12). It replaces the form `jag TERM "QUESTION" [PATH...]` of 2026-10-07. ADR-0018 records it.
+
+Source of the change from grep to rg: the user, hitl answer of 2026-10-15 (FEATURE-23, Q1 option 1: rg is the reference for jag with no question).
 
 <!-- LINKS:START (generated, do not edit) -->
 

@@ -1,10 +1,11 @@
 ---
 type: adr
 title: Find matches with the ripgrep libraries
-description: Open this when you change how jag finds the lines that match the term, or when grep and jag match different lines.
+description: Open this when you change how jag finds the lines that match the term, or when rg and jag match different lines.
 area: context
 status: accepted
 date: 2026-10-12
+amended: 2026-10-15
 supersedes: null
 superseded_by: null
 amends: null
@@ -21,7 +22,7 @@ model:
 
 ## Context
 
-jag must find the lines that match a term in a folder or in piped text, with the grep options of DECISION-34 and the skip rules of DECISION-14. The search must be fast (QS-3), and a new user must get a first result in under 5 minutes (METRIC-04).
+jag must find the lines that match a term in a folder or in piped text, with the options of DECISION-34 and the skip rules of DECISION-14. The search must be fast (QS-3), and a new user must get a first result in under 5 minutes (METRIC-04).
 
 ## Decision
 
@@ -39,5 +40,5 @@ The ripgrep libraries are fast, and their skip rules for hidden, binary, and ign
 
 ## Consequences
 
-- The term follows the pattern rules of `rg`, not of grep (RK-1). DECISION-33 needs a change, or jag translates the grep form.
+- The term follows the pattern rules of `rg`, not of grep (RK-1). Since the user answer of 2026-10-15 (FEATURE-23), rg is the reference for jag with no question, so this is the wanted result. DECISION-33 ("a regular expression, as in grep") must say the same.
 - jag must be a Rust program (see the building-blocks ADR).
