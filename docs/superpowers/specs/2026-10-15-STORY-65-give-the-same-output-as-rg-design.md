@@ -29,6 +29,9 @@ The user answered two questions on 2026-10-15 (hitl, FEATURE-23):
 - Q2 option 1: the parity comes before release 1. FEATURE-18 is blocked by
   FEATURE-23.
 
+The user also answered cards A to E on 2026-10-15, option 1 each (decisions
+18 to 22).
+
 - STORY-65: a shell power user (PERSONA-04) wants rg and jag with the same
   arguments to give the same bytes, in a pipe and with color, so that they
   can use jag in place of rg.
@@ -66,10 +69,9 @@ the probe found.
 
 ## Decisions
 
-The provisional rows (marked "provisional") use the recommended option of a
-user card that is open on 2026-10-15. The hitl role sent the cards with the
-priority "blocks code now". ADR-0021 and ADR-0022 call four of these cards A
-to D. This spec gives both names.
+The user answered cards A to E through hitl on 2026-10-15, option 1
+each. ADR-0021 and ADR-0022 call the cards A to D. This spec gives both
+names.
 
 | Card | Spec name | Subject |
 |---|---|---|
@@ -77,12 +79,12 @@ to D. This spec gives both names.
 | B | F23-Q4 | jag's notices and limits with no question |
 | C | F23-Q5 | the rg options that jag supports |
 | D | F23-Q6 | the JSON output with no question |
-| (none) | F23-Q7 | rg hints that name options that jag does not have |
+| E | F23-Q7 | rg hints that name options that jag does not have |
 
 | # | Decision | Choice | Source |
 |---|---|---|---|
 | 1 | Specs | One spec for STORY-65, STORY-66, and STORY-67. The three stories share one test set and one list of decisions | Orchestrator TASK for FEATURE-23 |
-| 2 | The reference | rg 15.2.0, with no rg config file. For the same arguments with no `--ask`, jag gives the same stdout, stderr, color codes, and exit code as rg. A difference stays only when a user ANSWER records it | User ANSWER of 2026-10-15 (Q1 option 1); ADR-0022 (PR #123, `proposed`); the pin of ADR-0021 (merged in `a9f966d`, status `proposed` until a card accepts it) |
+| 2 | The reference | rg 15.2.0, with no rg config file. For the same arguments with no `--ask`, jag gives the same stdout, stderr, color codes, and exit code as rg. A difference stays only when a user ANSWER records it | User ANSWER of 2026-10-15 (Q1 option 1); ADR-0022 (merged in `ee7debb`, status `proposed` until a card accepts it); the pin of ADR-0021 (merged in `a9f966d`, status `proposed` until a card accepts it) |
 | 3 | The scope | A search with no `--ask`: text mode and `--json` mode. `--setup`, `--check`, and `--forget-key` are not searches, and no case runs them. The ranked layout of `--ask` does not change | ADR-0022, Consequences; DECISION-31 |
 | 4 | Color codes in all text modes | The rg color codes also in the ranked text of `--ask`: path `ESC[0m ESC[35m`, line number `ESC[0m ESC[32m`, match `ESC[0m ESC[1m ESC[31m`, each closed with `ESC[0m`. The separators get no color | DECISION-38 (PR #121) names no mode; probe of rg 15.2.0 |
 | 5 | The `<stdin>` label in all modes | `src/search.rs` `STANDARD_INPUT_LABEL` becomes `<stdin>`. This changes the plain text, the ranked text, the `path` of the JSON document, and the path in the snippets that go to the model | DECISION-18 (PR #121) names no mode |
@@ -98,19 +100,19 @@ to D. This spec gives both names.
 | 15 | Binary files | As rg: a file that the command line names gets the binary rule "convert" of `grep-searcher`, and the printer writes `binary file matches (found "\0" byte around offset N)`. A file of a walk gets the rule "quit", with no message | Probe; rg 15.2.0 `crates/core/flags/hiargs.rs` |
 | 16 | Ignore files | As rg: `.ignore`, `.rgignore`, and `.gitignore` (only inside a git repository), and the ignore files of the parent folders. Hidden files are skipped in a walk. A path of the command line is always searched | Probe: jag does not read `.rgignore` today; rg 15.2.0 `walk_builder` |
 | 17 | Usage error text with `--ask` or `--json` | The rg error texts apply when the command line has no `--ask` and no `--json` before the first `--`. Else jag keeps its own failure texts with the cause and the fix (CV-1), and the JSON error document with `--json` | ADR-0022 covers a search with no `--ask`; CV-1; IF-5 |
-| 18 | Program name, help, version, and own options (card A) | Provisional, option 1: jag keeps its name, `-h`, `--help`, `--version`, and its own options (`--ask`, `--json`, `--check`, `--setup`, `--forget-key`, `--max-chars`, `--no-max-chars`, `--max-scored`, `--timeout`, `--retry-wait`, `--base-url`, `--model`). The test reads `rg:` at the start of an rg stderr line as `jag:`, and each `ripgrep` in rg stderr as `jag`. It changes no other byte | Card A (F23-Q3), open. Option 1 needs a change of ADR-0021 ("no rewrite"): see "For the architect" |
-| 19 | Notices and limits with no question (card B) | Provisional, option 1: in plain text mode, jag writes no cost line, no count of skipped files, cuts no long line, and has no default size limit. `--max-chars N` still works when the user gives it, with exit code 8. `--no-max-chars` is accepted and changes nothing. `--json` and `--ask` keep all four | Card B (F23-Q4), open. The ANSWER changes DECISION-14, DECISION-17, DECISION-20, DECISION-41, and DECISION-43 |
-| 20 | The option set (card C) | Provisional, option 1: the current set in the rg form. `-g`/`--glob` replace `--include` and `--exclude`. New: `-n`, `-N`, `-H`, `-I`, `--heading`, `--no-heading`, and `--sort` with `path` or `none`. `--color` takes its value as rg does (`--color always` and `--color=always`), with no `--colour`. Each other option gives the rg text `unrecognized flag`, with exit 2 | Card C (F23-Q5), open. The ANSWER changes DECISION-34 |
-| 21 | JSON with no question (card D) | Provisional, option 1: `--json` keeps the one JSON document of jag. The case `json` records it | Card D (F23-Q6), open; ADR-0008 |
-| 22 | rg hints (F23-Q7) | Provisional, option 1: jag gives the rg message with no sentence that names an option that jag does not have (`--pcre2`, `--multiline`, `-U`, `--debug`). The list of similar options after `unrecognized flag` comes from jag's own options, with the rule of rg | F23-Q7, open |
+| 18 | Program name, help, version, and own options (card A) | Decided, option 1: jag keeps its name, `-h`, `--help`, `--version`, and its own options (`--ask`, `--json`, `--check`, `--setup`, `--forget-key`, `--max-chars`, `--no-max-chars`, `--max-scored`, `--timeout`, `--retry-wait`, `--base-url`, `--model`). The test reads "jag" and "rg" or "ripgrep" as the same name in an error line: `rg:` at the start of an rg stderr line reads as `jag:`, and each `ripgrep` in rg stderr reads as `jag`. It changes no other byte, nothing in the stdout of rg, and nothing in the output of jag | Card A (F23-Q3), user ANSWER via hitl, 2026-10-15, option 1; ADR-0021, section "Run", in PR #127 (head `778d4c3`) |
+| 19 | Notices and limits with no question (card B) | Decided, option 1: in plain text mode, jag writes no cost line, no count of skipped files, cuts no long line, and has no default size limit. It writes full lines, no notice, and the rg exit codes (decision 12). `--max-chars N` still works when the user gives it, with exit code 8. `--no-max-chars` is accepted and changes nothing. `--json` and `--ask` keep all four | Card B (F23-Q4), user ANSWER via hitl, 2026-10-15, option 1. The planner changes DECISION-14, DECISION-17, DECISION-20, DECISION-41, and DECISION-43 |
+| 20 | The option set (card C) | Decided, option 1: the current set in the rg form. `-g`/`--glob` replace `--include` and `--exclude`. New: `-n`, `-N`, `-H`, `-I`, `--heading`, `--no-heading`, and `--sort` with `path` or `none`. `--color` takes its value as rg does (`--color always` and `--color=always`), with no `--colour`. Each other option gives the rg text `unrecognized flag`, with exit 2. `--sort` with another value gives the rg text `error parsing flag --sort: choice 'X' is unrecognized`, with exit 2. rg accepts `modified`, `accessed`, and `created`, so these are recorded differences | Card C (F23-Q5), user ANSWER via hitl, 2026-10-15, option 1. The card names `--sort path`; `--sort none` gives the same output as rg (Q1), and ADR-0021 in PR #127 (head `778d4c3`) names `path` and `none`. The planner changes DECISION-34 |
+| 21 | JSON with no question (card D) | Decided, option 1: `--json` keeps the one JSON document of jag, as a recorded difference. The case `json` records it | Card D (F23-Q6), user ANSWER via hitl, 2026-10-15, option 1; ADR-0008 |
+| 22 | rg hints (card E) | Decided, option 1: jag gives the rg message with the same first part and the same exit code, with no sentence that names an option that jag does not have (`--pcre2`, `--multiline`, `-U`, `--debug`). The list of similar options after `unrecognized flag` comes from jag's own options, with the rule of rg. These are recorded differences | Card E (F23-Q7), user ANSWER via hitl, 2026-10-15, option 1 |
 | 23 | Layout options with `--ask` or `--json` | `-n`, `-N`, `-H`, `-I`, `--heading`, and `--no-heading` are a usage error with `--ask` or `--json`, as `-l`, `-c`, and `-q` are today. `-g` and `--sort` work in all modes. `--sort` has no effect on the ranked order | Inferred from `src/cli.rs` (`conflicts_with_all = MODES`) |
-| 24 | The test form | ADR-0021: one cargo integration test `tests/rg_parity.rs`, the cases in `tests/parity/cases.yaml`, the fixture trees in `tests/parity/fixtures/`, the stored jag bytes in `tests/parity/expected/`, the pin in `tests/parity/rg.sha256`, and `scripts/parity/install-rg.sh`. Three modes: pipe, color, and terminal | ADR-0021 (merged in `a9f966d`, status `proposed` until a card accepts it) |
+| 24 | The test form | ADR-0021: one cargo integration test `tests/rg_parity.rs`, the cases in `tests/parity/cases.yaml`, the fixture trees in `tests/parity/fixtures/`, the stored jag bytes in `tests/parity/expected/`, the pin in `tests/parity/rg.sha256`, and `scripts/parity/install-rg.sh`. Three modes: pipe, color, and terminal | ADR-0021 (merged in `a9f966d`, status `proposed` until a card accepts it); the round of the user ANSWERs in PR #127 (head `778d4c3`) |
 | 25 | The first test set | The 76 cases of the section "The first test set", with the fixture trees of the section "The fixture trees" | CRITERION-110; the probes of 2026-10-15 |
-| 26 | Stdin files of the cases | `tests/parity/stdin/<name>`. A case names its file with `stdin: <name>` | Inferred: ADR-0021 names "an optional stdin file" and no folder |
+| 26 | Stdin files of the cases | `tests/parity/stdin/<name>`. A case names its file with `stdin: <name>` | ADR-0021 in PR #127 (head `778d4c3`) |
 | 27 | Owners and pull requests | Two pull requests. The tester opens the test PR (STORY-65 and STORY-66). The implementer opens the code PR (STORY-67). The verifier runs the cases on the code PR. See "Owners" | Orchestrator TASK ("The tester codifies the tests; the verifier runs the cases"); `docs/adlc.md`, the roles |
 | 28 | Merge order | The code PR merges first. The test PR merges after it, so `main` never has a parity test that fails | Decision 27; `cargo test` stops after the first test binary that fails, so a red parity test hides the results of other tests |
 | 29 | Done | All three stories are done only after both pull requests merge and the parity test passes in the `rust` job on `main` | `docs/adlc.md` ("does not block done, unless the spec says so") |
-| 30 | Story state | STORY-65, STORY-66, and STORY-67 stay `backlog` until the ANSWERs of cards A to D and F23-Q7 are in. Then this spec gets the final choices, and the same PR sets the stories `ready` | `docs/adlc.md` rule 11 |
+| 30 | Story state | STORY-65, STORY-66, and STORY-67 are `ready`: this spec is in this PR, no feature blocks them, and the ANSWERs of cards A to E are in. The ADR round of the ANSWERs is open in PR #127 (head `778d4c3`) | `docs/adlc.md` rule 11; orchestrator messages of 2026-10-15 |
 
 ## Design
 
@@ -118,10 +120,9 @@ to D. This spec gives both names.
 
 | Step | Owner |
 |---|---|
-| Ask the open cards A to D and F23-Q7 | hitl |
-| Update this spec with the ANSWERs; set the stories `ready` | specifier |
+| Write this spec; set the stories `ready` | specifier |
 | Change the PRD pages and the system design for the ANSWERs (see "For the planner") | planner |
-| Close the open points of ADR-0021 and ADR-0022 | architect |
+| The ADR round of the ANSWERs (PR #127 (head `778d4c3`)) | architect |
 | The test PR: the harness, the test set, the fixtures, the pin, the install script, and the CI steps (STORY-65, STORY-66) | tester |
 | The code PR: each fix of "The differences" (STORY-67) | implementer |
 | Run the cases on the code PR with the pinned rg; send test scenarios | verifier |
@@ -138,21 +139,22 @@ planner changes them after the ANSWERs:
 - CV-4: "writes no partial result" stays for `--ask` and `--json` only
   (decision 13).
 - IF-4: exit 2 for any read error with no `--ask`, not only for a path that
-  does not exist (decision 12). Exit 8 depends on card B.
-- IF-3: the option list depends on card C.
+  does not exist (decision 12). With no question, exit 8 comes only with
+  `--max-chars` (card B).
+- IF-3 and DECISION-34: the option list of card C (decision 20).
 - FEATURE-14 decision 8 (`-` and the empty path are usage errors): decision
   14 changes it.
-- DECISION-14, DECISION-17, DECISION-20, DECISION-41, and DECISION-43: card B.
-- DECISION-34: card C.
+- DECISION-14, DECISION-17, DECISION-20, DECISION-41, and DECISION-43: card B
+  (decision 19).
 
 ### For the architect
 
-- ADR-0021 says "byte for byte, with no change to the order or the text". Card A option 1 needs
-  one rule in the test: `rg:` at the start of an rg stderr line reads as
-  `jag:`, and each `ripgrep` in rg stderr reads as `jag`. If the ANSWER
-  selects option 1, ADR-0021 must name this rule.
-- ADR-0021 open point "Order": decision 10. jag accepts `--sort path` only
-  if card C keeps it.
+PR #127 (head `778d4c3`) holds the ADR round of the ANSWERs:
+
+- ADR-0021: the name rule of card A (decision 18), the folder
+  `tests/parity/stdin/` and its `.gitattributes` line (decision 26), and the
+  point "Order" (decision 10).
+- ADR-0022: the exceptions of cards A to E.
 - ADR-0001: no change (architect, 2026-10-15). The new crates follow
   ADR-0012 (a reason in the PR).
 
@@ -185,8 +187,8 @@ planner changes them after the ANSWERs:
 ### The differences
 
 Each row is one difference that the probe found. "Fix" means that the code PR
-changes jag to the rg form. "Card" means that the ANSWER decides. Decision
-18 to decision 22 give the provisional choice.
+changes jag to the rg form. "Recorded difference" means that a user ANSWER
+keeps the jag form.
 
 | # | What | rg 15.2.0 | jag on `main` | Action |
 |---|---|---|---|---|
@@ -203,18 +205,18 @@ changes jag to the rg form. "Card" means that the ANSWER decides. Decision
 | D11 | `-` and the empty path | `-` reads stdin; `''` gives the path error, exit 2 | Usage error | Fix |
 | D12 | `.rgignore` | Read | Not read | Fix |
 | D13 | Read error | `rg: u.txt: Permission denied (os error 13)`, exit 2 | `jag: cannot read u.txt: permission denied`, exit 0 | Fix |
-| D14 | Path that does not exist | `rg: nope.txt: IO error for operation on nope.txt: No such file or directory (os error 2)` | `jag: the path nope.txt does not exist` | Fix, prefix card A |
-| D15 | Bad pattern | The `regex parse error:` block of rg | jag's two lines | Fix, prefix card A |
-| D16 | Usage errors | `rg: unrecognized flag --frobnicate`, `rg: error parsing flag -A: ...`, `rg: missing value for flag -A: ...` | jag's two lines | Fix, prefix card A |
-| D17 | No arguments | `rg: ripgrep requires at least one pattern to execute a search`, exit 2 | Help text | Fix, name card A |
-| D18 | Nothing searched | `rg: No files were searched, ...` and a `--debug` line, exit 2 | Exit 1 | Fix, hint F23-Q7 |
-| D19 | Hints | `--pcre2` and `--multiline` hints | No hint | F23-Q7 |
-| D20 | Cost line and skip notice on stderr | None | Always | Card B |
-| D21 | Long line | Full line | Cut with ` [+N chars]` | Card B |
-| D22 | Size limit | None, exit 0 | 20,000 characters, notice, exit 8 | Card B |
-| D23 | `--include`, `--exclude`, `-g`, `-n`, `-N`, `-H`, `-I`, `--heading`, `--sort`, `--colour`, `--color VALUE` | rg form | jag form | Card C |
-| D24 | `-h`, `--help`, `--version`, jag-only options | rg text | jag text | Card A |
-| D25 | `--json` | JSON lines with times | One document | Card D |
+| D14 | Path that does not exist | `rg: nope.txt: IO error for operation on nope.txt: No such file or directory (os error 2)` | `jag: the path nope.txt does not exist` | Fix (name rule of card A) |
+| D15 | Bad pattern | The `regex parse error:` block of rg | jag's two lines | Fix (name rule of card A) |
+| D16 | Usage errors | `rg: unrecognized flag --frobnicate`, `rg: error parsing flag -A: ...`, `rg: missing value for flag -A: ...` | jag's two lines | Fix (name rule of card A) |
+| D17 | No arguments | `rg: ripgrep requires at least one pattern to execute a search`, exit 2 | Help text | Fix (name rule of card A) |
+| D18 | Nothing searched | `rg: No files were searched, ...` and a `--debug` line, exit 2 | Exit 1 | Fix; the `--debug` line is a recorded difference (card E) |
+| D19 | Hints | `--pcre2` and `--multiline` hints | No hint | Recorded difference (card E) |
+| D20 | Cost line and skip notice on stderr | None | Always | Fix (card B) |
+| D21 | Long line | Full line | Cut with ` [+N chars]` | Fix (card B) |
+| D22 | Size limit | None, exit 0 | 20,000 characters, notice, exit 8 | Fix (card B) |
+| D23 | `--include`, `--exclude`, `-g`, `-n`, `-N`, `-H`, `-I`, `--heading`, `--sort`, `--colour`, `--color VALUE` | rg form | jag form | Fix (card C). Each rg option that card C does not keep is a recorded difference |
+| D24 | `-h`, `--help`, `--version`, jag-only options | rg text | jag text | Recorded difference (card A) |
+| D25 | `--json` | JSON lines with times | One document | Recorded difference (card D) |
 
 ### The plain text pipeline (decisions 7, 8, 9, 12, 13, 15, 16)
 
@@ -256,7 +258,7 @@ source file in a code comment. The spike settings that gave the same bytes:
 ### The error texts (decisions 11, 17, 18, 22)
 
 With no `--ask` and no `--json`, jag writes these texts to stderr. `<name>`
-is `jag` with card A option 1.
+is `jag` (card A, option 1).
 
 | Error | Text | Exit |
 |---|---|---|
@@ -269,8 +271,8 @@ is `jag` with card A option 1.
 | Bad choice | `<name>: error parsing flag --color: choice 'X' is unrecognized` | 2 |
 | Missing value | `<name>: missing value for flag -A: missing argument for option '-A'` | 2 |
 | No pattern | `<name>: <name> requires at least one pattern to execute a search` | 2 |
-| Nothing searched | `<name>: No files were searched, which means <name> probably applied a filter you didn't expect.` (F23-Q7 option 1 drops the `--debug` line) | 2 |
-| Look-around or `\n` in the pattern | The rg text with no hint sentence (F23-Q7 option 1) | 2 |
+| Nothing searched | `<name>: No files were searched, which means <name> probably applied a filter you didn't expect.` (card E option 1 drops the `--debug` line) | 2 |
+| Look-around or `\n` in the pattern | The rg text with no hint sentence (card E option 1) | 2 |
 
 clap stays the parser (ADR-0012). `src/cli/rg_text.rs` maps each clap error
 kind to the rg text. The rg source of each text is
@@ -281,102 +283,100 @@ of letter groups).
 ### The first test set (CRITERION-110)
 
 Each case runs in the three modes of ADR-0021 (pipe, color, and terminal),
-unless the column "Modes" says other. "Waits on" names the card whose ANSWER
-decides if the case is fixed or recorded as deliberate. "-" means that the
-case must give the rg bytes.
+unless the column "Modes" says other. The column "Result" says what the
+case must give. `rg`: the rg bytes, with the name rule of decision 18 on
+stderr. `deliberate: X`: the stored jag bytes, with the ANSWER of card X
+(CRITERION-114).
 
-| Id | Arguments | Tree | Modes | Stdin or env | Waits on |
+| Id | Arguments | Tree | Modes | Stdin or env | Result |
 |---|---|---|---|---|---|
-| one-file | `foo a.txt` | basic | all | | - |
-| two-files | `--sort path foo a.txt sub/c.txt` | basic | all | | - |
-| folder | `--sort path foo sub` | basic | all | | - |
-| dot | `--sort path foo .` | basic | all | | - |
-| no-path | `--sort path foo` | basic | all | | - |
-| args-order | `--sort path foo sub/c.txt a.txt b.rs` | basic | all | | - |
-| walk-order | `--sort path x .` | order | all | | - |
-| no-match | `zzz a.txt` | basic | all | | - |
-| ignore-case | `-i foo a.txt` | basic | all | | - |
-| word | `-w foo a.txt` | basic | all | | - |
-| fixed | `-F f.o a.txt` | basic | all | | - |
-| regex | `f.o a.txt` | basic | all | | - |
-| two-e | `-e alpha -e gamma a.txt` | basic | all | | - |
-| e-dash | `-e -x a.txt` | basic | all | | - |
-| double-dash | `-- -x a.txt` | basic | all | | - |
-| empty-term | `'' a.txt` | basic | all | | - |
-| after | `-A 1 foo ctx.txt` | basic | all | | - |
-| before | `-B 2 foo ctx.txt` | basic | all | | - |
-| context | `-C 1 foo ctx.txt` | basic | all | | - |
-| context-two | `--sort path -C 1 foo a.txt ctx.txt` | basic | all | | - |
-| files | `--sort path -l foo a.txt b.rs empty.txt` | basic | all | | - |
-| count-one | `-c foo a.txt` | basic | all | | - |
-| count-many | `--sort path -c foo a.txt b.rs empty.txt` | basic | all | | - |
-| quiet | `-q foo a.txt` | basic | all | | - |
-| quiet-miss | `-q zzz a.txt` | basic | all | | - |
-| crlf | `foo crlf.txt` | basic | all | | - |
-| no-newline | `foo nonl.txt` | basic | all | | - |
-| utf8 | `foo utf8.txt` | basic | all | | - |
-| latin1 | `foo latin1.txt` | basic | all | | - |
-| hidden-file | `foo .hidden.txt` | basic | all | | - |
-| binary-file | `foo bin.dat` | basic | all | | - |
-| binary-late | `foo late.bin` | binary | all | | - |
-| binary-walk | `--sort path foo .` | binary | all | | - |
-| ignore-files | `--sort path foo .` | ignore | all | | - |
-| stdin | `foo` | basic | all | stdin `lines.txt` | - |
-| stdin-dash | `foo -` | basic | all | stdin `lines.txt` | - |
-| stdin-and-file | `--sort path foo - a.txt` | basic | all | stdin `lines.txt` | - |
-| color-space | `--color always foo a.txt` | basic | pipe | | - |
-| color-never | `--color never foo a.txt` | basic | terminal | | - |
-| no-color-env | `foo a.txt` | basic | terminal | `NO_COLOR=1` | - |
-| term-dumb | `foo a.txt` | basic | terminal | `TERM=dumb` | - |
-| missing-path | `foo nope.txt` | basic | all | | A |
-| missing-and-match | `--sort path foo nope.txt a.txt` | basic | all | | A |
-| quiet-missing | `-q --sort path foo nope.txt a.txt` | basic | all | | A |
-| empty-path | `foo ''` | basic | all | | A |
-| bad-regex | `'(' a.txt` | basic | all | | A |
-| no-args | (none) | basic | pipe | | A |
-| bad-number | `-A x foo a.txt` | basic | pipe | | A |
-| missing-value | `foo a.txt -A` | basic | pipe | | A |
-| color-bad | `--color foo a.txt` | basic | pipe | | A |
-| sort-bad | `--sort size foo a.txt` | basic | pipe | | A |
-| look-around | `'a(?=b)' a.txt` | basic | pipe | | A, F23-Q7 |
-| newline | `'a\nb' a.txt` | basic | pipe | | A, F23-Q7 |
-| nothing-searched | `foo` | hidden-only | pipe | | A, F23-Q7 |
-| unknown-option | `--frobnicate foo a.txt` | basic | pipe | | A, F23-Q7 |
-| glob | `--sort path -g '*.txt' foo .` | basic | all | | C |
-| glob-not | `--sort path -g '!*.txt' foo .` | basic | all | | C |
-| include | `--include '*.txt' foo sub` | basic | pipe | | A, C, F23-Q7 |
-| colour | `--colour=always foo a.txt` | basic | pipe | | A, C, F23-Q7 |
-| line-number | `-n foo a.txt` | basic | all | | C |
-| no-line-number | `-N --sort path foo a.txt sub/c.txt` | basic | all | | C |
-| with-filename | `-H foo a.txt` | basic | all | | C |
-| no-filename | `-I --sort path foo a.txt sub/c.txt` | basic | all | | C |
-| heading | `--heading --sort path foo a.txt sub/c.txt` | basic | all | | C |
-| no-heading | `--no-heading --sort path foo a.txt sub/c.txt` | basic | all | | C |
-| sort-none | `--sort none foo a.txt` | basic | all | | C |
-| sort-modified | `--sort modified foo a.txt` | basic | pipe | | C |
-| rg-only-option | `-v foo a.txt` | basic | pipe | | C |
-| long-line | `foo long.txt` | limits | all | | B |
-| many | `foo many.txt` | limits | all | | B |
-| limits-walk | `--sort path foo .` | limits | all | | B |
-| max-chars | `--max-chars 1000 foo many.txt` | limits | pipe | | A, B |
-| help-short | `-h` | basic | pipe | | A |
-| help-long | `--help` | basic | pipe | | A |
-| version | `--version` | basic | pipe | | A |
-| json | `--json foo a.txt` | basic | pipe | | D |
+| one-file | `foo a.txt` | basic | all | | rg |
+| two-files | `--sort path foo a.txt sub/c.txt` | basic | all | | rg |
+| folder | `--sort path foo sub` | basic | all | | rg |
+| dot | `--sort path foo .` | basic | all | | rg |
+| no-path | `--sort path foo` | basic | all | | rg |
+| args-order | `--sort path foo sub/c.txt a.txt b.rs` | basic | all | | rg |
+| walk-order | `--sort path x .` | order | all | | rg |
+| no-match | `zzz a.txt` | basic | all | | rg |
+| ignore-case | `-i foo a.txt` | basic | all | | rg |
+| word | `-w foo a.txt` | basic | all | | rg |
+| fixed | `-F f.o a.txt` | basic | all | | rg |
+| regex | `f.o a.txt` | basic | all | | rg |
+| two-e | `-e alpha -e gamma a.txt` | basic | all | | rg |
+| e-dash | `-e -x a.txt` | basic | all | | rg |
+| double-dash | `-- -x a.txt` | basic | all | | rg |
+| empty-term | `'' a.txt` | basic | all | | rg |
+| after | `-A 1 foo ctx.txt` | basic | all | | rg |
+| before | `-B 2 foo ctx.txt` | basic | all | | rg |
+| context | `-C 1 foo ctx.txt` | basic | all | | rg |
+| context-two | `--sort path -C 1 foo a.txt ctx.txt` | basic | all | | rg |
+| files | `--sort path -l foo a.txt b.rs empty.txt` | basic | all | | rg |
+| count-one | `-c foo a.txt` | basic | all | | rg |
+| count-many | `--sort path -c foo a.txt b.rs empty.txt` | basic | all | | rg |
+| quiet | `-q foo a.txt` | basic | all | | rg |
+| quiet-miss | `-q zzz a.txt` | basic | all | | rg |
+| crlf | `foo crlf.txt` | basic | all | | rg |
+| no-newline | `foo nonl.txt` | basic | all | | rg |
+| utf8 | `foo utf8.txt` | basic | all | | rg |
+| latin1 | `foo latin1.txt` | basic | all | | rg |
+| hidden-file | `foo .hidden.txt` | basic | all | | rg |
+| binary-file | `foo bin.dat` | basic | all | | rg |
+| binary-late | `foo late.bin` | binary | all | | rg |
+| binary-walk | `--sort path foo .` | binary | all | | rg |
+| ignore-files | `--sort path foo .` | ignore | all | | rg |
+| stdin | `foo` | basic | all | stdin `lines.txt` | rg |
+| stdin-dash | `foo -` | basic | all | stdin `lines.txt` | rg |
+| stdin-and-file | `--sort path foo - a.txt` | basic | all | stdin `lines.txt` | rg |
+| color-space | `--color always foo a.txt` | basic | pipe | | rg |
+| color-never | `--color never foo a.txt` | basic | terminal | | rg |
+| no-color-env | `foo a.txt` | basic | terminal | `NO_COLOR=1` | rg |
+| term-dumb | `foo a.txt` | basic | terminal | `TERM=dumb` | rg |
+| missing-path | `foo nope.txt` | basic | all | | rg |
+| missing-and-match | `--sort path foo nope.txt a.txt` | basic | all | | rg |
+| quiet-missing | `-q --sort path foo nope.txt a.txt` | basic | all | | rg |
+| empty-path | `foo ''` | basic | all | | rg |
+| bad-regex | `'(' a.txt` | basic | all | | rg |
+| no-args | (none) | basic | pipe | | rg |
+| bad-number | `-A x foo a.txt` | basic | pipe | | rg |
+| missing-value | `foo a.txt -A` | basic | pipe | | rg |
+| color-bad | `--color foo a.txt` | basic | pipe | | rg |
+| sort-bad | `--sort size foo a.txt` | basic | pipe | | rg |
+| look-around | `'a(?=b)' a.txt` | basic | pipe | | deliberate: E |
+| newline | `'a\nb' a.txt` | basic | pipe | | deliberate: E |
+| nothing-searched | `foo` | hidden-only | pipe | | deliberate: E |
+| unknown-option | `--frobnicate foo a.txt` | basic | pipe | | deliberate: E |
+| glob | `--sort path -g '*.txt' foo .` | basic | all | | rg |
+| glob-not | `--sort path -g '!*.txt' foo .` | basic | all | | rg |
+| include | `--include '*.txt' foo sub` | basic | pipe | | deliberate: E |
+| colour | `--colour=always foo a.txt` | basic | pipe | | deliberate: E |
+| line-number | `-n foo a.txt` | basic | all | | rg |
+| no-line-number | `-N --sort path foo a.txt sub/c.txt` | basic | all | | rg |
+| with-filename | `-H foo a.txt` | basic | all | | rg |
+| no-filename | `-I --sort path foo a.txt sub/c.txt` | basic | all | | rg |
+| heading | `--heading --sort path foo a.txt sub/c.txt` | basic | all | | rg |
+| no-heading | `--no-heading --sort path foo a.txt sub/c.txt` | basic | all | | rg |
+| sort-none | `--sort none foo a.txt` | basic | all | | rg |
+| sort-modified | `--sort modified foo a.txt` | basic | pipe | | deliberate: C |
+| rg-only-option | `-v foo a.txt` | basic | pipe | | deliberate: C |
+| long-line | `foo long.txt` | limits | all | | rg |
+| many | `foo many.txt` | limits | all | | rg |
+| limits-walk | `--sort path foo .` | limits | all | | rg |
+| max-chars | `--max-chars 1000 foo many.txt` | limits | pipe | | deliberate: A |
+| help-short | `-h` | basic | pipe | | deliberate: A |
+| help-long | `--help` | basic | pipe | | deliberate: A |
+| version | `--version` | basic | pipe | | deliberate: A |
+| json | `--json foo a.txt` | basic | pipe | | deliberate: D |
 
 The words in the column "Arguments" are shell words: `''` is one empty
 argument, and `'a\nb'` is the 4 characters `a`, `\`, `n`, `b`. The tester
 writes each argument as one YAML string.
 
-After the ANSWERs, each "Waits on" case gets one of two results. If the
-ANSWER selects the rg form, the case must give the rg bytes. If the ANSWER
-keeps a jag form, the case gets `deliberate: { answer: <the ANSWER> }` and
-stored jag bytes (CRITERION-114).
-
-If the card C ANSWER does not keep `--sort path`, the specifier changes each
-case with `--sort path` to search one file, before the stories become
-`ready`. The cases `color-space` and `color-never` use the form
-`--color VALUE`, so they also depend on card C.
+A deliberate case gets `deliberate: { answer: <the ANSWER> }` and stored jag
+bytes (CRITERION-114). The `answer` names the date, the card, and the option,
+for example "hitl ANSWER of 2026-10-15, card C (F23-Q5), option 1". If rg
+and jag give the same bytes for a `deliberate: E` case (for example, the
+same list of similar options), the test fails (ADR-0021), and the tester
+changes the result of that case to `rg`.
 
 The stored bytes of the case `version` hold the version of `Cargo.toml`.
 The pull request that changes that version also changes
@@ -441,10 +441,11 @@ test that checks `(standard input)`).
 
 ## Build order
 
-1. hitl gets the ANSWERs of cards A to D and F23-Q7. The specifier updates
-   this spec with the final choices and sets the stories `ready` (rule 11).
-   The architect closes the open points of ADR-0021 and ADR-0022, and a card
-   accepts them. The planner changes the PRD pages ("For the planner").
+1. Done on 2026-10-15: the ANSWERs of cards A to E are in this spec, and
+   this PR sets the stories `ready` (rule 11). Before the code PR and the
+   test PR merge, PR #127 (the ADR round of the ANSWERs) merges. A card
+   accepts ADR-0021 and ADR-0022. The planner changes the PRD pages ("For
+   the planner").
 2. Tester (STORY-65, STORY-66): the test PR from `main`, with each file of
    the tester in "Files". The parity test fails on this PR until step 3
    merges. The PR body lists each case and mode that differs. This list is
@@ -466,8 +467,6 @@ test that checks `(standard input)`).
 
 - Decision 23 (layout options with `--ask` or `--json`) comes from the code
   convention `conflicts_with_all = MODES` in `src/cli.rs`.
-- Decision 26 (the stdin folder) comes from ADR-0021, which names "an
-  optional stdin file" with no folder.
 - The snippet path that jag sends to the model changes from
   `(standard input)` to `<stdin>` (decision 5). This is data, not prompt
   text, so the prompt version of ADR-0004 does not change.
@@ -479,8 +478,7 @@ test that checks `(standard input)`).
 
 | Risk | Signal |
 |---|---|
-| An ANSWER selects another option than the provisional one | The ANSWER text. The specifier updates this spec before the stories become `ready` |
-| ADR-0021 changes when the architect closes its open points, or ADR-0022 changes before it merges | A new ADR-0021 commit on `main` (merged in `a9f966d`), or a new head of PR #123. This spec follows the merged text |
+| The ADR round of PR #127 (head `778d4c3`) changes before it merges | A new head of PR #127. The specifier changes this spec to the merged text |
 | jag uses `ignore` 0.4.33 and `globset` 0.4.20; rg 15.2.0 uses 0.4.29 and 0.4.19. An error text or a skip rule can differ | A parity case fails on an error text or on the files of a walk |
 | A new rg pin changes the output of rg | The pull request that changes `tests/parity/rg.sha256` fails cases |
 | A walk with one thread is slower than the scan of today in a large folder | A plain search of a large folder takes more time than rg with `--sort path` |

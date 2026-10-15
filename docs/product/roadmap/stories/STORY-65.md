@@ -5,7 +5,7 @@ description: As a shell power user (PERSONA-04), I want rg and jag with the same
   to give the same bytes, in a pipe and with color, so that I can use jag in place
   of rg.
 status: draft
-state: backlog
+state: ready
 github:
   number: 114
   node_id: I_kwDOVKMnL88AAAABXgIzrw

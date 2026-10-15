@@ -5,7 +5,7 @@ description: As a shell power user (PERSONA-04), I want each difference from rg 
   be fixed in jag or recorded as deliberate by a user answer, so that each difference
   that stays is known.
 status: draft
-state: backlog
+state: ready
 github:
   number: 116
   node_id: I_kwDOVKMnL88AAAABXgJBtA
