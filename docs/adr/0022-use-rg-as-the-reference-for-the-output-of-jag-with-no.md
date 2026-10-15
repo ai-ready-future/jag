@@ -15,6 +15,7 @@ related:
   - 0018-take-the-question-only-from-the-ask-option.md
   - 0007-number-the-exit-codes-above-2-from-3-to-8.md
   - 0008-write-structured-output-as-one-json-document.md
+  - 0006-run-setup-the-readiness-check-and-key-removal-as-options.md
 parent_spec: docs/product/roadmap/features/FEATURE-23.md
 model:
   status: modeled
@@ -51,8 +52,10 @@ With no `--ask`, rg is the reference for jag. For the same arguments, jag writes
 ## Consequences
 
 - Before release 1, jag changes each grep form to the rg form, or a user `ANSWER` records the difference (STORY-67). Known differences: the color codes, the file heading with line numbers in a terminal, `<stdin>` in place of `(standard input)`, and the program name at the start of an error line.
+- This decision covers a search with no `--ask`. `--setup`, `--check`, and `--forget-key` are not searches (0006-run-setup-the-readiness-check-and-key-removal-as-options.md), and their output is not this decision.
+- Exceptions: a user `ANSWER` can give an exception, and then it is a recorded difference under this decision, with no new ADR. The open user cards can give these exceptions: the name of jag, `--help`, `--version`, and the options that only jag has (card A); a size limit (card B); and the one JSON document of jag with `--json` (card D).
 - The options that jag accepts are not this decision. DECISION-34 lists them, and the FEATURE-23 spec decides what jag does with `--include` and `--exclude`, which rg does not have. For each option that jag accepts, rg is the reference for its output.
-- With `--json`, jag writes its own JSON document (0008-write-structured-output-as-one-json-document.md), not the JSON lines of `rg --json`. The FEATURE-23 spec decides if this is a deliberate difference.
+- With `--json`, jag writes its own JSON document (0008-write-structured-output-as-one-json-document.md), not the JSON lines of `rg --json`. User card D decides if this is a recorded difference.
 - Where jag refuses an option that rg accepts (an option that DECISION-34 does not keep), the output of jag differs from rg. Each such case needs a recorded difference.
 - A new rg pin that changes the output of rg also changes the reference. Before release 1, jag follows it. After release 1, a change of the output of jag needs a new major version of jag, or a recorded difference.
 - After release 1, a change of the reference (for example back to grep) needs a new major version of jag and a new ADR.
