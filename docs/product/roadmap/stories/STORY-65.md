@@ -13,6 +13,7 @@ github:
   pushed_hash: 6a0e1f
   synced:
     state: backlog
+spec: docs/superpowers/specs/2026-10-15-STORY-65-give-the-same-output-as-rg-design.md
 parent: /features/FEATURE-23.md
 milestone: /milestones/MILESTONE-02.md
 ---
