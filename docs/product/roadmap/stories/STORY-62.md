@@ -14,7 +14,7 @@ milestone: /milestones/MILESTONE-02.md
 
 As a shell power user (PERSONA-04), I want the maintainer to use jag on real work for a period before the first publish, so that the first release has no known bug that this use found.
 
-Source: user decision of 2026-10-15, given to chores-2 while step U3 was paused. The user said: "use the app locally for a while, iterate and fix".
+Source: user decision of 2026-10-15, given to chores-2 while step U3 was paused. The user said: "use the app for a while locally and iterate and fix it".
 
 <!-- STATUS:START (generated, do not edit) -->
 

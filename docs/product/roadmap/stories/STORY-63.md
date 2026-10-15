@@ -14,7 +14,7 @@ milestone: /milestones/MILESTONE-02.md
 
 As an agent builder (PERSONA-01), I want a security audit of the code, the dependencies, and the release workflow before the first publish, so that the first release has no known high vulnerability.
 
-Source: user decision of 2026-10-15, given to chores-2 while step U3 was paused. The user said: "audit for security vulnerabilities".
+Source: user decision of 2026-10-15, given to chores-2 while step U3 was paused. The user said: "audit it for security vulnerabilities".
 
 <!-- STATUS:START (generated, do not edit) -->
 

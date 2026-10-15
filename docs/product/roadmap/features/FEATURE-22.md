@@ -25,7 +25,7 @@ Before the first publish (FEATURE-18 steps U3 to U6), three checks must pass:
 - A security audit of the code, the dependencies, and the release workflow finds no open high finding.
 - A license and compliance audit finds jag in good standing.
 
-Source: user decision of 2026-10-15, given to chores-2 while step U3 was paused. The user said: "use the app locally for a while, iterate and fix", "audit for security vulnerabilities", and "check the license and audit compliance ('good standing')". The user said these deserve stories.
+Source: user decision of 2026-10-15, given to chores-2 while step U3 was paused. The user said: "I would like to first use the app for a while locally and iterate and fix it", "I would like to audit it for security vulnerabilities", and "I would like to check the license and audit it for compliance and make sure we are in good standing". The user also said: "all these activities may deserve stories".
 
 <!-- STATUS:START (generated, do not edit) -->
 

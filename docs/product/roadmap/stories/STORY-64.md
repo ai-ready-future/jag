@@ -14,7 +14,7 @@ milestone: /milestones/MILESTONE-02.md
 
 As an agent builder (PERSONA-01), I want a license and compliance audit before the first publish, so that I can use jag and its packages with no license problem.
 
-Source: user decision of 2026-10-15, given to chores-2 while step U3 was paused. The user said: "check the license and audit compliance ('good standing')".
+Source: user decision of 2026-10-15, given to chores-2 while step U3 was paused. The user said: "check the license and audit it for compliance and make sure we are in good standing".
 
 <!-- STATUS:START (generated, do not edit) -->
 
