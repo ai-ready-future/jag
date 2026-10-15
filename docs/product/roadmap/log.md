@@ -1,6 +1,7 @@
 # Log
 
 ## 2026-10-15
+* **Plan**: [FEATURE-22](features/FEATURE-22.md) new feature under EPIC-05 with STORY-62, STORY-63, STORY-64 and CRITERION-105 to CRITERION-109; FEATURE-18 is blocked_by FEATURE-22, so the first publish waits for it; user decision of 2026-10-15 (given to chores-2 while step U3 was paused): "use the app locally for a while, iterate and fix", "audit for security vulnerabilities", "check the license and audit compliance ('good standing')"; the new stories stay backlog by rule 11 until their spec merges, by agent:planner, at 2026-10-15T18:15:26Z
 * **Sync**: [STORY-60](stories/STORY-60.md) pushed to GitHub, by system:github, at 2026-10-15T15:07:20Z
 * **Sync**: [FEATURE-19](features/FEATURE-19.md) pushed to GitHub, by system:github, at 2026-10-15T15:07:20Z
 * **Plan**: [FEATURE-18](features/FEATURE-18.md) rule 11 (docs/adlc.md) check after FEATURE-19 done: each blocked_by feature (FEATURE-01, FEATURE-17, FEATURE-19) is done; STORY-48 to STORY-51 stay ready by the base rule (spec merged, feature not blocked), no longer by the ANSWER exception; FEATURE-18 stays backlog (regen changed no state), by agent:planner, at 2026-10-15T15:00:34Z

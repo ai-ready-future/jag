@@ -57,5 +57,6 @@ Release 1 does not serve users whose text must not leave the machine. This is a 
 - subject of: [DECISION-46: jag scores each search again and does not reuse scores](../decisions/DECISION-46.md)
 - traced by: [EPIC-05: Safe public release](../../roadmap/epics/EPIC-05.md)
 - traced by: [FEATURE-18: Install jag from GitHub Releases, crates.io, or npm](../../roadmap/features/FEATURE-18.md)
+- traced by: [FEATURE-22: Check that jag is ready before the first publish](../../roadmap/features/FEATURE-22.md)
 - traced by: [MILESTONE-01: Make it work](../../roadmap/milestones/MILESTONE-01.md)
 <!-- LINKS:END -->

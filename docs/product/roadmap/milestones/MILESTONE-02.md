@@ -30,17 +30,18 @@ This milestone holds the capabilities that make jag better to use and easier to 
 | Item | State | Progress | Owner | Blocked by | Drift |
 | --- | --- | --- | --- | --- | --- |
 | [EPIC-04: A shell user keeps their habits](../epics/EPIC-04.md) | done | 5/5 (100%) | - | - | - |
-| [EPIC-05: Safe public release](../epics/EPIC-05.md) | ready | 2/3 (66%) | - | - | - |
+| [EPIC-05: Safe public release](../epics/EPIC-05.md) | ready | 2/4 (50%) | - | - | - |
 | [FEATURE-02: Readiness check](../features/FEATURE-02.md) | done | 3/3 (100%) | - | FEATURE-01 | - |
 | [FEATURE-03: Clear failure when the model is not available](../features/FEATURE-03.md) | done | 4/4 (100%) | - | FEATURE-01 | - |
 | [FEATURE-12: Plain grep with no question](../features/FEATURE-12.md) | done | 2/2 (100%) | - | - | - |
 | [FEATURE-13: Common grep options and exit codes](../features/FEATURE-13.md) | done | 4/4 (100%) | - | FEATURE-12 | - |
 | [FEATURE-14: Files, folders, and piped text](../features/FEATURE-14.md) | done | 3/3 (100%) | - | FEATURE-05 | - |
 | [FEATURE-15: Good behavior in a terminal and in a pipe](../features/FEATURE-15.md) | done | 3/3 (100%) | - | FEATURE-04 | - |
-| [FEATURE-18: Install jag from GitHub Releases, crates.io, or npm](../features/FEATURE-18.md) | backlog | 0/4 (0%) | - | FEATURE-01, FEATURE-17, FEATURE-19 | - |
+| [FEATURE-18: Install jag from GitHub Releases, crates.io, or npm](../features/FEATURE-18.md) | backlog | 0/4 (0%) | - | FEATURE-01, FEATURE-17, FEATURE-19, FEATURE-22 | - |
 | [FEATURE-19: Go public with a clean history](../features/FEATURE-19.md) | done | 4/4 (100%) | - | FEATURE-17 | - |
 | [FEATURE-20: Show the cost of a search](../features/FEATURE-20.md) | done | 4/4 (100%) | - | FEATURE-04, FEATURE-11 | - |
 | [FEATURE-21: Send the model calls through an AI gateway](../features/FEATURE-21.md) | done | 2/2 (100%) | - | FEATURE-04 | - |
+| [FEATURE-22: Check that jag is ready before the first publish](../features/FEATURE-22.md) | backlog | 0/3 (0%) | - | - | - |
 <!-- STATUS:END -->
 
 <!-- LINKS:START (generated, do not edit) -->
@@ -64,6 +65,7 @@ This milestone holds the capabilities that make jag better to use and easier to 
 - item of: [FEATURE-19: Go public with a clean history](../features/FEATURE-19.md)
 - item of: [FEATURE-20: Show the cost of a search](../features/FEATURE-20.md)
 - item of: [FEATURE-21: Send the model calls through an AI gateway](../features/FEATURE-21.md)
+- item of: [FEATURE-22: Check that jag is ready before the first publish](../features/FEATURE-22.md)
 - item of: [STORY-06: Check the five items of readiness](../stories/STORY-06.md)
 - item of: [STORY-07: Use the check result as an exit code](../stories/STORY-07.md)
 - item of: [STORY-08: Run the check for almost no cost](../stories/STORY-08.md)
@@ -99,4 +101,7 @@ This milestone holds the capabilities that make jag better to use and easier to 
 - item of: [STORY-59: Limit guesses through the check results of fork pull requests](../stories/STORY-59.md)
 - item of: [STORY-60: Run the private-data check on fork pull requests in the new public repository](../stories/STORY-60.md)
 - item of: [STORY-61: Make the project board and all issues public with the new repository](../stories/STORY-61.md)
+- item of: [STORY-62: Use jag on real work before the first publish](../stories/STORY-62.md)
+- item of: [STORY-63: Audit jag for security vulnerabilities before the first publish](../stories/STORY-63.md)
+- item of: [STORY-64: Audit the license and the compliance before the first publish](../stories/STORY-64.md)
 <!-- LINKS:END -->
