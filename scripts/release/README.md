@@ -76,6 +76,12 @@ release that stopped part way. A new version can take some minutes to show on
 a registry. If a re-run fails because the version exists, wait some minutes
 and run it again.
 
+Use only "Re-run failed jobs". "Re-run all jobs" builds the binaries again,
+and the draft then gets binaries that are not the binaries on npm.
+
+`first-publish.sh` also skips a version that a registry has already, so a
+second run ends a first publish that stopped part way.
+
 ### A bad version
 
 A published version cannot change. A fix that needs new code needs a new

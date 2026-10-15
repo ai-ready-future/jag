@@ -114,6 +114,14 @@ test('an end of the binary by SIGPIPE ends the launcher by SIGPIPE or with 141',
   assert.ok(result.signal === 'SIGPIPE' || result.status === 141, `status ${result.status}, signal ${result.signal}`);
 });
 
+test('an end of the binary by SIGUSR1 gives 128 + n and does not start the inspector', () => {
+  const installed = install('#!/bin/sh\nkill -USR1 $$\n');
+  const result = runLauncher(installed, []);
+  assert.strictEqual(result.signal, null);
+  assert.strictEqual(result.status, 128 + os.constants.signals.SIGUSR1);
+  assert.doesNotMatch(result.stderr, /Debugger listening/);
+});
+
 test('SIGTERM to the launcher reaches the binary', (t, done) => {
   const installed = install(
     '#!/bin/sh\ntrap \'echo got-term; exit 3\' TERM\necho ready\nwhile :; do sleep 0.1; done\n',

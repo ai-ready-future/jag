@@ -760,12 +760,27 @@ class FirstPublishTests(TempCase):
     def run_script(self, args, env_extra=None, stdin=""):
         bin_dir = self.tmp / "fakebin"
         calls = self.tmp / "calls.txt"
-        for tool in ("cargo", "npm"):
-            write(
-                bin_dir / tool,
-                f'#!/bin/sh\necho "{tool} $* (token=${{CARGO_REGISTRY_TOKEN:+set}})" >> "{calls}"\n',
-                0o755,
-            )
+        calls.unlink(missing_ok=True)
+        write(
+            bin_dir / "cargo",
+            f'#!/bin/sh\necho "cargo $* (token=${{CARGO_REGISTRY_TOKEN:+set}})" >> "{calls}"\n',
+            0o755,
+        )
+        # FAKE_NPM_EXISTING: the package names that "npm view" finds. FAKE_NPM_FAIL_ON: a package that fails to publish.
+        write(
+            bin_dir / "npm",
+            "#!/bin/sh\n"
+            'if [ "$1" = view ]; then\n'
+            '  case " $FAKE_NPM_EXISTING " in *" ${2%@*} "*) echo "${2##*@}" ;; esac\n'
+            "  exit 0\n"
+            "fi\n"
+            "name=$(sed -n 's/.*\"name\": \"\\(.*\\)\".*/\\1/p' package.json)\n"
+            f'echo "npm $* name=$name" >> "{calls}"\n'
+            '[ "$name" != "$FAKE_NPM_FAIL_ON" ]\n',
+            0o755,
+        )
+        # FAKE_CRATE_HTTP: the HTTP code that the crates.io check gets.
+        write(bin_dir / "curl", '#!/bin/sh\necho "${FAKE_CRATE_HTTP:-404}"\n', 0o755)
         env = {"PATH": f"{bin_dir}:/usr/bin:/bin", "HOME": str(self.tmp / "home")}
         env.update(env_extra or {})
         result = subprocess.run(
@@ -789,6 +804,33 @@ class FirstPublishTests(TempCase):
         self.assertEqual(len(calls), 6)
         self.assertNotIn("SENTINEL-TOKEN", result.stdout + result.stderr)
         self.assertNotIn("SENTINEL-TOKEN", "\n".join(calls))
+
+    def test_a_second_run_ends_a_first_publish_that_stopped_part_way(self):
+        env = {"CARGO_REGISTRY_TOKEN": "SENTINEL-TOKEN", "FAKE_NPM_FAIL_ON": "@airf/jag-linux-arm64"}
+        first, calls = self.run_script([], env, stdin="yes\n")
+        self.assertNotEqual(first.returncode, 0)
+        self.assertEqual(
+            [c.split(" (")[0].split(" name=")[-1] if c.startswith("npm") else "cargo" for c in calls],
+            ["cargo", "@airf/jag-linux-x64", "@airf/jag-linux-arm64"],
+        )
+        # The crate and the first package are on the registries now. The second run has no token and needs none.
+        second, calls = self.run_script(
+            [], {"FAKE_CRATE_HTTP": "200", "FAKE_NPM_EXISTING": "@airf/jag-linux-x64"}, stdin="yes\n"
+        )
+        self.assertEqual(second.returncode, 0, second.stderr)
+        self.assertIn("jag-grep 0.0.0 is on crates.io already. Skip.", second.stdout)
+        self.assertIn("@airf/jag-linux-x64 0.0.0 is on npm already. Skip.", second.stdout)
+        self.assertEqual(
+            [c.split(" name=")[-1] for c in calls],
+            ["@airf/jag-linux-arm64", "@airf/jag-darwin-arm64", "@airf/jag-darwin-x64", "@airf/jag"],
+        )
+        self.assertFalse(any(c.startswith("cargo") for c in calls))
+
+    def test_a_run_with_each_version_on_the_registries_publishes_nothing(self):
+        existing = " ".join(f"@airf/{n}" for n in ["jag-linux-x64", "jag-linux-arm64", "jag-darwin-arm64", "jag-darwin-x64", "jag"])
+        result, calls = self.run_script([], {"FAKE_CRATE_HTTP": "200", "FAKE_NPM_EXISTING": existing}, stdin="yes\n")
+        self.assertEqual(result.returncode, 0, result.stderr)
+        self.assertEqual(calls, [])
 
     def test_an_answer_other_than_yes_stops_before_any_publish(self):
         result, calls = self.run_script([], {"CARGO_REGISTRY_TOKEN": "SENTINEL-TOKEN"}, stdin="no\n")

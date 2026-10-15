@@ -109,6 +109,16 @@ make_npm jag-darwin-arm64 @airf/jag-darwin-arm64 darwin arm64
 make_npm jag-darwin-x64 @airf/jag-darwin-x64 darwin x64
 make_npm jag @airf/jag
 
+# A second run skips each version that a registry has already. So it can end
+# a first publish that stopped part way.
+crate_exists() {
+  [[ $(curl -s -o /dev/null -w '%{http_code}' -A "jag first-publish ($REPOSITORY)" \
+    "https://crates.io/api/v1/crates/$CRATE/$VERSION") == 200 ]]
+}
+npm_exists() {
+  [[ $(npm view "$1@$VERSION" version 2>/dev/null) == "$VERSION" ]]
+}
+
 if [[ $DRY_RUN == true ]]; then
   echo "first-publish: dry run. Nothing is published."
 else
@@ -124,6 +134,8 @@ fi
 # The crate. The token is in the environment of the cargo command only.
 if [[ $DRY_RUN == true ]]; then
   (cd "$WORK/crate" && cargo publish --dry-run)
+elif crate_exists; then
+  echo "first-publish: $CRATE $VERSION is on crates.io already. Skip."
 else
   token=${CARGO_REGISTRY_TOKEN:-}
   if [[ -z $token ]]; then
@@ -142,6 +154,8 @@ fi
 for folder in jag-linux-x64 jag-linux-arm64 jag-darwin-arm64 jag-darwin-x64 jag; do
   if [[ $DRY_RUN == true ]]; then
     (cd "$WORK/npm/$folder" && npm publish --dry-run --access public)
+  elif npm_exists "@airf/$folder"; then
+    echo "first-publish: @airf/$folder $VERSION is on npm already. Skip."
   else
     (cd "$WORK/npm/$folder" && npm publish --access public)
   fi

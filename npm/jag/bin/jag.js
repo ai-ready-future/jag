@@ -18,6 +18,9 @@ const PACKAGES = {
 };
 
 const FORWARDED = ['SIGINT', 'SIGTERM', 'SIGHUP', 'SIGQUIT'];
+// The signals that end the launcher by the default action. Another signal can
+// do something else in Node: SIGUSR1 starts the inspector, and SIGPIPE is ignored.
+const SELF_KILL = new Set([...FORWARDED, 'SIGABRT', 'SIGSEGV', 'SIGKILL']);
 
 const messages = {
   unsupported: (platform, arch) =>
@@ -87,14 +90,12 @@ function run() {
       process.exitCode = code;
       return;
     }
-    // Node ignores SIGPIPE, so the launcher cannot end by it.
-    if (signal === 'SIGPIPE') {
-      process.exitCode = 128 + signalNumber(signal);
-      return;
-    }
-    // End by the same signal. When the signal does not end the launcher, exit with 128 + n.
+    // End by the same signal when the default action of that signal ends Node.
+    // For another signal, exit with 128 + n. So the launcher never starts the inspector.
     process.exitCode = 128 + signalNumber(signal);
-    process.kill(process.pid, signal);
+    if (SELF_KILL.has(signal)) {
+      process.kill(process.pid, signal);
+    }
   });
 }
 
