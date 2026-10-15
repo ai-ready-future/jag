@@ -1,0 +1,4 @@
+jag: regex parse error:
+    (?:a(?=b))
+        ^^^
+error: look-around, including look-ahead and look-behind, is not supported

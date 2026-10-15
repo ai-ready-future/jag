@@ -198,8 +198,6 @@
   args: ["--frobnicate", "foo", "a.txt"]
   tree: basic
   modes: [pipe]
-  deliberate:
-    answer: "hitl ANSWER of 2026-10-15, card E (F23-Q7), option 1"
 - id: glob
   args: ["--sort", "path", "-g", "*.txt", "foo", "."]
   tree: basic
@@ -216,8 +214,6 @@
   args: ["--colour=always", "foo", "a.txt"]
   tree: basic
   modes: [pipe]
-  deliberate:
-    answer: "hitl ANSWER of 2026-10-15, card E (F23-Q7), option 1"
 - id: line-number
   args: ["-n", "foo", "a.txt"]
   tree: basic
