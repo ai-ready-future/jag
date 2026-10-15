@@ -5,7 +5,8 @@ description: As a shell power user (PERSONA-04), I want the maintainer to use ja
   on real work for a period before the first publish, so that the first release has
   no known bug that this use found.
 status: draft
-state: backlog
+state: ready
+spec: docs/superpowers/specs/2026-10-15-STORY-62-check-that-jag-is-ready-before-the-first-publish-design.md
 parent: /features/FEATURE-22.md
 milestone: /milestones/MILESTONE-02.md
 ---

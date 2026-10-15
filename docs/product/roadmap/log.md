@@ -1,6 +1,9 @@
 # Log
 
 ## 2026-10-15
+* **State**: [STORY-64](stories/STORY-64.md) backlog -> ready, by human:404pilo, at 2026-10-15T18:55:26Z
+* **State**: [STORY-63](stories/STORY-63.md) backlog -> ready, by human:404pilo, at 2026-10-15T18:55:25Z
+* **State**: [STORY-62](stories/STORY-62.md) backlog -> ready, by human:404pilo, at 2026-10-15T18:55:24Z
 * **Plan**: [FEATURE-18](features/FEATURE-18.md) STORY-48 to STORY-51 ready -> backlog by rule 11 (docs/adlc.md), base rule: FEATURE-18 is blocked_by FEATURE-22, which is not done; the ANSWER exception ended when FEATURE-19 was done; standing approval RULE11-01; orchestrator decision (b) on PR #104; this agrees with the user's pause of step U3 (the publish waits for the readiness checks); the stories go back to ready when FEATURE-22 is done, by agent:planner, at 2026-10-15T18:22:38Z
 * **State**: [STORY-51](stories/STORY-51.md) ready -> backlog, by human:404pilo, at 2026-10-15T18:22:38Z
 * **State**: [STORY-50](stories/STORY-50.md) ready -> backlog, by human:404pilo, at 2026-10-15T18:22:38Z
