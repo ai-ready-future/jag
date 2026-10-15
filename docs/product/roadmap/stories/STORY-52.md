@@ -5,7 +5,8 @@ description: As an agent builder (PERSONA-01), I want a new public repository wi
   a clean history, so that no public commit holds private data, and the private repository
   stays as it is.
 status: draft
-state: ready
+state: done
+actual_end_date: '2026-10-15'
 github:
   number: 77
   node_id: I_kwDOVKMnL88AAAABXTMyjQ

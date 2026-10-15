@@ -1,6 +1,8 @@
 # Log
 
 ## 2026-10-15
+* **State**: [STORY-61](stories/STORY-61.md) ready -> done, by human:404pilo, at 2026-10-15T13:18:16Z
+* **State**: [STORY-52](stories/STORY-52.md) ready -> done, by human:404pilo, at 2026-10-15T13:18:16Z
 * **Sync**: [STORY-61](stories/STORY-61.md) pushed to GitHub, by system:github, at 2026-10-15T01:54:02Z
 * **Sync**: [STORY-60](stories/STORY-60.md) pushed to GitHub, by system:github, at 2026-10-15T01:54:02Z
 * **Sync**: [STORY-59](stories/STORY-59.md) pushed to GitHub, by system:github, at 2026-10-15T01:54:02Z
