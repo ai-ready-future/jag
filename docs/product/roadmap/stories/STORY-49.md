@@ -11,7 +11,7 @@ github:
   url: https://github.com/ai-ready-future/jag/issues/74
   pushed_hash: a646c5
   synced:
-    state: backlog
+    state: ready
 spec: docs/superpowers/specs/2026-10-14-STORY-48-install-jag-from-github-releases-crates-io-or-npm-design.md
 parent: /features/FEATURE-18.md
 milestone: /milestones/MILESTONE-02.md
