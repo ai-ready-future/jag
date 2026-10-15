@@ -108,7 +108,8 @@ pub fn check(args: &[OsString]) -> Result<(), String> {
                 Some((name, attached)) => (name, Some(attached)),
                 None => (long, None),
             };
-            if matches!(name, "help" | "version") || MODE_OPTIONS.contains(&format!("--{name}").as_str())
+            if matches!(name, "help" | "version")
+                || MODE_OPTIONS.contains(&format!("--{name}").as_str())
             {
                 return Ok(());
             }
@@ -119,10 +120,7 @@ pub fn check(args: &[OsString]) -> Result<(), String> {
             if flag.takes_value {
                 let given = match attached {
                     Some(attached) => OsString::from(attached),
-                    None => words
-                        .next()
-                        .cloned()
-                        .ok_or_else(|| missing_value(&shown))?,
+                    None => words.next().cloned().ok_or_else(|| missing_value(&shown))?,
                 };
                 check_value(flag, &shown, &given)?;
             } else if let Some(attached) = attached {
@@ -248,9 +246,12 @@ fn ngrams(name: &str) -> BTreeSet<Vec<u8>> {
 /// right, as clap reads them (decision 17).
 pub fn own_form_requested(args: impl IntoIterator<Item = OsString>) -> bool {
     super::option_before_double_dash(args, |word| {
-        OWN_FORM_OPTIONS
-            .iter()
-            .any(|name| word == *name || word.strip_prefix(name).is_some_and(|rest| rest.starts_with('=')))
+        OWN_FORM_OPTIONS.iter().any(|name| {
+            word == *name
+                || word
+                    .strip_prefix(name)
+                    .is_some_and(|rest| rest.starts_with('='))
+        })
     })
 }
 
@@ -264,7 +265,8 @@ pub const NO_PATTERN: &str = "jag requires at least one pattern to execute a sea
 
 /// A search of the current folder that searched nothing (D18). Card E option 1
 /// drops the line about `--debug`.
-pub const NOTHING_SEARCHED: &str = "No files were searched, which means jag probably applied a filter you didn't expect.";
+pub const NOTHING_SEARCHED: &str =
+    "No files were searched, which means jag probably applied a filter you didn't expect.";
 
 #[cfg(test)]
 mod tests {
@@ -296,15 +298,39 @@ mod tests {
     #[test]
     fn each_error_has_the_text_of_rg() {
         let cases: [(&[&str], &str); 9] = [
-            (&["-A", "x", "foo"], "error parsing flag -A: value is not a valid number: invalid digit found in string"),
-            (&["-A", "-1", "foo"], "error parsing flag -A: value is not a valid number: invalid digit found in string"),
-            (&["--context=x", "foo"], "error parsing flag --context: value is not a valid number: invalid digit found in string"),
-            (&["foo", "a.txt", "-A"], "missing value for flag -A: missing argument for option '-A'"),
-            (&["foo", "--after-context"], "missing value for flag --after-context: missing argument for option '--after-context'"),
-            (&["--color", "foo"], "error parsing flag --color: choice 'foo' is unrecognized"),
-            (&["--sort", "size", "foo"], "error parsing flag --sort: choice 'size' is unrecognized"),
+            (
+                &["-A", "x", "foo"],
+                "error parsing flag -A: value is not a valid number: invalid digit found in string",
+            ),
+            (
+                &["-A", "-1", "foo"],
+                "error parsing flag -A: value is not a valid number: invalid digit found in string",
+            ),
+            (
+                &["--context=x", "foo"],
+                "error parsing flag --context: value is not a valid number: invalid digit found in string",
+            ),
+            (
+                &["foo", "a.txt", "-A"],
+                "missing value for flag -A: missing argument for option '-A'",
+            ),
+            (
+                &["foo", "--after-context"],
+                "missing value for flag --after-context: missing argument for option '--after-context'",
+            ),
+            (
+                &["--color", "foo"],
+                "error parsing flag --color: choice 'foo' is unrecognized",
+            ),
+            (
+                &["--sort", "size", "foo"],
+                "error parsing flag --sort: choice 'size' is unrecognized",
+            ),
             (&["-X", "foo"], "unrecognized flag -X"),
-            (&["--count=1", "foo"], "invalid CLI arguments: unexpected argument for option '--count': \"1\""),
+            (
+                &["--count=1", "foo"],
+                "invalid CLI arguments: unexpected argument for option '--count': \"1\"",
+            ),
         ];
         for (list, text) in cases {
             assert_eq!(run(list), Err(text.to_owned()), "{list:?}");
@@ -315,7 +341,10 @@ mod tests {
     fn an_unknown_long_option_lists_the_similar_options_of_jag() {
         assert_eq!(
             run(&["--colour=always", "foo"]),
-            Err("unrecognized flag --colour\n\nsimilar flags that are available: --color".to_owned())
+            Err(
+                "unrecognized flag --colour\n\nsimilar flags that are available: --color"
+                    .to_owned()
+            )
         );
         assert_eq!(
             run(&["--frobnicate", "foo"]),
@@ -327,8 +356,14 @@ mod tests {
     fn the_first_error_wins() {
         assert_eq!(
             run(&["-A", "x", "--nope"]),
-            Err("error parsing flag -A: value is not a valid number: invalid digit found in string".to_owned())
+            Err(
+                "error parsing flag -A: value is not a valid number: invalid digit found in string"
+                    .to_owned()
+            )
         );
-        assert_eq!(run(&["--nope", "-A", "x"]), Err("unrecognized flag --nope".to_owned()));
+        assert_eq!(
+            run(&["--nope", "-A", "x"]),
+            Err("unrecognized flag --nope".to_owned())
+        );
     }
 }

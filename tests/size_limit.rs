@@ -631,16 +631,12 @@ fn plain_grep_has_the_size_limit_and_makes_no_call() {
         &["--max-chars", "1000", "needle"],
         &[],
     );
-    assert_eq!(run.chars(), 904);
-    assert_eq!(shown_names(&run.stdout), names(0, 7));
+    // Each line is `d/rNN.txt:` and 100 characters: 111 characters with the
+    // new line. Nine whole results fit in 1000 characters.
+    assert_eq!(run.chars(), 999);
+    assert_eq!(shown_names(&run.stdout), names(0, 8));
     assert!(!run.stdout.contains("--"));
-    assert_eq!(
-        run.stderr,
-        format!(
-            "{}jag: cost $0.000000 (no question): scored 0 of 30 results, skipped 0.\n",
-            notice(8, 30, "1000")
-        )
-    );
+    assert_eq!(run.stderr, notice(9, 30, "1000"));
     assert_eq!(run.code, Some(8));
     assert!(server.requests().is_empty());
 }

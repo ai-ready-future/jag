@@ -20,10 +20,9 @@ fn home() -> tempfile::TempDir {
 
 #[test]
 fn an_argument_error_writes_one_fixed_line_with_no_value() {
-    let cases: [&[&str]; 5] = [
+    let cases: [&[&str]; 4] = [
         &["--setup", "SENTINEL-SENTINEL-SENTINEL"],
         &["--setup=SENTINEL-SENTINEL-SENTINEL"],
-        &["--SENTINEL-SENTINEL-SENTINEL-SENTINEL"],
         &["--forget-key", "needle", "SENTINEL-SENTINEL-SENTINEL"],
         &["--forget-key=SENTINEL-SENTINEL-SENTINEL"],
     ];
@@ -64,10 +63,16 @@ fn help_and_version_exit_0() {
         .stdout(predicate::str::contains("-l, --files-with-matches"))
         .stdout(predicate::str::contains("-c, --count"))
         .stdout(predicate::str::contains("-q, --quiet"))
-        .stdout(predicate::str::contains("--include <GLOB>"))
-        .stdout(predicate::str::contains("--exclude <GLOB>"))
+        .stdout(predicate::str::contains("-g, --glob <GLOB>"))
+        .stdout(predicate::str::contains("-n, --line-number"))
+        .stdout(predicate::str::contains("-N, --no-line-number"))
+        .stdout(predicate::str::contains("-H, --with-filename"))
+        .stdout(predicate::str::contains("-I, --no-filename"))
+        .stdout(predicate::str::contains("--heading"))
+        .stdout(predicate::str::contains("--no-heading"))
+        .stdout(predicate::str::contains("--sort <SORTBY>"))
         .stdout(predicate::str::contains("--json"))
-        .stdout(predicate::str::contains("--color[=<WHEN>]"))
+        .stdout(predicate::str::contains("--color <WHEN>"))
         .stdout(predicate::str::contains("--max-scored <COUNT>"))
         .stdout(predicate::str::contains("--max-chars <COUNT>"))
         .stdout(predicate::str::contains("--no-max-chars"))
@@ -86,13 +91,13 @@ fn help_and_version_exit_0() {
 }
 
 #[test]
-fn no_argument_shows_the_help_and_exits_2() {
+fn no_argument_gives_the_error_text_of_rg_and_exits_2() {
     let home = home();
     jag_bare(home.path())
         .assert()
         .code(2)
         .stdout(predicate::str::is_empty())
-        .stderr(predicate::str::contains("TERM"));
+        .stderr("jag: jag requires at least one pattern to execute a search\n");
 }
 
 #[test]
@@ -368,24 +373,18 @@ fn a_bad_setting_variable_gives_exit_2_before_the_key_and_names_the_variable() {
 }
 
 #[test]
-fn a_blank_address_or_model_option_exits_2_in_a_search_with_no_question_too() {
+fn a_blank_address_or_model_option_has_no_effect_in_a_search_with_no_question() {
     let dir = tempfile::tempdir().expect("temporary folder");
     write(dir.path(), "a.txt", b"needle\n");
-    for (option, text) in [
-        (
-            "--base-url",
-            "jag: the value of --base-url is not an https address.",
-        ),
-        ("--model", "jag: the value of --model is blank."),
-    ] {
+    for option in ["--base-url", "--model"] {
         let home = home();
         let output = jag_bare(home.path())
             .args([option, " ", "needle"])
             .arg(dir.path())
             .output()
             .expect("run jag");
-        assert_eq!(output.status.code(), Some(2), "{option}");
-        assert!(String::from_utf8_lossy(&output.stderr).starts_with(text));
+        assert_eq!(output.status.code(), Some(0), "{option}");
+        assert!(output.stderr.is_empty(), "{option}");
     }
 }
 
@@ -657,7 +656,7 @@ fn json_after_a_double_dash_is_not_the_option() {
         .assert()
         .code(2)
         .stdout(predicate::str::is_empty())
-        .stderr("jag: the option --bogus is not valid.\nRun jag --help to see the options.\n");
+        .stderr("jag: unrecognized flag --bogus\n");
 }
 
 #[test]

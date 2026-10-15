@@ -10,8 +10,8 @@ use std::path::{Path, PathBuf};
 
 use ignore::{DirEntry, Walk, WalkBuilder};
 
-use super::filter::FileFilter;
 use super::Source;
+use super::filter::FileFilter;
 use super::input::stdin_can_give_text;
 
 /// The path that `ignore` gives to the text of standard input.
@@ -210,7 +210,10 @@ mod tests {
         let found = names(root, vec![root.to_path_buf()]);
         let found: Vec<&str> = found
             .iter()
-            .map(|path| path.strip_prefix(root.to_str().expect("text")).expect("under root"))
+            .map(|path| {
+                path.strip_prefix(root.to_str().expect("text"))
+                    .expect("under root")
+            })
             .collect();
         assert_eq!(found, ["/B.txt", "/a.txt", "/sub/x.txt", "/sub.txt"]);
     }
@@ -224,10 +227,7 @@ mod tests {
         let b = root.join("b.txt");
         let a = root.join("a.txt");
         let found = names(root, vec![b.clone(), a.clone()]);
-        assert_eq!(
-            found,
-            [b.display().to_string(), a.display().to_string()]
-        );
+        assert_eq!(found, [b.display().to_string(), a.display().to_string()]);
     }
 
     #[test]
@@ -260,8 +260,7 @@ mod tests {
             implicit: false,
             one_file: true,
         };
-        let items: Vec<Item> =
-            Sequence::new(&places, &FileFilter::default(), dir.path()).collect();
+        let items: Vec<Item> = Sequence::new(&places, &FileFilter::default(), dir.path()).collect();
         match items.as_slice() {
             [Item::Error(text)] => assert_eq!(
                 text,

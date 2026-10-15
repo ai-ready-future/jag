@@ -1,6 +1,8 @@
 //! End-to-end tests of where jag searches (FEATURE-14): no path, the text of
 //! a pipe, a mix of files and folders, and a path that does not exist
 //! (CRITERION-35, 59, 60, 61, and 70, and decisions 3, 8, 9, 10, and 20).
+//! With no question, the text is the text of rg 15.2.0 (FEATURE-23): no cost
+//! line, no notice, and the error texts of rg.
 //!
 //! Each test with no path sets the current folder to a temporary folder, so
 //! that the walk never reads the files of the crate. `assert_cmd` gives jag
@@ -20,7 +22,10 @@ use serde_json::{Value, json};
 use tempfile::TempDir;
 
 const QUESTION: &str = "which line has the needle?";
-const DASH_FAILURE: &str = "jag: the path - is not valid.\nTo search the text of a pipe, give no path. To search a file with the name -, give ./-.\n";
+const DASH_FAILURE: &str = "jag: the path - is not valid with other paths.\nTo search the text of a pipe, give - alone, or give no path. To search a file with the name -, give ./-.\n";
+/// The error text of rg for the path `nofile` that does not exist.
+const NO_FILE: &str =
+    "jag: nofile: IO error for operation on nofile: No such file or directory (os error 2)\n";
 const EMPTY_FAILURE: &str =
     "jag: a path is empty.\nGive the path of a file or a folder, or give no path.\n";
 
@@ -104,16 +109,6 @@ fn one_file() -> TempDir {
 }
 
 // CRITERION-59: no path and no pipe give the current folder, with no `./`.
-/// The cost line for a search with `args` and no match: with `--ask` it says
-/// `no match`, and with no question it says `no question` (FEATURE-14,
-/// decision 35).
-fn cost_of_args(args: &[&str]) -> &'static str {
-    if args.contains(&"--ask") {
-        "jag: cost $0.000000 (no match): scored 0 of 0 results, skipped 0.\n"
-    } else {
-        "jag: cost $0.000000 (no question): scored 0 of 0 results, skipped 0.\n"
-    }
-}
 
 #[test]
 fn criterion_59_no_path_and_no_pipe_search_the_current_folder() {
@@ -121,7 +116,8 @@ fn criterion_59_no_path_and_no_pipe_search_the_current_folder() {
     let server = FakeServer::constant(0.8);
     let plain = run_no_pipe(&server, root.path(), &["needle"]);
     assert_eq!(plain.code, Some(0), "{}", plain.stderr);
-    assert_eq!(plain.stdout, "a.txt:1:needle\nsub/b.txt:1:needle\n");
+    assert_eq!(plain.stdout, "a.txt:needle\nsub/b.txt:needle\n");
+    assert_eq!(plain.stderr, "");
     assert!(server.requests().is_empty());
 
     let asked = run_no_pipe(&server, root.path(), &["--ask", QUESTION, "needle"]);
@@ -152,13 +148,9 @@ fn criterion_59_no_path_is_the_search_of_dot_with_no_dot_slash() {
     assert_eq!(no_path.code, Some(0));
     assert_eq!(no_path.code, dot.code);
     assert_eq!(no_path.stderr, dot.stderr);
-    assert!(
-        no_path.stderr.contains("jag: skipped"),
-        "{}",
-        no_path.stderr
-    );
+    assert_eq!(no_path.stderr, "");
     assert_eq!(no_path.stdout, dot.stdout.replace("./", ""));
-    assert_eq!(no_path.stdout, "a.txt:1:needle\nsub/c.txt:1:x needle\n");
+    assert_eq!(no_path.stdout, "a.txt:needle\nsub/c.txt:x needle\n");
 }
 
 // Decision 3: an empty pipe gives the empty text, as rg does.
@@ -169,10 +161,7 @@ fn decision_3_an_empty_pipe_gives_exit_1_and_no_call() {
     let plain = run(&server, root.path(), &["needle"], None);
     assert_eq!(plain.code, Some(1));
     assert_eq!(plain.stdout, "");
-    assert_eq!(
-        plain.stderr,
-        "jag: cost $0.000000 (no question): scored 0 of 0 results, skipped 0.\n"
-    );
+    assert_eq!(plain.stderr, "");
 
     let asked = run(&server, root.path(), &["--ask", QUESTION, "needle"], None);
     assert_eq!(asked.code, Some(1));
@@ -196,7 +185,7 @@ fn criterion_60_no_path_and_piped_text_search_the_piped_text() {
     let text: &[u8] = b"x\nneedle here\n";
     let plain = run(&server, root.path(), &["needle"], Some(text));
     assert_eq!(plain.code, Some(0), "{}", plain.stderr);
-    assert_eq!(plain.stdout, "(standard input):2:needle here\n");
+    assert_eq!(plain.stdout, "needle here\n");
 
     let asked = run(
         &server,
@@ -205,10 +194,7 @@ fn criterion_60_no_path_and_piped_text_search_the_piped_text() {
         Some(text),
     );
     assert_eq!(asked.code, Some(0), "{}", asked.stderr);
-    assert_eq!(
-        asked.stdout,
-        "(standard input)-1-x\n(standard input):2:needle here\n"
-    );
+    assert_eq!(asked.stdout, "<stdin>-1-x\n<stdin>:2:needle here\n");
 }
 
 // Decision 4: a path wins over the pipe.
@@ -223,7 +209,7 @@ fn decision_4_a_path_wins_over_piped_text() {
         Some(b"x\nneedle here\n"),
     );
     assert_eq!(run.code, Some(0));
-    assert_eq!(run.stdout, "a.txt:1:needle\n");
+    assert_eq!(run.stdout, "needle\n");
 }
 
 const SEVEN_LINES: &[u8] = b"a\nb\nc\nd\ne\nf\nneedle\n";
@@ -242,10 +228,10 @@ fn criterion_35_a_result_of_piped_text_has_the_label_and_its_line_numbers() {
     assert_eq!(asked.code, Some(0), "{}", asked.stderr);
     assert_eq!(
         asked.stdout,
-        "(standard input)-4-d\n(standard input)-5-e\n(standard input)-6-f\n(standard input):7:needle\n"
+        "<stdin>-4-d\n<stdin>-5-e\n<stdin>-6-f\n<stdin>:7:needle\n"
     );
     let plain = run(&server, root.path(), &["needle"], Some(SEVEN_LINES));
-    assert_eq!(plain.stdout, "(standard input):7:needle\n");
+    assert_eq!(plain.stdout, "needle\n");
 }
 
 // CRITERION-35 and decision 16: in structured mode, the path is null.
@@ -323,7 +309,7 @@ fn criterion_61_several_paths_each_a_file_or_a_folder() {
     assert_eq!(run.code, Some(0), "{}", run.stderr);
     assert_eq!(
         run.stdout,
-        "one.txt:1:needle\ndir/sub/three.txt:1:needle\ndir/two.txt:1:needle\nother/four.txt:1:needle\n"
+        "one.txt:needle\ndir/sub/three.txt:needle\ndir/two.txt:needle\nother/four.txt:needle\n"
     );
 }
 
@@ -335,18 +321,12 @@ fn criterion_61_a_hidden_file_as_a_path_gives_its_result() {
     let server = FakeServer::constant(0.8);
     let named = run(&server, root.path(), &["needle", ".hidden.txt"], None);
     assert_eq!(named.code, Some(0));
-    assert_eq!(named.stdout, ".hidden.txt:1:needle\n");
-    assert_eq!(
-        named.stderr,
-        "jag: cost $0.000000 (no question): scored 0 of 1 results, skipped 0.\n"
-    );
+    assert_eq!(named.stdout, "needle\n");
+    assert_eq!(named.stderr, "");
 
     let walked = run(&server, root.path(), &["needle", "."], None);
-    assert_eq!(walked.stdout, "./a.txt:1:needle\n");
-    assert_eq!(
-        walked.stderr,
-        "jag: skipped 1 files and folders (0 binary, 1 hidden, 0 ignored)\njag: cost $0.000000 (no question): scored 0 of 1 results, skipped 0.\n"
-    );
+    assert_eq!(walked.stdout, "./a.txt:needle\n");
+    assert_eq!(walked.stderr, "");
 }
 
 // Decision 6: a file that the user names two times gives two results.
@@ -369,22 +349,24 @@ fn decision_6_a_file_named_two_times_gives_two_results() {
 fn criterion_70_a_path_that_does_not_exist_gives_exit_2_and_no_call() {
     let root = one_file();
     let server = FakeServer::constant(0.8);
-    for args in [
-        &["needle", "nofile"][..],
+    // With no question: the error text of rg.
+    let plain = run(&server, root.path(), &["needle", "nofile"], None);
+    assert_eq!(plain.code, Some(2));
+    assert_eq!(plain.stdout, "");
+    assert_eq!(plain.stderr, NO_FILE);
+    // With a question: the text of jag.
+    let asked = run(
+        &server,
+        root.path(),
         &["--ask", QUESTION, "needle", "nofile"],
-    ] {
-        let run = run(&server, root.path(), args, None);
-        assert_eq!(run.code, Some(2), "{args:?}");
-        assert_eq!(run.stdout, "", "{args:?}");
-        assert_eq!(
-            run.stderr,
-            format!(
-                "jag: the path nofile does not exist\n{}",
-                cost_of_args(args)
-            ),
-            "{args:?}"
-        );
-    }
+        None,
+    );
+    assert_eq!(asked.code, Some(2));
+    assert_eq!(asked.stdout, "");
+    assert_eq!(
+        asked.stderr,
+        "jag: the path nofile does not exist\njag: cost $0.000000 (no match): scored 0 of 0 results, skipped 0.\n"
+    );
     assert!(server.requests().is_empty());
 }
 
@@ -394,11 +376,8 @@ fn criterion_70_jag_searches_the_other_paths_and_exits_2() {
     let server = FakeServer::constant(0.8);
     let plain = run(&server, root.path(), &["needle", "a.txt", "nofile"], None);
     assert_eq!(plain.code, Some(2));
-    assert_eq!(plain.stdout, "a.txt:1:needle\n");
-    assert_eq!(
-        plain.stderr,
-        "jag: the path nofile does not exist\njag: cost $0.000000 (no question): scored 0 of 1 results, skipped 0.\n"
-    );
+    assert_eq!(plain.stdout, "a.txt:needle\n");
+    assert_eq!(plain.stderr, NO_FILE);
     assert!(server.requests().is_empty());
 
     let asked = run(
@@ -420,7 +399,7 @@ fn criterion_70_jag_searches_the_other_paths_and_exits_2() {
 }
 
 #[test]
-fn criterion_70_the_warnings_come_in_the_order_of_the_command_line() {
+fn criterion_70_the_errors_come_in_the_order_of_the_command_line() {
     let root = one_file();
     let server = FakeServer::constant(0.8);
     let run = run(
@@ -432,7 +411,7 @@ fn criterion_70_the_warnings_come_in_the_order_of_the_command_line() {
     assert_eq!(run.code, Some(2));
     assert_eq!(
         run.stderr,
-        "jag: the path nofile2 does not exist\njag: the path nofile1 does not exist\njag: cost $0.000000 (no question): scored 0 of 1 results, skipped 0.\n"
+        "jag: nofile2: IO error for operation on nofile2: No such file or directory (os error 2)\njag: nofile1: IO error for operation on nofile1: No such file or directory (os error 2)\n"
     );
 }
 
@@ -442,14 +421,15 @@ fn criterion_70_a_broken_link_and_a_path_under_a_file_do_not_exist() {
     std::os::unix::fs::symlink(root.path().join("gone.txt"), root.path().join("link.txt"))
         .expect("make link");
     let server = FakeServer::constant(0.8);
-    for path in ["link.txt", "a.txt/x"] {
+    for (path, reason) in [
+        ("link.txt", "No such file or directory (os error 2)"),
+        ("a.txt/x", "Not a directory (os error 20)"),
+    ] {
         let run = run(&server, root.path(), &["needle", path], None);
         assert_eq!(run.code, Some(2), "{path}");
         assert_eq!(
             run.stderr,
-            format!(
-                "jag: the path {path} does not exist\njag: cost $0.000000 (no question): scored 0 of 0 results, skipped 0.\n"
-            ),
+            format!("jag: {path}: IO error for operation on {path}: {reason}\n"),
             "{path}"
         );
     }
@@ -542,44 +522,58 @@ fn decision_9_a_missing_key_and_a_bad_term_come_before_the_warning() {
     let bad_term = run_bare(root.path(), &["(", "nofile"]);
     assert_eq!(bad_term.code, Some(2));
     assert!(
-        bad_term
-            .stderr
-            .starts_with("jag: the term is not a valid regular expression."),
+        bad_term.stderr.starts_with("jag: regex parse error:\n"),
         "{}",
         bad_term.stderr
     );
-    assert!(!bad_term.stderr.contains("does not exist"));
+    assert!(!bad_term.stderr.contains("IO error"));
 }
 
-// Decision 8: the path `-` and the empty path are usage errors.
+// Decision 8: with a question, the path `-` with other paths and the empty
+// path are usage errors. With no question, jag does what rg does (FEATURE-23).
 #[test]
-fn decision_8_the_path_dash_is_a_usage_error() {
+fn decision_8_the_path_dash_is_the_pipe_alone_and_an_error_with_other_paths() {
     let root = one_file();
     let server = FakeServer::constant(0.8);
-    let with_key = run(&server, root.path(), &["needle", "-"], Some(b"needle\n"));
-    assert_eq!(with_key.code, Some(2));
-    assert_eq!(with_key.stdout, "");
-    assert_eq!(with_key.stderr, DASH_FAILURE);
+    // With no question, `-` is the pipe, as in rg.
+    let plain = run(&server, root.path(), &["needle", "-"], Some(b"needle\n"));
+    assert_eq!(plain.code, Some(0));
+    assert_eq!(plain.stdout, "needle\n");
+    assert_eq!(plain.stderr, "");
 
+    // With a question and no key, `-` alone is the pipe: the key comes first.
     let no_key = run_bare(root.path(), &["--ask", QUESTION, "needle", "-"]);
-    assert_eq!(no_key.code, Some(2));
-    assert_eq!(no_key.stderr, DASH_FAILURE);
+    assert_eq!(no_key.code, Some(3));
 
+    // With a question, `-` with other paths is a usage error.
+    let asked = run(
+        &server,
+        root.path(),
+        &["--ask", QUESTION, "needle", "a.txt", "-"],
+        None,
+    );
+    assert_eq!(asked.code, Some(2));
+    assert_eq!(asked.stderr, DASH_FAILURE);
+
+    // With no question, rg reads the pipe, and the empty pipe has no line.
     write(root.path(), "-", b"needle in dash\n");
     let file = run(&server, root.path(), &["needle", "a.txt", "-"], None);
-    assert_eq!(file.code, Some(2));
-    assert_eq!(file.stderr, DASH_FAILURE);
+    assert_eq!(file.code, Some(0));
+    assert_eq!(file.stdout, "a.txt:needle\n");
     let dot_slash = run(&server, root.path(), &["needle", "./-"], None);
     assert_eq!(dot_slash.code, Some(0));
-    assert_eq!(dot_slash.stdout, "./-:1:needle in dash\n");
+    assert_eq!(dot_slash.stdout, "needle in dash\n");
     assert!(server.requests().is_empty());
 }
 
 #[test]
-fn decision_8_the_empty_path_is_a_usage_error() {
+fn decision_8_the_empty_path_is_a_usage_error_with_a_question() {
     let root = one_file();
     let server = FakeServer::constant(0.8);
-    for args in [&["needle", ""][..], &["needle", "a.txt", ""]] {
+    for args in [
+        &["--ask", QUESTION, "needle", ""][..],
+        &["--ask", QUESTION, "needle", "a.txt", ""],
+    ] {
         let run = run(&server, root.path(), args, None);
         assert_eq!(run.code, Some(2), "{args:?}");
         assert_eq!(run.stdout, "", "{args:?}");
@@ -588,9 +582,24 @@ fn decision_8_the_empty_path_is_a_usage_error() {
     }
 }
 
+#[test]
+fn decision_8_with_no_question_the_empty_path_is_a_path_that_does_not_exist() {
+    let root = one_file();
+    let server = FakeServer::constant(0.8);
+    let text = "jag: : IO error for operation on : No such file or directory (os error 2)\n";
+    let run = run(&server, root.path(), &["needle", ""], None);
+    assert_eq!(run.code, Some(2));
+    assert_eq!(run.stdout, "");
+    assert_eq!(run.stderr, text);
+    let run = self::run(&server, root.path(), &["needle", "a.txt", ""], None);
+    assert_eq!(run.code, Some(2));
+    assert_eq!(run.stdout, "a.txt:needle\n");
+    assert_eq!(run.stderr, text);
+}
+
 // Decision 10: a path that exists and that jag cannot read is a read error.
 #[test]
-fn decision_10_a_locked_file_or_folder_is_a_read_error_with_exit_1() {
+fn decision_10_a_locked_file_or_folder_is_a_read_error() {
     let root = one_file();
     write(root.path(), "locked.txt", b"needle\n");
     write(root.path(), "closed/a.txt", b"needle\n");
@@ -620,13 +629,12 @@ fn decision_10_a_locked_file_or_folder_is_a_read_error_with_exit_1() {
         file.stderr
     );
     assert!(server.requests().is_empty());
-    assert_eq!(folder.code, Some(1));
-    assert!(
-        folder.stderr.contains("jag: cannot read closed"),
-        "{}",
-        folder.stderr
+    // With no question, the error text of rg, and exit 2.
+    assert_eq!(folder.code, Some(2));
+    assert_eq!(
+        folder.stderr,
+        "jag: closed: IO error for operation on closed: Permission denied (os error 13)\n"
     );
-    assert!(!folder.stderr.contains("does not exist"));
 }
 
 // FEATURE-13 with FEATURE-14: `-q`, `-l`, and `-c` with a path that does not
@@ -641,12 +649,10 @@ fn feature_13_q_with_a_match_exits_0_even_with_a_missing_path() {
         &["-q", "needle", "a.txt", "nofile"],
         None,
     );
+    // `-q` stops at the first match, so rg never reads `nofile`.
     assert_eq!(run.code, Some(0));
     assert_eq!(run.stdout, "");
-    assert_eq!(
-        run.stderr,
-        "jag: the path nofile does not exist\njag: cost $0.000000 (no question): scored 0 of 1 results, skipped 0.\n"
-    );
+    assert_eq!(run.stderr, "");
     assert!(server.requests().is_empty());
 }
 
@@ -657,11 +663,11 @@ fn feature_13_the_globs_do_not_apply_to_piped_text() {
     let run = run(
         &server,
         root.path(),
-        &["--exclude=*", "needle"],
+        &["-g", "!*", "needle"],
         Some(SEVEN_LINES),
     );
     assert_eq!(run.code, Some(0));
-    assert_eq!(run.stdout, "(standard input):7:needle\n");
+    assert_eq!(run.stdout, "needle\n");
     assert!(server.requests().is_empty());
 }
 
@@ -677,10 +683,7 @@ fn feature_13_q_with_no_match_and_a_missing_path_exits_2() {
     );
     assert_eq!(run.code, Some(2));
     assert_eq!(run.stdout, "");
-    assert_eq!(
-        run.stderr,
-        "jag: the path nofile does not exist\njag: cost $0.000000 (no question): scored 0 of 0 results, skipped 0.\n"
-    );
+    assert_eq!(run.stderr, NO_FILE);
 }
 
 #[test]
@@ -695,10 +698,7 @@ fn feature_13_l_and_c_write_the_lines_of_the_other_paths_and_exit_2() {
     );
     assert_eq!(files.code, Some(2));
     assert_eq!(files.stdout, "a.txt\n");
-    assert_eq!(
-        files.stderr,
-        "jag: the path nofile does not exist\njag: cost $0.000000 (no question): scored 0 of 1 results, skipped 0.\n"
-    );
+    assert_eq!(files.stderr, NO_FILE);
     write(root.path(), "b.txt", b"other\n");
     let counts = run(
         &server,
@@ -707,11 +707,9 @@ fn feature_13_l_and_c_write_the_lines_of_the_other_paths_and_exit_2() {
         None,
     );
     assert_eq!(counts.code, Some(2));
-    assert_eq!(counts.stdout, "a.txt:1\nb.txt:0\n");
-    assert_eq!(
-        counts.stderr,
-        "jag: the path nofile does not exist\njag: cost $0.000000 (no question): scored 0 of 1 results, skipped 0.\n"
-    );
+    // A file with no match has no count line, as in rg.
+    assert_eq!(counts.stdout, "a.txt:1\n");
+    assert_eq!(counts.stderr, NO_FILE);
 }
 
 #[test]
@@ -720,18 +718,18 @@ fn feature_13_l_and_c_label_piped_text() {
     let server = FakeServer::constant(0.8);
     let files = run(&server, root.path(), &["-l", "needle"], Some(SEVEN_LINES));
     assert_eq!(files.code, Some(0));
-    assert_eq!(files.stdout, "(standard input)\n");
+    assert_eq!(files.stdout, "<stdin>\n");
     let counts = run(&server, root.path(), &["-c", "needle"], Some(SEVEN_LINES));
     assert_eq!(counts.code, Some(0));
-    assert_eq!(counts.stdout, "(standard input):1\n");
+    assert_eq!(counts.stdout, "1\n");
 }
 
 #[test]
-fn feature_13_c_with_an_empty_pipe_writes_a_zero_count_and_exits_1() {
+fn feature_13_c_with_an_empty_pipe_writes_nothing_and_exits_1() {
     let root = folder();
     let server = FakeServer::constant(0.8);
     let run = run(&server, root.path(), &["-c", "needle"], Some(b""));
     assert_eq!(run.code, Some(1));
-    assert_eq!(run.stdout, "(standard input):0\n");
+    assert_eq!(run.stdout, "");
     assert!(server.requests().is_empty());
 }

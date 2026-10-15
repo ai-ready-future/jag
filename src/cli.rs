@@ -32,11 +32,11 @@ use crate::output::{
 use crate::prerank;
 use crate::scorer::cost::{Cost, NoCallReason};
 use crate::scorer::{ScoreError, ScoreSettings, probe, rank, score_with_usage};
+use crate::search::filter::current_dir;
 use crate::search::input::{Input, no_path_input};
 use crate::search::snippet::{
     ContextLines, Snippet, line_windows, match_texts, plan_windows, read_snippets,
 };
-use crate::search::filter::current_dir;
 use crate::search::{
     FileFilter, ScanOptions, ScanReport, WalkWarning, scan, scan_current_folder, scan_input,
 };
@@ -180,7 +180,7 @@ struct Cli {
     #[arg(long = "max-scored", value_name = "COUNT", conflicts_with_all = ["setup", "forget_key"])]
     cost_limit: Option<String>,
 
-    /// The most characters that jag writes to standard output, 1,000 or more (default 20,000)
+    /// The most characters that jag writes to standard output, 1,000 or more (default 20,000 with --ask or --json, no limit with no --ask)
     #[arg(long = "max-chars", value_name = "COUNT", conflicts_with_all = ["check", "setup", "forget_key"])]
     size_limit: Option<String>,
 
@@ -188,7 +188,7 @@ struct Cli {
     #[arg(long = "no-max-chars", conflicts_with_all = ["size_limit", "check", "setup", "forget_key"])]
     no_size_limit: bool,
 
-    /// What you look for: the model ranks the matches by this question. With no --ask, jag works as grep: no model call, no cost, and no key
+    /// What you look for: the model ranks the matches by this question. With no --ask, jag gives the output of rg: no model call, no cost, and no key
     #[arg(long, value_name = "QUESTION")]
     ask: Option<String>,
 
@@ -618,15 +618,7 @@ fn search_args(cli: &Cli) -> Result<SearchArgs<'_>, Failure> {
         .map(|text| parse_cost_limit(text, SettingSource::Option))
         .transpose()
         .map_err(Failure::from)?;
-    let size_limit = if cli.no_size_limit {
-        Some(SizeLimit::Off)
-    } else {
-        cli.size_limit
-            .as_deref()
-            .map(|text| parse_size_limit(text, SettingSource::Option).map(SizeLimit::Chars))
-            .transpose()
-            .map_err(Failure::from)?
-    };
+    let size_limit = size_option(cli).map_err(Failure::from)?;
     let settings = address_options(cli, times)?;
     Ok(SearchArgs {
         terms,
@@ -732,8 +724,7 @@ fn search(
         .chars();
     stop.set_size_limit(size);
 
-    let matcher =
-        build_matcher(&args.terms, args.matching).map_err(|_| grep::matcher_failure())?;
+    let matcher = build_matcher(&args.terms, args.matching).map_err(|_| grep::matcher_failure())?;
 
     let options = ScanOptions {
         files: args.files.clone(),
@@ -877,8 +868,7 @@ fn plain_json(
         .map_err(Failure::from)?
         .chars();
     stop.set_size_limit(size);
-    let matcher =
-        build_matcher(&args.terms, args.matching).map_err(|_| grep::matcher_failure())?;
+    let matcher = build_matcher(&args.terms, args.matching).map_err(|_| grep::matcher_failure())?;
     let options = ScanOptions {
         files: args.files.clone(),
         ..ScanOptions::default()
@@ -935,6 +925,17 @@ fn find_ranges(matcher: &RegexMatcher, line: &[u8]) -> Vec<std::ops::Range<usize
 
 /// True when the ranked text output gets color (decisions 5 and 6 of
 /// FEATURE-15, and decision 6 of FEATURE-23).
+/// The size limit that `--max-chars` or `--no-max-chars` gives.
+fn size_option(cli: &Cli) -> Result<Option<SizeLimit>, ConfigError> {
+    if cli.no_size_limit {
+        return Ok(Some(SizeLimit::Off));
+    }
+    cli.size_limit
+        .as_deref()
+        .map(|text| parse_size_limit(text, SettingSource::Option).map(SizeLimit::Chars))
+        .transpose()
+}
+
 fn colored(cli: &Cli, env: &Env, stdout_is_terminal: bool) -> bool {
     let when = ColorWhen::parse(cli.color.as_deref()).unwrap_or(ColorWhen::Auto);
     let term = (env.vars)("TERM");
@@ -1155,6 +1156,10 @@ mod tests {
             &["jag", "--after-context", "--json"],
             &["jag", "-e--json"],
             &["jag", "--regexp=--json"],
+            &["jag", "-g", "--json"],
+            &["jag", "--glob", "--json"],
+            &["jag", "--color", "--json"],
+            &["jag", "--sort", "--json"],
         ] {
             assert!(!json_requested(args(list)), "{list:?}");
         }
@@ -1175,14 +1180,10 @@ mod tests {
     #[test]
     fn json_requested_reads_json_after_the_other_options_with_a_value() {
         assert!(json_requested(args(&["jag", "--ask", "--json", "t"])));
-        assert!(json_requested(args(&[
-            "jag",
-            "--include",
-            "*.rs",
-            "--json"
-        ])));
+        assert!(json_requested(args(&["jag", "--glob", "*.rs", "--json"])));
+        assert!(json_requested(args(&["jag", "-g", "*.rs", "--json"])));
+        assert!(json_requested(args(&["jag", "--color", "never", "--json"])));
         assert!(json_requested(args(&["jag", "-e", "a", "--json"])));
-        assert!(json_requested(args(&["jag", "--include", "--json"])));
         assert!(json_requested(args(&["jag", "--nope", "--json"])));
         assert!(!json_requested(args(&["jag", "--json=1"])));
     }
@@ -1211,15 +1212,17 @@ mod tests {
     }
 
     #[test]
-    fn color_on_follows_grep_color_auto() {
+    fn color_on_follows_rg_color_auto() {
         let term = |text: &'static str| Some(OsStr::new(text));
-        assert!(color_on(ColorWhen::Always, false, None));
-        assert!(color_on(ColorWhen::Auto, true, term("xterm")));
-        assert!(color_on(ColorWhen::Auto, true, term("")));
-        assert!(!color_on(ColorWhen::Never, true, term("xterm")));
-        assert!(!color_on(ColorWhen::Auto, true, term("dumb")));
-        assert!(!color_on(ColorWhen::Auto, true, None));
-        assert!(!color_on(ColorWhen::Auto, false, term("xterm")));
+        assert!(color_on(ColorWhen::Always, false, None, true));
+        assert!(color_on(ColorWhen::Auto, true, term("xterm"), false));
+        assert!(color_on(ColorWhen::Auto, true, term(""), false));
+        assert!(!color_on(ColorWhen::Never, true, term("xterm"), false));
+        assert!(!color_on(ColorWhen::Auto, true, term("dumb"), false));
+        assert!(!color_on(ColorWhen::Auto, true, None, false));
+        assert!(!color_on(ColorWhen::Auto, false, term("xterm"), false));
+        // `NO_COLOR` set turns off the automatic color.
+        assert!(!color_on(ColorWhen::Auto, true, term("xterm"), true));
     }
 
     type Parts = (Option<String>, Option<String>, Vec<String>);
@@ -1283,36 +1286,35 @@ mod tests {
         assert_eq!(paths, ["dir"]);
     }
 
-    fn color_of(list: &[&str]) -> Result<ColorWhen, clap::Error> {
+    fn color_of(list: &[&str]) -> Result<Option<ColorWhen>, clap::Error> {
         let mut all = vec!["jag"];
         all.extend_from_slice(list);
-        all.extend_from_slice(&["term", "question", "path"]);
-        Cli::try_parse_from(all).map(|cli| cli.color_when())
+        all.extend_from_slice(&["term", "path"]);
+        Cli::try_parse_from(all).map(|cli| ColorWhen::parse(cli.color.as_deref()))
     }
 
     #[test]
-    fn the_option_color_takes_never_always_and_auto() {
-        assert_eq!(color_of(&[]).expect("parse"), ColorWhen::Auto);
-        assert_eq!(color_of(&["--color"]).expect("parse"), ColorWhen::Auto);
-        assert_eq!(color_of(&["--color=auto"]).expect("parse"), ColorWhen::Auto);
+    fn the_option_color_takes_never_always_auto_and_ansi() {
+        let given = |list: &[&str]| color_of(list).expect("parse");
+        assert_eq!(given(&[]), Some(ColorWhen::Auto));
+        assert_eq!(given(&["--color=auto"]), Some(ColorWhen::Auto));
+        assert_eq!(given(&["--color", "always"]), Some(ColorWhen::Always));
+        assert_eq!(given(&["--color=ansi"]), Some(ColorWhen::Always));
         assert_eq!(
-            color_of(&["--color=always", "--color=never"]).expect("parse"),
-            ColorWhen::Never
+            given(&["--color=always", "--color=never"]),
+            Some(ColorWhen::Never)
         );
-        assert_eq!(
-            color_of(&["--colour=always"]).expect("parse"),
-            ColorWhen::Always
-        );
-        assert!(color_of(&["--color=sometimes"]).is_err());
+        // A value that rg does not know parses, and the check refuses it.
+        assert_eq!(given(&["--color=sometimes"]), None);
+        // There is no `--colour`.
+        assert!(color_of(&["--colour=always"]).is_err());
     }
 
     #[test]
-    fn a_value_of_color_needs_an_equals_sign() {
-        // `never` is the term here, as in grep.
-        let cli =
-            Cli::try_parse_from(["jag", "--color", "never", "question", "path"]).expect("parse");
-        assert_eq!(cli.color_when(), ColorWhen::Auto);
-        assert_eq!(cli.term.as_deref(), Some(OsStr::new("never")));
+    fn a_value_of_color_comes_after_a_space_or_an_equals_sign() {
+        let cli = Cli::try_parse_from(["jag", "--color", "never", "term", "path"]).expect("parse");
+        assert_eq!(cli.color.as_deref(), Some("never"));
+        assert_eq!(cli.term.as_deref(), Some(OsStr::new("term")));
     }
 
     fn scoring_step_that_fails(progress: &Progress) -> Result<(), Failure> {
@@ -1385,17 +1387,19 @@ mod tests {
         assert!(failure.contains("Use: jag [OPTIONS] TERM [PATH...]"));
     }
 
-    // Decision 8 of FEATURE-14.
+    // Decision 8 of FEATURE-14, changed by decision 14 of FEATURE-23: `-` alone
+    // is the text of a pipe, as in rg.
     #[test]
-    fn the_paths_dash_and_empty_are_usage_errors_in_the_order_of_the_command_line() {
-        let dash = search_failure(&["needle", "a.txt", "-"]).expect("dash");
-        assert!(dash.contains("the path - is not valid."));
+    fn the_path_dash_alone_is_a_pipe_and_dash_with_other_paths_or_empty_is_a_usage_error() {
+        assert_eq!(search_failure(&["--ask", "q", "needle", "-"]), None);
+        let dash = search_failure(&["--ask", "q", "needle", "a.txt", "-"]).expect("dash");
+        assert!(dash.contains("the path - is not valid with other paths."));
         assert!(dash.contains("give ./-."));
-        let empty = search_failure(&["needle", "a.txt", ""]).expect("empty");
+        let empty = search_failure(&["--ask", "q", "needle", "a.txt", ""]).expect("empty");
         assert!(empty.contains("a path is empty."));
         assert!(!empty.contains("  "));
-        let first = search_failure(&["needle", "", "-"]).expect("both");
+        let first = search_failure(&["--ask", "q", "needle", "", "-"]).expect("both");
         assert!(first.contains("a path is empty."));
-        assert_eq!(search_failure(&["needle", "./-"]), None);
+        assert_eq!(search_failure(&["--ask", "q", "needle", "./-"]), None);
     }
 }

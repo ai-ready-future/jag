@@ -194,16 +194,21 @@ Exit codes:
 When more than one item fails, the code is the code of the first item that
 fails.
 
-## Plain grep with no question
+## Search with no question
 
-With no question, jag works as `grep -rnH` does:
+With no question, jag gives the same output as `rg` (ripgrep) 15.2.0 gives
+for the same arguments:
 
 ```
 $ jag TERM [PATH...]
 ```
 
-jag shows each matching line as `path:N:text`. It makes no call to the model
-and reads no key and no setting of the model service.
+The lines, the colors, the layout, the error texts, and the exit codes are
+those of `rg`. An error text starts with `jag:` in the place of `rg:`. jag
+makes no call to the model and reads no key and no setting of the model
+service. The files come in the order of the paths on the command line. Inside
+one path, the files come in the order of their names, as `rg --sort path`
+does.
 
 To rank the matches by a question, add `--ask`:
 
@@ -217,48 +222,56 @@ A question that starts with `-` needs `=`:
 $ jag --ask="-v or --verbose?" verbose src
 ```
 
-- jag cuts a line after 300 characters and adds ` [+N chars]`. `grep` does not
-  cut a line.
-- The files come in the order of the paths on the command line. Inside one
-  path, the files come in byte order of their names.
-- jag skips binary files, hidden files, and ignored files.
-- With no question, `--timeout`, `--retry-wait`, `--max-scored`, `--max-chars`,
-  `--base-url`, and `--model` have no effect on the search, except that
-  `--max-chars` still limits the output. jag still checks the values of the
-  options.
-- jag still writes the cost line on the error stream, with a cost of zero and
-  the reason `no question`. See "The cost of a search".
+- In a terminal, `rg` shows the path above its lines, with the line numbers.
+  In a pipe, `rg` shows `path:text` for more than one file, and only the text
+  for one file. Add `-n` for line numbers, `-H` for the path, or `--heading`.
+- jag does not cut a line, and it writes no cost line and no notice of
+  skipped files. jag skips binary files, hidden files, and ignored files, as
+  `rg` does.
+- A few things are not the same as in `rg`: `--max-chars` and
+  `--no-max-chars` (the size limit, below), `--json`, `--ask`, `--help`,
+  `--version`, and the options of the model. The texts for a term that uses
+  look-around or a new line, for an option that jag does not know, and for the
+  value `modified` of `--sort`, do not have the hints of `rg`. The option
+  `--colour` does not exist.
+- With no question, `--timeout`, `--retry-wait`, `--max-scored`,
+  `--base-url`, and `--model` have no effect on the search.
 
 ## Where jag searches
 
 - jag searches each file and each folder that you give. It searches a folder
-  as `grep -r` does. You can give any mix of files and folders.
-- With no path, jag searches the text of a pipe, and each result shows
-  `(standard input)` in the place of a path. An empty pipe gives no match and
-  exit 1, as in rg.
+  as `rg` does. You can give any mix of files and folders.
+- With no path, jag searches the text of a pipe, and the path of each result
+  is `<stdin>`. An empty pipe gives no match and exit 1, as in `rg`.
 - With no path and no pipe, for example in a terminal or with `/dev/null` as
   standard input, jag searches the current folder, and the paths have no `./`
   at the start.
-- jag reads all piped text before it ranks the results, so it waits until the
-  pipe closes.
+- `-` as the only path means standard input. With `--ask` or `--json`, `-`
+  with other paths is a usage error.
+- With `--ask`, jag reads all piped text before it ranks the results, so it
+  waits until the pipe closes.
 - An agent gives a path, for example `.`. Some tools keep standard input open,
   and then jag waits for text that does not come. Other tools give an empty
   pipe, and then jag finds no match.
-- A path that does not exist gives a warning that names the path. jag searches
-  the other paths, and it exits with 2 at the end, as grep does. With `--ask`,
-  the results of the other paths cost model calls.
-- `-` is not standard input in jag. To search a pipe, give no path.
+- A path that does not exist gives an error text that names the path. jag
+  searches the other paths, and it exits with 2 at the end, as `rg` does. With
+  `--ask`, the text is `jag: the path P does not exist`, and the results of
+  the other paths cost model calls.
 
 ```
 $ printf 'one\nneedle here\n' | jag needle
-(standard input):2:needle here
+needle here
+$ printf 'one\nneedle here\n' | jag -n needle
+2:needle here
 ```
 
 ## The size limit
 
 jag never writes more characters to standard output than a size limit. The
-default limit is 20,000 characters. The limit also applies to a search with no
-question. To change it:
+default limit is 20,000 characters with `--ask` or `--json`. A search with no
+question has no limit, as `rg` has none, unless you give `--max-chars` or
+`JAG_MAX_CHARS`. Then jag writes whole results up to the limit and the notice
+below. To change the limit:
 
 ```
 $ jag --max-chars 40000 --ask "QUESTION" TERM PATH...
@@ -359,62 +372,68 @@ only when a field is removed or renamed.
   In a pipe or a file, jag shows no progress. With `--json`, jag never shows
   progress.
 - jag colors the matches, the paths, the line numbers, and the separators as
-  `grep --color=auto` does: only when the output is a terminal and `TERM` is
-  not `dumb`. `--color=always` colors also in a pipe, for example for
-  `less -R`. `--color=never` never colors. `--color` alone means
-  `--color=auto`. A value needs `=`: in `--color never`, `never` is the term.
-  `--colour` works as `--color`. When you give the option more than one time,
-  the last one wins. jag does not read `NO_COLOR` or `GREP_COLORS`. With
-  `--json`, the document has no color.
+  `rg --color=auto` does: only when the output is a terminal, `TERM` is set
+  and is not `dumb`, and `NO_COLOR` is not set. `--color=always` colors also
+  in a pipe, for example for `less -R`. `--color=never` never colors.
+  `--color` takes a value after a space or after `=`: `never`, `auto`,
+  `always`, or `ansi`. When you give the option more than one time, the last
+  one wins. With `--json`, the document has no color.
 - Ctrl-C stops jag at once. jag starts no new model call and shows no
   results. jag writes `jag: the search was stopped.` and ends by the signal
-  SIGINT, as grep does, so a shell shows the exit code 130 and a script
-  stops. With `--json`, the output is an error document with `exit_code`
-  130. When jag already counted the results, it also writes the cost line
-  after the message, and the document holds the cost of the calls that
-  ended before the stop.
+  SIGINT, so a shell shows the exit code 130 and a script stops. With
+  `--json`, the output is an error document with `exit_code` 130. When jag
+  already counted the results, it also writes the cost line after the
+  message, and the document holds the cost of the calls that ended before
+  the stop. With no question, jag ends by the signal SIGINT with no message,
+  as `rg` does.
 - When the reader of the output closes the pipe, jag stops at once, starts no
   new model call, and ends by the signal SIGPIPE with no message. A shell
   shows the exit code 141.
 
-## Grep options
+## Search options
 
-jag takes these grep options, with their grep meaning: `-i`, `-w`, `-F`, `-e`,
-`-A`, `-B`, `-C`, `-l`, `-c`, `-q`, `--include`, and `--exclude`. Each one also
-has its long name of GNU grep, for example `--ignore-case`.
+jag takes these options of `rg`, with their meaning in `rg`: `-i`, `-w`, `-F`,
+`-e`, `-A`, `-B`, `-C`, `-l`, `-c`, `-q`, `-g`, `-n`, `-N`, `-H`, `-I`,
+`--heading`, `--no-heading`, `--sort`, and `--color`. Each one also has its
+long name, for example `--ignore-case`. Any other option of `rg` is an
+unknown option: jag gives the error text of `rg` for it and exit code 2.
+`-h` and `--help` show the help of jag.
 
-- jag always searches folders, as `grep -r` does, and always shows the path and
-  the line number, as `grep -H -n` does. So jag does not take `-r`, `-n`, or
-  `-H`. Each other option, also `-r`, gives a usage error and exit code 2.
-  `-h` shows the help, as in `rg`.
 - `-e TERM` gives a term. With more than one `-e`, a line matches one of the
-  terms. With `-e`, each word after the options is a path, as in grep.
+  terms. With `-e`, each word after the options is a path.
 - A short option that takes a value reads one `=` after its letter as the
   separator, as `rg` does: `-e=foo` gives the term `foo`, and `-A=2` gives 2.
-  `grep` reads the `=` as a part of the value: `grep -e=foo` searches `=foo`,
-  and `grep -A=2` is an error. To search `=foo`, type `-e '=foo'`.
+  To search `=foo`, type `-e '=foo'`.
+- `-g GLOB` (or `--glob`) searches only the files that match the glob. With
+  `!` at the start, jag leaves the files out. The glob rules are those of
+  ripgrep, for example `*.{rs,toml}`. The last glob that matches decides.
+  With no question, a glob does not apply to a file that you name. With
+  `--ask`, it does.
+- `-n` and `-N` turn the line numbers on and off. `-H` and `-I` turn the
+  paths on and off. `--heading` and `--no-heading` put the path above its
+  lines, or on each line. The last of each pair wins. These options work only
+  with no `--ask` and no `--json`.
+- `--sort path` (the default) and `--sort none` set the order of the files.
+  The value `modified` is not in jag.
 - With `--ask`, `-A`, `-B`, and `-C` take 0 to 12 lines, and a result has at
   most 25 lines. With no option, a result has 3 lines before and 3 lines after
   the match, and at most 12 lines. With no `--ask`, the options take each
-  number, and `--` stands between two groups of lines, as in grep.
+  number, and `--` stands between two groups of lines, as in `rg`.
 - `-l`, `-c`, and `-q` work only with no `--ask` and with no `--json`. `-c`
-  writes `path:N` also for one file. If you give more than one of the three,
-  `-q` wins, then `-l`, then `-c`.
-- `--include` and `--exclude` match the name of the file, with the glob rules
-  of ripgrep, for example `*.{rs,toml}`. They do not apply to folders. The last
-  glob that matches the name decides. When no glob matches, jag searches the
-  file, unless the first glob is an `--include` glob.
-- The size limit applies to `-l` and `-c`: each line is one whole item. When the
-  limit leaves out lines, jag writes the size notice and exits with 8. `-q`
-  writes nothing, so the limit has no effect on it.
+  writes `path:N` for more than one file, and `N` for one file. A file with no
+  match has no line. If you give more than one of the three, `-q` wins, then
+  `-l`, then `-c`.
+- The size limit applies to `-l` and `-c` only when you set it: each line is
+  one whole item. When the limit leaves out lines, jag writes the size notice
+  and exits with 8. `-q` writes nothing, so the limit has no effect on it.
 - jag skips binary files, so `-l` and `-c` do not show them.
-- The exit codes: 0 for a match, 1 for no match (with `--ask`, also for no good
-  answer), and 2 for a usage error, as in grep.
-
+- The exit codes with no question are those of `rg`: 0 for a match, 1 for no
+  match, and 2 for an error, also when a line matches. With `--ask`, 1 also
+  means no good answer.
 
 ## The cost of a search
 
-After each search in text mode, jag writes one cost line as the last line on
+After each search with `--ask` in text mode, jag writes one cost line as the last line on
 the error stream. It does this also when the output goes to a pipe:
 
 ```
@@ -434,14 +453,12 @@ include a fee of the gateway.
 - `not available` in place of the amount: jag does not know the price of the
   model that `--model`, `JAG_MODEL`, or `config.model` names. The search
   still works.
-- `$0.000000 (no question)`, `(no match)`, or `(no readable match)`: jag made
-  no model call.
+- `$0.000000 (no match)` or `(no readable match)`: jag made no model call.
 - When a search fails or you stop it, the cost line comes after the failure
   text and gives the cost of the calls that the service answered. A search
   that ends before jag counts the results, and `--check`, write no cost line.
   When the reader closes the pipe, jag writes no cost line.
-- With no question, jag scores nothing, so the line says
-  `scored 0 of N results, skipped 0`, and N is the count of matching lines.
+- With no question, jag writes no cost line, as `rg` does not.
 - With `--json`, jag writes no cost line. The `cost` field of the document
   gives the same amount (see "Output for an agent").
 

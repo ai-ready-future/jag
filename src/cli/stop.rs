@@ -235,19 +235,6 @@ pub fn install(stop: &Arc<Stop>) -> io::Result<()> {
     Ok(())
 }
 
-/// For a search with no question (FEATURE-23, decision 13): on SIGINT, end jag
-/// by the default action of the signal, with no message. The text that jag
-/// already wrote stays.
-pub fn end_on_sigint() -> io::Result<()> {
-    let mut signals = Signals::new([SIGINT])?;
-    std::thread::spawn(move || {
-        if signals.forever().next().is_some() {
-            end_by(SIGINT);
-        }
-    });
-    Ok(())
-}
-
 /// When standard output is a pipe or a socket, start the watch thread. When
 /// the reader closes it and this stop takes the output, the thread ends jag
 /// by SIGPIPE, with no message.

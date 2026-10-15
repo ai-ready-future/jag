@@ -28,7 +28,7 @@ pub struct ScanOptions {
     pub global_ignore: bool,
     /// Read the ignore files of parent folders.
     pub parent_ignore: bool,
-    /// The globs of --include and --exclude (FEATURE-13).
+    /// The globs of `-g` (FEATURE-23).
     pub files: FileFilter,
     /// Keep a `FileMatches` with no line for each searched file with no
     /// match (FEATURE-13, `-c`).

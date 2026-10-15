@@ -55,7 +55,11 @@ impl FileFilter {
 pub fn current_dir() -> PathBuf {
     std::env::current_dir()
         .ok()
-        .or_else(|| std::env::var_os("PWD").filter(|pwd| !pwd.is_empty()).map(PathBuf::from))
+        .or_else(|| {
+            std::env::var_os("PWD")
+                .filter(|pwd| !pwd.is_empty())
+                .map(PathBuf::from)
+        })
         .unwrap_or_else(|| PathBuf::from("."))
 }
 

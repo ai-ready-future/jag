@@ -210,7 +210,8 @@ pub(super) fn context_lines(cli: &Cli, question: bool) -> Result<Option<ContextL
 }
 
 /// The value of `-A`, `-B`, or `-C` with the name of the option: ASCII digits
-/// only, after a trim of white space. A number that is too large counts as
+/// only, with one `+` at the start as in rg, after a trim of white space. A
+/// number that is too large counts as
 /// `u64::MAX`, as grep takes a very large number (decision 12). The message
 /// never shows the value.
 fn count_of_lines(
@@ -220,7 +221,8 @@ fn count_of_lines(
     let Some(text) = text else {
         return Ok(None);
     };
-    let digits = text.trim();
+    let trimmed = text.trim();
+    let digits = trimmed.strip_prefix('+').unwrap_or(trimmed);
     if digits.is_empty() || !digits.bytes().all(|byte| byte.is_ascii_digit()) {
         return Err(usage_failure(
             &format!("the value of {name} is not a whole number of 0 or more."),
@@ -324,7 +326,6 @@ mod tests {
             assert!(cli.ignore_case && cli.word && cli.fixed, "{list:?}");
             assert!(cli.files_with_matches && cli.count && cli.quiet, "{list:?}");
         }
-        assert!(parsed(&["--silent", "t", "p"]).quiet);
         let cli = parsed(&["-iA2", "t", "p"]);
         assert!(cli.ignore_case);
         assert_eq!(cli.after.as_deref(), Some("2"));
@@ -378,28 +379,66 @@ mod tests {
     #[test]
     fn the_globs_keep_the_order_of_the_command_line() {
         let cli = parsed(&[
-            "--exclude=*.md",
-            "--include",
+            "-g",
             "*.rs",
+            "--glob=!c.*",
             "--ask",
             "q",
             "needle",
             "dir",
-            "--exclude=c.*",
+            "-g!*.md",
         ]);
-        assert_eq!(
-            cli.globs,
-            [
-                (GlobKind::Exclude, "*.md".to_owned()),
-                (GlobKind::Include, "*.rs".to_owned()),
-                (GlobKind::Exclude, "c.*".to_owned()),
-            ]
-        );
+        assert_eq!(cli.globs, ["*.rs", "!c.*", "!*.md"]);
+        // The value of `-g` can start with a dash.
+        assert_eq!(parsed(&["-g", "-x", "t", "p"]).globs, ["-x"]);
+    }
+
+    #[test]
+    fn the_layout_options_override_each_other_and_themselves() {
+        let cli = parsed(&[
+            "-n",
+            "-N",
+            "-H",
+            "-I",
+            "--heading",
+            "--no-heading",
+            "t",
+            "p",
+        ]);
+        assert!(!cli.line_number && cli.no_line_number);
+        assert!(!cli.with_filename && cli.no_filename);
+        assert!(!cli.heading && cli.no_heading);
+        let cli = parsed(&[
+            "-N",
+            "-n",
+            "-I",
+            "-H",
+            "--no-heading",
+            "--heading",
+            "t",
+            "p",
+        ]);
+        assert!(cli.line_number && !cli.no_line_number);
+        assert!(cli.with_filename && !cli.no_filename);
+        assert!(cli.heading && !cli.no_heading);
+        // A repeated switch is not an error, as in rg.
+        let cli = parsed(&["-ii", "-ll", "-nn", "t", "p"]);
+        assert!(cli.ignore_case && cli.files_with_matches && cli.line_number);
+    }
+
+    #[test]
+    fn color_and_sort_take_a_value_after_a_space_or_an_equals_sign() {
+        let cli = parsed(&["--color", "always", "--sort", "path", "t", "p"]);
+        assert_eq!(cli.color.as_deref(), Some("always"));
+        assert_eq!(cli.sort.as_deref(), Some("path"));
+        let cli = parsed(&["--color=never", "--sort=none", "t", "p"]);
+        assert_eq!(cli.color.as_deref(), Some("never"));
+        assert_eq!(cli.sort.as_deref(), Some("none"));
     }
 
     #[test]
     fn each_option_conflicts_with_check_setup_and_forget_key() {
-        let options: [&[&str]; 12] = [
+        let options: Vec<&[&str]> = vec![
             &["-i"],
             &["-w"],
             &["-F"],
@@ -410,11 +449,18 @@ mod tests {
             &["-l"],
             &["-c"],
             &["-q"],
-            &["--include=*.rs"],
-            &["--exclude=*.rs"],
+            &["-g", "*.rs"],
+            &["-n"],
+            &["-N"],
+            &["-H"],
+            &["-I"],
+            &["--heading"],
+            &["--no-heading"],
+            &["--sort", "path"],
+            &["--color", "never"],
         ];
         for mode in ["--check", "--setup", "--forget-key"] {
-            for option in options {
+            for option in &options {
                 let mut list = vec![mode];
                 list.extend_from_slice(option);
                 let error = refused(&list);
@@ -500,8 +546,27 @@ mod tests {
         assert!(matches(&["needle."], fixed, "the needle."));
         assert!(!matches(&["needle."], fixed, "needles"));
         assert!(matches(&["a("], fixed, "x a( y"));
-        let failure = build_matcher(&["a("], plain).expect_err("a failure");
-        assert_eq!(failure.cause, "the term is not a valid regular expression.");
+        assert!(build_matcher(&["a("], plain).is_err());
+        assert_eq!(
+            matcher_failure().cause,
+            "the term is not a valid regular expression."
+        );
+    }
+
+    #[test]
+    fn the_matcher_has_the_settings_of_rg() {
+        let plain = MatchOptions::default();
+        // A term that is two times in the list counts one time.
+        assert!(matches(&["one", "one"], plain, "one"));
+        // `^` and `$` hold at the line, and a term cannot match a new line.
+        assert!(matches(&["^one$"], plain, "one"));
+        assert!(build_matcher(&["a\\nb"], plain).is_err());
+        // The look-around is not part of the rules of the Rust regex crate.
+        let error = build_matcher(&["a(?=b)"], plain).expect_err("an error");
+        assert!(
+            error.to_string().starts_with("regex parse error:"),
+            "{error}"
+        );
     }
 
     #[test]
@@ -604,7 +669,7 @@ mod tests {
 
     #[test]
     fn a_value_that_is_not_a_whole_number_is_refused_and_not_shown() {
-        for value in ["abc", "-1", "+1", "", "1.5", "SENTINEL"] {
+        for value in ["abc", "-1", "+", "++1", "", "1.5", "SENTINEL"] {
             for name in ["-A", "-B", "-C"] {
                 let failure = context(&[name, value], false).expect_err("a failure");
                 assert_eq!(
@@ -617,35 +682,66 @@ mod tests {
         }
     }
 
-    fn report_of(list: &[&str]) -> Result<Report, Failure> {
+    fn refused_options(list: &[&str]) -> Result<(), Failure> {
         let mut all = list.to_vec();
         all.extend_from_slice(&["t", "p"]);
         let cli = parsed(&all);
-        report(&cli, cli.ask.is_some())
+        refuse_plain_options(&cli, cli.ask.is_some())
     }
 
     #[test]
-    fn q_wins_then_l_then_c_and_none_works_with_json_or_ask() {
-        assert_eq!(report_of(&[]).expect("valid"), Report::Lines);
-        assert_eq!(report_of(&["-c"]).expect("valid"), Report::Counts);
-        assert_eq!(report_of(&["-c", "-l"]).expect("valid"), Report::Files);
-        assert_eq!(
-            report_of(&["-l", "-c", "-q"]).expect("valid"),
-            Report::Quiet
-        );
-        let failure = report_of(&["-l", "--json", "--ask", "q"]).expect_err("a failure");
+    fn q_wins_then_l_then_c() {
+        let report = |list: &[&str]| {
+            let mut all = list.to_vec();
+            all.extend_from_slice(&["t", "p"]);
+            Report::of(&parsed(&all))
+        };
+        assert_eq!(report(&[]), Report::Lines);
+        assert_eq!(report(&["-c"]), Report::Counts);
+        assert_eq!(report(&["-c", "-l"]), Report::Files);
+        assert_eq!(report(&["-l", "-c", "-q"]), Report::Quiet);
+    }
+
+    #[test]
+    fn the_report_and_layout_options_do_not_work_with_json_or_ask() {
+        assert!(refused_options(&["-l", "-c"]).is_ok());
+        let failure = refused_options(&["-l", "--json", "--ask", "q"]).expect_err("a failure");
         assert_eq!(failure.cause, "the option -l does not work with --json.");
         assert_eq!(failure.fix, "Remove --json, or remove -l.");
-        let failure = report_of(&["-c", "-q", "--ask", "q"]).expect_err("a failure");
+        let failure = refused_options(&["-c", "-q", "--ask", "q"]).expect_err("a failure");
         assert_eq!(failure.cause, "the option -q does not work with --ask.");
         assert_eq!(failure.fix, "Remove --ask, or remove -q.");
+        for name in ["-n", "-N", "-H", "-I", "--heading", "--no-heading"] {
+            let failure = refused_options(&[name, "--ask", "q"]).expect_err("a failure");
+            assert_eq!(
+                failure.cause,
+                format!("the option {name} does not work with --ask.")
+            );
+        }
+    }
+
+    #[test]
+    fn a_color_or_sort_value_that_rg_does_not_know_is_refused_and_not_shown() {
+        let check = |list: &[&str]| {
+            let mut all = list.to_vec();
+            all.extend_from_slice(&["--ask", "q", "t", "p"]);
+            check_color_and_sort(&parsed(&all))
+        };
+        assert_eq!(check(&["--color=ansi"]).expect("valid"), ColorWhen::Always);
+        assert!(check(&["--sort", "path"]).is_ok());
+        assert!(check(&["--sort=none"]).is_ok());
+        let failure = check(&["--color=SENTINEL"]).expect_err("a failure");
+        assert_eq!(failure.cause, "the value of --color is not valid.");
+        let failure = check(&["--sort=SENTINEL"]).expect_err("a failure");
+        assert_eq!(failure.cause, "the value of --sort is not valid.");
+        assert!(!failure.render().contains("SENTINEL"));
     }
 
     #[test]
     fn a_glob_that_does_not_parse_names_its_option_and_not_the_glob() {
         let failure =
-            file_filter(&[(GlobKind::Exclude, "SENTINEL[".to_owned())]).expect_err("a failure");
-        assert_eq!(failure.cause, "the glob of --exclude is not valid.");
+            file_filter(&["SENTINEL[".to_owned()], Path::new("/")).expect_err("a failure");
+        assert_eq!(failure.cause, "the glob of -g is not valid.");
         assert_eq!(
             failure.fix,
             "Check the glob. jag uses the glob rules of ripgrep."

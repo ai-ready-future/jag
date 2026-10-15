@@ -13,15 +13,13 @@ use std::process::ExitCode;
 
 use grep_matcher::Matcher;
 use grep_printer::{ColorSpecs, Standard, StandardBuilder, Summary, SummaryBuilder, SummaryKind};
-use grep_searcher::{
-    BinaryDetection, Searcher, SearcherBuilder, Sink,
-};
+use grep_searcher::{BinaryDetection, Searcher, SearcherBuilder, Sink};
 use termcolor::{Buffer, BufferWriter, ColorChoice, ColorSpec, WriteColor};
 
-use super::grep::{ColorWhen, MatchOptions, Report, build_matcher, context_lines, file_filter, words};
+use super::grep::{MatchOptions, Report, build_matcher, context_lines, file_filter, words};
 use super::rg_text::{NO_PATTERN, NOTHING_SEARCHED, line};
-use super::{Cli, stop};
-use crate::config::{ConfigError, Env, SettingSource, SizeLimit, parse_size_limit, plain_size_limit};
+use super::{Cli, colored, size_option};
+use crate::config::{Env, plain_size_limit};
 use crate::failure::Failure;
 use crate::output::{SizeReport, size_notice};
 use crate::search::filter::current_dir;
@@ -33,9 +31,8 @@ const FLUSH_AT: usize = 64 * 1024;
 
 /// Run the search and give the exit code (decision 12).
 pub(super) fn run(cli: &Cli, env: &Env) -> ExitCode {
-    // With no handler of ours, a closed pipe is a write error, and SIGINT ends
-    // jag by its default action (decision 13).
-    let _ = stop::end_on_sigint();
+    // jag has no handler: a closed pipe is a write error, and SIGINT ends jag
+    // by its default action, with no message, as it ends rg (decision 13).
     match search(cli, env) {
         Ok(code) => ExitCode::from(code),
         Err(text) => {
@@ -53,15 +50,7 @@ fn failure_text(failure: Failure) -> String {
 
 /// The size limit: the option, else `JAG_MAX_CHARS`, else none (decision 19).
 fn size_limit(cli: &Cli, env: &Env) -> Result<Option<usize>, String> {
-    let option = if cli.no_size_limit {
-        Some(SizeLimit::Off)
-    } else {
-        cli.size_limit
-            .as_deref()
-            .map(|text| parse_size_limit(text, SettingSource::Option).map(SizeLimit::Chars))
-            .transpose()
-            .map_err(|error: ConfigError| failure_text(Failure::from(error)))?
-    };
+    let option = size_option(cli).map_err(|error| failure_text(Failure::from(error)))?;
     plain_size_limit(env, option).map_err(|error| failure_text(Failure::from(error)))
 }
 
@@ -294,17 +283,17 @@ fn search(cli: &Cli, env: &Env) -> Result<u8, String> {
         .map_or((0, 0), |lines| (lines.before, lines.after));
     let cwd = current_dir();
     let files = file_filter(&cli.globs, &cwd).map_err(failure_text)?;
-    let matcher = build_matcher(&terms, MatchOptions::of(cli)).map_err(|error| line(&error.to_string()))?;
+    let matcher =
+        build_matcher(&terms, MatchOptions::of(cli)).map_err(|error| line(&error.to_string()))?;
 
     let places = Places::new(path_words.into_iter().map(PathBuf::from).collect());
     let report = Report::of(cli);
     let stdout_is_terminal = io::stdout().is_terminal();
     let layout = Layout::of(cli, report, &places, stdout_is_terminal);
-    let choice = match ColorWhen::parse(cli.color.as_deref()).unwrap_or(ColorWhen::Auto) {
-        ColorWhen::Always => ColorChoice::Always,
-        ColorWhen::Never => ColorChoice::Never,
-        ColorWhen::Auto if stdout_is_terminal => ColorChoice::Auto,
-        ColorWhen::Auto => ColorChoice::Never,
+    let choice = if colored(cli, env, stdout_is_terminal) {
+        ColorChoice::Always
+    } else {
+        ColorChoice::Never
     };
     let writer = BufferWriter::stdout(choice);
     let around = context.0 > 0 || context.1 > 0;
@@ -315,7 +304,13 @@ fn search(cli: &Cli, env: &Env) -> Result<u8, String> {
         .after_context(usize::try_from(context.1).unwrap_or(usize::MAX))
         .build();
 
-    let mut sizes = limit.map(|max| Sizes::new(max, report == Report::Lines && around, layout.heading && report == Report::Lines));
+    let mut sizes = limit.map(|max| {
+        Sizes::new(
+            max,
+            report == Report::Lines && around,
+            layout.heading && report == Report::Lines,
+        )
+    });
     let mut matched = false;
     let mut searched = false;
     let mut errored = false;
@@ -507,7 +502,11 @@ fn split_results(bytes: &[u8], grouped: bool, heading: bool) -> Vec<&[u8]> {
     let mut pending = 0;
     if heading && !grouped {
         // The first result: an empty line, the heading, and a line.
-        let take = if lines.first() == Some(&&b"\n"[..]) { 3 } else { 2 };
+        let take = if lines.first() == Some(&&b"\n"[..]) {
+            3
+        } else {
+            2
+        };
         let take = take.min(lines.len());
         let size: usize = lines[..take].iter().map(|line| line.len()).sum();
         if size > 0 {
