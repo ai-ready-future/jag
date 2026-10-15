@@ -3,7 +3,7 @@ type: adr
 title: Use rg as the reference for the output of jag with no question
 description: Open this when you change what jag writes with no --ask (stdout, stderr, color, exit code, match rules), or when you change the rg version that jag follows.
 area: contracts
-status: proposed
+status: accepted
 date: 2026-10-15
 supersedes: null
 superseded_by: null

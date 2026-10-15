@@ -8,9 +8,9 @@ okf_version: "0.2"
 
 * [building-blocks](#building-blocks) - 4 decisions: 4 accepted
 * [context](#context) - 1 decision: 1 accepted
-* [contracts](#contracts) - 10 decisions: 9 accepted, 1 proposed
+* [contracts](#contracts) - 10 decisions: 10 accepted
 * [deployment](#deployment) - 3 decisions: 3 accepted
-* [quality](#quality) - 1 decision: 1 proposed
+* [quality](#quality) - 1 decision: 1 accepted
 * [strategy](#strategy) - 3 decisions: 3 accepted
 
 ## building-blocks
@@ -41,10 +41,7 @@ okf_version: "0.2"
 * [0016: Add /v1 to a base URL whose path does not end with /v1](./0016-add-v1-to-a-base-url-whose-path-does-not-end-with-v1.md) - accepted. Open this when you change how jag builds the call address from a base URL, or when a gateway needs another path.
 * [0017: Use a separate key for an AI gateway](./0017-use-a-separate-key-for-an-ai-gateway.md) - accepted. Open this when you change which key jag sends to a base URL, add a key source, or change how --setup, --forget-key, and --check handle keys.
 * [0018: Take the question only from the --ask option](./0018-take-the-question-only-from-the-ask-option.md) - accepted. Open this when you change how jag gets the question on the command line, or when a script depends on the command form.
-
-### proposed
-
-* [0022: Use rg as the reference for the output of jag with no question](./0022-use-rg-as-the-reference-for-the-output-of-jag-with-no.md) - proposed. Open this when you change what jag writes with no --ask (stdout, stderr, color, exit code, match rules), or when you change the rg version that jag follows.
+* [0022: Use rg as the reference for the output of jag with no question](./0022-use-rg-as-the-reference-for-the-output-of-jag-with-no.md) - accepted. Open this when you change what jag writes with no --ask (stdout, stderr, color, exit code, match rules), or when you change the rg version that jag follows.
 
 ## deployment
 
@@ -56,9 +53,9 @@ okf_version: "0.2"
 
 ## quality
 
-### proposed
+### accepted
 
-* [0021: Check rg parity with a cargo test that runs a pinned rg and jag](./0021-check-rg-parity-with-a-cargo-test-that-runs-a-pinned-rg-and.md) - proposed. Open this when you add or change an rg parity case, a fixture, a deliberate difference, the rg pin, or how the parity tests run in CI.
+* [0021: Check rg parity with a cargo test that runs a pinned rg and jag](./0021-check-rg-parity-with-a-cargo-test-that-runs-a-pinned-rg-and.md) - accepted. Open this when you add or change an rg parity case, a fixture, a deliberate difference, the rg pin, or how the parity tests run in CI.
 
 ## strategy
 
