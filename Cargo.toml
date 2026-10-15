@@ -43,4 +43,7 @@ ureq = { version = "3.4.2", default-features = false, features = ["rustls", "pla
 [dev-dependencies]
 assert_cmd = "2.2.2"
 predicates = "3.1.4"
+# The pseudo terminal of the rg parity test (ADR-0021). The build of the jag
+# binary does not get these features.
+rustix = { version = "1.1.5", features = ["pty", "termios"] }
 tempfile = "3.27.0"
