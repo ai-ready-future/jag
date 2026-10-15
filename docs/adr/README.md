@@ -36,5 +36,8 @@
 - [0003 — Decide no good answer with a fixed threshold on the top probability](./0003-decide-no-good-answer-with-a-fixed-threshold-on-the-top.md) — accepted — <!-- TODO: summary -->
 - [0004 — Ship one scoring prompt with a version id in each release](./0004-ship-one-scoring-prompt-with-a-version-id-in-each-release.md) — accepted — <!-- TODO: summary -->
 
+### quality — <!-- TODO: describe this area -->
+- [0021 — Check rg parity with a cargo test that runs a pinned rg and jag](./0021-check-rg-parity-with-a-cargo-test-that-runs-a-pinned-rg-and.md) — proposed — <!-- TODO: summary -->
+
 <!-- ADR-INDEX:END -->
 
