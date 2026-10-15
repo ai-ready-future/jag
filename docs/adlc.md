@@ -21,7 +21,7 @@ The `sofa` skill fills these values when it copies the template.
 | Orchestrator name | `jag-orchestrator` |
 | Product docs | `docs/product/prd`, `docs/product/roadmap` |
 | ADR folder | `docs/adr`. The list of ADRs and their status is in `docs/adr/README.md` |
-| Extra context files | `/home/jazz/dev/github.com/ai-ready-future/jag/docs/handoff.md`. It is not in git, so read it from the main folder. It points to the source of the earlier prototype. |
+| Extra context files | `/home/jazz/dev/github.com/ai-ready-future/jag-private/docs/handoff.md`. It is not in git. Since FEATURE-19 step B10, the main folder is a new clone of the public repo. `docs/handoff.md` stays only in the old folder `jag-private`; it was not copied. It points to the source of the earlier prototype. |
 
 Repository rules:
 - Never read, print or commit the keys in `~/.config/jag/`.
@@ -46,7 +46,9 @@ Repository rules:
     - No open `ASK` blocks the story.
 
     If one of these is false, the story stays in `backlog`. A role that changes the state of a story or a feature checks this rule in the same PR.
+    Exception: a user `ANSWER` can set the stories of a blocked feature to `ready`. The `blocked_by` list stays. The `Plan` line in `log.md` names the `ANSWER`. FEATURE-18 has this exception (`ANSWER` of 2026-10-15, "start now").
     When a feature gets the state `done`, the same PR sets to `ready` each story that waited only for this feature and has a merged spec.
+12. Merge PRs with squash only. After each merge, the session that merges checks the author and the committer of the new commit on `main` by hash (FEATURE-19 spec decision 13 and decision 31). A rebase merge wrote the account address as committer in `3ead9ae`.
 
 ## 3. Roles
 
@@ -270,3 +272,4 @@ Send a DONE message to the orchestrator when you are ready. Then wait for TASK m
 | 2026-10-13 | Added rule 11: a story is `ready` only if its spec is merged, its feature is not blocked, and no open `ASK` blocks it. The orchestrator assigns a ready story to an implementer at once. The specifier and each PR that sets a feature to `done` set the story state by this rule | The user asked for this change. 9 stories showed `ready` but were blocked or had no spec |
 | 2026-10-14 | Added an Effort column to section 3. Orchestrator: `claude-opus-5-5`, `medium`. Hitl: `claude-sonnet-5-5`, `medium`. Planner: `claude-opus-5-5`, `medium`. Projecter: `claude-sonnet-5-5`, `medium`. Architect: `claude-opus-5-5`, `high`. Implementer: `claude-sonnet-5-5`, `high`. Verifier: `claude-opus-5-5`, `high`. Chores: `claude-sonnet-5-5`, `medium`. Retro: `claude-opus-5-5`, `medium`. Specifier: `claude-opus-5-5`, `xhigh`. Section 8 uses these values and restarts a session when its model or effort changes | The user asked for this change |
 | 2026-10-14 | Removed the ADR count from the ADR folder row in section 1. The row points to `docs/adr/README.md` | The count (10) was out of date: `main` has 18 accepted ADRs. A count goes out of date again |
+| 2026-10-15 | Rule 11: added the exception for a user `ANSWER` (FEATURE-18). Added rule 12: squash merge only, and a hash check of the author and the committer after each merge. The "Extra context files" row points to `docs/handoff.md` in the old folder `jag-private` | Verifier comment on PR #94. A rebase merge wrote the account address as committer in `3ead9ae`. Since FEATURE-19 step B10, the main folder is a new clone and has no `docs/handoff.md` |
