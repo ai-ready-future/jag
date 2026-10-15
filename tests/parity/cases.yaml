@@ -266,6 +266,16 @@
   modes: [pipe]
   deliberate:
     answer: "hitl ANSWER of 2026-10-15, card A (F23-Q3), option 1"
+- id: max-chars-variable
+  args: ["foo", "many.txt"]
+  tree: limits
+  modes: [pipe]
+  env: {JAG_MAX_CHARS: "1000"}
+- id: max-chars-variable-bad
+  args: ["foo", "a.txt"]
+  tree: basic
+  modes: [pipe]
+  env: {JAG_MAX_CHARS: "abc"}
 - id: help-short
   args: ["-h"]
   tree: basic
