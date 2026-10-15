@@ -300,3 +300,17 @@
 
 * [CRITERION-108: Each dependency license is compatible with the jag license](CRITERION-108.md) - Before the first publish, a license check of all Rust and npm dependencies (for example cargo deny licenses) passes, and each dependency license is compatible with the jag license.
 * [CRITERION-109: The license file, the notices, and the package metadata are correct](CRITERION-109.md) - The repository and each release archive hold the LICENSE file and the required notices, and the crate and npm metadata give the correct license and repository.
+
+## STORY-65: Compare rg and jag output on a parity test set
+
+* [CRITERION-110: The parity test set names the rg argument sets and the fixture files](CRITERION-110.md) - The repository holds the parity test set: a list of rg argument sets and the fixture files that each case uses.
+* [CRITERION-111: rg and jag give the same bytes and exit code in a pipe](CRITERION-111.md) - For each case, rg and jag with the same arguments on the same files give the same stdout bytes, the same stderr bytes, and the same exit code when the output goes to a pipe.
+* [CRITERION-112: rg and jag give the same bytes and color in a terminal](CRITERION-112.md) - For each case, rg and jag give the same stdout bytes with the color codes, the same stderr bytes, and the same exit code with --color=always and in a terminal.
+
+## STORY-66: Run the rg parity cases as e2e tests in CI
+
+* [CRITERION-113: CI runs each parity case as an e2e test](CRITERION-113.md) - CI installs rg at a fixed version and runs each case of the parity test set as an e2e test on each pull request. A difference fails the check.
+
+## STORY-67: Fix each rg parity difference or record it as deliberate
+
+* [CRITERION-114: Each parity difference is fixed or has a user answer](CRITERION-114.md) - Each difference that the parity test finds is fixed in jag, or a user ANSWER records it as a deliberate difference, and the parity test set names that ANSWER.
