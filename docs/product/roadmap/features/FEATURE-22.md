@@ -6,6 +6,13 @@ description: Before the first publish, the user uses jag on real work and fixes 
   problem.
 status: draft
 state: backlog
+github:
+  number: 106
+  node_id: I_kwDOVKMnL88AAAABXfzmAQ
+  url: https://github.com/ai-ready-future/jag/issues/106
+  pushed_hash: e7a780
+  synced:
+    state: backlog
 parent: /epics/EPIC-05.md
 milestone: /milestones/MILESTONE-02.md
 traces:

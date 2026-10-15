@@ -6,6 +6,13 @@ description: As an agent builder (PERSONA-01), I want a license and compliance a
   problem.
 status: draft
 state: backlog
+github:
+  number: 109
+  node_id: I_kwDOVKMnL88AAAABXf0ASg
+  url: https://github.com/ai-ready-future/jag/issues/109
+  pushed_hash: 1ff339
+  synced:
+    state: backlog
 parent: /features/FEATURE-22.md
 milestone: /milestones/MILESTONE-02.md
 ---
