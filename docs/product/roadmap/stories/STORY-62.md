@@ -6,6 +6,13 @@ description: As a shell power user (PERSONA-04), I want the maintainer to use ja
   no known bug that this use found.
 status: draft
 state: backlog
+github:
+  number: 107
+  node_id: I_kwDOVKMnL88AAAABXfzuuQ
+  url: https://github.com/ai-ready-future/jag/issues/107
+  pushed_hash: 66a248
+  synced:
+    state: backlog
 parent: /features/FEATURE-22.md
 milestone: /milestones/MILESTONE-02.md
 ---

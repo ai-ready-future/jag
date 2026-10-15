@@ -6,6 +6,13 @@ description: As a shell power user (PERSONA-04), I want each difference from rg 
   that stays is known.
 status: draft
 state: backlog
+github:
+  number: 116
+  node_id: I_kwDOVKMnL88AAAABXgJBtA
+  url: https://github.com/ai-ready-future/jag/issues/116
+  pushed_hash: e9387c
+  synced:
+    state: backlog
 parent: /features/FEATURE-23.md
 milestone: /milestones/MILESTONE-02.md
 ---

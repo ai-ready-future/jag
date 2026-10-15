@@ -6,6 +6,13 @@ description: An rg command and a jag command with the same arguments and no ques
   this in CI.
 status: draft
 state: backlog
+github:
+  number: 113
+  node_id: I_kwDOVKMnL88AAAABXgIsWw
+  url: https://github.com/ai-ready-future/jag/issues/113
+  pushed_hash: '710681'
+  synced:
+    state: backlog
 parent: /epics/EPIC-04.md
 milestone: /milestones/MILESTONE-02.md
 traces:
