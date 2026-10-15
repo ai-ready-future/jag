@@ -223,7 +223,8 @@ where
         .follow_links(false)
         .threads(options.threads)
         .git_global(options.global_ignore)
-        .parents(options.parent_ignore);
+        .parents(options.parent_ignore)
+        .add_custom_ignore_filename(".rgignore");
 
     let shared = Shared::default();
     builder.build_parallel().run(|| {
@@ -333,7 +334,7 @@ fn visit_entry<M: Matcher>(
         if let Ok(mut folders) = shared.folder_paths.lock() {
             folders.insert(entry.path().to_path_buf());
         }
-    } else if file_type.is_file() && options.files.allows(entry.file_name()) {
+    } else if file_type.is_file() && options.files.allows(entry.path()) {
         // The walk counted the entry above, so a file that a glob skips is
         // not in the skip notice (FEATURE-13, decision 27).
         let path = entry.path();

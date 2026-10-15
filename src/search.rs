@@ -3,12 +3,13 @@
 
 pub mod filter;
 pub mod input;
+pub mod sequence;
 pub mod snippet;
 pub mod walk;
 
 use std::path::{Path, PathBuf};
 
-pub use filter::{FileFilter, GlobKind};
+pub use filter::FileFilter;
 pub use walk::{
     FileMatches, MatchLine, ScanOptions, ScanReport, SkipCounts, WalkWarning, WarningKind, scan,
     scan_current_folder, scan_input,
@@ -23,7 +24,7 @@ pub enum Source {
 
 impl Source {
     /// The label of standard input, in the place of a path.
-    pub const STANDARD_INPUT_LABEL: &'static str = "(standard input)";
+    pub const STANDARD_INPUT_LABEL: &'static str = "<stdin>";
 
     /// The bytes that show the source: the path as typed, or the label.
     pub fn label(&self) -> &[u8] {

@@ -16,7 +16,7 @@ use crate::failure::Failure;
 use crate::scorer::cost::{Cost, NoCallReason};
 use crate::scorer::{PROMPT_VERSION, THRESHOLD};
 use crate::search::snippet::{Snippet, SnippetLine, Source, char_count, char_prefix};
-use crate::search::walk::{FileMatches, SkipCounts, WalkWarning};
+use crate::search::walk::{SkipCounts, WalkWarning};
 
 /// The first line on standard output when no result answers well.
 pub const NO_GOOD_ANSWER: &str =
@@ -240,21 +240,22 @@ pub fn write_json(out: &mut dyn Write, summary: &Summary, results: &[&Snippet]) 
 /// C-output does not use the matcher (FEATURE-15, decision 10).
 pub type Paint<'a> = &'a dyn Fn(&[u8]) -> Vec<Range<usize>>;
 
-/// The colors of GNU grep with its default `GREP_COLORS` (decision 7).
-const MATCH: &str = "01;31";
-const PATH: &str = "35";
-const NUMBER: &str = "32";
-const SEPARATOR: &str = "36";
+/// The colors of rg with its default settings (FEATURE-23, decision 4): the
+/// reset, then the style. A colored item ends with the reset. The separators
+/// have no color.
+const MATCH: &str = "\x1b[0m\x1b[1m\x1b[31m";
+const PATH: &str = "\x1b[0m\x1b[35m";
+const NUMBER: &str = "\x1b[0m\x1b[32m";
 
 /// Write `item`, in `code` when `colored`. A colored item is
-/// `ESC[<code>m ESC[K <item> ESC[m ESC[K`, byte for byte as grep.
+/// `ESC[0m <style> <item> ESC[0m`, byte for byte as rg.
 fn item(out: &mut dyn Write, colored: bool, code: &str, bytes: &[u8]) -> io::Result<()> {
     if !colored {
         return out.write_all(bytes);
     }
-    write!(out, "\x1b[{code}m\x1b[K")?;
+    out.write_all(code.as_bytes())?;
     out.write_all(bytes)?;
-    out.write_all(b"\x1b[m\x1b[K")
+    out.write_all(b"\x1b[0m")
 }
 
 /// Write the text of a matching line, with each match in `MATCH`. An empty
@@ -383,7 +384,7 @@ fn block(snippet: &Snippet, separator: bool, paint: Option<Paint>) -> Vec<u8> {
     let mut bytes = Vec::new();
     // A write to a `Vec` does not fail.
     if separator {
-        let _ = item(&mut bytes, paint.is_some(), SEPARATOR, b"--");
+        bytes.extend_from_slice(b"--");
         bytes.push(b'\n');
     }
     let label = snippet.source.label();
@@ -522,88 +523,6 @@ pub fn write_lines(
     let results: Vec<&Snippet> = results.iter().collect();
     write_fitted(out, b"", &results, groups, paint, limit)
 }
-/// Write each of `items` as one whole line, inside `limit` (`None` for no
-/// limit). The lines that fit come from the top. The report says how many
-/// lines jag left out (FEATURE-13, decision 19 and 20; FEATURE-09).
-fn write_whole_lines(
-    out: &mut dyn Write,
-    items: &[Vec<u8>],
-    limit: Option<usize>,
-) -> io::Result<SizeReport> {
-    let kept = match limit {
-        None => items.len(),
-        Some(limit) => {
-            let mut sums = vec![0usize];
-            for bytes in items {
-                sums.push(sums[sums.len() - 1] + char_count(bytes));
-            }
-            fitting_count(items.len(), limit, |k| sums[k])
-        }
-    };
-    for bytes in &items[..kept] {
-        out.write_all(bytes)?;
-    }
-    Ok(SizeReport {
-        shown: kept,
-        left_out: items.len() - kept,
-        top_result_cut: 0,
-    })
-}
-
-/// The bytes of one line: the parts of `parts` with their color codes when
-/// `colored`, and `\n` at the end.
-fn colored_line(colored: bool, parts: &[(&str, &[u8])]) -> Vec<u8> {
-    let mut bytes = Vec::new();
-    // A write to a `Vec` does not fail.
-    for (code, text) in parts {
-        let _ = item(&mut bytes, colored, code, text);
-    }
-    bytes.push(b'\n');
-    bytes
-}
-
-/// Write the path of each file with a match, one path on each line, in the
-/// order of `files` (FEATURE-13, decision 19). The path is in `PATH` when
-/// `colored`. The size limit applies, with each line as one whole item.
-pub fn write_files(
-    out: &mut dyn Write,
-    files: &[FileMatches],
-    colored: bool,
-    limit: Option<usize>,
-) -> io::Result<SizeReport> {
-    let items: Vec<Vec<u8>> = files
-        .iter()
-        .filter(|file| !file.lines.is_empty())
-        .map(|file| colored_line(colored, &[(PATH, file.source.label())]))
-        .collect();
-    write_whole_lines(out, &items, limit)
-}
-
-/// Write `path:N` for each file of `files`, in that order: N is the count of
-/// matching lines (FEATURE-13, decision 20). The path is in `PATH` and the `:`
-/// in `SEPARATOR` when `colored`. The size limit applies, with each line as
-/// one whole item.
-pub fn write_counts(
-    out: &mut dyn Write,
-    files: &[FileMatches],
-    colored: bool,
-    limit: Option<usize>,
-) -> io::Result<SizeReport> {
-    let items: Vec<Vec<u8>> = files
-        .iter()
-        .map(|file| {
-            let count = file.lines.len().to_string();
-            let mut line = colored_line(colored, &[(PATH, file.source.label()), (SEPARATOR, b":")]);
-            // The line ends with `\n`: put the count before it.
-            line.pop();
-            line.extend_from_slice(count.as_bytes());
-            line.push(b'\n');
-            line
-        })
-        .collect();
-    write_whole_lines(out, &items, limit)
-}
-
 /// The second sentence of the size notice, and the field `size_limit_fix`.
 fn size_fix(limit: usize) -> String {
     format!(
@@ -820,9 +739,9 @@ fn write_line(
     let colored = paint.is_some();
     let separator: &[u8] = if line.is_match { b":" } else { b"-" };
     item(out, colored, PATH, label)?;
-    item(out, colored, SEPARATOR, separator)?;
+    out.write_all(separator)?;
     item(out, colored, NUMBER, line.number.to_string().as_bytes())?;
-    item(out, colored, SEPARATOR, separator)?;
+    out.write_all(separator)?;
     match paint {
         Some(paint) if line.is_match => {
             write_painted(out, &line.text, line.cut > 0, paint)?;

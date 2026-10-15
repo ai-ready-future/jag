@@ -1,75 +1,75 @@
-//! The globs of `--include` and `--exclude` (FEATURE-13, decisions 25 to 27).
+//! The globs of `-g` and `--glob` (FEATURE-23, decision 20).
 //!
-//! A glob matches the name of a file: the last part of its path. The last
-//! glob of the command line that matches decides, as in GNU grep.
+//! The rules are the rules of rg: the globs are the override globs of the
+//! `ignore` crate. A glob with `!` in front leaves out the files that it
+//! matches. When one glob has no `!`, a file must match a glob of that kind.
+//! The last glob that matches decides.
 
-use std::ffi::OsStr;
+use std::path::{Path, PathBuf};
 
-use globset::{Glob, GlobMatcher};
+use ignore::overrides::{Override, OverrideBuilder};
 
-/// The option that gave a glob.
-#[derive(Clone, Copy, Debug, PartialEq, Eq)]
-pub enum GlobKind {
-    Include,
-    Exclude,
+/// The globs of `-g`, in the order of the command line.
+#[derive(Clone, Debug)]
+pub struct FileFilter {
+    globs: Override,
 }
 
-/// The globs of --include and --exclude, in the order of the command line
-/// (FEATURE-13, decision 25).
-#[derive(Clone, Debug, Default)]
-pub struct FileFilter {
-    globs: Vec<(GlobKind, GlobMatcher)>,
+impl Default for FileFilter {
+    fn default() -> Self {
+        FileFilter {
+            globs: Override::empty(),
+        }
+    }
 }
 
 impl FileFilter {
-    /// The filter of `globs`. A glob that does not parse gives its kind, and
-    /// no text of the glob (decision 26).
-    pub fn new(globs: &[(GlobKind, String)]) -> Result<FileFilter, GlobKind> {
-        let globs = globs
-            .iter()
-            .map(|(kind, glob)| {
-                Glob::new(glob)
-                    .map(|glob| (*kind, glob.compile_matcher()))
-                    .map_err(|_| *kind)
-            })
-            .collect::<Result<_, _>>()?;
-        Ok(FileFilter { globs })
+    /// The filter of `globs`, relative to the folder `cwd`. A glob that does
+    /// not parse gives the error of the `ignore` crate, as rg does.
+    pub fn new(globs: &[String], cwd: &Path) -> Result<FileFilter, ignore::Error> {
+        if globs.is_empty() {
+            return Ok(FileFilter::default());
+        }
+        let mut builder = OverrideBuilder::new(cwd);
+        for glob in globs {
+            builder.add(glob)?;
+        }
+        Ok(FileFilter {
+            globs: builder.build()?,
+        })
     }
 
-    /// True when jag searches a file with this name: the last glob that
-    /// matches decides. When no glob matches, jag searches the file, unless
-    /// the first glob is an --include glob.
-    pub fn allows(&self, name: &OsStr) -> bool {
-        match self
-            .globs
-            .iter()
-            .rev()
-            .find(|(_, glob)| glob.is_match(name))
-        {
-            Some((kind, _)) => *kind == GlobKind::Include,
-            None => self
-                .globs
-                .first()
-                .is_none_or(|(kind, _)| *kind == GlobKind::Exclude),
-        }
+    /// The `Override` for the walk of `ignore`.
+    pub fn overrides(&self) -> Override {
+        self.globs.clone()
     }
+
+    /// True when jag searches the file at `path`.
+    pub fn allows(&self, path: &Path) -> bool {
+        !self.globs.matched(path, false).is_ignore()
+    }
+}
+
+/// The current folder, or `.` when jag cannot read it. rg uses `PWD` as a
+/// second source (`current_dir` of `hiargs.rs`).
+pub fn current_dir() -> PathBuf {
+    std::env::current_dir()
+        .ok()
+        .or_else(|| std::env::var_os("PWD").filter(|pwd| !pwd.is_empty()).map(PathBuf::from))
+        .unwrap_or_else(|| PathBuf::from("."))
 }
 
 #[cfg(test)]
 mod tests {
     use super::*;
-    use GlobKind::{Exclude, Include};
 
-    fn filter(globs: &[(GlobKind, &str)]) -> FileFilter {
-        let globs: Vec<(GlobKind, String)> = globs
-            .iter()
-            .map(|(kind, glob)| (*kind, (*glob).to_owned()))
-            .collect();
-        FileFilter::new(&globs).expect("valid globs")
+    fn filter(globs: &[&str]) -> FileFilter {
+        let globs: Vec<String> = globs.iter().map(|glob| (*glob).to_owned()).collect();
+        FileFilter::new(&globs, Path::new("/")).expect("valid globs")
     }
 
     fn allows(filter: &FileFilter, name: &str) -> bool {
-        filter.allows(OsStr::new(name))
+        filter.allows(Path::new(name))
     }
 
     #[test]
@@ -80,36 +80,41 @@ mod tests {
     }
 
     #[test]
-    fn the_last_glob_that_matches_decides() {
-        let filter = filter(&[(Exclude, "*.md"), (Include, "*.rs")]);
-        assert!(allows(&filter, "a.txt"));
+    fn a_glob_with_no_bang_allows_only_the_files_that_it_matches() {
+        let filter = filter(&["*.rs"]);
+        assert!(!allows(&filter, "a.txt"));
         assert!(allows(&filter, "c.rs"));
+        assert!(allows(&filter, "sub/c.rs"));
+    }
+
+    #[test]
+    fn a_glob_with_a_bang_leaves_out_the_files_that_it_matches() {
+        let filter = filter(&["!*.md"]);
+        assert!(allows(&filter, "a.txt"));
         assert!(!allows(&filter, "d.md"));
-        let filter = self::filter(&[(Include, "*.rs"), (Exclude, "c.*")]);
+    }
+
+    #[test]
+    fn the_last_glob_that_matches_decides() {
+        let filter = filter(&["*.rs", "!c.*"]);
         assert!(!allows(&filter, "c.rs"));
         assert!(allows(&filter, "b.rs"));
     }
 
     #[test]
-    fn a_first_include_glob_refuses_each_name_that_no_glob_matches() {
-        let filter = filter(&[(Include, "*.rs")]);
-        assert!(!allows(&filter, "a.txt"));
-        assert!(allows(&filter, "c.rs"));
-    }
-
-    #[test]
     fn a_glob_uses_the_rules_of_ripgrep_and_is_case_sensitive() {
-        let filter = filter(&[(Include, "*.{rs,md}")]);
+        let filter = filter(&["*.{rs,md}"]);
         assert!(allows(&filter, "d.md"));
         assert!(allows(&filter, "c.rs"));
         assert!(!allows(&filter, "c.RS"));
     }
 
     #[test]
-    fn a_glob_that_does_not_parse_gives_its_kind() {
-        let globs = [(Include, "[".to_owned())];
-        assert_eq!(FileFilter::new(&globs).err(), Some(Include));
-        let globs = [(Include, "*.rs".to_owned()), (Exclude, "a{".to_owned())];
-        assert_eq!(FileFilter::new(&globs).err(), Some(Exclude));
+    fn a_glob_that_does_not_parse_gives_the_error_of_the_ignore_crate() {
+        let error = FileFilter::new(&["[".to_owned()], Path::new("/")).expect_err("error");
+        assert_eq!(
+            error.to_string(),
+            "error parsing glob '[': unclosed character class; missing ']'"
+        );
     }
 }

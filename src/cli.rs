@@ -1,6 +1,8 @@
 //! C-cli: option parsing, dispatch, the search flow, and the exit code.
 
 mod grep;
+mod plain;
+mod rg_text;
 mod stop;
 
 use std::ffi::{OsStr, OsString};
@@ -25,8 +27,7 @@ use crate::config::{
 use crate::failure::Failure;
 use crate::output::progress::Progress;
 use crate::output::{
-    Paint, Summary, cost_line, is_no_good_answer, size_notice, write_document, write_lines,
-    write_text,
+    Paint, Summary, cost_line, is_no_good_answer, size_notice, write_document, write_text,
 };
 use crate::prerank;
 use crate::scorer::cost::{Cost, NoCallReason};
@@ -35,11 +36,11 @@ use crate::search::input::{Input, no_path_input};
 use crate::search::snippet::{
     ContextLines, Snippet, line_windows, match_texts, plan_windows, read_snippets,
 };
+use crate::search::filter::current_dir;
 use crate::search::{
-    FileFilter, GlobKind, ScanOptions, ScanReport, WalkWarning, scan, scan_current_folder,
-    scan_input,
+    FileFilter, ScanOptions, ScanReport, WalkWarning, scan, scan_current_folder, scan_input,
 };
-use grep::{MatchOptions, Report, build_matcher};
+use grep::{ColorWhen, MatchOptions, build_matcher};
 use stop::{Emitted, Stop};
 
 /// The longest question, in UTF-8 bytes (decision 30).
@@ -58,7 +59,6 @@ const MODES: [&str; 3] = ["setup", "forget_key", "check"];
 #[command(
     name = "jag",
     version,
-    arg_required_else_help = true,
     override_usage = "jag [OPTIONS] TERM [PATH...]\n       jag [OPTIONS] --ask QUESTION TERM [PATH...]\n       jag [OPTIONS] -e TERM ... [PATH...]\n       jag --check [--timeout SECONDS] [--retry-wait SECONDS] [--base-url URL] [--model NAME]\n       jag --setup\n       jag --forget-key"
 )]
 struct Cli {
@@ -66,30 +66,26 @@ struct Cli {
     #[arg(long, conflicts_with_all = ["setup", "forget_key", "check"])]
     json: bool,
 
-    /// When to color the matches: never, always, or auto (the default: only in a terminal)
+    /// When to color the matches: never, auto, always, or ansi (auto: only in a terminal)
     #[arg(
         long,
         value_name = "WHEN",
-        alias = "colour",
-        num_args = 0..=1,
-        require_equals = true,
-        default_missing_value = "auto",
-        value_parser = ["never", "always", "auto"],
+        allow_hyphen_values = true,
         overrides_with = "color",
         conflicts_with_all = ["setup", "forget_key", "check"]
     )]
     color: Option<String>,
 
     /// Match upper case and lower case letters as the same
-    #[arg(short = 'i', long = "ignore-case", conflicts_with_all = MODES)]
+    #[arg(short = 'i', long = "ignore-case", overrides_with = "ignore_case", conflicts_with_all = MODES)]
     ignore_case: bool,
 
     /// Match only whole words
-    #[arg(short = 'w', long = "word-regexp", conflicts_with_all = MODES)]
+    #[arg(short = 'w', long = "word-regexp", overrides_with = "word", conflicts_with_all = MODES)]
     word: bool,
 
     /// Read the term as fixed text, not as a regular expression
-    #[arg(short = 'F', long = "fixed-strings", conflicts_with_all = MODES)]
+    #[arg(short = 'F', long = "fixed-strings", overrides_with = "fixed", conflicts_with_all = MODES)]
     fixed: bool,
 
     /// Use TERM as the term. With more than one -e, a line matches one of the terms
@@ -109,28 +105,48 @@ struct Cli {
     context: Option<String>,
 
     /// Show only the path of each file with a match (not with --ask or --json)
-    #[arg(short = 'l', long = "files-with-matches", conflicts_with_all = MODES)]
+    #[arg(short = 'l', long = "files-with-matches", overrides_with = "files_with_matches", conflicts_with_all = MODES)]
     files_with_matches: bool,
 
     /// Show only the count of matching lines of each file (not with --ask or --json)
-    #[arg(short = 'c', long = "count", conflicts_with_all = MODES)]
+    #[arg(short = 'c', long = "count", overrides_with = "count", conflicts_with_all = MODES)]
     count: bool,
 
     /// Write nothing to standard output: give only the exit code (not with --ask or --json)
-    #[arg(short = 'q', long = "quiet", alias = "silent", conflicts_with_all = MODES)]
+    #[arg(short = 'q', long = "quiet", overrides_with = "quiet", conflicts_with_all = MODES)]
     quiet: bool,
 
-    /// Search only the files whose name matches GLOB
-    #[arg(long, value_name = "GLOB", conflicts_with_all = MODES)]
-    include: Vec<String>,
+    /// Search only the files that match GLOB. With ! in front, leave them out. The last glob that matches decides
+    #[arg(short = 'g', long = "glob", value_name = "GLOB", allow_hyphen_values = true, conflicts_with_all = MODES)]
+    globs: Vec<String>,
 
-    /// Do not search the files whose name matches GLOB
-    #[arg(long, value_name = "GLOB", conflicts_with_all = MODES)]
-    exclude: Vec<String>,
+    /// Show the line number of each matching line (not with --ask or --json)
+    #[arg(short = 'n', long = "line-number", overrides_with_all = ["line_number", "no_line_number"], conflicts_with_all = MODES)]
+    line_number: bool,
 
-    /// The globs of --include and --exclude, in the order of the command line
-    #[arg(skip)]
-    globs: Vec<(GlobKind, String)>,
+    /// Do not show line numbers (not with --ask or --json)
+    #[arg(short = 'N', long = "no-line-number", overrides_with_all = ["line_number", "no_line_number"], conflicts_with_all = MODES)]
+    no_line_number: bool,
+
+    /// Show the path of each file with a match (not with --ask or --json)
+    #[arg(short = 'H', long = "with-filename", overrides_with_all = ["with_filename", "no_filename"], conflicts_with_all = MODES)]
+    with_filename: bool,
+
+    /// Do not show the path of each file (not with --ask or --json)
+    #[arg(short = 'I', long = "no-filename", overrides_with_all = ["with_filename", "no_filename"], conflicts_with_all = MODES)]
+    no_filename: bool,
+
+    /// Show each path once, above its matches (not with --ask or --json)
+    #[arg(long, overrides_with_all = ["heading", "no_heading"], conflicts_with_all = MODES)]
+    heading: bool,
+
+    /// Show the path on each line (not with --ask or --json)
+    #[arg(long = "no-heading", overrides_with_all = ["heading", "no_heading"], conflicts_with_all = MODES)]
+    no_heading: bool,
+
+    /// The order of the files: path (the default) or none. It does not change the order of --ask
+    #[arg(long, value_name = "SORTBY", allow_hyphen_values = true, overrides_with = "sort", conflicts_with_all = MODES)]
+    sort: Option<String>,
 
     /// Check that jag is ready: the key, the service, and the key file
     #[arg(long, conflicts_with_all = ["setup", "forget_key", "cost_limit", "term", "ask", "paths"])]
@@ -191,31 +207,21 @@ struct Cli {
     paths: Vec<PathBuf>,
 }
 
-impl Cli {
-    /// The last `--color` wins (clap keeps it). No option is `auto`.
-    fn color_when(&self) -> ColorWhen {
-        match self.color.as_deref() {
-            Some("never") => ColorWhen::Never,
-            Some("always") => ColorWhen::Always,
-            _ => ColorWhen::Auto,
-        }
-    }
-}
-
-/// The value of `--color` (decision 5).
-#[derive(Clone, Copy, Debug, PartialEq, Eq)]
-enum ColorWhen {
-    Never,
-    Always,
-    Auto,
-}
-
-/// True when the text output gets color (decisions 5 and 6).
-fn color_on(when: ColorWhen, stdout_is_terminal: bool, term: Option<&OsStr>) -> bool {
+/// True when the ranked text output gets color (FEATURE-23, decision 6): with
+/// `auto`, only when standard output is a terminal, `TERM` is set and is not
+/// `dumb`, and `NO_COLOR` is not set, as rg does.
+fn color_on(
+    when: ColorWhen,
+    stdout_is_terminal: bool,
+    term: Option<&OsStr>,
+    no_color: bool,
+) -> bool {
     match when {
         ColorWhen::Always => true,
         ColorWhen::Never => false,
-        ColorWhen::Auto => stdout_is_terminal && term.is_some_and(|term| term != "dumb"),
+        ColorWhen::Auto => {
+            stdout_is_terminal && term.is_some_and(|term| term != "dumb") && !no_color
+        }
     }
 }
 
@@ -255,6 +261,11 @@ pub fn run() -> ExitCode {
         .filter(|home| !home.is_empty())
         .map(PathBuf::from);
     let env = Env { vars: &vars, home };
+    // A search with no `--ask` and no `--json` has its own flow: it gives what
+    // rg gives (FEATURE-23, decision 8).
+    if !cli.setup && !cli.forget_key && !cli.check && !cli.json && cli.ask.is_none() {
+        return plain::run(&cli, &env);
+    }
     let mut stdout = io::stdout();
     let mut stderr = io::stderr();
     let mode = if cli.json { Mode::Json } else { Mode::Text };
@@ -320,22 +331,33 @@ enum Mode {
 }
 
 /// The long options whose value can start with `-` (decisions 10 and 12).
-const HYPHEN_VALUE_OPTIONS: [&str; 4] = [
+const HYPHEN_VALUE_OPTIONS: [&str; 7] = [
     "--regexp",
     "--after-context",
     "--before-context",
     "--context",
+    "--glob",
+    "--color",
+    "--sort",
 ];
 
 /// The letters of the short options whose value can start with `-`.
-const HYPHEN_VALUE_LETTERS: [char; 4] = ['e', 'A', 'B', 'C'];
+const HYPHEN_VALUE_LETTERS: [char; 5] = ['e', 'A', 'B', 'C', 'g'];
 
 /// True when clap reads `--json` as the option (FEATURE-13 spec decision 38).
-/// The words go from left to right, as clap reads them. A word that is the
-/// value of `-e`, `-A`, `-B`, `-C`, or their long names is not an option, also
-/// when it is `--json` or `--`. Else, after `--`, `--json` is a term or a
-/// path, not the option.
 fn json_requested(args: impl IntoIterator<Item = OsString>) -> bool {
+    option_before_double_dash(args, |word| word == "--json")
+}
+
+/// True when clap reads a word that `is_option` accepts as an option. The
+/// words go from left to right, as clap reads them. A word that is the value of
+/// `-e`, `-A`, `-B`, `-C`, `-g`, or their long names is not an option, also
+/// when it is `--json` or `--`. Else, after `--`, a word is a term or a path,
+/// not an option.
+fn option_before_double_dash(
+    args: impl IntoIterator<Item = OsString>,
+    is_option: impl Fn(&str) -> bool,
+) -> bool {
     // The next word is the value of the option before it.
     let mut value_next = false;
     for arg in args.into_iter().skip(1) {
@@ -349,7 +371,7 @@ fn json_requested(args: impl IntoIterator<Item = OsString>) -> bool {
         if word == "--" {
             return false;
         }
-        if word == "--json" {
+        if is_option(word) {
             return true;
         }
         if HYPHEN_VALUE_OPTIONS.contains(&word) {
@@ -389,7 +411,16 @@ fn error_document(summary: &mut Summary, failure: Failure, limit: Option<usize>)
 /// Parse with `try_parse`, and never write the text of a clap error: clap
 /// repeats a value from the command line in many errors (CV-6, decision 26).
 fn parse() -> Result<Cli, ExitCode> {
-    match parse_from(std::env::args_os()) {
+    let args: Vec<OsString> = std::env::args_os().collect();
+    // A search with no `--ask` and no `--json` gives the error texts of rg
+    // (FEATURE-23, decisions 11 and 17).
+    if !rg_text::own_form_requested(args.iter().cloned())
+        && let Err(text) = rg_text::check(&args)
+    {
+        eprint!("{}", rg_text::line(&text));
+        return Err(ExitCode::from(2));
+    }
+    match parse_from(args.iter().cloned()) {
         Ok(cli) => Ok(cli),
         Err(error) => match error.kind() {
             // These texts hold no value from the command line.
@@ -405,7 +436,7 @@ fn parse() -> Result<Cli, ExitCode> {
                 let named = (kind == ErrorKind::UnknownArgument)
                     .then(|| grep::unknown_option_failure(&error))
                     .flatten();
-                if json_requested(std::env::args_os()) {
+                if json_requested(args.iter().cloned()) {
                     let failure = named.unwrap_or_else(argument_failure);
                     // The document holds only fixed texts, so it fits.
                     let buffer =
@@ -424,13 +455,10 @@ fn parse() -> Result<Cli, ExitCode> {
     }
 }
 
-/// Parse a command line. The order of the globs comes from the matches, which
-/// `Cli::try_parse_from` does not give (FEATURE-13, decision 27).
+/// Parse a command line.
 fn parse_from(args: impl IntoIterator<Item = OsString>) -> Result<Cli, clap::Error> {
     let matches = Cli::command().try_get_matches_from(args)?;
-    let mut cli = Cli::from_arg_matches(&matches)?;
-    cli.globs = grep::ordered_globs(&matches);
-    Ok(cli)
+    Cli::from_arg_matches(&matches)
 }
 
 /// Write a failure and give the exit code (CV-1, CV-3). In text mode the
@@ -510,11 +538,9 @@ struct SearchArgs<'a> {
     paths: Vec<PathBuf>,
     /// The options `-i`, `-w`, and `-F`.
     matching: MatchOptions,
-    /// What plain grep writes: the lines, or `-l`, `-c`, or `-q`.
-    report: Report,
     /// The lines around a match. `None`: no option gave them.
     context: Option<ContextLines>,
-    /// The globs of `--include` and `--exclude`.
+    /// The globs of `-g`.
     files: FileFilter,
     /// The parsed `--timeout`, `--retry-wait`, `--base-url`, and `--model`.
     settings: SettingOptions,
@@ -541,13 +567,19 @@ fn search_args(cli: &Cli) -> Result<SearchArgs<'_>, Failure> {
     } else {
         (cli.terms.iter().map(String::as_str).collect(), words)
     };
-    // A search needs no path. The paths `-` and "" are usage errors, in the
-    // order of the command line (FEATURE-14, decision 8).
+    // The path `-` alone is the text of a pipe, as in rg (FEATURE-23, decision
+    // 14). With other paths, and the path "", it is a usage error, in the order
+    // of the command line (FEATURE-14, decision 8).
+    let path_words = if path_words.as_slice() == [OsStr::new("-")] {
+        Vec::new()
+    } else {
+        path_words
+    };
     for path in &path_words {
         if *path == OsStr::new("-") {
             return Err(usage_failure(
-                "the path - is not valid.",
-                "To search the text of a pipe, give no path. To search a file with the name -, give ./-.",
+                "the path - is not valid with other paths.",
+                "To search the text of a pipe, give - alone, or give no path. To search a file with the name -, give ./-.",
             ));
         }
         if path.is_empty() {
@@ -573,9 +605,10 @@ fn search_args(cli: &Cli) -> Result<SearchArgs<'_>, Failure> {
         }
     }
     // Then the options of FEATURE-13 (decision 30).
-    let report = grep::report(cli, question.is_some())?;
+    grep::refuse_plain_options(cli, question.is_some())?;
+    grep::check_color_and_sort(cli)?;
     let context = grep::context_lines(cli, question.is_some())?;
-    let files = grep::file_filter(&cli.globs)?;
+    let files = grep::file_filter(&cli.globs, &current_dir())?;
     // The time options come after the other checks and before the key
     // (decision 11). The timeout is checked first.
     let times = time_options(cli)?;
@@ -600,7 +633,6 @@ fn search_args(cli: &Cli) -> Result<SearchArgs<'_>, Failure> {
         question,
         paths: path_words.into_iter().map(PathBuf::from).collect(),
         matching: MatchOptions::of(cli),
-        report,
         context,
         files,
         settings,
@@ -682,10 +714,11 @@ fn search(
     if let Some(option) = args.size_limit {
         stop.set_size_limit(option.chars());
     }
-    // With no question, jag works as grep: no key, no model setting, and no
-    // model call (FEATURE-12, decision 4).
+    // With no question, jag needs no key, no model setting, and no model
+    // call (FEATURE-12, decision 4). Only `--json` comes here: the text of a
+    // search with no question has its own flow.
     let Some(question) = args.question else {
-        return plain(cli, &args, env, context, summary, stdout, stderr);
+        return plain_json(&args, env, context, summary, stdout, stderr);
     };
     // The settings come before the key (decision 27). The config file is
     // read at most once.
@@ -699,7 +732,8 @@ fn search(
         .chars();
     stop.set_size_limit(size);
 
-    let matcher = build_matcher(&args.terms, args.matching)?;
+    let matcher =
+        build_matcher(&args.terms, args.matching).map_err(|_| grep::matcher_failure())?;
 
     let options = ScanOptions {
         files: args.files.clone(),
@@ -827,10 +861,9 @@ fn no_call_reason(total: usize) -> NoCallReason {
     }
 }
 
-/// The flow with no question (FEATURE-12): the matching lines as grep gives
-/// them, with no key, no model setting, and no model call.
-fn plain(
-    cli: &Cli,
+/// The flow of `--json` with no question (FEATURE-12): the matching lines, with
+/// no key, no model setting, and no model call.
+fn plain_json(
     args: &SearchArgs,
     env: &Env,
     context: &Context,
@@ -838,37 +871,20 @@ fn plain(
     stdout: &mut dyn Write,
     stderr: &mut dyn Write,
 ) -> Result<u8, Failure> {
-    let Context {
-        mode,
-        stop,
-        stdout_is_terminal,
-        ..
-    } = *context;
-    // Plain grep reads no key, so a bad variable gives exit 2 at once.
+    let Context { stop, .. } = *context;
+    // This flow reads no key, so a bad variable gives exit 2 at once.
     let size = size_limit(env, args.size_limit)
         .map_err(Failure::from)?
         .chars();
     stop.set_size_limit(size);
-    let matcher = build_matcher(&args.terms, args.matching)?;
+    let matcher =
+        build_matcher(&args.terms, args.matching).map_err(|_| grep::matcher_failure())?;
     let options = ScanOptions {
         files: args.files.clone(),
-        keep_files_with_no_match: args.report == Report::Counts,
         ..ScanOptions::default()
     };
     let (report, input) = scan_search(&args.paths, &matcher, &options);
     summary.cost = Cost::NoCall(NoCallReason::NoQuestion);
-    if args.report != Report::Lines {
-        let colored = colored(cli, env, stdout_is_terminal);
-        return grep::write_report(
-            args.report,
-            colored,
-            &report,
-            context,
-            summary,
-            stdout,
-            stderr,
-        );
-    }
     // With an option for the lines around a match, groups of lines. With none,
     // one line for each match (FEATURE-13, decision 15).
     let windows = match args.context {
@@ -899,24 +915,10 @@ fn plain(
         })
     };
     let mut buffer = Vec::new();
-    let code = match mode {
-        Mode::Text => {
-            let find = |line: &[u8]| find_ranges(&matcher, line);
-            let paint = colored(cli, env, stdout_is_terminal).then_some(&find as Paint);
-            let report = write_lines(&mut buffer, &lines, paint, args.context.is_some(), size)
-                .map_err(|_| write_failure())?;
-            if let Some(notice) = size_notice(&report, size) {
-                stop.notice(stderr, &notice);
-            }
-            exit_code(report.limited())
-        }
-        Mode::Json => {
-            let results: Vec<&Snippet> = lines.iter().collect();
-            let report = write_document(&mut buffer, summary, &results, size, &exit_code)
-                .map_err(|_| write_failure())?;
-            exit_code(report.limited())
-        }
-    };
+    let results: Vec<&Snippet> = lines.iter().collect();
+    let written = write_document(&mut buffer, summary, &results, size, &exit_code)
+        .map_err(|_| write_failure())?;
+    let code = exit_code(written.limited());
     Ok(emit_claimed(stop, stdout, stderr, &buffer, code))
 }
 
@@ -931,10 +933,13 @@ fn find_ranges(matcher: &RegexMatcher, line: &[u8]) -> Vec<std::ops::Range<usize
     ranges
 }
 
-/// True when the text output gets color (decisions 5 and 6 of FEATURE-15).
+/// True when the ranked text output gets color (decisions 5 and 6 of
+/// FEATURE-15, and decision 6 of FEATURE-23).
 fn colored(cli: &Cli, env: &Env, stdout_is_terminal: bool) -> bool {
+    let when = ColorWhen::parse(cli.color.as_deref()).unwrap_or(ColorWhen::Auto);
     let term = (env.vars)("TERM");
-    color_on(cli.color_when(), stdout_is_terminal, term.as_deref())
+    let no_color = (env.vars)("NO_COLOR").is_some();
+    color_on(when, stdout_is_terminal, term.as_deref(), no_color)
 }
 
 /// Put what the scan counted in the summary, and write the notices of text

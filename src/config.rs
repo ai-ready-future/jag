@@ -23,7 +23,7 @@ pub use fs::{Fs, OpenFile, RealFs};
 pub use limit::{
     COST_LIMIT_OPTION, COST_LIMIT_VARIABLE, DEFAULT_COST_LIMIT, DEFAULT_SIZE_LIMIT, MAX_COST_LIMIT,
     MIN_SIZE_LIMIT, SIZE_LIMIT_OFF_OPTION, SIZE_LIMIT_OPTION, SIZE_LIMIT_VARIABLE, SizeLimit,
-    cost_limit, parse_cost_limit, parse_size_limit, size_limit,
+    cost_limit, parse_cost_limit, parse_size_limit, plain_size_limit, size_limit,
 };
 pub use model::{
     BASE_URL_OPTION, BASE_URL_VARIABLE, DEFAULT_BASE_URL, DEFAULT_MODEL, MODEL_OPTION,

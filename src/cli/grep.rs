@@ -1,51 +1,24 @@
-//! C-cli: the grep options of FEATURE-13. The order of the globs, the error of
-//! an unknown option, the words with `-e`, the matcher, the lines around a
-//! match, the checks of `-l`, `-c`, and `-q`, and their output.
+//! C-cli: the grep options of FEATURE-13 and FEATURE-23. The error of an
+//! unknown option, the words with `-e`, the matcher, the lines around a match,
+//! the checks of `-l`, `-c`, `-q`, and the layout options, the color, and the
+//! globs.
 
 use std::ffi::OsStr;
-use std::io::Write;
+use std::path::Path;
 
-use clap::ArgMatches;
 use clap::error::{ContextKind, ContextValue};
 use grep_regex::{RegexMatcher, RegexMatcherBuilder};
 
-use super::{
-    Cli, Context, Mode, SearchOutcome, emit_claimed, record, search_exit_code, usage_failure,
-    write_failure,
-};
+use super::{Cli, usage_failure};
 use crate::failure::Failure;
-use crate::output::{SizeReport, Summary, size_notice, write_counts, write_files};
+use crate::search::FileFilter;
 use crate::search::snippet::{ContextLines, MAX_LINES};
-use crate::search::{FileFilter, GlobKind, ScanReport};
 
 /// The most lines on each side of a match with `--ask` (decision 14).
 const MAX_CONTEXT_WITH_ASK: u64 = 12;
 
 /// The longest name of an option that an error shows, after `--` (decision 18).
 const MAX_OPTION_NAME: usize = 30;
-
-/// The globs in the order of the command line (decision 27). clap gives the
-/// values of each option in their own list, with the place of each value.
-pub(super) fn ordered_globs(matches: &ArgMatches) -> Vec<(GlobKind, String)> {
-    let mut globs: Vec<(usize, GlobKind, String)> = Vec::new();
-    for (id, kind) in [
-        ("include", GlobKind::Include),
-        ("exclude", GlobKind::Exclude),
-    ] {
-        let values = matches.get_many::<String>(id).into_iter().flatten();
-        let places = matches.indices_of(id).into_iter().flatten();
-        globs.extend(
-            places
-                .zip(values)
-                .map(|(place, glob)| (place, kind, glob.clone())),
-        );
-    }
-    globs.sort_by_key(|(place, _, _)| *place);
-    globs
-        .into_iter()
-        .map(|(_, kind, glob)| (kind, glob))
-        .collect()
-}
 
 /// The failure of an unknown option: its name, when the text that clap gives
 /// has the form of an option. `None` for each other text: the caller then
@@ -104,23 +77,39 @@ impl MatchOptions {
     }
 }
 
-/// The matcher of the terms, with -i, -w, and -F (decisions 7 to 11).
+/// The matcher of the terms, with -i, -w, and -F. The settings are the
+/// settings of `matcher_rust` in rg 15.2.0 (FEATURE-23, decision 2). A term
+/// that is two times in the list counts one time, as in rg.
 pub(super) fn build_matcher(
     terms: &[&str],
     options: MatchOptions,
-) -> Result<RegexMatcher, Failure> {
+) -> Result<RegexMatcher, grep_regex::Error> {
+    let mut patterns: Vec<&str> = Vec::with_capacity(terms.len());
+    for term in terms {
+        if !patterns.contains(term) {
+            patterns.push(term);
+        }
+    }
     RegexMatcherBuilder::new()
-        .line_terminator(Some(b'\n'))
+        .multi_line(true)
+        .unicode(true)
+        .octal(false)
+        .fixed_strings(options.fixed)
         .case_insensitive(options.ignore_case)
         .word(options.word)
-        .fixed_strings(options.fixed)
-        .build_many(terms)
-        .map_err(|_| {
-            usage_failure(
-                "the term is not a valid regular expression.",
-                "Check the term. It uses the regular expression rules of ripgrep.",
-            )
-        })
+        .line_terminator(Some(b'\n'))
+        .dot_matches_new_line(false)
+        .ban_byte(Some(b'\0'))
+        .build_many(&patterns)
+}
+
+/// The failure of a term that is not a regular expression, in a search with
+/// `--ask` or `--json`.
+pub(super) fn matcher_failure() -> Failure {
+    usage_failure(
+        "the term is not a valid regular expression.",
+        "Check the term. It uses the regular expression rules of ripgrep.",
+    )
 }
 
 /// What plain grep writes (decisions 19 to 21).
@@ -136,18 +125,39 @@ pub(super) enum Report {
     Quiet,
 }
 
-/// The report of the options: `-q` wins, then `-l`, then `-c` (decisions 19 to
-/// 22). They work only in plain grep with no `--json`, and `--json` is checked
-/// first.
-pub(super) fn report(cli: &Cli, question: bool) -> Result<Report, Failure> {
-    let (report, name) = if cli.quiet {
-        (Report::Quiet, "-q")
-    } else if cli.files_with_matches {
-        (Report::Files, "-l")
-    } else if cli.count {
-        (Report::Counts, "-c")
-    } else {
-        return Ok(Report::Lines);
+impl Report {
+    /// The report of the options: `-q` wins, then `-l`, then `-c` (rg).
+    pub(super) fn of(cli: &Cli) -> Report {
+        if cli.quiet {
+            Report::Quiet
+        } else if cli.files_with_matches {
+            Report::Files
+        } else if cli.count {
+            Report::Counts
+        } else {
+            Report::Lines
+        }
+    }
+}
+
+/// The options that work only in a search with no `--ask` and no `--json`:
+/// `-l`, `-c`, `-q` (decisions 19 to 22 of FEATURE-13), and the layout options
+/// of FEATURE-23 (decision 23). The first one in a fixed order gives the
+/// failure, and `--json` is checked first.
+pub(super) fn refuse_plain_options(cli: &Cli, question: bool) -> Result<(), Failure> {
+    let options = [
+        (cli.quiet, "-q"),
+        (cli.files_with_matches, "-l"),
+        (cli.count, "-c"),
+        (cli.line_number, "-n"),
+        (cli.no_line_number, "-N"),
+        (cli.with_filename, "-H"),
+        (cli.no_filename, "-I"),
+        (cli.heading, "--heading"),
+        (cli.no_heading, "--no-heading"),
+    ];
+    let Some((_, name)) = options.into_iter().find(|(given, _)| *given) else {
+        return Ok(());
     };
     if cli.json {
         return Err(usage_failure(
@@ -161,7 +171,7 @@ pub(super) fn report(cli: &Cli, question: bool) -> Result<Report, Failure> {
             &format!("Remove --ask, or remove {name}."),
         ));
     }
-    Ok(report)
+    Ok(())
 }
 
 /// The lines around a match (decisions 12 to 15). `None` when no option of
@@ -220,71 +230,56 @@ fn count_of_lines(
     Ok(Some((digits.parse().unwrap_or(u64::MAX), name)))
 }
 
-/// The filter of `--include` and `--exclude` (decision 26). The message never
-/// shows the glob.
-pub(super) fn file_filter(globs: &[(GlobKind, String)]) -> Result<FileFilter, Failure> {
-    FileFilter::new(globs).map_err(|kind| {
-        let name = match kind {
-            GlobKind::Include => "--include",
-            GlobKind::Exclude => "--exclude",
-        };
+/// The filter of `-g` and `--glob` (decision 20). The message never shows the
+/// glob.
+pub(super) fn file_filter(globs: &[String], cwd: &Path) -> Result<FileFilter, Failure> {
+    FileFilter::new(globs, cwd).map_err(|_| {
         usage_failure(
-            &format!("the glob of {name} is not valid."),
+            "the glob of -g is not valid.",
             "Check the glob. jag uses the glob rules of ripgrep.",
         )
     })
 }
 
-/// The output of `-l`, `-c`, and `-q` after the scan (decisions 19 to 21 and
-/// 29). jag reads no file after the scan. The exit code is 0 when a file has
-/// a matching line, and else 1. The size limit applies to `-l` and `-c`, with
-/// each line as one whole item: when the limit leaves out a line, the notice
-/// goes to the error stream and the exit code is 8 (FEATURE-09). `-q` writes
-/// nothing, so the limit has no effect on it.
-///
-/// A path that does not exist gives exit 2, except for `-q` with a match
-/// (decision 21).
-pub(super) fn write_report(
-    report: Report,
-    colored: bool,
-    scan: &ScanReport,
-    context: &Context,
-    summary: &mut Summary,
-    stdout: &mut dyn Write,
-    stderr: &mut dyn Write,
-) -> Result<u8, Failure> {
-    debug_assert_eq!(context.mode, Mode::Text, "decision 22 refuses --json");
-    let found = scan
-        .files
-        .iter()
-        .filter(|file| !file.lines.is_empty())
-        .count();
-    record(summary, scan, &[], (found, 0, 0), context, stderr);
-    let mut buffer = Vec::new();
-    // `plain` sets the size limit before it calls this function.
-    let size = context.stop.size_limit();
-    let shown = match report {
-        Report::Files => write_files(&mut buffer, &scan.files, colored, size),
-        Report::Counts => write_counts(&mut buffer, &scan.files, colored, size),
-        Report::Quiet | Report::Lines => Ok(SizeReport::default()),
+/// The values of `--color` (rg 15.2.0). `ansi` is `always` on Unix.
+#[derive(Clone, Copy, Debug, PartialEq, Eq)]
+pub(super) enum ColorWhen {
+    Never,
+    Always,
+    Auto,
+}
+
+impl ColorWhen {
+    /// The value of the last `--color`, or `Auto` when no option is given.
+    /// `None` for a value that rg does not know.
+    pub(super) fn parse(text: Option<&str>) -> Option<ColorWhen> {
+        match text {
+            None | Some("auto") => Some(ColorWhen::Auto),
+            Some("never") => Some(ColorWhen::Never),
+            Some("always" | "ansi") => Some(ColorWhen::Always),
+            Some(_) => None,
+        }
     }
-    .map_err(|_| write_failure())?;
-    if let Some(notice) = size_notice(&shown, size) {
-        context.stop.notice(stderr, &notice);
+}
+
+/// The checks of `--color` and `--sort` for a search with `--ask` or `--json`.
+/// The messages never show the value.
+pub(super) fn check_color_and_sort(cli: &Cli) -> Result<ColorWhen, Failure> {
+    let when = ColorWhen::parse(cli.color.as_deref()).ok_or_else(|| {
+        usage_failure(
+            "the value of --color is not valid.",
+            "Use never, auto, always, or ansi.",
+        )
+    })?;
+    if let Some(sort) = cli.sort.as_deref()
+        && !matches!(sort, "path" | "none")
+    {
+        return Err(usage_failure(
+            "the value of --sort is not valid.",
+            "Use path or none.",
+        ));
     }
-    // IF-4 and FEATURE-14 decision 20: 2 comes first, then 1, then 8. `-q` with
-    // a match exits 0 even with a missing path (decision 21).
-    let code = if report == Report::Quiet && found > 0 {
-        0
-    } else {
-        search_exit_code(SearchOutcome {
-            path_missing: scan.path_missing(),
-            no_good_answer: found == 0,
-            cost_limit_reached: false,
-            left_out: shown.limited(),
-        })
-    };
-    Ok(emit_claimed(context.stop, stdout, stderr, &buffer, code))
+    Ok(when)
 }
 
 #[cfg(test)]
