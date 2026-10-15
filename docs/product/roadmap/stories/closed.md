@@ -59,6 +59,7 @@ generated:
 * [STORY-42: Color the matches as grep does](STORY-42.md) - As a shell power user (PERSONA-04), I want jag to color the matching text only in a terminal, with --color=never and --color=always to change that, so that color works as grep --color=auto.
 * [STORY-43: Stop at once when stopped](STORY-43.md) - As a shell power user (PERSONA-04), I want jag to stop at once on Ctrl-C or a closed pipe, so that a stopped search wastes no more credit.
 * [STORY-47: Check the full history before jag goes public](STORY-47.md) - As an agent builder (PERSONA-01), I want each commit in the history checked for private data before jag goes public, so that no old commit shows it.
+* [STORY-52: Create the new public repository with a clean history](STORY-52.md) - As an agent builder (PERSONA-01), I want a new public repository with a clean history, so that no public commit holds private data, and the private repository stays as it is.
 * [STORY-53: See the cost after each search](STORY-53.md) - As a shell power user (PERSONA-04), I want a cost line after each search, so that I know what each search costs.
 * [STORY-54: Read the cost in structured output](STORY-54.md) - As an agent builder (PERSONA-01), I want the cost as a field of structured output, so that my agent can track what its searches cost.
 * [STORY-55: Know the cost when no figure is available](STORY-55.md) - As an agent builder (PERSONA-01), I want a clear cost report when jag makes no model call or the service gives no cost figure, so that the search still works.
@@ -66,6 +67,7 @@ generated:
 * [STORY-57: Send the model calls through an AI gateway](STORY-57.md) - As an agent builder (PERSONA-01), I want to give jag the base URL and the model name of my AI gateway, so that jag uses the gateway that my team already uses.
 * [STORY-58: Set the gateway as an option, a variable, or in the config file](STORY-58.md) - As an operator (PERSONA-02), I want to set the base URL and the model name as an option, a variable, or in the config file, so that I can change them for one search, one job, or each search.
 * [STORY-59: Limit guesses through the check results of fork pull requests](STORY-59.md) - As an agent builder (PERSONA-01), I want a guard against guesses through the pass or fail of the private-data check on fork pull requests, so that no one can find private data by many tries.
+* [STORY-61: Make the project board and all issues public with the new repository](STORY-61.md) - As an agent builder (PERSONA-01), I want the board and all issues of jag, open and closed, to become public with the new repository, so that outside contributors can see them.
 
 ## MILESTONE-03: Make it fast
 

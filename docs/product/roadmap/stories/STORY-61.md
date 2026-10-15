@@ -5,7 +5,8 @@ description: As an agent builder (PERSONA-01), I want the board and all issues o
   jag, open and closed, to become public with the new repository, so that outside
   contributors can see them.
 status: draft
-state: ready
+state: done
+actual_end_date: '2026-10-15'
 github:
   number: 86
   node_id: I_kwDOVKMnL88AAAABXTM_jQ
