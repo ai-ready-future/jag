@@ -12,7 +12,7 @@ github:
   url: https://github.com/ai-ready-future/jag/issues/107
   pushed_hash: 66a248
   synced:
-    state: backlog
+    state: ready
 spec: docs/superpowers/specs/2026-10-15-STORY-62-check-that-jag-is-ready-before-the-first-publish-design.md
 parent: /features/FEATURE-22.md
 milestone: /milestones/MILESTONE-02.md
