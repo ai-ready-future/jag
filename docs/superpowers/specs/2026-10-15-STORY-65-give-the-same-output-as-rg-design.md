@@ -82,12 +82,12 @@ to D. This spec gives both names.
 | # | Decision | Choice | Source |
 |---|---|---|---|
 | 1 | Specs | One spec for STORY-65, STORY-66, and STORY-67. The three stories share one test set and one list of decisions | Orchestrator TASK for FEATURE-23 |
-| 2 | The reference | rg 15.2.0, with no rg config file. For the same arguments with no `--ask`, jag gives the same stdout, stderr, color codes, and exit code as rg. A difference stays only when a user ANSWER records it | User ANSWER of 2026-10-15 (Q1 option 1); ADR-0022 (PR #123, `proposed`); the pin of ADR-0021 (PR #122, `proposed`) |
+| 2 | The reference | rg 15.2.0, with no rg config file. For the same arguments with no `--ask`, jag gives the same stdout, stderr, color codes, and exit code as rg. A difference stays only when a user ANSWER records it | User ANSWER of 2026-10-15 (Q1 option 1); ADR-0022 (PR #123, `proposed`); the pin of ADR-0021 (merged in `a9f966d`, status `proposed` until a card accepts it) |
 | 3 | The scope | A search with no `--ask`: text mode and `--json` mode. `--setup`, `--check`, and `--forget-key` are not searches, and no case runs them. The ranked layout of `--ask` does not change | ADR-0022, Consequences; DECISION-31 |
 | 4 | Color codes in all text modes | The rg color codes also in the ranked text of `--ask`: path `ESC[0m ESC[35m`, line number `ESC[0m ESC[32m`, match `ESC[0m ESC[1m ESC[31m`, each closed with `ESC[0m`. The separators get no color | DECISION-38 (PR #121) names no mode; probe of rg 15.2.0 |
 | 5 | The `<stdin>` label in all modes | `src/search.rs` `STANDARD_INPUT_LABEL` becomes `<stdin>`. This changes the plain text, the ranked text, the `path` of the JSON document, and the path in the snippets that go to the model | DECISION-18 (PR #121) names no mode |
 | 6 | Color auto rule | As rg: color only when stdout is a terminal, `TERM` is set and is not `dumb`, and `NO_COLOR` is not set. This applies to all text modes | DECISION-38; rg 15.2.0 `crates/core/flags/defs.rs` (the `--color` help) |
-| 7 | The printer of plain text mode | jag writes the plain text output with `grep-printer` 0.3.1 and `termcolor` 1.4.1, with the settings that rg 15.2.0 uses. These are the versions in the `Cargo.lock` of rg 15.2.0 | A spike gave byte-identical output to `rg --sort path` in 14 of 14 layouts; ADR-0001 (the ripgrep libraries); ADR-0012 (a new outside crate needs a reason in the pull request) |
+| 7 | The printer of plain text mode | jag writes the plain text output with `grep-printer` 0.3.1 and `termcolor` 1.4.1, with the settings that rg 15.2.0 uses. These are the versions in the `Cargo.lock` of rg 15.2.0. ADR-0001: no change (architect, 2026-10-15). The new crates follow ADR-0012 (a reason in the PR): the implementer gives the reason in the body of the code PR | A spike gave byte-identical output to `rg --sort path` in 14 of 14 layouts; architect answer of 2026-10-15 (the crates write output and do not find matches; ADR-0022 holds the output contract); ADR-0012 (a new outside crate needs a reason in the pull request) |
 | 8 | The search of plain text mode | A new sequential pipeline, as rg: the walk of `ignore` with the settings of `HiArgs::walk_builder` of rg 15.2.0, sorted by file name, with one thread. `grep-searcher` searches each file. The printer writes the result of each file to stdout when that file is complete. The ranked search and `--json` keep the scan of `src/search/walk.rs` | rg 15.2.0 `crates/core/flags/hiargs.rs` and `crates/core/main.rs`; decision 7 |
 | 9 | Order of files | Paths of the command line in their order. Inside a folder, the order of `ignore` `sort_by_file_name`: by name, folder by folder. So `ord/sub/x.txt` comes before `ord/sub.txt`. jag uses this order also with no `--sort` | Probe: rg with more than one file and no `--sort` gives a different order in each run; rg with `--sort path` gives this order |
 | 10 | Cases with more than one file | A case that can match in more than one file has `--sort path` in its arguments, or the case searches one file | ADR-0021, open point "Order"; decision 9 |
@@ -104,7 +104,7 @@ to D. This spec gives both names.
 | 21 | JSON with no question (card D) | Provisional, option 1: `--json` keeps the one JSON document of jag. The case `json` records it | Card D (F23-Q6), open; ADR-0008 |
 | 22 | rg hints (F23-Q7) | Provisional, option 1: jag gives the rg message with no sentence that names an option that jag does not have (`--pcre2`, `--multiline`, `-U`, `--debug`). The list of similar options after `unrecognized flag` comes from jag's own options, with the rule of rg | F23-Q7, open |
 | 23 | Layout options with `--ask` or `--json` | `-n`, `-N`, `-H`, `-I`, `--heading`, and `--no-heading` are a usage error with `--ask` or `--json`, as `-l`, `-c`, and `-q` are today. `-g` and `--sort` work in all modes. `--sort` has no effect on the ranked order | Inferred from `src/cli.rs` (`conflicts_with_all = MODES`) |
-| 24 | The test form | ADR-0021: one cargo integration test `tests/rg_parity.rs`, the cases in `tests/parity/cases.yaml`, the fixture trees in `tests/parity/fixtures/`, the stored jag bytes in `tests/parity/expected/`, the pin in `tests/parity/rg.sha256`, and `scripts/parity/install-rg.sh`. Three modes: pipe, color, and terminal | ADR-0021 (PR #122, `proposed`). This spec follows the text that merges |
+| 24 | The test form | ADR-0021: one cargo integration test `tests/rg_parity.rs`, the cases in `tests/parity/cases.yaml`, the fixture trees in `tests/parity/fixtures/`, the stored jag bytes in `tests/parity/expected/`, the pin in `tests/parity/rg.sha256`, and `scripts/parity/install-rg.sh`. Three modes: pipe, color, and terminal | ADR-0021 (merged in `a9f966d`, status `proposed` until a card accepts it) |
 | 25 | The first test set | The 76 cases of the section "The first test set", with the fixture trees of the section "The fixture trees" | CRITERION-110; the probes of 2026-10-15 |
 | 26 | Stdin files of the cases | `tests/parity/stdin/<name>`. A case names its file with `stdin: <name>` | Inferred: ADR-0021 names "an optional stdin file" and no folder |
 | 27 | Owners and pull requests | Two pull requests. The tester opens the test PR (STORY-65 and STORY-66). The implementer opens the code PR (STORY-67). The verifier runs the cases on the code PR. See "Owners" | Orchestrator TASK ("The tester codifies the tests; the verifier runs the cases"); `docs/adlc.md`, the roles |
@@ -121,7 +121,7 @@ to D. This spec gives both names.
 | Ask the open cards A to D and F23-Q7 | hitl |
 | Update this spec with the ANSWERs; set the stories `ready` | specifier |
 | Change the PRD pages and the system design for the ANSWERs (see "For the planner") | planner |
-| Close the open points of ADR-0021 and ADR-0022; decide if ADR-0001 must name `grep-printer` and `termcolor` | architect |
+| Close the open points of ADR-0021 and ADR-0022 | architect |
 | The test PR: the harness, the test set, the fixtures, the pin, the install script, and the CI steps (STORY-65, STORY-66) | tester |
 | The code PR: each fix of "The differences" (STORY-67) | implementer |
 | Run the cases on the code PR with the pinned rg; send test scenarios | verifier |
@@ -147,15 +147,14 @@ planner changes them after the ANSWERs:
 
 ### For the architect
 
-- ADR-0021 says "raw byte comparison ... no rewrite". Card A option 1 needs
+- ADR-0021 says "byte for byte, with no change to the order or the text". Card A option 1 needs
   one rule in the test: `rg:` at the start of an rg stderr line reads as
   `jag:`, and each `ripgrep` in rg stderr reads as `jag`. If the ANSWER
   selects option 1, ADR-0021 must name this rule.
 - ADR-0021 open point "Order": decision 10. jag accepts `--sort path` only
   if card C keeps it.
-- ADR-0001 names `grep-regex`, `grep-searcher`, and `ignore`. Decision 7
-  adds `grep-printer` and `termcolor` from the same project. The architect
-  decides if ADR-0001 must name them.
+- ADR-0001: no change (architect, 2026-10-15). The new crates follow
+  ADR-0012 (a reason in the PR).
 
 ### Files
 
@@ -169,8 +168,11 @@ planner changes them after the ANSWERs:
 | `src/search.rs` | `STANDARD_INPUT_LABEL` = `<stdin>` (decision 5) | implementer |
 | `src/output/printer.rs` (new) | The `grep-printer` builders with the rg settings (decision 7) | implementer |
 | `src/output.rs` | The rg color codes in the ranked text (decision 4); no cost line and no notices in plain text mode (decision 19) | implementer |
+| `src/search/filter.rs`, `src/search/walk.rs` | The `--include` and `--exclude` globs become `-g`/`--glob` (decision 20) | implementer |
 | `tests/*.rs` | Each test that checks the grep form now checks the rg form | implementer |
+| `README.md` | The plain search texts: the `<stdin>` label, `-` as stdin, the color rule, the exit codes, the options, and the notices (decisions 5, 6, 12, 14, 19, and 20) | implementer |
 | `tests/rg_parity.rs` (new) | The harness of ADR-0021 | tester |
+| `Cargo.toml` `[dev-dependencies]` | `rustix` with the features `pty` and `termios` (ADR-0021) | tester |
 | `tests/parity/cases.yaml` (new) | The first test set | tester |
 | `tests/parity/fixtures/` (new) | The fixture trees | tester |
 | `tests/parity/stdin/` (new) | The stdin files (decision 26) | tester |
@@ -371,6 +373,15 @@ ANSWER selects the rg form, the case must give the rg bytes. If the ANSWER
 keeps a jag form, the case gets `deliberate: { answer: <the ANSWER> }` and
 stored jag bytes (CRITERION-114).
 
+If the card C ANSWER does not keep `--sort path`, the specifier changes each
+case with `--sort path` to search one file, before the stories become
+`ready`. The cases `color-space` and `color-never` use the form
+`--color VALUE`, so they also depend on card C.
+
+The stored bytes of the case `version` hold the version of `Cargo.toml`.
+The pull request that changes that version also changes
+`tests/parity/expected/` for this case.
+
 ### The fixture trees
 
 A name that starts with `.` is stored with `dot-` in its place (ADR-0021).
@@ -415,16 +426,18 @@ The stdin file `tests/parity/stdin/lines.txt` holds `a foo\nb\nfoo c\n`.
 | CRITERION-110 | `tests/parity/cases.yaml` holds each case of "The first test set", and `tests/parity/fixtures/` holds each tree of "The fixture trees". `tests/rg_parity.rs` fails when a case names a tree or a stdin file that does not exist. The reviewer compares the two lists with this spec |
 | CRITERION-111 | `tests/rg_parity.rs`, pipe mode: for each case, the same stdout, stderr, and exit code as the pinned rg, or the stored bytes of a deliberate case |
 | CRITERION-112 | `tests/rg_parity.rs`, color mode (`--color=always` in a pipe) and terminal mode (stdout on a pseudo terminal) |
-| CRITERION-113 | The `rust` job of `ci.yml` (Linux and macOS) and the `build` job of `release.yml` run `scripts/parity/install-rg.sh`, set `JAG_PARITY_RG`, and run `cargo test --locked`. The environment of each run is empty, plus `HOME`, `TERM`, and the env of the case (ADR-0021), so `RIPGREP_CONFIG_PATH` is not set. In the test PR, the tester pushes one commit that changes one stored byte, links the failed run that shows the difference, and then removes the commit |
+| CRITERION-113 | The `rust` job of `ci.yml` (Linux and macOS) and the `build` job of `release.yml` run `scripts/parity/install-rg.sh`, set `JAG_PARITY_RG`, and run `cargo test --locked`. The environment of each run is empty, plus `HOME`, `TERM`, and the env of the case (ADR-0021), so `RIPGREP_CONFIG_PATH` is not set. In the test PR, the tester pushes one commit that changes one stored byte, links the failed run that shows the difference, and then pushes a second commit that reverts it |
 | CRITERION-114 | Each case passes against rg, or has `deliberate: { answer: ... }` that names a user ANSWER (date, card, and option). The test checks that jag gives the stored bytes and that rg does not. The reviewer checks each `answer:` against the ANSWER of the card |
+| Decisions 12 and 13 (no parity case) | The code PR tests them in `tests/`: a test makes a file with mode 000 in a temporary folder and checks the rg text and exit 2; a second test sends SIGINT during a plain search and checks exit 130 and the text that jag already wrote. A test that runs as root skips the mode 000 check |
 
 The implementer also changes the unit tests and the integration tests of
 `tests/` that check the grep form: at least `tests/plain_grep.rs`,
 `tests/grep_options.rs`, `tests/input.rs`, `tests/terminal.rs`,
 `tests/walk.rs`, `tests/usage.rs`, `tests/size_limit.rs`, `tests/cost.rs`,
 and `tests/output.rs`, and the unit tests of `src/cli.rs`,
-`src/cli/grep.rs`, `src/output.rs`, `src/search/walk.rs`, and
-`src/search/snippet.rs`.
+`src/cli/grep.rs`, `src/output.rs`, `src/search/walk.rs`,
+`src/search/snippet.rs`, `src/scorer.rs`, and `src/scorer/prompt.rs` (each
+test that checks `(standard input)`).
 
 ## Build order
 
@@ -467,7 +480,7 @@ and `tests/output.rs`, and the unit tests of `src/cli.rs`,
 | Risk | Signal |
 |---|---|
 | An ANSWER selects another option than the provisional one | The ANSWER text. The specifier updates this spec before the stories become `ready` |
-| ADR-0021 or ADR-0022 changes before it merges | A new head of PR #122 or PR #123. This spec follows the merged text |
+| ADR-0021 changes when the architect closes its open points, or ADR-0022 changes before it merges | A new ADR-0021 commit on `main` (merged in `a9f966d`), or a new head of PR #123. This spec follows the merged text |
 | jag uses `ignore` 0.4.33 and `globset` 0.4.20; rg 15.2.0 uses 0.4.29 and 0.4.19. An error text or a skip rule can differ | A parity case fails on an error text or on the files of a walk |
 | A new rg pin changes the output of rg | The pull request that changes `tests/parity/rg.sha256` fails cases |
 | A walk with one thread is slower than the scan of today in a large folder | A plain search of a large folder takes more time than rg with `--sort path` |
