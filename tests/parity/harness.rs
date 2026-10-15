@@ -18,6 +18,8 @@ use std::thread::{self, JoinHandle};
 use std::time::{Duration, Instant};
 
 use rustix::fs::{Mode, OFlags};
+#[cfg(not(target_os = "linux"))]
+use rustix::io::{FdFlags, fcntl_setfd};
 use rustix::pty::{OpenptFlags, grantpt, openpt, ptsname, unlockpt};
 use rustix::termios::{Winsize, tcsetwinsize};
 use serde::Deserialize;
@@ -133,8 +135,17 @@ pub fn copy_tree(from: &Path, to: &Path) {
 /// Make a pseudo terminal with a fixed size and the default settings. The
 /// first file is the master side, and the second file is the slave side.
 fn open_pty() -> (OwnedFd, OwnedFd) {
+    // Only Linux (and two BSD systems) can set close-on-exec in `openpt`.
+    // On macOS, set it with `fcntl` after the open.
+    #[cfg(target_os = "linux")]
     let master = openpt(OpenptFlags::RDWR | OpenptFlags::NOCTTY | OpenptFlags::CLOEXEC)
         .expect("open a pty master");
+    #[cfg(not(target_os = "linux"))]
+    let master = {
+        let master = openpt(OpenptFlags::RDWR | OpenptFlags::NOCTTY).expect("open a pty master");
+        fcntl_setfd(&master, FdFlags::CLOEXEC).expect("set close-on-exec on the pty master");
+        master
+    };
     grantpt(&master).expect("grant the pty");
     unlockpt(&master).expect("unlock the pty");
     let name = ptsname(&master, Vec::new()).expect("get the pty name");
