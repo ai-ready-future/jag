@@ -532,10 +532,7 @@ mod tests {
         let mut input = snippet("z", 1);
         input.source = Source::StandardInput;
         let ranked = rank(vec![snippet("a.txt", 1), input], vec![0.5, 0.5]);
-        assert_eq!(
-            order(&ranked),
-            [("(standard input)".into(), 1), ("a.txt".into(), 1)]
-        );
+        assert_eq!(order(&ranked), [("<stdin>".into(), 1), ("a.txt".into(), 1)]);
     }
 
     #[test]

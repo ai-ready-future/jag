@@ -579,7 +579,7 @@ mod tests {
 
     #[test]
     fn the_label_of_standard_input_is_fixed() {
-        assert_eq!(Source::StandardInput.label(), b"(standard input)");
+        assert_eq!(Source::StandardInput.label(), b"<stdin>");
         assert_eq!(Source::File(PathBuf::from("a/b")).label(), b"a/b");
     }
 

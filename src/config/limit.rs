@@ -89,25 +89,31 @@ pub fn parse_size_limit(text: &str, source: SettingSource) -> Result<usize, Conf
     Ok(count)
 }
 
+/// The limit that `JAG_MAX_CHARS` gives. A blank or missing variable counts as
+/// not set.
+fn size_limit_variable(env: &Env) -> Result<Option<usize>, ConfigError> {
+    let Some(value) = (env.vars)(SIZE_LIMIT_VARIABLE) else {
+        return Ok(None);
+    };
+    let bad = ConfigError::SizeLimitBad {
+        source: SettingSource::Variable,
+    };
+    let text = value.to_str().ok_or(bad)?;
+    if text.trim().is_empty() {
+        return Ok(None);
+    }
+    parse_size_limit(text, SettingSource::Variable).map(Some)
+}
+
 /// The option, else `JAG_MAX_CHARS`, else the default. A blank variable counts
 /// as not set.
 pub fn size_limit(env: &Env, option: Option<SizeLimit>) -> Result<SizeLimit, ConfigError> {
     if let Some(option) = option {
         return Ok(option);
     }
-    match (env.vars)(SIZE_LIMIT_VARIABLE) {
-        None => Ok(SizeLimit::Chars(DEFAULT_SIZE_LIMIT)),
-        Some(value) => {
-            let bad = ConfigError::SizeLimitBad {
-                source: SettingSource::Variable,
-            };
-            let text = value.to_str().ok_or(bad)?;
-            if text.trim().is_empty() {
-                return Ok(SizeLimit::Chars(DEFAULT_SIZE_LIMIT));
-            }
-            parse_size_limit(text, SettingSource::Variable).map(SizeLimit::Chars)
-        }
-    }
+    Ok(SizeLimit::Chars(
+        size_limit_variable(env)?.unwrap_or(DEFAULT_SIZE_LIMIT),
+    ))
 }
 
 #[cfg(test)]

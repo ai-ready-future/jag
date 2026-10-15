@@ -120,13 +120,13 @@ fn setup_and_forget_key_are_exclusive() {
 }
 
 #[test]
-fn no_option_prints_the_usage_and_exits_2() {
+fn no_option_gives_the_error_text_of_rg_and_exits_2() {
     let home = tempfile::tempdir().unwrap();
     jag(home.path())
         .assert()
         .code(2)
         .stdout(predicate::str::is_empty())
-        .stderr(predicate::str::contains("Usage"));
+        .stderr("jag: jag requires at least one pattern to execute a search\n");
 }
 
 #[test]

@@ -28,11 +28,8 @@ pub struct ScanOptions {
     pub global_ignore: bool,
     /// Read the ignore files of parent folders.
     pub parent_ignore: bool,
-    /// The globs of --include and --exclude (FEATURE-13).
+    /// The globs of `-g` (FEATURE-23).
     pub files: FileFilter,
-    /// Keep a `FileMatches` with no line for each searched file with no
-    /// match (FEATURE-13, `-c`).
-    pub keep_files_with_no_match: bool,
 }
 
 impl Default for ScanOptions {
@@ -42,7 +39,6 @@ impl Default for ScanOptions {
             global_ignore: true,
             parent_ignore: true,
             files: FileFilter::default(),
-            keep_files_with_no_match: false,
         }
     }
 }
@@ -158,8 +154,7 @@ impl WalkWarning {
 /// The result of a scan.
 #[derive(Clone, Debug, PartialEq, Eq)]
 pub struct ScanReport {
-    /// Only the files with a match (with `keep_files_with_no_match`, also each
-    /// searched file with no match and no binary data), in the order of the paths on the command
+    /// Only the files with a match, in the order of the paths on the command
     /// line, then in the byte order of the path. A path that the command line
     /// gives two times, or a path under another path, gives its files at each
     /// place of the root, as `grep` does.
@@ -223,7 +218,9 @@ where
         .follow_links(false)
         .threads(options.threads)
         .git_global(options.global_ignore)
-        .parents(options.parent_ignore);
+        .parents(options.parent_ignore)
+        .overrides(options.files.overrides())
+        .add_custom_ignore_filename(".rgignore");
 
     let shared = Shared::default();
     builder.build_parallel().run(|| {
@@ -242,10 +239,8 @@ where
 
 /// Search the piped text with the searcher of a file, so that the binary
 /// rule and the byte order mark rule are the same (FEATURE-14, decision 11).
-/// Text with no byte gives no file and no warning (decision 3). With
-/// `keep_no_match` (`-c`), text with no match gives a file with no line, also
-/// when it has no byte (FEATURE-13, decision 20).
-pub fn scan_input<M: Matcher>(bytes: &[u8], matcher: &M, keep_no_match: bool) -> ScanReport {
+/// Text with no byte gives no file and no warning (decision 3).
+pub fn scan_input<M: Matcher>(bytes: &[u8], matcher: &M) -> ScanReport {
     let mut report = ScanReport::empty();
     let mut sink = LineSink::default();
     match searcher().search_reader(matcher, bytes, &mut sink) {
@@ -254,7 +249,7 @@ pub fn scan_input<M: Matcher>(bytes: &[u8], matcher: &M, keep_no_match: bool) ->
             kind: WarningKind::StandardInput(error.kind()),
         }),
         Ok(()) if sink.binary => report.skipped.binary = 1,
-        Ok(()) if keep_no_match || !sink.lines.is_empty() => report.files.push(FileMatches {
+        Ok(()) if !sink.lines.is_empty() => report.files.push(FileMatches {
             source: Source::StandardInput,
             lines: sink.lines,
         }),
@@ -329,23 +324,14 @@ fn visit_entry<M: Matcher>(
         return;
     };
     if file_type.is_dir() {
-        count_children(shared, entry.path());
+        count_children(shared, entry.path(), &options.files);
         if let Ok(mut folders) = shared.folder_paths.lock() {
             folders.insert(entry.path().to_path_buf());
         }
-    } else if file_type.is_file() && options.files.allows(entry.file_name()) {
-        // The walk counted the entry above, so a file that a glob skips is
-        // not in the skip notice (FEATURE-13, decision 27).
+    } else if file_type.is_file() {
         let path = entry.path();
         let root = path.ancestors().nth(entry.depth()).unwrap_or(path);
-        search_file(
-            shared,
-            matcher,
-            searcher,
-            root,
-            path,
-            options.keep_files_with_no_match,
-        );
+        search_file(shared, matcher, searcher, root, path);
     }
 }
 
@@ -358,14 +344,20 @@ fn visit_error(shared: &Shared, error: &ignore::Error) {
     }
 }
 
-/// Read the children of a folder to count the entries that the walk skips.
-fn count_children(shared: &Shared, folder: &Path) {
+/// Read the children of a folder to count the entries that the walk skips. A
+/// child that a glob of `-g` skips is not in the count (FEATURE-13, decision
+/// 27).
+fn count_children(shared: &Shared, folder: &Path, files: &FileFilter) {
     let Ok(entries) = std::fs::read_dir(folder) else {
         return;
     };
     let mut children = 0;
     let mut hidden = 0;
     for entry in entries.flatten() {
+        let is_dir = entry.file_type().is_ok_and(|kind| kind.is_dir());
+        if !files.allows(&entry.path(), is_dir) {
+            continue;
+        }
         children += 1;
         if is_hidden(&entry.file_name()) {
             hidden += 1;
@@ -381,7 +373,6 @@ fn search_file<M: Matcher>(
     searcher: &mut Searcher,
     root: &Path,
     path: &Path,
-    keep_no_match: bool,
 ) {
     let mut sink = LineSink::default();
     match searcher.search_path(matcher, path, &mut sink) {
@@ -395,7 +386,7 @@ fn search_file<M: Matcher>(
         Ok(()) if sink.binary => {
             shared.binary.fetch_add(1, Ordering::Relaxed);
         }
-        Ok(()) if keep_no_match || !sink.lines.is_empty() => push(
+        Ok(()) if !sink.lines.is_empty() => push(
             &shared.files,
             (
                 root.to_path_buf(),
@@ -834,7 +825,7 @@ mod tests {
     // Decision 3 of FEATURE-14.
     #[test]
     fn piped_text_with_no_byte_gives_an_empty_report() {
-        assert_eq!(scan_input(b"", &matcher(), false), ScanReport::empty());
+        assert_eq!(scan_input(b"", &matcher()), ScanReport::empty());
     }
 
     /// The line numbers and the texts of a report.
@@ -868,7 +859,7 @@ mod tests {
             let file = dir.path().join("a.txt");
             std::fs::write(&file, text).expect("write file");
             let from_file = scan(&[file], &matcher(), &ScanOptions::default());
-            let from_pipe = scan_input(text, &matcher(), false);
+            let from_pipe = scan_input(text, &matcher());
             assert!(!from_pipe.files.is_empty());
             assert_eq!(lines(&from_pipe), lines(&from_file));
             assert_eq!(from_pipe.files[0].source, Source::StandardInput);
@@ -879,7 +870,7 @@ mod tests {
     // Decision 11 of FEATURE-14: the binary rule of a file.
     #[test]
     fn binary_piped_text_gives_no_file_and_one_skip() {
-        let report = scan_input(b"needle\0\n", &matcher(), false);
+        let report = scan_input(b"needle\0\n", &matcher());
         assert!(report.files.is_empty());
         assert_eq!(
             report.skipped,

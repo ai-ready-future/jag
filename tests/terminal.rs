@@ -16,9 +16,10 @@ use tempfile::TempDir;
 const QUESTION: &str = "which line says how to retry";
 const USAGE_ERROR: &str = "jag: the command line is not valid. Run jag --help to see the usage.\n";
 
-/// The bytes of `grep --color=always -n -H needle a.txt` for the line
-/// `x needle y`.
-const COLORED: &str = "\x1b[35m\x1b[Ka.txt\x1b[m\x1b[K\x1b[36m\x1b[K:\x1b[m\x1b[K\x1b[32m\x1b[K1\x1b[m\x1b[K\x1b[36m\x1b[K:\x1b[m\x1b[Kx \x1b[01;31m\x1b[Kneedle\x1b[m\x1b[K y\n";
+/// The bytes of `rg --color=always -n -H needle a.txt` for the line
+/// `x needle y` (FEATURE-23): the colors of rg, and the separators with none.
+const COLORED: &str =
+    "\x1b[0m\x1b[35ma.txt\x1b[0m:\x1b[0m\x1b[32m1\x1b[0m:x \x1b[0m\x1b[1m\x1b[31mneedle\x1b[0m y\n";
 const PLAIN: &str = "a.txt:1:x needle y\n";
 
 struct Run {
@@ -97,7 +98,7 @@ fn criterion_62_structured_mode_gets_no_progress_line() {
 }
 
 #[test]
-fn criterion_63_always_colors_in_a_pipe_as_grep_does() {
+fn criterion_63_always_colors_in_a_pipe_as_rg_does() {
     let server = FakeServer::constant(0.9);
     let run = run(&server, &["--color=always"]);
     assert_eq!(run.code, Some(0));
@@ -109,10 +110,18 @@ fn criterion_63_always_colors_in_a_pipe_as_grep_does() {
 }
 
 #[test]
-fn criterion_63_colour_is_an_alias() {
+fn criterion_63_colour_is_not_an_option() {
+    // Card E: rg has no `--colour`, and jag does not have it either. With
+    // `--ask`, the text is the text of jag for an option that is not known.
     let server = FakeServer::constant(0.9);
     let run = run(&server, &["--colour=always"]);
-    assert_eq!(run.stdout, COLORED);
+    assert_eq!(run.code, Some(2));
+    assert_eq!(run.stdout, "");
+    assert_eq!(
+        run.stderr,
+        "jag: the option --colour is not valid.\nRun jag --help to see the options.\n"
+    );
+    assert!(server.requests().is_empty());
 }
 
 #[test]
@@ -120,7 +129,6 @@ fn criterion_63_a_pipe_gets_no_color_unless_always_is_the_last_choice() {
     let server = FakeServer::constant(0.9);
     for options in [
         &[][..],
-        &["--color"],
         &["--color=auto"],
         &["--color=never"],
         &["--color=always", "--color=never"],
@@ -139,7 +147,11 @@ fn criterion_63_a_bad_value_is_an_argument_error_with_no_call() {
     let run = run(&server, &["--color=sometimes"]);
     assert_eq!(run.code, Some(2));
     assert_eq!(run.stdout, "");
-    assert_eq!(run.stderr, USAGE_ERROR);
+    assert_eq!(
+        run.stderr,
+        "jag: the value of --color is not valid.\nUse never, auto, always, or ansi.\n"
+    );
+    assert!(!run.stderr.contains("sometimes"));
     assert!(server.requests().is_empty());
 
     let run = self::run(&server, &["--json", "--color=sometimes"]);
