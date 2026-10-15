@@ -1,6 +1,14 @@
 # Log
 
 ## 2026-10-15
+* **Plan**: [STORY-51](stories/STORY-51.md) backlog -> ready by rule 11 (docs/adlc.md) and the user answer (human:404pilo, hitl, 2026-10-15, option 1 "start now"): the FEATURE-18 spec is on main (old PR #183); FEATURE-18 stays blocked_by FEATURE-19, because the first publish still depends on it; the user answer lets the work start now; standing approval RULE11-01, by agent:planner, at 2026-10-15T14:03:32Z
+* **Plan**: [STORY-50](stories/STORY-50.md) backlog -> ready by rule 11 (docs/adlc.md) and the user answer (human:404pilo, hitl, 2026-10-15, option 1 "start now"): the FEATURE-18 spec is on main (old PR #183); FEATURE-18 stays blocked_by FEATURE-19, because the first publish still depends on it; the user answer lets the work start now; standing approval RULE11-01, by agent:planner, at 2026-10-15T14:03:32Z
+* **Plan**: [STORY-49](stories/STORY-49.md) backlog -> ready by rule 11 (docs/adlc.md) and the user answer (human:404pilo, hitl, 2026-10-15, option 1 "start now"): the FEATURE-18 spec is on main (old PR #183); FEATURE-18 stays blocked_by FEATURE-19, because the first publish still depends on it; the user answer lets the work start now; standing approval RULE11-01, by agent:planner, at 2026-10-15T14:03:32Z
+* **Plan**: [STORY-48](stories/STORY-48.md) backlog -> ready by rule 11 (docs/adlc.md) and the user answer (human:404pilo, hitl, 2026-10-15, option 1 "start now"): the FEATURE-18 spec is on main (old PR #183); FEATURE-18 stays blocked_by FEATURE-19, because the first publish still depends on it; the user answer lets the work start now; standing approval RULE11-01, by agent:planner, at 2026-10-15T14:03:27Z
+* **State**: [STORY-51](stories/STORY-51.md) backlog -> ready, by human:404pilo, at 2026-10-15T14:03:32Z
+* **State**: [STORY-50](stories/STORY-50.md) backlog -> ready, by human:404pilo, at 2026-10-15T14:03:32Z
+* **State**: [STORY-49](stories/STORY-49.md) backlog -> ready, by human:404pilo, at 2026-10-15T14:03:32Z
+* **State**: [STORY-48](stories/STORY-48.md) backlog -> ready, by human:404pilo, at 2026-10-15T14:03:27Z
 * **Sync**: [STORY-61](stories/STORY-61.md) pushed to GitHub, by system:github, at 2026-10-15T13:24:41Z
 * **Sync**: [STORY-52](stories/STORY-52.md) pushed to GitHub, by system:github, at 2026-10-15T13:24:41Z
 * **State**: [STORY-61](stories/STORY-61.md) ready -> done, by human:404pilo, at 2026-10-15T13:18:16Z
