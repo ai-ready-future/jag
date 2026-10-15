@@ -33,7 +33,7 @@ use crate::prerank;
 use crate::scorer::cost::{Cost, NoCallReason};
 use crate::scorer::{ScoreError, ScoreSettings, probe, rank, score_with_usage};
 use crate::search::filter::current_dir;
-use crate::search::input::{Input, no_path_input};
+use crate::search::input::{Input, no_path_input, read_input};
 use crate::search::snippet::{
     ContextLines, Snippet, line_windows, match_texts, plan_windows, read_snippets,
 };
@@ -536,6 +536,8 @@ struct SearchArgs<'a> {
     /// `None` for a search with no question (FEATURE-12).
     question: Option<&'a str>,
     paths: Vec<PathBuf>,
+    /// The user gave `-`: jag reads standard input, with no test of its type.
+    stdin: bool,
     /// The options `-i`, `-w`, and `-F`.
     matching: MatchOptions,
     /// The lines around a match. `None`: no option gave them.
@@ -567,14 +569,12 @@ fn search_args(cli: &Cli) -> Result<SearchArgs<'_>, Failure> {
     } else {
         (cli.terms.iter().map(String::as_str).collect(), words)
     };
-    // The path `-` alone is the text of a pipe, as in rg (FEATURE-23, decision
-    // 14). With other paths, and the path "", it is a usage error, in the order
-    // of the command line (FEATURE-14, decision 8).
-    let path_words = if path_words.as_slice() == [OsStr::new("-")] {
-        Vec::new()
-    } else {
-        path_words
-    };
+    // The path `-` alone is the text of standard input, as in rg (FEATURE-23,
+    // decision 14), also when standard input is a terminal or a device. With
+    // other paths, and the path "", it is a usage error, in the order of the
+    // command line (FEATURE-14, decision 8).
+    let stdin = path_words.as_slice() == [OsStr::new("-")];
+    let path_words = if stdin { Vec::new() } else { path_words };
     for path in &path_words {
         if *path == OsStr::new("-") {
             return Err(usage_failure(
@@ -624,6 +624,7 @@ fn search_args(cli: &Cli) -> Result<SearchArgs<'_>, Failure> {
         terms,
         question,
         paths: path_words.into_iter().map(PathBuf::from).collect(),
+        stdin,
         matching: MatchOptions::of(cli),
         context,
         files,
@@ -730,7 +731,7 @@ fn search(
         files: args.files.clone(),
         ..ScanOptions::default()
     };
-    let (report, input) = scan_search(&args.paths, &matcher, &options);
+    let (report, input) = scan_search(&args.paths, args.stdin, &matcher, &options);
     let windows = plan_windows(&report.files, args.context.unwrap_or(ContextLines::DEFAULT));
     let total = windows.len();
     // Only a search with more results than the limit pre-ranks them, from
@@ -873,7 +874,7 @@ fn plain_json(
         files: args.files.clone(),
         ..ScanOptions::default()
     };
-    let (report, input) = scan_search(&args.paths, &matcher, &options);
+    let (report, input) = scan_search(&args.paths, args.stdin, &matcher, &options);
     summary.cost = Cost::NoCall(NoCallReason::NoQuestion);
     // With an option for the lines around a match, groups of lines. With none,
     // one line for each match (FEATURE-13, decision 15).
@@ -923,8 +924,6 @@ fn find_ranges(matcher: &RegexMatcher, line: &[u8]) -> Vec<std::ops::Range<usize
     ranges
 }
 
-/// True when the ranked text output gets color (decisions 5 and 6 of
-/// FEATURE-15, and decision 6 of FEATURE-23).
 /// The size limit that `--max-chars` or `--no-max-chars` gives.
 fn size_option(cli: &Cli) -> Result<Option<SizeLimit>, ConfigError> {
     if cli.no_size_limit {
@@ -936,6 +935,8 @@ fn size_option(cli: &Cli) -> Result<Option<SizeLimit>, ConfigError> {
         .transpose()
 }
 
+/// True when the ranked text output gets color (decisions 5 and 6 of
+/// FEATURE-15, and decision 6 of FEATURE-23).
 fn colored(cli: &Cli, env: &Env, stdout_is_terminal: bool) -> bool {
     let when = ColorWhen::parse(cli.color.as_deref()).unwrap_or(ColorWhen::Auto);
     let term = (env.vars)("TERM");
@@ -998,19 +999,26 @@ fn no_result(
 }
 
 /// The scan of a search (FEATURE-14, "The search flow"). With paths, jag
-/// never reads standard input (decision 4). With no path, it searches the
-/// piped text or the current folder. Gives the report and the piped text.
+/// never reads standard input (decision 4). With `-` (`stdin`), it searches
+/// the text of standard input. With no path, it searches the piped text or the
+/// current folder. Gives the report and the piped text.
 fn scan_search(
     paths: &[PathBuf],
+    stdin: bool,
     matcher: &RegexMatcher,
     options: &ScanOptions,
 ) -> (ScanReport, Option<Vec<u8>>) {
     if !paths.is_empty() {
         return (scan(paths, matcher, options), None);
     }
-    match no_path_input() {
+    let input = if stdin {
+        read_input(io::stdin().lock())
+    } else {
+        no_path_input()
+    };
+    match input {
         Input::PipedText(bytes) => {
-            let report = scan_input(&bytes, matcher, options.keep_files_with_no_match);
+            let report = scan_input(&bytes, matcher);
             (report, Some(bytes))
         }
         Input::CurrentFolder => (scan_current_folder(matcher, options), None),

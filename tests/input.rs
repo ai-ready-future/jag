@@ -374,7 +374,12 @@ fn criterion_70_a_path_that_does_not_exist_gives_exit_2_and_no_call() {
 fn criterion_70_jag_searches_the_other_paths_and_exits_2() {
     let root = one_file();
     let server = FakeServer::constant(0.8);
-    let plain = run(&server, root.path(), &["needle", "a.txt", "nofile"], None);
+    let plain = run(
+        &server,
+        root.path(),
+        &["--sort", "path", "needle", "a.txt", "nofile"],
+        None,
+    );
     assert_eq!(plain.code, Some(2));
     assert_eq!(plain.stdout, "a.txt:needle\n");
     assert_eq!(plain.stderr, NO_FILE);
@@ -405,7 +410,7 @@ fn criterion_70_the_errors_come_in_the_order_of_the_command_line() {
     let run = run(
         &server,
         root.path(),
-        &["needle", "nofile2", "a.txt", "nofile1"],
+        &["--sort", "path", "needle", "nofile2", "a.txt", "nofile1"],
         None,
     );
     assert_eq!(run.code, Some(2));
@@ -591,7 +596,12 @@ fn decision_8_with_no_question_the_empty_path_is_a_path_that_does_not_exist() {
     assert_eq!(run.code, Some(2));
     assert_eq!(run.stdout, "");
     assert_eq!(run.stderr, text);
-    let run = self::run(&server, root.path(), &["needle", "a.txt", ""], None);
+    let run = self::run(
+        &server,
+        root.path(),
+        &["--sort", "path", "needle", "a.txt", ""],
+        None,
+    );
     assert_eq!(run.code, Some(2));
     assert_eq!(run.stdout, "a.txt:needle\n");
     assert_eq!(run.stderr, text);
@@ -616,7 +626,12 @@ fn decision_10_a_locked_file_or_folder_is_a_read_error() {
         &["--ask", QUESTION, "needle", "locked.txt"],
         None,
     );
-    let folder = run(&server, root.path(), &["needle", "closed"], None);
+    let folder = run(
+        &server,
+        root.path(),
+        &["--sort", "path", "needle", "closed"],
+        None,
+    );
     std::fs::set_permissions(&locked, std::fs::Permissions::from_mode(0o644)).expect("unlock");
     std::fs::set_permissions(&closed, std::fs::Permissions::from_mode(0o755)).expect("unlock");
     if can_read {
@@ -678,7 +693,7 @@ fn feature_13_q_with_no_match_and_a_missing_path_exits_2() {
     let run = run(
         &server,
         root.path(),
-        &["-q", "absent", "a.txt", "nofile"],
+        &["--sort", "path", "-q", "absent", "a.txt", "nofile"],
         None,
     );
     assert_eq!(run.code, Some(2));
@@ -693,7 +708,7 @@ fn feature_13_l_and_c_write_the_lines_of_the_other_paths_and_exit_2() {
     let files = run(
         &server,
         root.path(),
-        &["-l", "needle", "a.txt", "nofile"],
+        &["--sort", "path", "-l", "needle", "a.txt", "nofile"],
         None,
     );
     assert_eq!(files.code, Some(2));
@@ -703,7 +718,7 @@ fn feature_13_l_and_c_write_the_lines_of_the_other_paths_and_exit_2() {
     let counts = run(
         &server,
         root.path(),
-        &["-c", "needle", "nofile", "a.txt", "b.txt"],
+        &["--sort", "path", "-c", "needle", "nofile", "a.txt", "b.txt"],
         None,
     );
     assert_eq!(counts.code, Some(2));
@@ -731,5 +746,22 @@ fn feature_13_c_with_an_empty_pipe_writes_nothing_and_exits_1() {
     let run = run(&server, root.path(), &["-c", "needle"], Some(b""));
     assert_eq!(run.code, Some(1));
     assert_eq!(run.stdout, "");
+    assert!(server.requests().is_empty());
+}
+
+// Decision 14: the path `-` reads standard input in each case. Standard input
+// is `/dev/null` here, so there is no text and no file is searched.
+#[test]
+fn decision_14_the_path_dash_reads_standard_input_also_when_it_is_not_a_pipe() {
+    let root = two_files();
+    let server = FakeServer::constant(0.8);
+    for args in [&["--json", "needle", "-"][..], &["needle", "-"][..]] {
+        let run = run_no_pipe(&server, root.path(), args);
+        assert_eq!(run.code, Some(1), "{args:?}");
+        assert!(!run.stdout.contains("a.txt"), "{args:?}: {}", run.stdout);
+        assert!(!run.stdout.contains("b.txt"), "{args:?}: {}", run.stdout);
+    }
+    let run = run_no_pipe(&server, root.path(), &["--ask", QUESTION, "needle", "-"]);
+    assert_eq!(run.code, Some(1));
     assert!(server.requests().is_empty());
 }

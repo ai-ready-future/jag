@@ -386,7 +386,7 @@ fn decision_1_the_old_form_makes_no_call_and_names_the_path() {
     let run = run(
         &server,
         root.path(),
-        &["needle", "which line says retry", "dir"],
+        &["--sort", "path", "needle", "which line says retry", "dir"],
     );
     assert!(server.requests().is_empty());
     assert_eq!(run.stdout, THREE_LINES);

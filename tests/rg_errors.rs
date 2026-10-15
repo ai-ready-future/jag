@@ -42,6 +42,83 @@ fn a_file_that_jag_cannot_read_gives_the_error_text_of_rg_and_exit_2() {
     );
 }
 
+/// jag cannot read a folder with the mode 000. A walk error has two forms
+/// (decision 11): rg uses the long one `P: IO error for operation on P: ...`
+/// with one thread (`--sort`, or one file, or one CPU), and the short one
+/// `P: ...` with more than one thread.
+#[test]
+fn a_folder_that_jag_cannot_read_has_the_two_forms_of_rg() {
+    let root = tempfile::tempdir().expect("folder");
+    write(root.path(), "t.txt", b"needle\n");
+    write(root.path(), "sub/x.txt", b"needle\n");
+    let locked = root.path().join("sub");
+    std::fs::set_permissions(&locked, Permissions::from_mode(0o000)).expect("chmod");
+    // A user who can read each folder (root) cannot make this test.
+    if std::fs::read_dir(&locked).is_ok() {
+        std::fs::set_permissions(&locked, Permissions::from_mode(0o755)).expect("chmod");
+        return;
+    }
+    let one_cpu = std::thread::available_parallelism().map_or(true, |count| count.get() == 1);
+    let run = |args: &[&str]| {
+        let home = tempfile::tempdir().expect("home");
+        let output = jag_bare(home.path())
+            .current_dir(root.path())
+            .args(args)
+            .output()
+            .expect("run jag");
+        (
+            output.status.code(),
+            String::from_utf8_lossy(&output.stdout).into_owned(),
+            String::from_utf8_lossy(&output.stderr).into_owned(),
+        )
+    };
+    let long = |path: &str| {
+        format!("jag: {path}: IO error for operation on {path}: Permission denied (os error 13)\n")
+    };
+    let short = |path: &str| format!("jag: {path}: Permission denied (os error 13)\n");
+    let more_threads = |path: &str| if one_cpu { long(path) } else { short(path) };
+
+    // The folder is the path: one folder, so more threads, unless --sort.
+    let (code, out, err) = run(&["needle", "sub"]);
+    assert_eq!((code, out.as_str()), (Some(2), ""));
+    assert_eq!(err, more_threads("sub"));
+    let (code, out, err) = run(&["--sort", "path", "needle", "sub"]);
+    assert_eq!((code, out.as_str()), (Some(2), ""));
+    assert_eq!(err, long("sub"));
+    // The last --sort decides, and `--sort none` is no sort.
+    let (_, _, err) = run(&["--sort", "path", "--sort", "none", "needle", "sub"]);
+    assert_eq!(err, more_threads("sub"));
+    let (_, _, err) = run(&["--sort", "none", "--sort", "path", "needle", "sub"]);
+    assert_eq!(err, long("sub"));
+
+    // The folder is inside a walk.
+    let (code, out, err) = run(&["needle", "."]);
+    assert_eq!((code, out.as_str()), (Some(2), "./t.txt:needle\n"));
+    assert_eq!(err, more_threads("./sub"));
+    let (code, out, err) = run(&["--sort", "path", "needle", "."]);
+    assert_eq!((code, out.as_str()), (Some(2), "./t.txt:needle\n"));
+    assert_eq!(err, long("./sub"));
+
+    // A path that does not exist: one file is one thread, two paths are not.
+    let (code, _, err) = run(&["needle", "nope.txt"]);
+    assert_eq!(code, Some(2));
+    assert_eq!(
+        err,
+        "jag: nope.txt: IO error for operation on nope.txt: No such file or directory (os error 2)\n"
+    );
+    let (code, out, err) = run(&["needle", "nope.txt", "t.txt"]);
+    assert_eq!((code, out.as_str()), (Some(2), "t.txt:needle\n"));
+    let long_missing = "jag: nope.txt: IO error for operation on nope.txt: No such file or directory (os error 2)\n";
+    let short_missing = "jag: nope.txt: No such file or directory (os error 2)\n";
+    assert_eq!(err, if one_cpu { long_missing } else { short_missing });
+    let (_, _, err) = run(&["--sort", "none", "needle", "nope.txt", "t.txt"]);
+    assert_eq!(err, if one_cpu { long_missing } else { short_missing });
+    let (_, _, err) = run(&["--sort", "path", "needle", "nope.txt", "t.txt"]);
+    assert_eq!(err, long_missing);
+
+    std::fs::set_permissions(&locked, Permissions::from_mode(0o755)).expect("chmod");
+}
+
 /// Ctrl-C ends a search that waits for more text. The end is by the signal
 /// SIGINT (a shell shows the code 130), as in FEATURE-15, decision 13.
 #[test]

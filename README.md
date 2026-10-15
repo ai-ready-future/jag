@@ -407,8 +407,10 @@ unknown option: jag gives the error text of `rg` for it and exit code 2.
 - `-g GLOB` (or `--glob`) searches only the files that match the glob. With
   `!` at the start, jag leaves the files out. The glob rules are those of
   ripgrep, for example `*.{rs,toml}`. The last glob that matches decides.
-  With no question, a glob does not apply to a file that you name. With
-  `--ask`, it does.
+  A glob does not apply to a path that you name. A glob that leaves out a
+  folder leaves out the files in it. A glob that matches a hidden file
+  searches it, as `rg` does. This is the same with no question, with `--ask`,
+  and with `--json`.
 - `-n` and `-N` turn the line numbers on and off. `-H` and `-I` turn the
   paths on and off. `--heading` and `--no-heading` put the path above its
   lines, or on each line. The last of each pair wins. These options work only

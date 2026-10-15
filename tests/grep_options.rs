@@ -818,3 +818,18 @@ fn the_size_limit_has_no_effect_on_q() {
     assert_eq!(run.code, Some(0));
     assert_eq!((run.stdout.as_str(), run.stderr.as_str()), ("", ""));
 }
+
+// Decision 20: `-g` works as in rg also with `--json`: a glob can leave out a
+// folder, and it never applies to a path that the command line names.
+#[test]
+fn decision_20_a_glob_with_json_leaves_out_a_folder_and_not_a_named_file() {
+    let root = two_files();
+    write(root.path(), "sub/x.rs", b"needle\n");
+    let run = run_bare(root.path(), &["--json", "-g", "!sub", "needle", "."]);
+    assert_eq!(run.code, Some(0), "{}", run.stderr);
+    assert!(run.stdout.contains("a.txt"), "{}", run.stdout);
+    assert!(!run.stdout.contains("sub/x.rs"), "{}", run.stdout);
+    let run = run_bare(root.path(), &["--json", "-g", "*.rs", "needle", "a.txt"]);
+    assert_eq!(run.code, Some(0), "{}", run.stderr);
+    assert!(run.stdout.contains("a.txt"), "{}", run.stdout);
+}

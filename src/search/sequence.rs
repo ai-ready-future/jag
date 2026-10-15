@@ -28,13 +28,19 @@ pub struct Places {
     /// True when only one file is the haystack: one path that is `-` or is
     /// not a folder (`is_one_file` of rg).
     pub one_file: bool,
+    /// True when rg would search with one thread (`threads` of `HiArgs`): the
+    /// last `--sort` of the command line is `path`, or only one file is the haystack, or the
+    /// machine has one CPU. A walk error then has the long text form
+    /// (decision 11). jag always searches with one thread.
+    pub one_thread: bool,
 }
 
 impl Places {
     /// The places of `given`. With no path, jag searches the text of standard
     /// input when it can give text (`is_readable_stdin` of rg), else the
-    /// current folder.
-    pub fn new(given: Vec<PathBuf>) -> Places {
+    /// current folder. `sorted` is true when the last `--sort` of the command line is `path`.
+    pub fn new(given: Vec<PathBuf>, sorted: bool) -> Places {
+        let one_cpu = std::thread::available_parallelism().map_or(true, |count| count.get() == 1);
         if !given.is_empty() {
             let one_file =
                 given.len() == 1 && (given[0] == Path::new(STDIN_PATH) || !given[0].is_dir());
@@ -42,6 +48,7 @@ impl Places {
                 paths: given,
                 implicit: false,
                 one_file,
+                one_thread: sorted || one_file || one_cpu,
             };
         }
         if stdin_can_give_text() {
@@ -49,12 +56,14 @@ impl Places {
                 paths: vec![PathBuf::from(STDIN_PATH)],
                 implicit: true,
                 one_file: true,
+                one_thread: true,
             }
         } else {
             Places {
                 paths: vec![PathBuf::from("./")],
                 implicit: true,
                 one_file: false,
+                one_thread: sorted || one_cpu,
             }
         }
     }
@@ -92,6 +101,7 @@ pub struct Haystack {
 pub struct Sequence {
     walk: Walk,
     implicit: bool,
+    one_thread: bool,
 }
 
 impl Sequence {
@@ -120,8 +130,24 @@ impl Sequence {
         Sequence {
             walk: builder.build(),
             implicit: places.implicit,
+            one_thread: places.one_thread,
         }
     }
+}
+
+/// The text of a walk error with the form of more than one thread of rg:
+/// `P: <error>`, not `P: IO error for operation on P: <error>`. Any other
+/// text stays as it is.
+fn short_form(text: &str) -> String {
+    const MARK: &str = ": IO error for operation on ";
+    if let Some((path, rest)) = text.split_once(MARK)
+        && let Some(error) = rest
+            .strip_prefix(path)
+            .and_then(|rest| rest.strip_prefix(": "))
+    {
+        return format!("{path}: {error}");
+    }
+    text.to_owned()
 }
 
 impl Iterator for Sequence {
@@ -133,7 +159,14 @@ impl Iterator for Sequence {
         loop {
             let entry = match self.walk.next()? {
                 Ok(entry) => entry,
-                Err(error) => return Some(Item::Error(error.to_string())),
+                Err(error) => {
+                    let text = error.to_string();
+                    return Some(Item::Error(if self.one_thread {
+                        text
+                    } else {
+                        short_form(&text)
+                    }));
+                }
             };
             if let Some(error) = entry.error() {
                 // `ignore_message` of rg: the message goes out, and the entry
@@ -190,6 +223,7 @@ mod tests {
             paths,
             implicit: false,
             one_file: false,
+            one_thread: true,
         };
         Sequence::new(&places, &FileFilter::default(), root)
             .filter_map(|item| match item {
@@ -252,21 +286,57 @@ mod tests {
         assert!(found[0].ends_with("k.txt"));
     }
 
-    #[test]
-    fn a_path_that_does_not_exist_gives_the_error_text_of_rg() {
+    fn missing_path_error(one_thread: bool) -> String {
         let dir = tempfile::tempdir().expect("folder");
         let places = Places {
             paths: vec![PathBuf::from("nope.txt")],
             implicit: false,
             one_file: true,
+            one_thread,
         };
         let items: Vec<Item> = Sequence::new(&places, &FileFilter::default(), dir.path()).collect();
         match items.as_slice() {
-            [Item::Error(text)] => assert_eq!(
-                text,
-                "nope.txt: IO error for operation on nope.txt: No such file or directory (os error 2)"
-            ),
+            [Item::Error(text)] => text.clone(),
             other => panic!("{other:?}"),
         }
+    }
+
+    #[test]
+    fn a_path_that_does_not_exist_gives_the_error_text_of_rg() {
+        assert_eq!(
+            missing_path_error(true),
+            "nope.txt: IO error for operation on nope.txt: No such file or directory (os error 2)"
+        );
+        assert_eq!(
+            missing_path_error(false),
+            "nope.txt: No such file or directory (os error 2)"
+        );
+    }
+
+    #[test]
+    fn the_short_form_leaves_other_texts_as_they_are() {
+        assert_eq!(
+            short_form("a: b: IO error for operation on a: b: Permission denied (os error 13)"),
+            "a: b: Permission denied (os error 13)"
+        );
+        assert_eq!(
+            short_form("a: Permission denied (os error 13)"),
+            "a: Permission denied (os error 13)"
+        );
+        assert_eq!(
+            short_form("a: IO error for operation on b: Permission denied (os error 13)"),
+            "a: IO error for operation on b: Permission denied (os error 13)"
+        );
+    }
+
+    #[test]
+    fn rg_uses_one_thread_for_sort_or_one_file() {
+        let dir = tempfile::tempdir().expect("folder");
+        let folder = dir.path().to_path_buf();
+        assert!(Places::new(vec![folder.clone()], true).one_thread);
+        assert!(Places::new(vec![folder.join("nope.txt")], false).one_thread);
+        let many = Places::new(vec![folder.clone(), folder], false);
+        let one_cpu = std::thread::available_parallelism().map_or(true, |count| count.get() == 1);
+        assert_eq!(many.one_thread, one_cpu);
     }
 }

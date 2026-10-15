@@ -44,9 +44,9 @@ impl FileFilter {
         self.globs.clone()
     }
 
-    /// True when jag searches the file at `path`.
-    pub fn allows(&self, path: &Path) -> bool {
-        !self.globs.matched(path, false).is_ignore()
+    /// True when the globs do not skip the file or the folder at `path`.
+    pub fn allows(&self, path: &Path, is_dir: bool) -> bool {
+        !self.globs.matched(path, is_dir).is_ignore()
     }
 }
 
@@ -73,7 +73,7 @@ mod tests {
     }
 
     fn allows(filter: &FileFilter, name: &str) -> bool {
-        filter.allows(Path::new(name))
+        filter.allows(Path::new(name), false)
     }
 
     #[test]

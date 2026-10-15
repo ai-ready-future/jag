@@ -288,7 +288,10 @@ fn search(cli: &Cli, env: &Env) -> Result<u8, String> {
     let matcher =
         build_matcher(&terms, MatchOptions::of(cli)).map_err(|error| line(&error.to_string()))?;
 
-    let places = Places::new(path_words.into_iter().map(PathBuf::from).collect());
+    // rg searches with one thread when the last --sort is `path`. `none` is
+    // no sort.
+    let sorted = cli.sort.as_deref() == Some("path");
+    let places = Places::new(path_words.into_iter().map(PathBuf::from).collect(), sorted);
     let report = Report::of(cli);
     let stdout_is_terminal = io::stdout().is_terminal();
     let layout = Layout::of(cli, report, &places, stdout_is_terminal);
@@ -335,11 +338,10 @@ fn search(cli: &Cli, env: &Env) -> Result<u8, String> {
         } else {
             BinaryDetection::quit(b'\0')
         });
-        let result = search_one(&mut printer, &mut searcher, &matcher, &haystack);
-        let result = result.and_then(|found| {
-            deliver(&mut printer, sizes.as_mut())?;
-            Ok(found)
-        });
+        // The lines that the printer holds go out also when the search fails in
+        // the middle of the file, as the lines of rg do.
+        let found = search_one(&mut printer, &mut searcher, &matcher, &haystack);
+        let result = deliver(&mut printer, sizes.as_mut()).and(found);
         match result {
             Ok(found) => matched = matched || found,
             // A closed pipe is a graceful end.
