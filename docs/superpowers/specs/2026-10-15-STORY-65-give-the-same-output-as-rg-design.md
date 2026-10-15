@@ -99,7 +99,7 @@ to D. This spec gives both names.
 | 16 | Ignore files | As rg: `.ignore`, `.rgignore`, and `.gitignore` (only inside a git repository), and the ignore files of the parent folders. Hidden files are skipped in a walk. A path of the command line is always searched | Probe: jag does not read `.rgignore` today; rg 15.2.0 `walk_builder` |
 | 17 | Usage error text with `--ask` or `--json` | The rg error texts apply when the command line has no `--ask` and no `--json` before the first `--`. Else jag keeps its own failure texts with the cause and the fix (CV-1), and the JSON error document with `--json` | ADR-0022 covers a search with no `--ask`; CV-1; IF-5 |
 | 18 | Program name, help, version, and own options (card A) | Provisional, option 1: jag keeps its name, `-h`, `--help`, `--version`, and its own options (`--ask`, `--json`, `--check`, `--setup`, `--forget-key`, `--max-chars`, `--no-max-chars`, `--max-scored`, `--timeout`, `--retry-wait`, `--base-url`, `--model`). The test reads `rg:` at the start of an rg stderr line as `jag:`, and each `ripgrep` in rg stderr as `jag`. It changes no other byte | Card A (F23-Q3), open. Option 1 needs a change of ADR-0021 ("no rewrite"): see "For the architect" |
-| 19 | Notices and limits with no question (card B) | Provisional, option 1: in plain text mode, jag writes no cost line, no count of skipped files, cuts no long line, and has no default size limit. `--max-chars N` still works when the user gives it, with exit code 8. `--json` and `--ask` keep all four | Card B (F23-Q4), open. The ANSWER changes DECISION-14, DECISION-17, DECISION-20, DECISION-41, and DECISION-43 |
+| 19 | Notices and limits with no question (card B) | Provisional, option 1: in plain text mode, jag writes no cost line, no count of skipped files, cuts no long line, and has no default size limit. `--max-chars N` still works when the user gives it, with exit code 8. `--no-max-chars` is accepted and changes nothing. `--json` and `--ask` keep all four | Card B (F23-Q4), open. The ANSWER changes DECISION-14, DECISION-17, DECISION-20, DECISION-41, and DECISION-43 |
 | 20 | The option set (card C) | Provisional, option 1: the current set in the rg form. `-g`/`--glob` replace `--include` and `--exclude`. New: `-n`, `-N`, `-H`, `-I`, `--heading`, `--no-heading`, and `--sort` with `path` or `none`. `--color` takes its value as rg does (`--color always` and `--color=always`), with no `--colour`. Each other option gives the rg text `unrecognized flag`, with exit 2 | Card C (F23-Q5), open. The ANSWER changes DECISION-34 |
 | 21 | JSON with no question (card D) | Provisional, option 1: `--json` keeps the one JSON document of jag. The case `json` records it | Card D (F23-Q6), open; ADR-0008 |
 | 22 | rg hints (F23-Q7) | Provisional, option 1: jag gives the rg message with no sentence that names an option that jag does not have (`--pcre2`, `--multiline`, `-U`, `--debug`). The list of similar options after `unrecognized flag` comes from jag's own options, with the rule of rg | F23-Q7, open |
@@ -335,7 +335,7 @@ case must give the rg bytes.
 | bad-number | `-A x foo a.txt` | basic | pipe | | A |
 | missing-value | `foo a.txt -A` | basic | pipe | | A |
 | color-bad | `--color foo a.txt` | basic | pipe | | A |
-| sort-bad | `--sort size foo a.txt` | basic | pipe | | A, C |
+| sort-bad | `--sort size foo a.txt` | basic | pipe | | A |
 | look-around | `'a(?=b)' a.txt` | basic | pipe | | A, F23-Q7 |
 | newline | `'a\nb' a.txt` | basic | pipe | | A, F23-Q7 |
 | nothing-searched | `foo` | hidden-only | pipe | | A, F23-Q7 |
@@ -352,7 +352,7 @@ case must give the rg bytes.
 | no-heading | `--no-heading --sort path foo a.txt sub/c.txt` | basic | all | | C |
 | sort-none | `--sort none foo a.txt` | basic | all | | C |
 | sort-modified | `--sort modified foo a.txt` | basic | pipe | | C |
-| rg-only-option | `-v foo a.txt` | basic | pipe | | A, C |
+| rg-only-option | `-v foo a.txt` | basic | pipe | | C |
 | long-line | `foo long.txt` | limits | all | | B |
 | many | `foo many.txt` | limits | all | | B |
 | limits-walk | `--sort path foo .` | limits | all | | B |
