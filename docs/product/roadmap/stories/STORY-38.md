@@ -31,7 +31,7 @@ As a shell power user (PERSONA-04), I want jag to exit with 0 when it returns a 
 
 | Item | State | Progress | Owner | Blocked by | Drift |
 | --- | --- | --- | --- | --- | --- |
-| [CRITERION-58: jag keeps the grep exit codes](../criteria/CRITERION-58.md) | - | - | - | - | - |
+| [CRITERION-58: jag keeps the rg exit codes](../criteria/CRITERION-58.md) | - | - | - | - | - |
 <!-- STATUS:END -->
 
 <!-- LINKS:START (generated, do not edit) -->
@@ -41,5 +41,5 @@ As a shell power user (PERSONA-04), I want jag to exit with 0 when it returns a 
 - parent: [FEATURE-13: Common grep options and exit codes](../features/FEATURE-13.md)
 - milestone: [MILESTONE-02: Make it good](../milestones/MILESTONE-02.md)
 - traces: [DECISION-05: jag keeps grep exit codes and adds one code for each model failure](../../prd/decisions/DECISION-05.md)
-- criterion or run of: [CRITERION-58: jag keeps the grep exit codes](../criteria/CRITERION-58.md)
+- criterion or run of: [CRITERION-58: jag keeps the rg exit codes](../criteria/CRITERION-58.md)
 <!-- LINKS:END -->

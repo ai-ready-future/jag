@@ -46,7 +46,7 @@ With no path, jag searches the current folder or reads the pipe; the user can al
 ## Links
 
 - parent: [EPIC-04: A shell user keeps their habits](../epics/EPIC-04.md)
-- blocked by: [FEATURE-05: Search a folder as grep -r does](FEATURE-05.md)
+- blocked by: [FEATURE-05: Search a folder as rg does](FEATURE-05.md)
 - milestone: [MILESTONE-02: Make it good](../milestones/MILESTONE-02.md)
 - traces: [CAPABILITY-06: Feels like grep](../../prd/capabilities/CAPABILITY-06.md)
 - traces: [DECISION-35: With no path, jag searches the current folder or reads the pipe](../../prd/decisions/DECISION-35.md)

@@ -26,7 +26,7 @@ This milestone holds the bare minimum to see jag work. The grep habits, the read
 | [EPIC-03: Output that fits an agent](../epics/EPIC-03.md) | done | 3/3 (100%) | - | - | - |
 | [FEATURE-01: Store a key one time](../features/FEATURE-01.md) | done | 5/5 (100%) | - | FEATURE-17 | - |
 | [FEATURE-04: Rank matching lines by a question](../features/FEATURE-04.md) | done | 3/3 (100%) | - | FEATURE-01, FEATURE-05 | - |
-| [FEATURE-05: Search a folder as grep -r does](../features/FEATURE-05.md) | done | 2/2 (100%) | - | - | - |
+| [FEATURE-05: Search a folder as rg does](../features/FEATURE-05.md) | done | 2/2 (100%) | - | - | - |
 | [FEATURE-06: Cost limit on scoring](../features/FEATURE-06.md) | done | 3/3 (100%) | - | FEATURE-04 | - |
 | [FEATURE-08: File, line, and snippet for each result](../features/FEATURE-08.md) | done | 3/3 (100%) | - | FEATURE-04 | - |
 | [FEATURE-09: Size limit on the text that jag returns](../features/FEATURE-09.md) | done | 4/4 (100%) | - | FEATURE-08 | - |
@@ -44,7 +44,7 @@ This milestone holds the bare minimum to see jag work. The grep habits, the read
 - item of: [EPIC-03: Output that fits an agent](../epics/EPIC-03.md)
 - item of: [FEATURE-01: Store a key one time](../features/FEATURE-01.md)
 - item of: [FEATURE-04: Rank matching lines by a question](../features/FEATURE-04.md)
-- item of: [FEATURE-05: Search a folder as grep -r does](../features/FEATURE-05.md)
+- item of: [FEATURE-05: Search a folder as rg does](../features/FEATURE-05.md)
 - item of: [FEATURE-06: Cost limit on scoring](../features/FEATURE-06.md)
 - item of: [FEATURE-08: File, line, and snippet for each result](../features/FEATURE-08.md)
 - item of: [FEATURE-09: Size limit on the text that jag returns](../features/FEATURE-09.md)

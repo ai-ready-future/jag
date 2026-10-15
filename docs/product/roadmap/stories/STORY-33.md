@@ -32,7 +32,7 @@ As a shell power user (PERSONA-04), I want jag with a term and no question to re
 
 | Item | State | Progress | Owner | Blocked by | Drift |
 | --- | --- | --- | --- | --- | --- |
-| [CRITERION-53: A term with no question works as grep](../criteria/CRITERION-53.md) | - | - | - | - | - |
+| [CRITERION-53: A term with no question works as rg](../criteria/CRITERION-53.md) | - | - | - | - | - |
 | [CRITERION-54: A search with no question costs nothing](../criteria/CRITERION-54.md) | - | - | - | - | - |
 <!-- STATUS:END -->
 
@@ -43,6 +43,6 @@ As a shell power user (PERSONA-04), I want jag with a term and no question to re
 - parent: [FEATURE-12: Plain grep with no question](../features/FEATURE-12.md)
 - milestone: [MILESTONE-02: Make it good](../milestones/MILESTONE-02.md)
 - traces: [DECISION-32: A term with no question works as plain rg](../../prd/decisions/DECISION-32.md)
-- criterion or run of: [CRITERION-53: A term with no question works as grep](../criteria/CRITERION-53.md)
+- criterion or run of: [CRITERION-53: A term with no question works as rg](../criteria/CRITERION-53.md)
 - criterion or run of: [CRITERION-54: A search with no question costs nothing](../criteria/CRITERION-54.md)
 <!-- LINKS:END -->
