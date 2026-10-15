@@ -4,11 +4,12 @@ title: Release 1 keeps the options that people use most
 description: jag keeps a fixed set of options that people use most; any other option
   is a usage error that names it.
 status: stable
-decided_at: '2026-10-07'
+decided_at: '2026-10-15'
 alternatives:
 - The same set, and jag ignores an unknown option with a warning
 - All GNU grep options, with a usage error for options that have no meaning in a ranked
   search
+- Keep grep as the reference for the options
 about:
 - /capabilities/CAPABILITY-06.md
 - /decisions/DECISION-05.md

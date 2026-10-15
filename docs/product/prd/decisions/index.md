@@ -37,7 +37,7 @@
 * [DECISION-35: With no path, jag searches the current folder or reads the pipe](DECISION-35.md) - With no path, jag searches the current folder, or reads standard input when text comes in through a pipe.
 * [DECISION-36: The user can give any mix of files and folders](DECISION-36.md) - jag accepts several paths, and each path can be a file or a folder, as in grep.
 * [DECISION-37: jag shows progress only in a terminal](DECISION-37.md) - While jag ranks, it shows a progress line on the error stream only when that stream is a terminal.
-* [DECISION-38: Color works as rg --color=auto](DECISION-38.md) - jag colors the matching text only in a terminal, and --color=never or always changes that.
+* [DECISION-38: Color works as rg --color=auto](DECISION-38.md) - jag colors the output only in a terminal, with the rg color codes, and --color=never or always changes that.
 * [DECISION-39: When the user stops jag, it stops at once with no partial results](DECISION-39.md) - On Ctrl-C or a closed pipe, jag stops, starts no new model call, and shows no partial results.
 * [DECISION-40: The cost is the billed amount in US dollars](DECISION-40.md) - jag shows the amount that the service billed, in US dollars; with no billed figure, it shows a labeled estimate.
 * [DECISION-41: In text mode, the cost line goes to the error stream after each search](DECISION-41.md) - Text mode writes a cost line to the error stream after each search, also in a pipe; structured mode has a cost field.

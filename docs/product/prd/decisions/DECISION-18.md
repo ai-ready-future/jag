@@ -4,10 +4,11 @@ title: Piped text has the label <stdin>
 description: A result from piped text uses the rg label <stdin> and the line numbers
   of the piped text.
 status: stable
-decided_at: '2026-10-06'
+decided_at: '2026-10-15'
 alternatives:
 - Show no file name, only the line number
 - Do not accept piped text for a question search
+- The grep label (standard input)
 about:
 - /capabilities/CAPABILITY-03.md
 ---

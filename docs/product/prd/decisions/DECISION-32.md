@@ -4,10 +4,11 @@ title: A term with no question works as plain rg
 description: With no question, that is with no --ask option, jag makes no model call,
   has no cost, and works as rg.
 status: stable
-decided_at: '2026-10-07'
+decided_at: '2026-10-15'
 alternatives:
 - A usage error with exit code 2 that asks for a question
 - Rank by word match only, and say that no question was given
+- Work as plain grep
 about:
 - /capabilities/CAPABILITY-06.md
 - /capabilities/CAPABILITY-02.md

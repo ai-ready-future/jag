@@ -31,6 +31,8 @@ traces:
 
 One version tag builds the jag binary for four platforms and publishes it on GitHub Releases, crates.io, and npm with the same version (ADR-0010).
 
+Source of `blocked_by` FEATURE-23: the user, hitl answer of 2026-10-15 (FEATURE-23, Q2 option 1: the parity comes before release 1).
+
 <!-- STATUS:START (generated, do not edit) -->
 
 ## Status
