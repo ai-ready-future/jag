@@ -536,8 +536,6 @@ struct SearchArgs<'a> {
     /// `None` for a search with no question (FEATURE-12).
     question: Option<&'a str>,
     paths: Vec<PathBuf>,
-    /// The user gave `-`: jag reads standard input, with no test of its type.
-    stdin: bool,
     /// The options `-i`, `-w`, and `-F`.
     matching: MatchOptions,
     /// The lines around a match. `None`: no option gave them.
@@ -569,26 +567,10 @@ fn search_args(cli: &Cli) -> Result<SearchArgs<'_>, Failure> {
     } else {
         (cli.terms.iter().map(String::as_str).collect(), words)
     };
-    // The path `-` alone is the text of standard input, as in rg (FEATURE-23,
-    // decision 14), also when standard input is a terminal or a device. With
-    // other paths, and the path "", it is a usage error, in the order of the
-    // command line (FEATURE-14, decision 8).
-    let stdin = path_words.as_slice() == [OsStr::new("-")];
-    let path_words = if stdin { Vec::new() } else { path_words };
-    for path in &path_words {
-        if *path == OsStr::new("-") {
-            return Err(usage_failure(
-                "the path - is not valid with other paths.",
-                "To search the text of a pipe, give - alone, or give no path. To search a file with the name -, give ./-.",
-            ));
-        }
-        if path.is_empty() {
-            return Err(usage_failure(
-                "a path is empty.",
-                "Give the path of a file or a folder, or give no path.",
-            ));
-        }
-    }
+    // The path `-` is the text of standard input, as in rg, also with other
+    // paths and also when standard input is a terminal or a device. The path ""
+    // is a path that does not exist. Neither is a usage error (FEATURE-23,
+    // decision 14).
     let question = cli.ask.as_deref();
     if let Some(question) = question {
         if question.trim().is_empty() {
@@ -624,7 +606,6 @@ fn search_args(cli: &Cli) -> Result<SearchArgs<'_>, Failure> {
         terms,
         question,
         paths: path_words.into_iter().map(PathBuf::from).collect(),
-        stdin,
         matching: MatchOptions::of(cli),
         context,
         files,
@@ -747,7 +728,7 @@ fn search(
         files: args.files.clone(),
         ..ScanOptions::default()
     };
-    let (report, input) = scan_search(&args.paths, args.stdin, &matcher, &options);
+    let (report, input) = scan_search(&args.paths, &matcher, &options);
     let windows = plan_windows(&report.files, args.context.unwrap_or(ContextLines::DEFAULT));
     let total = windows.len();
     // Only a search with more results than the limit pre-ranks them, from
@@ -890,7 +871,7 @@ fn plain_json(
         files: args.files.clone(),
         ..ScanOptions::default()
     };
-    let (report, input) = scan_search(&args.paths, args.stdin, &matcher, &options);
+    let (report, input) = scan_search(&args.paths, &matcher, &options);
     summary.cost = Cost::NoCall(NoCallReason::NoQuestion);
     // With an option for the lines around a match, groups of lines. With none,
     // one line for each match (FEATURE-13, decision 15).
@@ -1015,24 +996,18 @@ fn no_result(
 }
 
 /// The scan of a search (FEATURE-14, "The search flow"). With paths, jag
-/// never reads standard input (decision 4). With `-` (`stdin`), it searches
-/// the text of standard input. With no path, it searches the piped text or the
-/// current folder. Gives the report and the piped text.
+/// reads standard input only for the path `-` (FEATURE-23, decision 14). With
+/// no path, it searches the piped text or the current folder. Gives the report
+/// and the piped text.
 fn scan_search(
     paths: &[PathBuf],
-    stdin: bool,
     matcher: &RegexMatcher,
     options: &ScanOptions,
 ) -> (ScanReport, Option<Vec<u8>>) {
     if !paths.is_empty() {
-        return (scan(paths, matcher, options), None);
+        return scan_paths(paths, matcher, options);
     }
-    let input = if stdin {
-        read_input(io::stdin().lock())
-    } else {
-        no_path_input()
-    };
-    match input {
+    match no_path_input() {
         Input::PipedText(bytes) => {
             let report = scan_input(&bytes, matcher);
             (report, Some(bytes))
@@ -1044,6 +1019,56 @@ fn scan_search(
             (report, None)
         }
     }
+}
+
+/// The scan of the paths of the command line. The path `-` is the text of
+/// standard input, with no test of its type. The report keeps the order of the
+/// command line: the paths before `-`, the text, the paths after. The text is
+/// read once, so a second `-` gives no text, as in rg.
+fn scan_paths(
+    paths: &[PathBuf],
+    matcher: &RegexMatcher,
+    options: &ScanOptions,
+) -> (ScanReport, Option<Vec<u8>>) {
+    let mut report = ScanReport::empty();
+    let mut piped = None;
+    let mut read = false;
+    let mut part: Vec<PathBuf> = Vec::new();
+    for path in paths {
+        if path.as_os_str() != "-" {
+            part.push(path.clone());
+            continue;
+        }
+        if !part.is_empty() {
+            absorb(&mut report, scan(&part, matcher, options));
+            part.clear();
+        }
+        if read {
+            continue;
+        }
+        read = true;
+        match read_input(io::stdin().lock()) {
+            Input::PipedText(bytes) => {
+                absorb(&mut report, scan_input(&bytes, matcher));
+                piped = Some(bytes);
+            }
+            Input::ReadError(warning) => report.warnings.push(warning),
+            Input::CurrentFolder => {}
+        }
+    }
+    if !part.is_empty() {
+        absorb(&mut report, scan(&part, matcher, options));
+    }
+    (report, piped)
+}
+
+/// Put the report of the next part of the command line after `report`.
+fn absorb(report: &mut ScanReport, next: ScanReport) {
+    report.files.extend(next.files);
+    report.warnings.extend(next.warnings);
+    report.skipped.binary += next.skipped.binary;
+    report.skipped.hidden += next.skipped.hidden;
+    report.skipped.ignored += next.skipped.ignored;
 }
 
 /// `emit` for the search flow: it takes the output first. When a stop owns
@@ -1411,19 +1436,22 @@ mod tests {
         assert!(failure.contains("Use: jag [OPTIONS] TERM [PATH...]"));
     }
 
-    // Decision 8 of FEATURE-14, changed by decision 14 of FEATURE-23: `-` alone
-    // is the text of a pipe, as in rg.
+    // Decision 8 of FEATURE-14, changed by decision 14 of FEATURE-23: `-` is
+    // the text of a pipe, also with other paths, and the empty path is a path
+    // that does not exist. Neither is a usage error.
     #[test]
-    fn the_path_dash_alone_is_a_pipe_and_dash_with_other_paths_or_empty_is_a_usage_error() {
-        assert_eq!(search_failure(&["--ask", "q", "needle", "-"]), None);
-        let dash = search_failure(&["--ask", "q", "needle", "a.txt", "-"]).expect("dash");
-        assert!(dash.contains("the path - is not valid with other paths."));
-        assert!(dash.contains("give ./-."));
-        let empty = search_failure(&["--ask", "q", "needle", "a.txt", ""]).expect("empty");
-        assert!(empty.contains("a path is empty."));
-        assert!(!empty.contains("  "));
-        let first = search_failure(&["--ask", "q", "needle", "", "-"]).expect("both");
-        assert!(first.contains("a path is empty."));
-        assert_eq!(search_failure(&["--ask", "q", "needle", "./-"]), None);
+    fn the_path_dash_and_the_empty_path_are_no_usage_error_with_other_paths() {
+        for args in [
+            &["--ask", "q", "needle", "-"][..],
+            &["--ask", "q", "needle", "a.txt", "-"],
+            &["--ask", "q", "needle", "a.txt", ""],
+            &["--ask", "q", "needle", "", "-"],
+            &["--ask", "q", "needle", ""],
+            &["--ask", "q", "needle", "./-"],
+            &["--json", "needle", "a.txt", "-"],
+            &["--json", "needle", "a.txt", ""],
+        ] {
+            assert_eq!(search_failure(args), None, "{args:?}");
+        }
     }
 }

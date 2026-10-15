@@ -248,8 +248,10 @@ $ jag --ask="-v or --verbose?" verbose src
 - With no path and no pipe, for example in a terminal or with `/dev/null` as
   standard input, jag searches the current folder, and the paths have no `./`
   at the start.
-- `-` as the only path means standard input. With `--ask` or `--json`, `-`
-  with other paths is a usage error.
+- The path `-` means standard input, in each mode, also with other paths.
+  jag searches each path in the order of the command line. In the JSON
+  document, the `path` of a result of standard input is `null`. An empty path
+  is a path that does not exist.
 - With `--ask`, jag reads all piped text before it ranks the results, so it
   waits until the pipe closes.
 - An agent gives a path, for example `.`. Some tools keep standard input open,

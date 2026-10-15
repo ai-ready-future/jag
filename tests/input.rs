@@ -22,12 +22,11 @@ use serde_json::{Value, json};
 use tempfile::TempDir;
 
 const QUESTION: &str = "which line has the needle?";
-const DASH_FAILURE: &str = "jag: the path - is not valid with other paths.\nTo search the text of a pipe, give - alone, or give no path. To search a file with the name -, give ./-.\n";
 /// The error text of rg for the path `nofile` that does not exist.
 const NO_FILE: &str =
     "jag: nofile: IO error for operation on nofile: No such file or directory (os error 2)\n";
-const EMPTY_FAILURE: &str =
-    "jag: a path is empty.\nGive the path of a file or a folder, or give no path.\n";
+/// The warning of the empty path with `--ask` (FEATURE-14, decision 7).
+const EMPTY_WARNING: &str = "jag: the path  does not exist\n";
 
 struct Run {
     code: Option<i32>,
@@ -534,10 +533,10 @@ fn decision_9_a_missing_key_and_a_bad_term_come_before_the_warning() {
     assert!(!bad_term.stderr.contains("IO error"));
 }
 
-// Decision 8: with a question, the path `-` with other paths and the empty
-// path are usage errors. With no question, jag does what rg does (FEATURE-23).
+// Decision 8, changed by decision 14 of FEATURE-23: the path `-` is the pipe
+// alone and with other paths, in each mode.
 #[test]
-fn decision_8_the_path_dash_is_the_pipe_alone_and_an_error_with_other_paths() {
+fn decision_8_the_path_dash_is_the_pipe_alone_and_with_other_paths() {
     let root = one_file();
     let server = FakeServer::constant(0.8);
     // With no question, `-` is the pipe, as in rg.
@@ -549,16 +548,23 @@ fn decision_8_the_path_dash_is_the_pipe_alone_and_an_error_with_other_paths() {
     // With a question and no key, `-` alone is the pipe: the key comes first.
     let no_key = run_bare(root.path(), &["--ask", QUESTION, "needle", "-"]);
     assert_eq!(no_key.code, Some(3));
+    assert!(server.requests().is_empty());
 
-    // With a question, `-` with other paths is a usage error.
+    // With a question, `-` with other paths reads the pipe too: each path is
+    // searched.
     let asked = run(
         &server,
         root.path(),
         &["--ask", QUESTION, "needle", "a.txt", "-"],
-        None,
+        Some(b"needle from the pipe\n"),
     );
-    assert_eq!(asked.code, Some(2));
-    assert_eq!(asked.stderr, DASH_FAILURE);
+    assert_eq!(asked.code, Some(0), "{}", asked.stderr);
+    assert!(asked.stdout.contains("a.txt:1:needle"), "{}", asked.stdout);
+    assert!(
+        asked.stdout.contains("<stdin>:1:needle from the pipe"),
+        "{}",
+        asked.stdout
+    );
 
     // With no question, rg reads the pipe, and the empty pipe has no line.
     write(root.path(), "-", b"needle in dash\n");
@@ -568,23 +574,57 @@ fn decision_8_the_path_dash_is_the_pipe_alone_and_an_error_with_other_paths() {
     let dot_slash = run(&server, root.path(), &["needle", "./-"], None);
     assert_eq!(dot_slash.code, Some(0));
     assert_eq!(dot_slash.stdout, "needle in dash\n");
-    assert!(server.requests().is_empty());
+}
+
+// FEATURE-23, decision 14: the empty path is a path that does not exist, in
+// each mode. jag searches the other paths and exits with 2.
+#[test]
+fn decision_14_the_empty_path_is_a_path_that_does_not_exist_with_a_question() {
+    let root = one_file();
+    let server = FakeServer::constant(0.8);
+    let run = run(
+        &server,
+        root.path(),
+        &["--ask", QUESTION, "needle", "a.txt", ""],
+        None,
+    );
+    assert_eq!(run.code, Some(2));
+    assert_eq!(run.stdout, "a.txt:1:needle\n");
+    assert!(run.stderr.contains(EMPTY_WARNING), "{}", run.stderr);
 }
 
 #[test]
-fn decision_8_the_empty_path_is_a_usage_error_with_a_question() {
+fn decision_14_with_json_stdin_and_the_empty_path_with_other_paths() {
     let root = one_file();
     let server = FakeServer::constant(0.8);
-    for args in [
-        &["--ask", QUESTION, "needle", ""][..],
-        &["--ask", QUESTION, "needle", "a.txt", ""],
-    ] {
-        let run = run(&server, root.path(), args, None);
-        assert_eq!(run.code, Some(2), "{args:?}");
-        assert_eq!(run.stdout, "", "{args:?}");
-        assert_eq!(run.stderr, EMPTY_FAILURE, "{args:?}");
-        assert!(!run.stderr.contains("  "));
-    }
+    // `-` with another path: each path is searched, and the pipe has a null path.
+    let run_dash = run(
+        &server,
+        root.path(),
+        &["--json", "needle", "-", "a.txt"],
+        Some(b"needle from the pipe\n"),
+    );
+    assert_eq!(run_dash.code, Some(0), "{}", run_dash.stderr);
+    let document = run_dash.document();
+    assert_eq!(document["results"][0]["path"], Value::Null);
+    assert_eq!(document["results"][1]["path"], "a.txt");
+    assert_eq!(document["results"].as_array().map(Vec::len), Some(2));
+    // The empty path is a warning, the other path is searched, and the exit
+    // code is 2.
+    let empty = run(
+        &server,
+        root.path(),
+        &["--json", "needle", "", "a.txt"],
+        None,
+    );
+    assert_eq!(empty.code, Some(2));
+    let document = empty.document();
+    assert_eq!(
+        document["warnings"],
+        json!([{"path": "", "text": "the path  does not exist"}])
+    );
+    assert_eq!(document["results"][0]["path"], "a.txt");
+    assert_eq!(document["exit_code"], 2);
 }
 
 #[test]
