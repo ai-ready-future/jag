@@ -107,7 +107,7 @@ names.
 | 22 | rg hints (card E) | Decided, option 1: jag gives the rg message with the same first part and the same exit code, with no sentence that names an option that jag does not have (`--pcre2`, `--multiline`, `-U`, `--debug`). The list of similar options after `unrecognized flag` comes from jag's own options, with the rule of rg. These are recorded differences | Card E (F23-Q7), user ANSWER via hitl, 2026-10-15, option 1 |
 | 23 | Layout options with `--ask` or `--json` | `-n`, `-N`, `-H`, `-I`, `--heading`, and `--no-heading` are a usage error with `--ask` or `--json`, as `-l`, `-c`, and `-q` are today. `-g` and `--sort` work in all modes. `--sort` has no effect on the ranked order | Inferred from `src/cli.rs` (`conflicts_with_all = MODES`) |
 | 24 | The test form | ADR-0021: one cargo integration test `tests/rg_parity.rs`, the cases in `tests/parity/cases.yaml`, the fixture trees in `tests/parity/fixtures/`, the stored jag bytes in `tests/parity/expected/`, the pin in `tests/parity/rg.sha256`, and `scripts/parity/install-rg.sh`. Three modes: pipe, color, and terminal | ADR-0021 (merged in `a9f966d`, status `accepted` (PR #129)); the round of the user ANSWERs in PR #127 (head `778d4c3`) |
-| 25 | The first test set | The 77 cases of the section "The first test set", with the fixture trees of the section "The fixture trees" | CRITERION-110; the probes of 2026-10-15 |
+| 25 | The first test set | The 78 cases of the section "The first test set", with the fixture trees of the section "The fixture trees" | CRITERION-110; the probes of 2026-10-15 |
 | 26 | Stdin files of the cases | `tests/parity/stdin/<name>`. A case names its file with `stdin: <name>` | ADR-0021 in PR #127 (head `778d4c3`) |
 | 27 | Owners and pull requests | Two pull requests. The tester opens the test PR (STORY-65 and STORY-66). The implementer opens the code PR (STORY-67). The verifier runs the cases on the code PR. See "Owners" | Orchestrator TASK ("The tester codifies the tests; the verifier runs the cases"); `docs/adlc.md`, the roles |
 | 28 | Merge order | The code PR merges first. The test PR merges after it, so `main` never has a parity test that fails | Decision 27; `cargo test` stops after the first test binary that fails, so a red parity test hides the results of other tests |
@@ -285,7 +285,7 @@ The thread rule (decision 11) comes from `HiArgs` of rg 15.2.0
 (`crates/core/flags/hiargs.rs`). rg uses one thread when one of these is
 true:
 
-- The command line has `--sort`.
+- The last `--sort` of the command line has the value `path`. `--sort none` sets no sort, so it does not give one thread.
 - The command line names exactly one path, and that path is `-` or is not a
   folder (`is_one_file`). A path that does not exist is not a folder.
 - `std::thread::available_parallelism` gives 1, or gives an error.
@@ -355,6 +355,7 @@ stderr. `deliberate: X`: the stored jag bytes, with the ANSWER of card X
 | missing-path | `foo nope.txt` | basic | all | | rg |
 | missing-and-match | `--sort path foo nope.txt a.txt` | basic | all | | rg |
 | missing-and-match-threads | `foo nope.txt a.txt` | basic | all | | rg |
+| missing-sort-none | `--sort none foo nope.txt a.txt` | basic | all | | rg |
 | quiet-missing | `-q --sort path foo nope.txt a.txt` | basic | all | | rg |
 | empty-path | `foo ''` | basic | all | | rg |
 | bad-regex | `'(' a.txt` | basic | all | | rg |
@@ -490,8 +491,9 @@ test that checks `(standard input)`).
 ## Assumptions
 
 - Decision 11 (the form of a walk error) is derived from row 2 (Q1) with
-  ADR-0022 and the rg 15.2.0 source. `missing-and-match-threads` gives the
-  form of more than one thread only on a machine with more than one CPU. On
+  ADR-0022 and the rg 15.2.0 source. `missing-and-match-threads` and
+  `missing-sort-none` give the form of more than one thread only on a
+  machine with more than one CPU. On
   a machine with one CPU, rg and jag both give the form of one thread.
 - Decision 31 (no rg config file) is derived from row 2 (Q1) with ADR-0021.
 - Decision 23 (layout options with `--ask` or `--json`) comes from the code
