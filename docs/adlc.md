@@ -25,8 +25,8 @@ The `sofa` skill fills these values when it copies the template.
 
 Repository rules:
 - Never read, print or commit the keys in `~/.config/jag/`.
-- The ADRs in `docs/adr` win over `docs/handoff.md` where they differ (for example, ADR-0005: jag is one Rust binary, not TypeScript).
-- Read the earlier prototype only as `docs/handoff.md` says (`git show` or `git archive`). Do not edit files or run commands in its worktree.
+- The ADRs in `docs/adr` win over the `docs/handoff.md` of the "Extra context files" row where they differ (for example, ADR-0005: jag is one Rust binary, not TypeScript).
+- Read the earlier prototype only as the `docs/handoff.md` of the "Extra context files" row says (`git show` or `git archive`). Do not edit files or run commands in its worktree.
 
 ## 2. Rules for all sessions
 
@@ -48,7 +48,7 @@ Repository rules:
     If one of these is false, the story stays in `backlog`. A role that changes the state of a story or a feature checks this rule in the same PR.
     Exception: a user `ANSWER` can set the stories of a blocked feature to `ready`. The `blocked_by` list stays. The `Plan` line in `log.md` names the `ANSWER`. FEATURE-18 has this exception (`ANSWER` of 2026-10-15, "start now").
     When a feature gets the state `done`, the same PR sets to `ready` each story that waited only for this feature and has a merged spec.
-12. Merge PRs with squash only. After each merge, the session that merges checks the author and the committer of the new commit on `main` by hash (FEATURE-19 spec decision 13 and decision 31). A rebase merge wrote the account address as committer in `3ead9ae`.
+12. Merge PRs with squash only. After each merge, the session that merges checks the new commit on `main`. The `sha256sum` of its author address must be the `sha256sum` of the author address of `78aa3f5`. Its committer must be the committer of `78aa3f5` (GitHub). The check never prints an address (FEATURE-19 spec decisions 13 and 31). A rebase merge wrote the account address as committer in `3ead9ae`.
 
 ## 3. Roles
 
@@ -72,7 +72,7 @@ Model and Effort: use the exact values in the table.
 **orchestrator**
 - Keep a queue of features in roadmap order.
 - As soon as a story gets the state `ready` on `main`, assign its spec to a free implementer at once. If no implementer is free, start a new implementer (the maximum is 4). Do not wait for other stories or features.
-- Start a feature only when the features it depends on are merged.
+- Start a feature only when the features it depends on are merged, unless a user `ANSWER` allows an early start (rule 11).
 - Run 2 features at the same time only if they do not change the same area.
 - Start more implementers and verifiers when the queue grows. The maximum is 4 of each.
 - Start a second specifier when 2 features are ready for a spec. The maximum is 2 specifiers.
@@ -272,4 +272,4 @@ Send a DONE message to the orchestrator when you are ready. Then wait for TASK m
 | 2026-10-13 | Added rule 11: a story is `ready` only if its spec is merged, its feature is not blocked, and no open `ASK` blocks it. The orchestrator assigns a ready story to an implementer at once. The specifier and each PR that sets a feature to `done` set the story state by this rule | The user asked for this change. 9 stories showed `ready` but were blocked or had no spec |
 | 2026-10-14 | Added an Effort column to section 3. Orchestrator: `claude-opus-5-5`, `medium`. Hitl: `claude-sonnet-5-5`, `medium`. Planner: `claude-opus-5-5`, `medium`. Projecter: `claude-sonnet-5-5`, `medium`. Architect: `claude-opus-5-5`, `high`. Implementer: `claude-sonnet-5-5`, `high`. Verifier: `claude-opus-5-5`, `high`. Chores: `claude-sonnet-5-5`, `medium`. Retro: `claude-opus-5-5`, `medium`. Specifier: `claude-opus-5-5`, `xhigh`. Section 8 uses these values and restarts a session when its model or effort changes | The user asked for this change |
 | 2026-10-14 | Removed the ADR count from the ADR folder row in section 1. The row points to `docs/adr/README.md` | The count (10) was out of date: `main` has 18 accepted ADRs. A count goes out of date again |
-| 2026-10-15 | Rule 11: added the exception for a user `ANSWER` (FEATURE-18). Added rule 12: squash merge only, and a hash check of the author and the committer after each merge. The "Extra context files" row points to `docs/handoff.md` in the old folder `jag-private` | Verifier comment on PR #94. A rebase merge wrote the account address as committer in `3ead9ae`. Since FEATURE-19 step B10, the main folder is a new clone and has no `docs/handoff.md` |
+| 2026-10-15 | Rule 11: added the exception for a user `ANSWER` (FEATURE-18). Added rule 12: squash merge only, and a hash check of the author and the committer after each merge. The "Extra context files" row points to `docs/handoff.md` in the old folder `jag-private`. Section 4 points to the rule 11 exception. The repository rules point to the "Extra context files" row | Verifier comments on PR #94 and PR #95. A rebase merge wrote the account address as committer in `3ead9ae`. Since FEATURE-19 step B10, the main folder is a new clone and has no `docs/handoff.md` |
