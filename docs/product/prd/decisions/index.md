@@ -30,12 +30,12 @@
 * [DECISION-28: Structured output has a field for each item that the text shows](DECISION-28.md) - Each label, count, mark, and notice of the text is a named field; each result has its rank and no score.
 * [DECISION-29: In text mode, notices go to the error stream](DECISION-29.md) - Text mode writes results to standard output and notices to the error stream; structured mode writes all of it in the structure.
 * [DECISION-30: Structured mode always writes a complete output](DECISION-30.md) - With no results, structured mode writes an empty result list and the summary fields.
-* [DECISION-31: The command takes the term and the paths, and the question only from --ask](DECISION-31.md) - The form is jag [OPTIONS] TERM [PATH...], with the term first as in grep. The question comes only from the option --ask "QUESTION".
+* [DECISION-31: The command takes the term and the paths, and the question only from --ask](DECISION-31.md) - The form is jag [OPTIONS] TERM [PATH...], with the term first as in rg. The question comes only from the option --ask "QUESTION".
 * [DECISION-32: A term with no question works as plain rg](DECISION-32.md) - With no question, that is with no --ask option, jag makes no model call, has no cost, and works as rg.
-* [DECISION-33: The term is a regular expression, and -F makes it fixed text](DECISION-33.md) - The term is a regular expression, as in grep; the -F option makes it fixed text.
+* [DECISION-33: The term is a regular expression, and -F makes it fixed text](DECISION-33.md) - The term is a regular expression, as in rg; the -F option makes it fixed text.
 * [DECISION-34: Release 1 keeps the options that people use most](DECISION-34.md) - jag keeps a fixed set of options that people use most; any other option is a usage error that names it.
 * [DECISION-35: With no path, jag searches the current folder or reads the pipe](DECISION-35.md) - With no path, jag searches the current folder, or reads standard input when text comes in through a pipe.
-* [DECISION-36: The user can give any mix of files and folders](DECISION-36.md) - jag accepts several paths, and each path can be a file or a folder, as in grep.
+* [DECISION-36: The user can give any mix of files and folders](DECISION-36.md) - jag accepts several paths, and each path can be a file or a folder, as in rg.
 * [DECISION-37: jag shows progress only in a terminal](DECISION-37.md) - While jag ranks, it shows a progress line on the error stream only when that stream is a terminal.
 * [DECISION-38: Color works as rg --color=auto](DECISION-38.md) - jag colors the output only in a terminal, with the rg color codes, and --color=never or always changes that.
 * [DECISION-39: When the user stops jag, it stops at once with no partial results](DECISION-39.md) - On Ctrl-C or a closed pipe, jag stops, starts no new model call, and shows no partial results.

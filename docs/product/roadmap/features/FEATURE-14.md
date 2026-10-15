@@ -23,7 +23,7 @@ traces:
 - to: prd:/decisions/DECISION-35.md
   hash: 4b8792
 - to: prd:/decisions/DECISION-36.md
-  hash: fa431e
+  hash: 479f03
 ---
 
 # FEATURE-14: Files, folders, and piped text

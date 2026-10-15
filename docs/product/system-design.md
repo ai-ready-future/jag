@@ -57,7 +57,7 @@ The quality priorities, in order:
 Key decisions:
 
 - Find the matches with the ripgrep libraries, because they are fast and
-  their skip rules fit grep habits (0001-find-matches-with-the-ripgrep-libraries.md).
+  their skip rules are the skip rules of rg (0001-find-matches-with-the-ripgrep-libraries.md).
 - Score 200 results in calls of 32, six calls in parallel, because that keeps
   a search near $0.009 at worst and near 1 second of model time
   (0002-score-the-top-200-results-in-calls-of-32-six-calls-in.md).
@@ -230,7 +230,7 @@ components:
   - id: C-cli
     name: Command line
     kind: cli
-    summary: Reads the command and the grep options, picks text or structured mode, runs the pipeline, and sets the exit code.
+    summary: Reads the command and its options, picks text or structured mode, runs the pipeline, and sets the exit code.
     owns_entities: []
     depends_on:
       - id: C-config
@@ -399,8 +399,8 @@ gateway key, the base URL, and the model name.
 |---|---|---|---|---|
 | IF-1 | C-typesafe | C-scorer | HTTPS `POST /v1/systemone` with a Bearer key. One call holds the question and 32 snippets. The response gives the probabilities and the billed usage. | Each jag release pins the Jev model version that its prompt and threshold were tuned on. A setting can name another model (contracts-5). |
 | IF-2 | C-gateway | C-scorer | The same calls as IF-1, to `<base URL>/systemone`. jag adds `/v1` to a base URL whose path does not end with `/v1` (0016-add-v1-to-a-base-url-whose-path-does-not-end-with-v1.md). | The same as IF-1. The user sets the model name for the gateway. A change to the address rule needs a new major version. |
-| IF-3 | C-cli | Agent, person | The command line: `jag [OPTIONS] TERM [PATH...]`. The question comes only from the option `--ask QUESTION`, with no short form, and each word after the term is a path (contracts-1). The grep form `jag [OPTIONS] -e TERM ... [PATH...]` also gives the term: `-e` can come more than one time, a line matches when it matches one of the terms, and each word is a path (FEATURE-13 spec decisions 10 and 31). With `--ask`, the model ranks the matches. With no `--ask`, jag works as plain grep, with no model call, no key, and no cost (DECISION-32). jag takes the grep options of DECISION-34. The options `--setup`, `--check`, and `--forget-key` run the setup, the readiness check, and the key removal (contracts-2). | Semantic versions of jag. A removed or changed option needs a new major version. |
-| IF-4 | C-cli | Agent, script | Exit codes: 0 results found, 1 no match or no good answer, 2 usage error or a path that does not exist (CRITERION-70), 3 key missing, 4 key not accepted, 5 no credit, 6 service down, 7 cost limit reached, 8 results left out by the size limit, 130 stopped with Ctrl-C (contracts-3). jag itself never gives 126 or 127. They mean that jag did not start: a shell gives them when it cannot run a command, and the npm launcher gives them in the same way (127 no binary, 126 the binary does not start; FEATURE-18 spec decision 32). A failure stops jag with its own code: 2 for a usage error or a bad term, 3 to 6, and 130. A search that ends gives one code, in this order: 2 when a path does not exist, then 1, then 7, then 8, then 0 (DECISION-13, DECISION-47, FEATURE-14 spec decisions 7 and 20). The one exception: with `-q`, a match gives 0 also when a path does not exist, as `grep -q` does (FEATURE-13 spec decision 21). | A code never changes its meaning in one major version. |
+| IF-3 | C-cli | Agent, person | The command line: `jag [OPTIONS] TERM [PATH...]`. The question comes only from the option `--ask QUESTION`, with no short form, and each word after the term is a path (contracts-1). The form `jag [OPTIONS] -e TERM ... [PATH...]` also gives the term: `-e` can come more than one time, a line matches when it matches one of the terms, and each word is a path (FEATURE-13 spec decisions 10 and 31). With `--ask`, the model ranks the matches. With no `--ask`, jag works as plain rg, with no model call, no key, and no cost (DECISION-32). rg is the reference for jag with no question (user answer, hitl, 2026-10-15, FEATURE-23 Q1 option 1). jag takes the options of DECISION-34. A user answer decides the option set (FEATURE-23, card C). The options `--setup`, `--check`, and `--forget-key` run the setup, the readiness check, and the key removal (contracts-2). | Semantic versions of jag. A removed or changed option needs a new major version. |
+| IF-4 | C-cli | Agent, script | Exit codes: 0 results found, 1 no match or no good answer, 2 usage error or a path that does not exist (CRITERION-70), 3 key missing, 4 key not accepted, 5 no credit, 6 service down, 7 cost limit reached, 8 results left out by the size limit, 130 stopped with Ctrl-C (contracts-3). jag itself never gives 126 or 127. They mean that jag did not start: a shell gives them when it cannot run a command, and the npm launcher gives them in the same way (127 no binary, 126 the binary does not start; FEATURE-18 spec decision 32). A failure stops jag with its own code: 2 for a usage error or a bad term, 3 to 6, and 130. A search that ends gives one code, in this order: 2 when a path does not exist, then 1, then 7, then 8, then 0 (DECISION-13, DECISION-47, FEATURE-14 spec decisions 7 and 20). The one exception: with `-q`, a match gives 0 also when a path does not exist, as `rg -q` does (FEATURE-13 spec decision 21). | A code never changes its meaning in one major version. |
 | IF-5 | C-output | Agent | Structured output: one JSON document on standard output, with `version`, `prompt_version`, `results`, and the summary fields of DECISION-28. An error is a JSON document of the same form (DECISION-07, CV-1). An output that does not parse means that jag stopped (contracts-4, DECISION-30). | `version` is the version of the form. In one major version, fields are only added (CONSTRAINT-05). |
 | IF-6 | C-search | C-prerank, C-scorer, C-output | The `Result` record in memory: path, first and last line, the lines, the marks on matching lines and on cut lines. | Internal. It changes with the code. |
 
@@ -544,14 +544,13 @@ that it sends.
 
 ## Risks
 
-- RK-1: The term can match other lines than in grep. DECISION-33 says that
-  the term is a regular expression as in grep, but the ripgrep libraries use
-  the pattern rules of `rg`. A default grep pattern treats `+`, `?`, and `|`
-  as plain characters, and `rg` does not. `rg` also has no back-references. Test: the
-  same term with `grep` and with jag on one folder gives other match lines.
-  Mitigation: the README states the pattern rules of `rg`. Open acceptance:
-  DECISION-33 changes to "a regular expression as in ripgrep", or jag
-  translates the grep form.
+- RK-1 (closed 2026-10-15): The term can match other lines than in grep.
+  The ripgrep libraries use the pattern rules of `rg`. A default grep pattern
+  treats `+`, `?`, and `|` as plain characters, and `rg` does not. `rg` also
+  has no back-references. The user answer (hitl, 2026-10-15, FEATURE-23 Q1
+  option 1) makes rg the reference for jag with no question, and DECISION-33
+  now says "a regular expression, as in rg". The pattern rules of `rg` are now
+  the wanted result.
 
 ## Deferred
 
