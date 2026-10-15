@@ -164,14 +164,16 @@ advisories of `rustls` 0.23.45 and no license problem. See decision 24.
    the record:
 
    ```
-   $ gh api -X GET repos/ai-ready-future/jag/issues -f labels=bug,use-period -f state=all --paginate --jq '.[] | [.number, .state, .state_reason, ([.labels[].name] | join(","))] | @tsv'
+   $ gh api -X GET repos/ai-ready-future/jag/issues -f labels=bug,use-period -f state=all --paginate --jq '.[] | select(.pull_request | not) | [.number, .state, .state_reason, ([.labels[].name] | join(","))] | @tsv'
    ```
 
    For each closed issue with `state_reason` `completed`, chores checks the
    `closed` event of the issue timeline
    (`gh api repos/ai-ready-future/jag/issues/<n>/timeline`): it must name a
-   commit on `main`. The check passes when each issue is open, closed by a
-   commit on `main`, or closed as `not_planned` with `duplicate` or
+   commit on `main`. Chores checks the commit with
+   `git merge-base --is-ancestor <commit_id> origin/main` after
+   `git fetch origin main`. The check passes when each issue is open, closed
+   by a commit on `main`, or closed as `not_planned` with `duplicate` or
    `invalid`.
 
 ### The dependency policy (STORY-63 and STORY-64)
@@ -478,15 +480,16 @@ Chores does this list on the commit of the tag, before the push of the tag
 1. The run of `deps.yml` on the commit is green.
 2. The release dry run on the commit is green (U6 already asks for it).
 3. The security review: `git diff --stat <reviewed commit> <commit>` for
-   `src/`, `npm/jag/bin/`, `.github/workflows/`, `scripts/release/`,
-   `scripts/deps/`, `deny.toml`, `Cargo.toml`, and `Cargo.lock`. When a file
-   changed, the reviewer reviews the change by the list of "The security
+   `src/`, `npm/`, `.github/workflows/`, `scripts/release/`, `scripts/deps/`,
+   `deny.toml`, `Cargo.toml`, `Cargo.lock`, and `rust-toolchain.toml`. When a
+   file changed, the reviewer reviews the change by the list of "The security
    review" and adds a dated line to the record.
 4. The check of decision 6 passes.
 
 A record pull request changes only `docs/release-readiness.md`. When it
 merges after the list, `git diff --name-only <commit> <new commit>` must
-show only that file. Then the tag goes on the new commit.
+show only files in `docs/`. Else chores does the list again on the new
+commit. Then the tag goes on the new commit.
 
 The job `deps` of the release run checks the advisories again on the
 commit of the tag.

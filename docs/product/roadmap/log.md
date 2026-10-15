@@ -6,8 +6,11 @@
 * **Sync**: [STORY-65](stories/STORY-65.md) pushed to GitHub, by system:github, at 2026-10-15T18:58:51Z
 * **Sync**: [FEATURE-23](features/FEATURE-23.md) pushed to GitHub, by system:github, at 2026-10-15T18:58:51Z
 * **Sync**: [EPIC-04](epics/EPIC-04.md) pushed to GitHub, by system:github, at 2026-10-15T18:58:51Z
+* **Plan**: [STORY-64](stories/STORY-64.md) backlog -> ready by rule 11 (docs/adlc.md): the spec is in this pull request (FEATURE-22 spec PR #112), FEATURE-22 is not blocked (no blocked_by), and no ASK of the spec is open, by agent:specifier-1, at 2026-10-15T18:55:26Z
 * **State**: [STORY-64](stories/STORY-64.md) backlog -> ready, by human:404pilo, at 2026-10-15T18:55:26Z
+* **Plan**: [STORY-63](stories/STORY-63.md) backlog -> ready by rule 11 (docs/adlc.md): the spec is in this pull request (FEATURE-22 spec PR #112), FEATURE-22 is not blocked (no blocked_by), and no ASK of the spec is open, by agent:specifier-1, at 2026-10-15T18:55:25Z
 * **State**: [STORY-63](stories/STORY-63.md) backlog -> ready, by human:404pilo, at 2026-10-15T18:55:25Z
+* **Plan**: [STORY-62](stories/STORY-62.md) backlog -> ready by rule 11 (docs/adlc.md): the spec is in this pull request (FEATURE-22 spec PR #112), FEATURE-22 is not blocked (no blocked_by), and no ASK of the spec is open, by agent:specifier-1, at 2026-10-15T18:55:24Z
 * **State**: [STORY-62](stories/STORY-62.md) backlog -> ready, by human:404pilo, at 2026-10-15T18:55:24Z
 * **Plan**: [FEATURE-23](features/FEATURE-23.md) new feature under EPIC-04 with STORY-65, STORY-66, STORY-67 and CRITERION-110 to CRITERION-114: rg and jag with the same arguments give the same bytes, color, and exit code, and e2e tests in CI check it; user request to the orchestrator of 2026-10-15: "an rg command and a jag command with the same exact arguments should return exactly the same thing . including the coloring of the output lets use this as a testing strategy"; EPIC-04 goes done -> ready as human:404pilo, because a done parent with an open child gives prd check W4; the new stories stay backlog by rule 11 until their spec merges, by agent:planner, at 2026-10-15T18:45:51Z
 * **State**: [EPIC-04](epics/EPIC-04.md) done -> ready, by human:404pilo, at 2026-10-15T18:45:51Z
