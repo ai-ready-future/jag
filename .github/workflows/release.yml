@@ -6,7 +6,8 @@ name: release
 # A push of a version tag "v*" builds, scans, and publishes jag on GitHub
 # Releases, crates.io, and npm. A pull request that changes a release file,
 # and a manual run, do a dry run: the jobs up to the scan, and nothing is
-# published. The spec is
+# published. The job "deps" checks the advisories and the licenses of the
+# dependencies, and the draft waits for it. The spec is
 # docs/superpowers/specs/2026-10-14-STORY-48-install-jag-from-github-releases-crates-io-or-npm-design.md.
 # The steps of the release are in scripts/release/release.py. Read
 # scripts/release/README.md before you push a tag.
@@ -22,6 +23,8 @@ on:
       - Cargo.toml
       - Cargo.lock
       - rust-toolchain.toml
+      - deny.toml
+      - scripts/deps/**
   workflow_dispatch:
 
 permissions:
@@ -223,6 +226,29 @@ jobs:
           if-no-files-found: error
           retention-days: 14
 
+  # The same checks as the workflow deps.yml (FEATURE-22 spec). A finding that
+  # blocks the release stops it before the draft.
+  deps:
+    name: deps
+    needs: prepare
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      - name: Install the toolchain
+        run: |
+          rustup show active-toolchain || rustup toolchain install
+          cargo --version
+
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version: '24'
+          package-manager-cache: false
+
+      - run: scripts/deps/check.sh
+
   # The only job that gets PRIVATE_PATTERNS. It has no write permission.
   scan:
     name: scan
@@ -281,7 +307,7 @@ jobs:
   # The jobs below run only for the push of a tag. A dry run skips them.
   github-draft:
     name: github-draft
-    needs: [prepare, scan]
+    needs: [prepare, scan, deps]
     if: needs.prepare.outputs.publish == 'true'
     runs-on: ubuntu-24.04
     environment: release

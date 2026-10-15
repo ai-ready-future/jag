@@ -1,0 +1,39 @@
+# The dependency policy of jag (FEATURE-22 spec).
+
+[graph]
+# The four release targets (FEATURE-18 spec decision 2).
+targets = [
+    "x86_64-unknown-linux-musl",
+    "aarch64-unknown-linux-musl",
+    "aarch64-apple-darwin",
+    "x86_64-apple-darwin",
+]
+exclude-dev = true
+
+[advisories]
+yanked = "deny"
+unmaintained = "all"
+unsound = "all"
+# Each entry: { id = "RUSTSEC-YYYY-NNNN", reason = "#<issue>: <level>, <why>" }.
+# Only a medium or low finding (FEATURE-22 spec decision 11).
+ignore = []
+
+[licenses]
+allow = [
+    "Apache-2.0",
+    "BSD-3-Clause",
+    "CDLA-Permissive-2.0",
+    "ISC",
+    "MIT",
+    "Unicode-3.0",
+]
+confidence-threshold = 0.93
+unused-allowed-license = "deny"
+
+[bans]
+multiple-versions = "warn"
+wildcards = "deny"
+
+[sources]
+unknown-registry = "deny"
+unknown-git = "deny"
