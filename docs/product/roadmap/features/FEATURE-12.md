@@ -19,7 +19,7 @@ traces:
 - to: prd:/capabilities/CAPABILITY-06.md
   hash: 79d5d3
 - to: prd:/decisions/DECISION-32.md
-  hash: 0d8491
+  hash: 9f60c6
 - to: prd:/decisions/DECISION-49.md
   hash: 7cd110
 ---

@@ -27,9 +27,9 @@ traces:
 - to: prd:/decisions/DECISION-16.md
   hash: '646497'
 - to: prd:/decisions/DECISION-17.md
-  hash: c6c1de
+  hash: b950f7
 - to: prd:/decisions/DECISION-18.md
-  hash: 5fea32
+  hash: f271b7
 ---
 
 # FEATURE-08: File, line, and snippet for each result

@@ -38,7 +38,7 @@ User answer (hitl, 2026-10-15): Q1 option 1, rg is the reference for jag with no
 | --- | --- | --- | --- | --- | --- |
 | [STORY-65: Compare rg and jag output on a parity test set](../stories/STORY-65.md) | ready | - | - | - | - |
 | [STORY-66: Run the rg parity cases as e2e tests in CI](../stories/STORY-66.md) | ready | - | - | - | - |
-| [STORY-67: Fix each rg parity difference or record it as deliberate](../stories/STORY-67.md) | ready | - | - | - | - |
+| [STORY-67: Fix each rg parity difference or record it as deliberate](../stories/STORY-67.md) | done | - | - | - | - |
 <!-- STATUS:END -->
 
 <!-- LINKS:START (generated, do not edit) -->

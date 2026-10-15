@@ -57,9 +57,9 @@
 
 ## STORY-13: Rank matching lines by a question
 
-* [CRITERION-18: The command takes the term, the question, and the paths](CRITERION-18.md) - jag accepts the form `jag --ask "QUESTION" TERM [PATH...]`, with the term first as in grep.
+* [CRITERION-18: The command takes the term, the question, and the paths](CRITERION-18.md) - jag accepts the form `jag --ask "QUESTION" TERM [PATH...]`, with the term first as in rg.
 * [CRITERION-19: The best answer comes first](CRITERION-19.md) - jag returns the results that match the term in order of how well they answer the question, with the best answer first.
-* [CRITERION-20: The term is a regular expression](CRITERION-20.md) - jag reads the term as a regular expression, as grep does.
+* [CRITERION-20: The term is a regular expression](CRITERION-20.md) - jag reads the term as a regular expression, as rg does.
 * [CRITERION-71: A term with no matches makes no model call](CRITERION-71.md) - When the term matches no line, jag makes no model call, writes no results, and exits with code 1, as grep does.
 * [CRITERION-85: A ranked search says how many files it skipped](CRITERION-85.md) - When the user searches a folder with a term and a question, jag tells the user how many files it skipped.
 

@@ -25,7 +25,7 @@ traces:
 - to: prd:/decisions/DECISION-33.md
   hash: ad5e5b
 - to: prd:/decisions/DECISION-34.md
-  hash: 47da48
+  hash: 4b0eee
 - to: prd:/decisions/DECISION-50.md
   hash: a0c252
 ---

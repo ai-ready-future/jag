@@ -19,7 +19,7 @@ traces:
 - to: prd:/capabilities/CAPABILITY-02.md
   hash: 11db8b
 - to: prd:/decisions/DECISION-14.md
-  hash: 9fedf1
+  hash: 5abd16
 ---
 
 # FEATURE-05: Search a folder as grep -r does

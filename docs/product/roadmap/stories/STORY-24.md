@@ -18,7 +18,7 @@ parent: /features/FEATURE-14.md
 milestone: /milestones/MILESTONE-02.md
 traces:
 - to: prd:/decisions/DECISION-18.md
-  hash: 5fea32
+  hash: f271b7
 ---
 
 # STORY-24: Label piped text
