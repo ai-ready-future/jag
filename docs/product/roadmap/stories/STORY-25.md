@@ -47,7 +47,7 @@ As an agent builder (PERSONA-01), I want jag to never write more characters to s
 - parent: [FEATURE-09: Size limit on the text that jag returns](../features/FEATURE-09.md)
 - milestone: [MILESTONE-01: Make it work](../milestones/MILESTONE-01.md)
 - traces: [DECISION-19: The size limit counts characters](../../prd/decisions/DECISION-19.md)
-- traces: [DECISION-20: A default size limit always applies](../../prd/decisions/DECISION-20.md)
+- traces: [DECISION-20: A default size limit applies with --ask or --json](../../prd/decisions/DECISION-20.md)
 - traces: [DECISION-22: All text that jag writes to standard output counts toward the size limit](../../prd/decisions/DECISION-22.md)
 - criterion or run of: [CRITERION-36: jag never goes over the size limit](../criteria/CRITERION-36.md)
 - criterion or run of: [CRITERION-37: A default size limit always applies](../criteria/CRITERION-37.md)

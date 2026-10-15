@@ -67,7 +67,7 @@ jag never writes more characters than the size limit, leaves out whole results w
 - milestone: [MILESTONE-01: Make it work](../milestones/MILESTONE-01.md)
 - traces: [CAPABILITY-04: Limit on the text that jag returns](../../prd/capabilities/CAPABILITY-04.md)
 - traces: [DECISION-19: The size limit counts characters](../../prd/decisions/DECISION-19.md)
-- traces: [DECISION-20: A default size limit always applies](../../prd/decisions/DECISION-20.md)
+- traces: [DECISION-20: A default size limit applies with --ask or --json](../../prd/decisions/DECISION-20.md)
 - traces: [DECISION-21: jag leaves out whole results with the lowest rank first](../../prd/decisions/DECISION-21.md)
 - traces: [DECISION-22: All text that jag writes to standard output counts toward the size limit](../../prd/decisions/DECISION-22.md)
 - traces: [DECISION-23: jag cuts a top result that is larger than the limit](../../prd/decisions/DECISION-23.md)

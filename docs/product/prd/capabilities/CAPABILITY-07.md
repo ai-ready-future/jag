@@ -23,7 +23,7 @@ After each search, jag reports how many results it scored and what the search co
 - addresses: [NEED-02: Search output fills the agent context with noise](../needs/NEED-02.md)
 - depends on: [CAPABILITY-02: Term and question search](CAPABILITY-02.md)
 - subject of: [DECISION-40: The cost is the billed amount in US dollars](../decisions/DECISION-40.md)
-- subject of: [DECISION-41: In text mode, the cost line goes to the error stream after each search](../decisions/DECISION-41.md)
+- subject of: [DECISION-41: With --ask in text mode, the cost line goes to the error stream after each search](../decisions/DECISION-41.md)
 - subject of: [DECISION-42: The report counts results scored and results skipped](../decisions/DECISION-42.md)
 - subject of: [DECISION-43: A search with no model call reports a cost of zero and the reason](../decisions/DECISION-43.md)
 - subject of: [DECISION-44: A failed or stopped search reports the cost up to that point](../decisions/DECISION-44.md)

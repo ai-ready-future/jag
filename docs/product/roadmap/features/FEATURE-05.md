@@ -43,7 +43,7 @@ jag searches each subfolder of a folder, skips binary, hidden, and ignored files
 - parent: [EPIC-02: Ranked search with file and line](../epics/EPIC-02.md)
 - milestone: [MILESTONE-01: Make it work](../milestones/MILESTONE-01.md)
 - traces: [CAPABILITY-02: Term and question search](../../prd/capabilities/CAPABILITY-02.md)
-- traces: [DECISION-14: A folder search works like grep -r and skips noise files](../../prd/decisions/DECISION-14.md)
+- traces: [DECISION-14: A folder search works as rg does and skips noise files](../../prd/decisions/DECISION-14.md)
 - blocks: [FEATURE-04: Rank matching lines by a question](FEATURE-04.md)
 - blocks: [FEATURE-14: Files, folders, and piped text](FEATURE-14.md)
 - child: [STORY-16: Search each subfolder of a folder](../stories/STORY-16.md)

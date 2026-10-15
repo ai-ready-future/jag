@@ -1,8 +1,8 @@
 ---
 type: Decision
-title: Release 1 keeps the options that people use most
-description: jag keeps a fixed set of options that people use most; any other option
-  is a usage error that names it.
+title: Release 1 keeps the rg options that people use most
+description: jag keeps a fixed set of rg options that people use most, in the rg form;
+  any other option gives the rg text unrecognized flag and exit code 2.
 status: stable
 decided_at: '2026-10-15'
 alternatives:
@@ -10,16 +10,17 @@ alternatives:
 - All GNU grep options, with a usage error for options that have no meaning in a ranked
   search
 - Keep grep as the reference for the options
+- Keep --include and --exclude in the grep form, with no new options
 about:
 - /capabilities/CAPABILITY-06.md
 - /decisions/DECISION-05.md
 ---
 
-# DECISION-34: Release 1 keeps the options that people use most
+# DECISION-34: Release 1 keeps the rg options that people use most
 
-Release 1 keeps these options: `-i`, `-w`, `-F`, `-e`, `-A`, `-B`, `-C`, `-l`, `-c`, `-q`, `--include`, and `--exclude`. Any other option is a usage error. jag names the option and exits with code 2.
+Release 1 keeps these rg options, in the rg form: `-i`, `-w`, `-F`, `-e`, `-A`, `-B`, `-C`, `-l`, `-c`, `-q`, `-g` and `--glob`, `-n`, `-N`, `-H`, `-I`, `--heading`, `--no-heading`, `--sort` with `path` or `none`, and `--color`. `-g` and `--glob` replace `--include` and `--exclude`. `--color` takes its value as rg does (`--color always` and `--color=always`), and jag has no `--colour`. jag also keeps its own options, `-h`, `--help`, and `--version` (card A). Any other option gives the rg text `unrecognized flag`, with the name `jag`, and exit code 2.
 
-Source of the change from grep to rg: the user, hitl answer of 2026-10-15 (FEATURE-23, Q1 option 1: rg is the reference for jag with no question). rg 15.1.0 has no `--include` and no `--exclude` option. It uses `-g` or `--glob`. The FEATURE-23 spec decides what jag does with these 2 options.
+Source of the change from grep to rg: the user, hitl answer of 2026-10-15 (FEATURE-23, Q1 option 1: rg is the reference for jag with no question). Source of the option set: the user, hitl answer of 2026-10-15 (FEATURE-23, card C option 1: the current set in the rg form, with `-g` and `--glob` in place of `--include` and `--exclude`). Source of the own options of jag: the user, hitl answer of 2026-10-15 (FEATURE-23, card A option 1: jag keeps its name, its help, its version, and its own options).
 
 <!-- LINKS:START (generated, do not edit) -->
 

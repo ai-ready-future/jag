@@ -23,7 +23,7 @@ Source of the change from grep to rg: the user, hitl answer of 2026-10-15 (FEATU
 ## Links
 
 - about: [CAPABILITY-06: Feels like grep](../capabilities/CAPABILITY-06.md)
-- about: [DECISION-14: A folder search works like grep -r and skips noise files](DECISION-14.md)
+- about: [DECISION-14: A folder search works as rg does and skips noise files](DECISION-14.md)
 - traced by: [FEATURE-14: Files, folders, and piped text](../../roadmap/features/FEATURE-14.md)
 - traced by: [STORY-40: Search a mix of files and folders](../../roadmap/stories/STORY-40.md)
 <!-- LINKS:END -->
