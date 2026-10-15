@@ -6,6 +6,13 @@ description: As a shell power user (PERSONA-04), I want the rg parity cases to r
   with no failed check.
 status: draft
 state: backlog
+github:
+  number: 115
+  node_id: I_kwDOVKMnL88AAAABXgI6OQ
+  url: https://github.com/ai-ready-future/jag/issues/115
+  pushed_hash: 93c7f4
+  synced:
+    state: backlog
 parent: /features/FEATURE-23.md
 milestone: /milestones/MILESTONE-02.md
 ---
