@@ -1,6 +1,11 @@
 # Log
 
 ## 2026-10-15
+* **Plan**: [FEATURE-18](features/FEATURE-18.md) STORY-48 to STORY-51 ready -> backlog by rule 11 (docs/adlc.md), base rule: FEATURE-18 is blocked_by FEATURE-22, which is not done; the ANSWER exception ended when FEATURE-19 was done; standing approval RULE11-01; orchestrator decision (b) on PR #104; this agrees with the user's pause of step U3 (the publish waits for the readiness checks); the stories go back to ready when FEATURE-22 is done, by agent:planner, at 2026-10-15T18:22:38Z
+* **State**: [STORY-51](stories/STORY-51.md) ready -> backlog, by human:404pilo, at 2026-10-15T18:22:38Z
+* **State**: [STORY-50](stories/STORY-50.md) ready -> backlog, by human:404pilo, at 2026-10-15T18:22:38Z
+* **State**: [STORY-49](stories/STORY-49.md) ready -> backlog, by human:404pilo, at 2026-10-15T18:22:38Z
+* **State**: [STORY-48](stories/STORY-48.md) ready -> backlog, by human:404pilo, at 2026-10-15T18:22:38Z
 * **Plan**: [FEATURE-22](features/FEATURE-22.md) new feature under EPIC-05 with STORY-62, STORY-63, STORY-64 and CRITERION-105 to CRITERION-109; FEATURE-18 is blocked_by FEATURE-22, so the first publish waits for it; user decision of 2026-10-15 (given to chores-2 while step U3 was paused): "use the app locally for a while, iterate and fix", "audit for security vulnerabilities", "check the license and audit compliance ('good standing')"; the new stories stay backlog by rule 11 until their spec merges, by agent:planner, at 2026-10-15T18:15:26Z
 * **Sync**: [STORY-60](stories/STORY-60.md) pushed to GitHub, by system:github, at 2026-10-15T15:07:20Z
 * **Sync**: [FEATURE-19](features/FEATURE-19.md) pushed to GitHub, by system:github, at 2026-10-15T15:07:20Z
