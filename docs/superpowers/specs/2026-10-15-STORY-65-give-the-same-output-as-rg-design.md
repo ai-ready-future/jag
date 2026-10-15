@@ -373,11 +373,11 @@ stderr. `deliberate: X`: the stored jag bytes, with the ANSWER of card X
 | look-around | `'a(?=b)' a.txt` | basic | pipe | | deliberate: E |
 | newline | `'a\nb' a.txt` | basic | pipe | | deliberate: E |
 | nothing-searched | `foo` | hidden-only | pipe | | deliberate: E |
-| unknown-option | `--frobnicate foo a.txt` | basic | pipe | | deliberate: E |
+| unknown-option | `--frobnicate foo a.txt` | basic | pipe | | rg |
 | glob | `--sort path -g '*.txt' foo .` | basic | all | | rg |
 | glob-not | `--sort path -g '!*.txt' foo .` | basic | all | | rg |
 | include | `--include '*.txt' foo sub` | basic | pipe | | deliberate: E |
-| colour | `--colour=always foo a.txt` | basic | pipe | | deliberate: E |
+| colour | `--colour=always foo a.txt` | basic | pipe | | rg |
 | line-number | `-n foo a.txt` | basic | all | | rg |
 | no-line-number | `-N --sort path foo a.txt sub/c.txt` | basic | all | | rg |
 | with-filename | `-H foo a.txt` | basic | all | | rg |
@@ -407,7 +407,18 @@ bytes (CRITERION-114). The `answer` names the date, the card, and the option,
 for example "hitl ANSWER of 2026-10-15, card C (F23-Q5), option 1". If rg
 and jag give the same bytes for a `deliberate: E` case (for example, the
 same list of similar options), the test fails (ADR-0021), and the tester
-changes the result of that case to `rg`.
+changes the result of that case to `rg`. This is so for `unknown-option` and
+`colour`: after STORY-67, jag gives the rg bytes for both, so their result
+is `rg` (verifier-1 on PR #135, comment 6203457295; reviewer-1 on PR #132,
+comment 6204222618).
+
+Test PR #132 holds 69 more cases than this table, so `cases.yaml` holds 149
+cases: the test scenarios S1 to S14 of verifier-1 (68 cases, commit
+`62a3dcb`) and `two-e-path-sorted` (commit `8661273`). Their source:
+verifier-1 on PR #135, comment 6203457295, and the thread of reviewer-1 on
+PR #132, comment 6202934112. Decision 25 names the cases of this table only.
+The reviewer check of CRITERION-110 compares this table with `cases.yaml`.
+The 69 more cases are allowed, and each one has the result `rg`.
 
 The stored bytes of the case `version` hold the version of `Cargo.toml`.
 The pull request that changes that version also changes
