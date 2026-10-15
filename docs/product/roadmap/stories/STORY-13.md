@@ -19,7 +19,7 @@ parent: /features/FEATURE-04.md
 milestone: /milestones/MILESTONE-01.md
 traces:
 - to: prd:/decisions/DECISION-31.md
-  hash: b55e32
+  hash: c2b87b
 - to: prd:/decisions/DECISION-33.md
   hash: ad5e5b
 ---

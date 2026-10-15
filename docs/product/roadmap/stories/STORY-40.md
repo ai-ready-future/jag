@@ -18,7 +18,7 @@ parent: /features/FEATURE-14.md
 milestone: /milestones/MILESTONE-02.md
 traces:
 - to: prd:/decisions/DECISION-36.md
-  hash: fa431e
+  hash: 479f03
 ---
 
 # STORY-40: Search a mix of files and folders
