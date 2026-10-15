@@ -18,5 +18,6 @@ The public repository, its history, and the published package must contain no pr
 - traced by: [EPIC-05: Safe public release](../../roadmap/epics/EPIC-05.md)
 - traced by: [FEATURE-17: Block private data in the repository](../../roadmap/features/FEATURE-17.md)
 - traced by: [FEATURE-19: Go public with a clean history](../../roadmap/features/FEATURE-19.md)
+- traced by: [FEATURE-22: Check that jag is ready before the first publish](../../roadmap/features/FEATURE-22.md)
 - traced by: [STORY-51: Publish each channel from one tag](../../roadmap/stories/STORY-51.md)
 <!-- LINKS:END -->

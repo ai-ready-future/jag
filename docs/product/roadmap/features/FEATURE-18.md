@@ -17,6 +17,7 @@ blocked_by:
 - /features/FEATURE-01.md
 - /features/FEATURE-17.md
 - /features/FEATURE-19.md
+- /features/FEATURE-22.md
 milestone: /milestones/MILESTONE-02.md
 traces:
 - to: prd:/metrics/METRIC-04.md
@@ -35,10 +36,10 @@ One version tag builds the jag binary for four platforms and publishes it on Git
 
 | Item | State | Progress | Owner | Blocked by | Drift |
 | --- | --- | --- | --- | --- | --- |
-| [STORY-48: Download a prebuilt binary from GitHub Releases](../stories/STORY-48.md) | ready | - | - | - | - |
-| [STORY-49: Install jag with cargo from crates.io](../stories/STORY-49.md) | ready | - | - | - | - |
-| [STORY-50: Install or run jag with npm](../stories/STORY-50.md) | ready | - | - | - | - |
-| [STORY-51: Publish each channel from one tag](../stories/STORY-51.md) | ready | - | - | - | - |
+| [STORY-48: Download a prebuilt binary from GitHub Releases](../stories/STORY-48.md) | backlog | - | - | - | - |
+| [STORY-49: Install jag with cargo from crates.io](../stories/STORY-49.md) | backlog | - | - | - | - |
+| [STORY-50: Install or run jag with npm](../stories/STORY-50.md) | backlog | - | - | - | - |
+| [STORY-51: Publish each channel from one tag](../stories/STORY-51.md) | backlog | - | - | - | - |
 <!-- STATUS:END -->
 
 <!-- LINKS:START (generated, do not edit) -->
@@ -49,6 +50,7 @@ One version tag builds the jag binary for four platforms and publishes it on Git
 - blocked by: [FEATURE-01: Store a key one time](FEATURE-01.md)
 - blocked by: [FEATURE-17: Block private data in the repository](FEATURE-17.md)
 - blocked by: [FEATURE-19: Go public with a clean history](FEATURE-19.md)
+- blocked by: [FEATURE-22: Check that jag is ready before the first publish](FEATURE-22.md)
 - milestone: [MILESTONE-02: Make it good](../milestones/MILESTONE-02.md)
 - traces: [METRIC-04: Time to first result](../../prd/metrics/METRIC-04.md)
 - traces: [SCOPE-01: Release 1: first public release](../../prd/scope/SCOPE-01.md)

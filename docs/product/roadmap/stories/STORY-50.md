@@ -4,7 +4,7 @@ title: Install or run jag with npm
 description: As an agent builder (PERSONA-01), I want to install jag with npm or run
   it with npx, so that my agent setup gets jag with the tools it already uses.
 status: draft
-state: ready
+state: backlog
 github:
   number: 75
   node_id: I_kwDOVKMnL88AAAABXTMvjA

@@ -286,3 +286,17 @@
 * [CRITERION-100: The project board becomes public after the new repository](CRITERION-100.md) - After the new repository becomes public, the Project is linked to it and becomes public. Until then, it is private.
 * [CRITERION-101: The project board holds no private data when it becomes public](CRITERION-101.md) - Before the new repository and the Project become public, the items, the issues, and their comments hold no private data.
 * [CRITERION-103: All issues move to the new repository while it is private](CRITERION-103.md) - While the new repository is private, each issue, open or closed, moves to it with gh issue transfer. A scan of the issues and the same labels and milestones come first.
+
+## STORY-62: Use jag on real work before the first publish
+
+* [CRITERION-105: Each bug from the use period is fixed or has an open issue](CRITERION-105.md) - Before the first publish, each bug that the user found in the use period is fixed on main or has an open issue, and the user says that the period is complete.
+
+## STORY-63: Audit jag for security vulnerabilities before the first publish
+
+* [CRITERION-106: The dependency audits show no open high finding](CRITERION-106.md) - On the commit of the first publish, the Rust advisory audit (cargo audit or cargo deny) and npm audit show no open finding of high or critical severity.
+* [CRITERION-107: The code and release workflow review shows no open high finding](CRITERION-107.md) - A security review of the jag code and of the release workflow finds no open finding of high or critical severity before the first publish. Each finding of lower severity is fixed or has an open issue.
+
+## STORY-64: Audit the license and the compliance before the first publish
+
+* [CRITERION-108: Each dependency license is compatible with the jag license](CRITERION-108.md) - Before the first publish, a license check of all Rust and npm dependencies (for example cargo deny licenses) passes, and each dependency license is compatible with the jag license.
+* [CRITERION-109: The license file, the notices, and the package metadata are correct](CRITERION-109.md) - The repository and each release archive hold the LICENSE file and the required notices, and the crate and npm metadata give the correct license and repository.
