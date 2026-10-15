@@ -21,7 +21,7 @@ traces:
 - to: prd:/decisions/DECISION-31.md
   hash: b55e32
 - to: prd:/decisions/DECISION-33.md
-  hash: 8ed9c9
+  hash: ad5e5b
 ---
 
 # STORY-13: Rank matching lines by a question
