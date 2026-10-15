@@ -50,9 +50,9 @@ Repository rules:
     Exception: a user `ANSWER` can set the stories of a blocked feature to `ready`. The `blocked_by` list stays. The `Plan` line in `log.md` names the `ANSWER`. FEATURE-18 used this exception (`ANSWER` of 2026-10-15, "start now") until FEATURE-19 was `done`.
     When a feature gets the state `done`, the same PR sets to `ready` each story that waited only for this feature and has a merged spec.
 12. Merge PRs with squash only. After each merge, the session that merges checks the new commit on `main`. The `sha256sum` of its author address must be the `sha256sum` of the author address of `78aa3f5`. Its committer must be the committer of `78aa3f5` (GitHub). The check never prints an address (FEATURE-19 spec decisions 13 and 31). A rebase merge wrote the account address as committer in `3ead9ae`.
-13. Turn exit rule. Each role except the orchestrator, hitl and retro ends each turn with 1 message to the orchestrator: `DONE`, `REVIEW`, `ASK`, `BLOCKED` or `STATUS`. If the role already sent this message for the same item and nothing changed, it does not send it again.
+13. Turn exit rule. Each role except the orchestrator, hitl and retro ends each turn with 1 message to the orchestrator: `DONE`, `REVIEW`, `ASK`, `TASK`, `BLOCKED` or `STATUS`. If the role already sent this message for the same item and nothing changed, it does not send it again.
     - A "needs input:" line, a question in the session, or a status line in the job list does not tell the orchestrator. Send the message.
-    - Never wait for the user. Only chores waits for the user, and only while it guides the user through a step.
+    - Never wait for the user. Of the roles of this rule, only chores waits for the user, and only while it guides the user through a step.
 14. When a role cannot continue, it sends `BLOCKED` to the orchestrator at once. It does not try to work around the cause. The message gives the cause, the work that is done, where the work is (branch, commit, worktree), and 1 tag:
     - `user step`: the user must do an action, for example a login, a token scope or a payment. Give the exact command if you know it.
     - `decision`: the user must choose. Give the facts for the card, as for an `ASK`.
@@ -101,9 +101,9 @@ Model and Effort: use the exact values in the table.
   - `decision`: send it to hitl as an `ASK` with the priority `blocks code now`.
   - `team`: send it to the role that must act.
 
-  When the cause is gone, tell the blocked session (for example `SCOPE OK`). Do not ask the user directly. Chores and hitl talk to the user.
+  When the cause is gone, send a `TASK` to the blocked session with the cause that is gone and the next step (for example `TASK · orchestrator → tester-1 · the token has the workflow scope: push the CI commit`). Do not ask the user directly. Chores and hitl talk to the user.
 - Status check every 10 minutes. Start it with `/loop 10m` when the orchestrator starts, or after a `RELOAD` if it does not run. Each check does these steps:
-  1. Read the list of sessions with `ListAgents`. For each team session, read its job state: the folder in `~/.claude/jobs/` whose `state.json` has the session name, and the last line of its `timeline.jsonl`. Do not send a message to a session only to ask its state.
+  1. Read the list of sessions with `ListAgents`. For each team session, read its job state: the folder in `~/.claude/jobs/` whose `state.json` has the session name, and the last line of its `timeline.jsonl`. Read the state from these files. Send `STATUS` only in the cases of step 3.
   2. Compare each session with the status table.
   3. Send `STATUS` to a session only if 1 of these is true:
      - It is idle, it has an open item in the table, and it sent no message for that item.
