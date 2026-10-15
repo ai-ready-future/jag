@@ -35,10 +35,10 @@ One version tag builds the jag binary for four platforms and publishes it on Git
 
 | Item | State | Progress | Owner | Blocked by | Drift |
 | --- | --- | --- | --- | --- | --- |
-| [STORY-48: Download a prebuilt binary from GitHub Releases](../stories/STORY-48.md) | backlog | - | - | - | - |
-| [STORY-49: Install jag with cargo from crates.io](../stories/STORY-49.md) | backlog | - | - | - | - |
-| [STORY-50: Install or run jag with npm](../stories/STORY-50.md) | backlog | - | - | - | - |
-| [STORY-51: Publish each channel from one tag](../stories/STORY-51.md) | backlog | - | - | - | - |
+| [STORY-48: Download a prebuilt binary from GitHub Releases](../stories/STORY-48.md) | ready | - | - | - | - |
+| [STORY-49: Install jag with cargo from crates.io](../stories/STORY-49.md) | ready | - | - | - | - |
+| [STORY-50: Install or run jag with npm](../stories/STORY-50.md) | ready | - | - | - | - |
+| [STORY-51: Publish each channel from one tag](../stories/STORY-51.md) | ready | - | - | - | - |
 <!-- STATUS:END -->
 
 <!-- LINKS:START (generated, do not edit) -->

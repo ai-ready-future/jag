@@ -5,7 +5,7 @@ description: As an agent builder (PERSONA-01), I want one version tag to publish
   on each channel with the same version and no private data, so that each channel
   gives the same jag.
 status: draft
-state: backlog
+state: ready
 github:
   number: 76
   node_id: I_kwDOVKMnL88AAAABXTMxNQ
