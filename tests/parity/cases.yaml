@@ -524,3 +524,6 @@
 - id: missing-and-match-threads
   args: ["foo", "nope.txt", "a.txt"]
   tree: basic
+- id: missing-sort-none
+  args: ["--sort", "none", "foo", "nope.txt", "a.txt"]
+  tree: basic
