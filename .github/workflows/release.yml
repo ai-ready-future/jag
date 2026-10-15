@@ -107,9 +107,52 @@ jobs:
           if-no-files-found: error
           retention-days: 14
 
+  # The file THIRD-PARTY-LICENSES for the archives and the platform packages.
+  # It is made here, and it is not stored in the repository.
+  notices:
+    name: notices
+    needs: prepare
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      - name: Install the toolchain
+        run: |
+          set -euo pipefail
+          rustup show active-toolchain || rustup toolchain install
+          cargo --version
+
+      - name: Download cargo-about
+        run: |
+          set -euo pipefail
+          mkdir -p "$RUNNER_TEMP/cargo-about"
+          cd "$RUNNER_TEMP/cargo-about"
+          curl -sSfL -o cargo-about.tar.gz \
+            https://github.com/EmbarkStudios/cargo-about/releases/download/0.9.2/cargo-about-0.9.2-x86_64-unknown-linux-musl.tar.gz
+          echo "9099a59e820c38a68b9d65f300662a567d56562f9a10f6aa4c7e86c17c2566af  cargo-about.tar.gz" | sha256sum -c -
+          tar -xzf cargo-about.tar.gz cargo-about-0.9.2-x86_64-unknown-linux-musl/cargo-about
+
+      # --fail stops the job when cargo-about cannot find or clarify the license of a crate.
+      - name: Make the notice file
+        run: |
+          set -euo pipefail
+          mkdir -p "$RUNNER_TEMP/notices"
+          "$RUNNER_TEMP/cargo-about/cargo-about-0.9.2-x86_64-unknown-linux-musl/cargo-about" generate --locked --fail \
+            -c scripts/release/about.toml -o "$RUNNER_TEMP/notices/THIRD-PARTY-LICENSES" scripts/release/notices.hbs
+          python3 -I scripts/release/release.py check-notices "$RUNNER_TEMP/notices/THIRD-PARTY-LICENSES"
+
+      - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: notices
+          path: ${{ runner.temp }}/notices/THIRD-PARTY-LICENSES
+          if-no-files-found: error
+          retention-days: 14
+
   build:
     name: build (${{ matrix.target }})
-    needs: [prepare, npm-main]
+    needs: [prepare, npm-main, notices]
     runs-on: ${{ matrix.runner }}
     timeout-minutes: 60
     strategy:
@@ -157,13 +200,18 @@ jobs:
       - name: Check the binary
         run: python3 -I scripts/release/release.py check-binary --target "$TARGET" --version "$VERSION" "target/$TARGET/release/jag"
 
+      - uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8.0.2
+        with:
+          name: notices
+          path: ${{ runner.temp }}/notices-file
+
       - name: Make the archive
-        run: python3 -I scripts/release/release.py archive --target "$TARGET" --version "$VERSION" --binary "target/$TARGET/release/jag" --out dist
+        run: python3 -I scripts/release/release.py archive --target "$TARGET" --version "$VERSION" --binary "target/$TARGET/release/jag" --notices "$RUNNER_TEMP/notices-file/THIRD-PARTY-LICENSES" --out dist
 
       - name: Make the platform package
         run: |
           set -euo pipefail
-          python3 -I scripts/release/release.py npm-platform --target "$TARGET" --version "$VERSION" --binary "target/$TARGET/release/jag" --out "$RUNNER_TEMP/npm-platform"
+          python3 -I scripts/release/release.py npm-platform --target "$TARGET" --version "$VERSION" --binary "target/$TARGET/release/jag" --notices "$RUNNER_TEMP/notices-file/THIRD-PARTY-LICENSES" --out "$RUNNER_TEMP/npm-platform"
           npm pack "$RUNNER_TEMP/npm-platform/jag-$PLATFORM_OS-$PLATFORM_CPU" --pack-destination dist
           python3 -I scripts/release/release.py check-npm-tarball --version "$VERSION" "dist/airf-jag-$PLATFORM_OS-$PLATFORM_CPU-$VERSION.tgz"
 
@@ -211,6 +259,9 @@ jobs:
 
       - name: Pack the crate and build it in a clean folder
         run: cargo package --locked
+
+      - name: Check the metadata of the crate
+        run: python3 -I scripts/release/release.py check-crate-metadata "target/package/jag-grep-$VERSION.crate"
 
       # A dry run needs no token.
       - name: Publish the crate as a dry run

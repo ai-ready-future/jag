@@ -16,6 +16,7 @@ import stat
 import subprocess
 import tarfile
 import tempfile
+import tomllib
 import unittest
 import urllib.error
 from pathlib import Path
@@ -191,22 +192,27 @@ class ArchiveTests(TempCase):
         binary = write(self.tmp / "in" / "jag", binary_bytes, 0o755)
         readme = write(self.tmp / "in" / "README.md", "readme\n")
         license_file = write(self.tmp / "in" / "LICENSE", "license\n")
-        return release.make_archive(VERSION, self.TARGET, binary, readme, license_file, out, mtime)
+        notices = write(self.tmp / "in" / "THIRD-PARTY-LICENSES", "THIRD-PARTY LICENSES\n")
+        return release.make_archive(VERSION, self.TARGET, binary, readme, license_file, notices, out, mtime)
 
-    def test_the_folder_the_three_files_and_their_modes(self):
+    def test_the_folder_the_four_files_and_their_modes(self):
         path, _ = self.make(self.tmp / "out")
         self.assertEqual(path.name, f"jag-{VERSION}-{self.TARGET}.tar.gz")
         with tarfile.open(path, "r:gz") as tar:
             infos = {i.name: i for i in tar}
         folder = f"jag-{VERSION}-{self.TARGET}"
         self.assertEqual(
-            sorted(infos), sorted([folder, f"{folder}/jag", f"{folder}/README.md", f"{folder}/LICENSE"])
+            sorted(infos),
+            sorted(
+                [folder, f"{folder}/jag", f"{folder}/README.md", f"{folder}/LICENSE", f"{folder}/THIRD-PARTY-LICENSES"]
+            ),
         )
         self.assertTrue(infos[folder].isdir())
         self.assertEqual(infos[folder].mode, 0o755)
         self.assertEqual(infos[f"{folder}/jag"].mode, 0o755)
         self.assertEqual(infos[f"{folder}/README.md"].mode, 0o644)
         self.assertEqual(infos[f"{folder}/LICENSE"].mode, 0o644)
+        self.assertEqual(infos[f"{folder}/THIRD-PARTY-LICENSES"].mode, 0o644)
         for info in infos.values():
             self.assertEqual((info.uid, info.gid, info.uname, info.gname), (0, 0, "", ""))
             self.assertEqual(info.mtime, 1_700_000_000)
@@ -240,14 +246,35 @@ class ArchiveTests(TempCase):
         binary = write(self.tmp / "jag", b"x", 0o755)
         readme = write(self.tmp / "README.md", "r")
         license_file = write(self.tmp / "LICENSE", "l")
+        notices = write(self.tmp / "THIRD-PARTY-LICENSES", "n")
         code, out, _ = run_main(
             [
                 "archive", "--target", self.TARGET, "--version", VERSION, "--binary", str(binary),
                 "--out", str(self.tmp / "dist"), "--readme", str(readme), "--license", str(license_file),
-                "--mtime", "5",
+                "--notices", str(notices), "--mtime", "5",
             ]
         )
         self.assertEqual((code, out), (0, f"jag-{VERSION}-{self.TARGET}.tar.gz\n"))
+
+    def test_the_command_needs_the_notice_file(self):
+        binary = write(self.tmp / "jag", b"x", 0o755)
+        with self.assertRaises(SystemExit):
+            with contextlib.redirect_stderr(io.StringIO()):
+                release.main(
+                    ["archive", "--target", self.TARGET, "--version", VERSION, "--binary", str(binary),
+                     "--out", str(self.tmp / "dist")]
+                )
+
+    def test_the_license_and_the_notices_are_in_the_archive_byte_for_byte(self):
+        license_file = ROOT / "LICENSE"
+        notices = write(self.tmp / "THIRD-PARTY-LICENSES", "THIRD-PARTY LICENSES\n\ntext é\n")
+        binary = write(self.tmp / "jag", b"x", 0o755)
+        readme = write(self.tmp / "README.md", "r")
+        path, _ = release.make_archive(VERSION, self.TARGET, binary, readme, license_file, notices, self.tmp / "o", 5)
+        folder = f"jag-{VERSION}-{self.TARGET}"
+        with tarfile.open(path, "r:gz") as tar:
+            self.assertEqual(tar.extractfile(f"{folder}/LICENSE").read(), license_file.read_bytes())
+            self.assertEqual(tar.extractfile(f"{folder}/THIRD-PARTY-LICENSES").read(), notices.read_bytes())
 
 
 class NpmTests(TempCase):
@@ -255,11 +282,12 @@ class NpmTests(TempCase):
         out = self.tmp / "out"
         binary = write(self.tmp / "bin" / "jag", b"\x7fELF", 0o755)
         license_file = write(self.tmp / "LICENSE", "license\n")
+        notices = write(self.tmp / "THIRD-PARTY-LICENSES", "THIRD-PARTY LICENSES\n")
         code, _, err = run_main(
             [
                 "npm-platform", "--target", target, "--version", version, "--binary", str(binary),
                 "--out", str(out), "--readme", str(ROOT / "npm" / "platform" / "README.md"),
-                "--license", str(license_file),
+                "--license", str(license_file), "--notices", str(notices),
             ]
         )
         self.assertEqual(code, 0, err)
@@ -302,10 +330,32 @@ class NpmTests(TempCase):
             for forbidden in ("libc", "bin", "scripts"):
                 self.assertNotIn(forbidden, package)
             self.assertEqual(stat.S_IMODE((folder / "bin" / "jag").stat().st_mode), 0o755)
+            self.assertEqual(package["files"], ["bin/jag", "THIRD-PARTY-LICENSES"])
+            self.assertEqual((folder / "THIRD-PARTY-LICENSES").read_text(), "THIRD-PARTY LICENSES\n")
             readme = (folder / "README.md").read_text()
             self.assertIn(package["name"], readme)
             self.assertIn(platform["label"], readme)
             self.assertNotIn("{package}", readme)
+
+    def test_each_package_keeps_the_license_file_of_the_root_byte_for_byte(self):
+        out = self.tmp / "out"
+        binary = write(self.tmp / "bin" / "jag", b"\x7fELF", 0o755)
+        notices = write(self.tmp / "THIRD-PARTY-LICENSES", "THIRD-PARTY LICENSES\n")
+        for platform in release.PLATFORMS:
+            code, _, err = run_main(
+                ["npm-platform", "--target", platform["target"], "--version", VERSION, "--binary", str(binary),
+                 "--out", str(out), "--readme", str(ROOT / "npm" / "platform" / "README.md"),
+                 "--license", str(ROOT / "LICENSE"), "--notices", str(notices)]
+            )
+            self.assertEqual(code, 0, err)
+            folder = out / f"jag-{platform['os']}-{platform['cpu']}"
+            self.assertEqual((folder / "LICENSE").read_bytes(), (ROOT / "LICENSE").read_bytes())
+        code, _, err = run_main(
+            ["npm-main", "--version", VERSION, "--out", str(out), "--source", str(ROOT / "npm" / "jag"),
+             "--readme", str(ROOT / "README.md"), "--license", str(ROOT / "LICENSE")]
+        )
+        self.assertEqual(code, 0, err)
+        self.assertEqual((out / "jag" / "LICENSE").read_bytes(), (ROOT / "LICENSE").read_bytes())
 
     def test_a_pre_release_version_is_refused(self):
         code, _, err = run_main(["npm-main", "--version", "1.0.0-rc.1", "--out", str(self.tmp / "o")])
@@ -319,7 +369,12 @@ class NpmTests(TempCase):
 
     def good_platform(self):
         package = release.npm_platform_package(release.PLATFORMS[0], VERSION)
-        files = {"bin/jag": (b"\x7fELF", 0o755), "README.md": (b"r", 0o644), "LICENSE": (b"l", 0o644)}
+        files = {
+            "bin/jag": (b"\x7fELF", 0o755),
+            "README.md": (b"r", 0o644),
+            "LICENSE": (b"l", 0o644),
+            "THIRD-PARTY-LICENSES": (b"THIRD-PARTY LICENSES\n", 0o644),
+        }
         return package, files
 
     def good_main(self):
@@ -358,6 +413,36 @@ class NpmTests(TempCase):
         package, files = self.good_platform()
         package["repository"] = {"type": "git", "url": "git+https://example.com/x.git"}
         self.assertEqual(self.check(self.tarball("p.tgz", package, files))[0], 1)
+
+    def test_a_platform_tarball_with_no_notice_file_fails(self):
+        package, files = self.good_platform()
+        del files["THIRD-PARTY-LICENSES"]
+        self.assertEqual(self.check(self.tarball("p.tgz", package, files))[0], 1)
+
+    def test_a_main_tarball_with_a_notice_file_fails(self):
+        package, files = self.good_main()
+        files["THIRD-PARTY-LICENSES"] = (b"x", 0o644)
+        self.assertEqual(self.check(self.tarball("m.tgz", package, files))[0], 1)
+
+    def test_a_wrong_license_repository_or_description_fails(self):
+        for good in (self.good_platform, self.good_main):
+            for change in (
+                {"license": "Apache-2.0"},
+                {"license": None},
+                {"repository": {"type": "git", "url": "https://github.com/ai-ready-future/jag"}},
+                {"repository": None},
+                {"description": "Something else"},
+                {"description": None},
+            ):
+                package, files = good()
+                package.update(change)
+                code, _, err = self.check(self.tarball("x.tgz", package, files))
+                self.assertEqual(code, 1, (good.__name__, change))
+                self.assertTrue(err.startswith("release:"), err)
+
+    def test_the_description_of_the_main_package_is_the_description_of_the_crate(self):
+        package = json.loads((ROOT / "npm" / "jag" / "package.json").read_text())
+        self.assertEqual(package["description"], release.cargo_metadata(ROOT / "Cargo.toml")["description"])
 
     def test_a_libc_value_or_two_cpu_values_fail(self):
         for change in ({"libc": ["musl"]}, {"cpu": ["x64", "arm64"]}, {"bin": {"jag": "bin/jag"}}):
@@ -411,10 +496,12 @@ class NpmTests(TempCase):
             0o755,
         )
         license_file = write(self.tmp / "LICENSE", "license\n")
+        notices = write(self.tmp / "THIRD-PARTY-LICENSES", "THIRD-PARTY LICENSES\n")
         run_main(["npm-main", "--version", VERSION, "--out", str(out), "--source", str(ROOT / "npm/jag"),
                   "--readme", str(ROOT / "README.md"), "--license", str(license_file)])
         run_main(["npm-platform", "--target", platform["target"], "--version", VERSION, "--binary", str(binary),
-                  "--out", str(out), "--readme", str(ROOT / "npm/platform/README.md"), "--license", str(license_file)])
+                  "--out", str(out), "--readme", str(ROOT / "npm/platform/README.md"), "--license", str(license_file),
+                  "--notices", str(notices)])
         pack = self.tmp / "pack"
         pack.mkdir()
         for folder in (out / f"jag-{platform['os']}-{platform['cpu']}", out / "jag"):
@@ -497,6 +584,100 @@ class CrateListTests(unittest.TestCase):
         self.assertEqual(package["readme"], "README.md")
         self.assertTrue(package["keywords"])
         self.assertTrue(package["categories"])
+
+
+class CrateMetadataTests(TempCase):
+    def crate(self, name="jag-grep-1.2.3.crate", manifest=None, folder="jag-grep-1.2.3"):
+        text = (ROOT / "Cargo.toml").read_text(encoding="utf-8") if manifest is None else manifest
+        return make_tgz(self.tmp / name, [(f"{folder}/Cargo.toml", text.encode(), 0o644)])
+
+    def with_value(self, key, value):
+        text = (ROOT / "Cargo.toml").read_text(encoding="utf-8")
+        lines = [f'{key} = "{value}"' if line.startswith(f"{key} = ") else line for line in text.splitlines()]
+        self.assertNotEqual("\n".join(lines), text.rstrip("\n"), key)
+        return "\n".join(lines) + "\n"
+
+    def test_the_crate_of_the_repository_passes(self):
+        code, out, err = run_main(["check-crate-metadata", str(self.crate())])
+        self.assertEqual((code, err), (0, ""))
+        self.assertIn("passes", out)
+
+    def test_the_metadata_of_the_repository_is_the_metadata_of_the_spec(self):
+        found = release.cargo_metadata(ROOT / "Cargo.toml")
+        self.assertEqual(found["license"], "MIT")
+        self.assertEqual(found["repository"], "https://github.com/ai-ready-future/jag")
+        self.assertTrue(found["description"])
+
+    def test_a_wrong_license_fails(self):
+        code, _, err = run_main(["check-crate-metadata", str(self.crate(manifest=self.with_value("license", "Apache-2.0")))])
+        self.assertEqual(code, 1)
+        self.assertIn("license", err)
+
+    def test_a_wrong_repository_fails(self):
+        manifest = self.with_value("repository", "https://example.com/x")
+        code, _, err = run_main(["check-crate-metadata", str(self.crate(manifest=manifest))])
+        self.assertEqual(code, 1)
+        self.assertIn("repository", err)
+
+    def test_a_wrong_description_fails(self):
+        manifest = self.with_value("description", "Something else")
+        code, _, err = run_main(["check-crate-metadata", str(self.crate(manifest=manifest))])
+        self.assertEqual(code, 1)
+        self.assertIn("description", err)
+
+    def test_a_missing_value_fails(self):
+        manifest = '[package]\nname = "jag-grep"\nversion = "1.2.3"\n'
+        self.assertEqual(run_main(["check-crate-metadata", str(self.crate(manifest=manifest))])[0], 1)
+
+    def test_a_crate_with_no_manifest_in_its_folder_fails(self):
+        path = make_tgz(self.tmp / "x.crate", [("jag-grep-1.2.3/src/Cargo.toml", b"x", 0o644)])
+        self.assertEqual(run_main(["check-crate-metadata", str(path)])[0], 1)
+
+
+class NoticesTests(TempCase):
+    def check(self, data):
+        path = write(self.tmp / "THIRD-PARTY-LICENSES", data)
+        return run_main(["check-notices", str(path)])
+
+    def test_a_good_file_passes(self):
+        code, out, err = self.check("THIRD-PARTY LICENSES\n\nThe jag binary holds code.\n")
+        self.assertEqual((code, err), (0, ""))
+        self.assertIn("passes", out)
+
+    def test_an_empty_file_fails(self):
+        self.assertEqual(self.check("")[0], 1)
+        self.assertEqual(self.check("\n \n")[0], 1)
+
+    def test_a_wrong_first_line_fails(self):
+        self.assertEqual(self.check("THIRD-PARTY LICENCES\nx\n")[0], 1)
+        self.assertEqual(self.check("\nTHIRD-PARTY LICENSES\n")[0], 1)
+
+    def test_a_file_that_is_not_utf8_fails(self):
+        self.assertEqual(self.check(b"THIRD-PARTY LICENSES\n\xff\xfe\n")[0], 1)
+
+
+class RepositoryFilesTests(unittest.TestCase):
+    def test_the_license_file_is_mit_and_the_notice_files_exist(self):
+        self.assertTrue((ROOT / "LICENSE").read_text(encoding="utf-8").startswith("MIT License"))
+        self.assertTrue((ROOT / "scripts" / "release" / "about.toml").is_file())
+        self.assertTrue((ROOT / "scripts" / "release" / "notices.hbs").is_file())
+
+    def test_the_notice_file_is_not_stored_in_the_repository(self):
+        self.assertFalse((ROOT / "THIRD-PARTY-LICENSES").exists())
+
+    def test_the_accepted_licenses_of_about_toml_agree_with_the_spec(self):
+        with open(ROOT / "scripts" / "release" / "about.toml", "rb") as handle:
+            config = tomllib.load(handle)
+        self.assertEqual(
+            config["accepted"],
+            ["MIT", "Apache-2.0", "ISC", "BSD-3-Clause", "Unicode-3.0", "CDLA-Permissive-2.0"],
+        )
+        self.assertEqual(sorted(config["targets"]), sorted(p["target"] for p in release.PLATFORMS))
+        self.assertTrue(config["ignore-dev-dependencies"] and config["ignore-build-dependencies"])
+
+    def test_the_template_starts_with_the_line_that_check_notices_wants(self):
+        first = (ROOT / "scripts" / "release" / "notices.hbs").read_text(encoding="utf-8").split("\n", 1)[0]
+        self.assertEqual(first, release.NOTICES_FIRST_LINE)
 
 
 class TextsTests(TempCase):
@@ -678,8 +859,31 @@ class WorkflowTests(unittest.TestCase):
     def test_the_jobs_of_the_spec(self):
         self.assertEqual(
             list(self.jobs),
-            ["prepare", "npm-main", "build", "crate", "scan", "github-draft", "crates-io", "npm", "verify", "github-publish"],
+            [
+                "prepare", "npm-main", "notices", "build", "crate", "scan",
+                "github-draft", "crates-io", "npm", "verify", "github-publish",
+            ],
         )
+
+    def test_the_notices_job_pins_cargo_about_and_makes_the_file_for_the_build_jobs(self):
+        notices = self.jobs["notices"]
+        self.assertIn("cargo-about-0.9.2-x86_64-unknown-linux-musl.tar.gz", notices)
+        self.assertIn("9099a59e820c38a68b9d65f300662a567d56562f9a10f6aa4c7e86c17c2566af", notices)
+        self.assertIn("sha256sum -c", notices)
+        self.assertIn("generate --locked --fail", notices)
+        self.assertIn("scripts/release/about.toml", notices)
+        self.assertIn("scripts/release/notices.hbs", notices)
+        self.assertIn("check-notices", notices)
+        self.assertIn("name: notices", notices)
+        self.assertNotIn("secrets.", notices)
+        self.assertIn("needs: [prepare, npm-main, notices]", self.jobs["build"])
+        build = self.jobs["build"]
+        self.assertEqual(build.count("--notices "), 2)
+        self.assertIn("release.py archive", build)
+        self.assertIn("release.py npm-platform", build)
+
+    def test_the_crate_job_checks_the_metadata_of_the_packed_crate(self):
+        self.assertIn("check-crate-metadata", self.jobs["crate"])
 
     def test_the_only_secrets_are_private_patterns_and_the_github_token(self):
         names = set(re.findall(r"secrets\.([A-Za-z0-9_]+)", self.text))
