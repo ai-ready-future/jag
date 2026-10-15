@@ -13,7 +13,7 @@ github:
   url: https://github.com/ai-ready-future/jag/issues/23
   pushed_hash: 76769a
   synced:
-    state: backlog
+    state: done
 parent: /epics/EPIC-05.md
 blocked_by:
 - /features/FEATURE-17.md
