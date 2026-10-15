@@ -111,7 +111,7 @@ Model and Effort: use the exact values in the table.
 - Lands new or changed ADRs through a PR.
 - Decides each ADR finding from a verifier (section 4, "ADR finding flow"). Gives 1 verdict: `no ADR change`, `contradicts ADR-NNNN`, or `needs an ADR`.
 - For `contradicts` and `needs an ADR`, sends an `ASK` to the orchestrator with the options and a recommendation. Does not write or change an ADR before the `ANSWER`.
-- After the `ANSWER`, writes the new or changed ADR with `status: proposed` and lands it through a PR. The ADR names the `ANSWER`. Then the usual hitl card accepts the ADR, as for each proposed ADR.
+- After the `ANSWER`, writes the new or changed ADR with `status: proposed` and lands it through a PR. The ADR names the `ANSWER`. Then the architect sends an `ASK` for the card that accepts the ADR.
 
 **specifier**
 - One feature gives one spec.
@@ -138,7 +138,7 @@ Model and Effort: use the exact values in the table.
 - Checks the PR against the spec criteria, the tests and the ADRs.
 - Checks ADR adherence on each PR with `adr:reviewing-adr-adherence`. Looks for 2 problems: a change that contradicts an accepted ADR, and a change that is expensive to undo and has no ADR.
 - Does not decide an ADR finding alone. Requests changes, writes the finding in the PR comment, and sends it to the orchestrator for the architect (section 4, "ADR finding flow").
-- Approves or requests changes on GitHub with `gh pr review`.
+- Posts the result as a PR comment. The first line is `VERDICT: APPROVE` or `VERDICT: CHANGES`. The account cannot approve its own PR, so the verifier does not use `gh pr review`.
 - Document PRs (only files in `docs/` change): if a fix does not block, give the exact text of the fix with the approval. The author applies this text and merges with no new check. Code PRs always get a new check after a fix.
 - Sends the result to the orchestrator.
 
@@ -174,19 +174,22 @@ Side flows:
 ### ADR finding flow
 
 ```
-verifier: ADR finding → request changes → orchestrator
-  → architect: verdict
-       no ADR change     → verifier continues the review
-       contradicts ADR   → ASK (change the code | change the ADR | deviate)
-       needs an ADR      → ASK (accept the decision | change the code)
+verifier: ADR finding → VERDICT: CHANGES → orchestrator
+  → orchestrator: finding → architect (starts the architect if it is not running)
+  → architect: verdict → orchestrator → verifier and implementer
+       no ADR change          → verifier: new VERDICT for the PR
+       contradicts ADR-NNNN   → ASK (change the code | change the ADR | deviate)
+       needs an ADR           → ASK (accept the decision | change the code)
   → hitl: card → ANSWER
-  → architect: ADR PR (status proposed) if the ANSWER changes an ADR or adds one
+  → architect: ADR PR (status proposed) if the ANSWER changes an ADR, adds one, or deviates (`deviates_from`) → merge
   → implementer: code fix if the ANSWER says so
   → verifier: new check of the code PR
 ```
 
 - The orchestrator gives the `ASK` the priority `blocks code now`.
-- The code PR does not merge until the `ANSWER` is in and the verifier approves.
+- The implementer does not change the code for an ADR finding before the `ANSWER`. An ADR finding and its new check are not one of the 3 review rounds.
+- The code PR does not merge until the `ANSWER` is in, the ADR PR (if there is one) is merged, and the verifier approves. In the new check, the ADR of the merged ADR PR is the decision for the finding.
+- On the ADR PR of the architect, the verifier checks that the ADR names the `ANSWER`. A change of an ADR that the `ANSWER` orders is not an ADR finding.
 - An ADR finding from a review is the exception to "Write the ADR now ... Do not stop to ask" in `docs/adr/CLAUDE.md`. The user decides the direction first, because the review found a conflict.
 
 ## 5. Message format
@@ -215,7 +218,7 @@ Types:
 
 1. Make a worktree from `origin/main`.
 2. Change `docs/adlc.md` only.
-3. Open a PR, then merge it at once (no verifier).
+3. Open a PR. Send `REVIEW` to the orchestrator. A verifier checks it as a document PR (section 3, verifier). After the approval, merge it with squash (rule 12).
 4. Remove the worktree and the branch.
 5. Send `DONE` to the orchestrator. The orchestrator sends `RELOAD` to all sessions.
 
@@ -298,4 +301,4 @@ Send a DONE message to the orchestrator when you are ready. Then wait for TASK m
 | 2026-10-14 | Removed the ADR count from the ADR folder row in section 1. The row points to `docs/adr/README.md` | The count (10) was out of date: `main` has 18 accepted ADRs. A count goes out of date again |
 | 2026-10-15 | Rule 11: added the exception for a user `ANSWER` (FEATURE-18). Added rule 12: squash merge only, and a hash check of the author and the committer after each merge. The "Extra context files" row points to `docs/handoff.md` in the old folder `jag-private`. Section 4 points to the rule 11 exception. The repository rules point to the "Extra context files" row | Verifier comments on PR #94 and PR #95. A rebase merge wrote the account address as committer in `3ead9ae`. Since FEATURE-19 step B10, the main folder is a new clone and has no `docs/handoff.md` |
 | 2026-10-15 | Rule 11: FEATURE-18 used the exception until FEATURE-19 was `done` | Verifier comment on PR #100. FEATURE-19 is `done` (`d023dd1`). STORY-48 to STORY-51 are now `ready` by the base rule |
-| 2026-10-15 | The verifier checks ADR adherence on each PR (`adr:reviewing-adr-adherence`): a contradiction of an accepted ADR, or a change that needs an ADR. The architect decides each finding. Hitl asks the user. The architect writes the ADR after the `ANSWER`. Added the "ADR finding flow" to section 4 | The user asked for this change. The review must catch ADR problems, and the user decides ADR changes |
+| 2026-10-15 | The verifier checks ADR adherence on each PR (`adr:reviewing-adr-adherence`): a contradiction of an accepted ADR, or a change that needs an ADR. The architect decides each finding. Hitl asks the user. The architect writes the ADR after the `ANSWER`. Added the "ADR finding flow" to section 4. The retro fast path (section 6) gets a verifier check and a squash merge. The verifier posts a `VERDICT` comment and does not use `gh pr review` | The user asked for this change. The review must catch ADR problems, and the user decides ADR changes. Verifier comment on PR #103: section 6 and the verifier line did not agree with how the team works |
