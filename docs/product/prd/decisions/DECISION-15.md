@@ -1,20 +1,23 @@
 ---
 type: Decision
-title: A result path has the same form as in grep
+title: A result path has the same form as in rg
 description: The path of each result follows the form of the folder that the user
   gave.
 status: stable
-decided_at: '2026-10-06'
+decided_at: '2026-10-15'
 alternatives:
 - Always give absolute paths
 - Always give paths relative to the folder that the user searched
+- The same form as in grep
 about:
 - /capabilities/CAPABILITY-03.md
 ---
 
-# DECISION-15: A result path has the same form as in grep
+# DECISION-15: A result path has the same form as in rg
 
-The path of each result has the same form as in grep. A relative folder gives relative paths, and an absolute folder gives absolute paths.
+The path of each result has the same form as in rg. A relative folder gives relative paths, and an absolute folder gives absolute paths.
+
+Source of the change from grep to rg: the user, hitl answer of 2026-10-15 (FEATURE-23, Q1 option 1: rg is the reference for jag with no question).
 
 <!-- LINKS:START (generated, do not edit) -->
 

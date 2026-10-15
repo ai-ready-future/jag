@@ -23,7 +23,7 @@ traces:
 - to: prd:/capabilities/CAPABILITY-03.md
   hash: eb1f82
 - to: prd:/decisions/DECISION-15.md
-  hash: 10d26e
+  hash: 535d90
 - to: prd:/decisions/DECISION-16.md
   hash: '646497'
 - to: prd:/decisions/DECISION-17.md
@@ -55,7 +55,7 @@ Each result shows the file, the line range, and the exact source text, with each
 - blocked by: [FEATURE-04: Rank matching lines by a question](FEATURE-04.md)
 - milestone: [MILESTONE-01: Make it work](../milestones/MILESTONE-01.md)
 - traces: [CAPABILITY-03: File and line for each result](../../prd/capabilities/CAPABILITY-03.md)
-- traces: [DECISION-15: A result path has the same form as in grep](../../prd/decisions/DECISION-15.md)
+- traces: [DECISION-15: A result path has the same form as in rg](../../prd/decisions/DECISION-15.md)
 - traces: [DECISION-16: A joined result shows its line range and marks each matching line](../../prd/decisions/DECISION-16.md)
 - traces: [DECISION-17: With --ask or --json, jag cuts a very long line and marks the cut](../../prd/decisions/DECISION-17.md)
 - traces: [DECISION-18: Piped text has the label <stdin>](../../prd/decisions/DECISION-18.md)

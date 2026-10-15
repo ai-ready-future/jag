@@ -4,7 +4,7 @@
 * [DECISION-02: Release 1 does not serve users whose text must stay on the machine](DECISION-02.md) - Release 1 needs the model service; users whose text must not leave the machine wait for a later local model option.
 * [DECISION-03: jag reads the key from two variables and a config file, in a fixed order](DECISION-03.md) - jag reads JAG_TYPESAFE_API_KEY, then TYPESAFE_API_KEY, then ~/.config/jag/config.yml; the first key found wins.
 * [DECISION-04: The health check examines five items with one free call](DECISION-04.md) - The health check examines key present, key valid, credit left, service reachable, and key file safe, with one call that costs almost nothing.
-* [DECISION-05: jag keeps grep exit codes and adds one code for each model failure](DECISION-05.md) - jag keeps the grep exit codes 0, 1, and 2, and gives each model failure its own code above 2.
+* [DECISION-05: jag keeps rg exit codes and adds one code for each model failure](DECISION-05.md) - jag keeps the rg exit codes 0, 1, and 2, and gives each model failure its own code above 2.
 * [DECISION-06: A model failure during a search fails the full search](DECISION-06.md) - When the credit or the service stops during a search, jag returns no partial result and exits with the code of the cause.
 * [DECISION-07: Errors are structured in structured output mode](DECISION-07.md) - In structured output mode, an error is structured, with the cause, the fix, and the exit code; in text mode, it is readable text.
 * [DECISION-08: Setup asks before it replaces a key, and one command removes it](DECISION-08.md) - Setup asks the user before it replaces a stored key, and one command removes the stored key.
@@ -14,7 +14,7 @@
 * [DECISION-12: The cost limit has a default that the user can change](DECISION-12.md) - jag has a fixed default cost limit, stated as a count of results to score, and the user can change it with an option.
 * [DECISION-13: Reaching the cost limit has its own exit code](DECISION-13.md) - When jag reaches the cost limit, it returns the ranked results, says how many matches it skipped, and exits with its own code; exit 1 wins when nothing answers well.
 * [DECISION-14: A folder search works as rg does and skips noise files](DECISION-14.md) - jag searches each subfolder and skips binary, hidden, and ignored files, as rg does; only --ask and --json say how many files it skipped.
-* [DECISION-15: A result path has the same form as in grep](DECISION-15.md) - The path of each result follows the form of the folder that the user gave.
+* [DECISION-15: A result path has the same form as in rg](DECISION-15.md) - The path of each result follows the form of the folder that the user gave.
 * [DECISION-16: A joined result shows its line range and marks each matching line](DECISION-16.md) - A result gives its first and last line, and it marks each line that matches the term.
 * [DECISION-17: With --ask or --json, jag cuts a very long line and marks the cut](DECISION-17.md) - A result shows the exact source text; with --ask or --json, jag cuts each line that is longer than a fixed length.
 * [DECISION-18: Piped text has the label <stdin>](DECISION-18.md) - A result from piped text uses the rg label <stdin> and the line numbers of the piped text.
@@ -48,7 +48,7 @@
 * [DECISION-46: jag scores each search again and does not reuse scores](DECISION-46.md) - Release 1 keeps no scores between searches; a repeated search pays the model service again.
 * [DECISION-47: The cost-limit exit code wins over the left-out exit code](DECISION-47.md) - When a search reaches the cost limit and also leaves out results, jag exits with the cost-limit code.
 * [DECISION-48: The readiness check exits 0 or with the code of the first cause](DECISION-48.md) - The readiness check exits with code 0 when all five items pass, and otherwise with the code of the first cause that fails.
-* [DECISION-49: Plain grep mode needs no key](DECISION-49.md) - A term with no question makes no model call, so jag works with no stored key.
+* [DECISION-49: Plain rg mode needs no key](DECISION-49.md) - A term with no question makes no model call, so jag works with no stored key.
 * [DECISION-50: The -A, -B, and -C options set the context lines of a result](DECISION-50.md) - The grep context options set the lines around each match; with no option, jag uses its default.
 * [DECISION-51: jag goes public as a new repository with a clean history](DECISION-51.md) - A new public repository gets a clean history. The private repository stays private as ai-ready-future/jag-private, and its history is not rewritten.
 * [DECISION-52: The failure limit comes from the timeout and the retry wait](DECISION-52.md) - When the model service does not answer, the time limit is 2 × the timeout + the retry wait, not a fixed number.

@@ -1,6 +1,7 @@
 # Log
 
 ## 2026-10-15
+* **Plan**: [FEATURE-13](features/FEATURE-13.md) user answer (human:404pilo, hitl, 2026-10-15, FEATURE-23 Q1 option 1: rg is the reference for jag with no question; card C option 1 for the option set): CRITERION-55, CRITERION-63, CRITERION-68, FEATURE-12, FEATURE-13, STORY-34, STORY-35, STORY-38, STORY-42, DECISION-05, DECISION-15, and DECISION-49 now name rg in place of grep; the 8 drifted traces of FEATURE-03, FEATURE-08, FEATURE-12, FEATURE-13, STORY-10, STORY-21, STORY-34, and STORY-38 to DECISION-05, DECISION-15, and DECISION-49 are accepted as human:404pilo, because the jag build of 128e1bb does what each decision says (checked against rg 15.1.0: exit codes 0, 1, and 2, relative and absolute path forms, no key with no question), by agent:planner, at 2026-10-15T23:30:27Z
 * **Sync**: [STORY-38](stories/STORY-38.md) pushed to GitHub, by system:github, at 2026-10-15T23:29:23Z
 * **Sync**: [STORY-33](stories/STORY-33.md) pushed to GitHub, by system:github, at 2026-10-15T23:29:23Z
 * **Sync**: [STORY-21](stories/STORY-21.md) pushed to GitHub, by system:github, at 2026-10-15T23:29:23Z

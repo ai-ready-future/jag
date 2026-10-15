@@ -1,7 +1,7 @@
 ---
 type: Feature
-title: Plain grep with no question
-description: With a term and no question, jag returns the matching lines as grep does,
+title: Plain rg with no question
+description: With a term and no question, jag returns the matching lines as rg does,
   makes no model call, and costs nothing.
 status: draft
 state: done
@@ -21,12 +21,14 @@ traces:
 - to: prd:/decisions/DECISION-32.md
   hash: 9f60c6
 - to: prd:/decisions/DECISION-49.md
-  hash: 7cd110
+  hash: c2525e
 ---
 
-# FEATURE-12: Plain grep with no question
+# FEATURE-12: Plain rg with no question
 
-With a term and no question, jag returns the matching lines as grep does, makes no model call, and costs nothing.
+With a term and no question, jag returns the matching lines as rg does, makes no model call, and costs nothing.
+
+Source of the change from grep to rg: the user, hitl answer of 2026-10-15 (FEATURE-23, Q1 option 1: rg is the reference for jag with no question).
 
 <!-- STATUS:START (generated, do not edit) -->
 
@@ -35,7 +37,7 @@ With a term and no question, jag returns the matching lines as grep does, makes 
 | Item | State | Progress | Owner | Blocked by | Drift |
 | --- | --- | --- | --- | --- | --- |
 | [STORY-33: Search with a term and no question](../stories/STORY-33.md) | done | - | - | - | - |
-| [STORY-34: Use plain grep with no key](../stories/STORY-34.md) | done | - | - | - | - |
+| [STORY-34: Use plain rg mode with no key](../stories/STORY-34.md) | done | - | - | - | - |
 <!-- STATUS:END -->
 
 <!-- LINKS:START (generated, do not edit) -->
@@ -46,8 +48,8 @@ With a term and no question, jag returns the matching lines as grep does, makes 
 - milestone: [MILESTONE-02: Make it good](../milestones/MILESTONE-02.md)
 - traces: [CAPABILITY-06: Feels like grep](../../prd/capabilities/CAPABILITY-06.md)
 - traces: [DECISION-32: A term with no question works as plain rg](../../prd/decisions/DECISION-32.md)
-- traces: [DECISION-49: Plain grep mode needs no key](../../prd/decisions/DECISION-49.md)
-- blocks: [FEATURE-13: Common grep options and exit codes](FEATURE-13.md)
+- traces: [DECISION-49: Plain rg mode needs no key](../../prd/decisions/DECISION-49.md)
+- blocks: [FEATURE-13: Common rg options and exit codes](FEATURE-13.md)
 - child: [STORY-33: Search with a term and no question](../stories/STORY-33.md)
-- child: [STORY-34: Use plain grep with no key](../stories/STORY-34.md)
+- child: [STORY-34: Use plain rg mode with no key](../stories/STORY-34.md)
 <!-- LINKS:END -->

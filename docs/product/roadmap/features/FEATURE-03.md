@@ -24,7 +24,7 @@ traces:
 - to: prd:/decisions/DECISION-01.md
   hash: 303d3c
 - to: prd:/decisions/DECISION-05.md
-  hash: 2503eb
+  hash: b8f39e
 - to: prd:/decisions/DECISION-06.md
   hash: 09aef4
 - to: prd:/constraints/CONSTRAINT-04.md
@@ -56,7 +56,7 @@ When the key is missing or out of credit, or the model service is down, jag stop
 - milestone: [MILESTONE-02: Make it good](../milestones/MILESTONE-02.md)
 - traces: [CAPABILITY-01: Guided key setup and health check](../../prd/capabilities/CAPABILITY-01.md)
 - traces: [DECISION-01: jag fails clearly when the model is not available](../../prd/decisions/DECISION-01.md)
-- traces: [DECISION-05: jag keeps grep exit codes and adds one code for each model failure](../../prd/decisions/DECISION-05.md)
+- traces: [DECISION-05: jag keeps rg exit codes and adds one code for each model failure](../../prd/decisions/DECISION-05.md)
 - traces: [DECISION-06: A model failure during a search fails the full search](../../prd/decisions/DECISION-06.md)
 - traces: [CONSTRAINT-04: jag tries again one time before it reports the service as down](../../prd/constraints/CONSTRAINT-04.md)
 - child: [STORY-09: Name the cause and the fix of a model failure](../stories/STORY-09.md)

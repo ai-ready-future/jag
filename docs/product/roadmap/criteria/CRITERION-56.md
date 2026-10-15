@@ -14,5 +14,5 @@ With `-F`, jag reads the term as fixed text and not as a regular expression.
 
 ## Links
 
-- item: [STORY-35: Use the common grep options](../stories/STORY-35.md)
+- item: [STORY-35: Use the common rg options](../stories/STORY-35.md)
 <!-- LINKS:END -->

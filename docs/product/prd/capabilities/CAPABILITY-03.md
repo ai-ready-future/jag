@@ -24,7 +24,7 @@ Each result shows the file, the line number, and the snippet. The person or the 
 - addresses: [JOURNEY-02: A person asks a question at the shell](../journeys/JOURNEY-02.md)
 - depends on: [CAPABILITY-02: Term and question search](CAPABILITY-02.md)
 - subject of: [DECISION-10: A result is a matching line with the lines around it](../decisions/DECISION-10.md)
-- subject of: [DECISION-15: A result path has the same form as in grep](../decisions/DECISION-15.md)
+- subject of: [DECISION-15: A result path has the same form as in rg](../decisions/DECISION-15.md)
 - subject of: [DECISION-16: A joined result shows its line range and marks each matching line](../decisions/DECISION-16.md)
 - subject of: [DECISION-17: With --ask or --json, jag cuts a very long line and marks the cut](../decisions/DECISION-17.md)
 - subject of: [DECISION-18: Piped text has the label <stdin>](../decisions/DECISION-18.md)

@@ -23,7 +23,7 @@ The readiness check exits with code 0 when all five items pass. When an item fai
 
 - about: [CAPABILITY-01: Guided key setup and health check](../capabilities/CAPABILITY-01.md)
 - about: [DECISION-04: The health check examines five items with one free call](DECISION-04.md)
-- about: [DECISION-05: jag keeps grep exit codes and adds one code for each model failure](DECISION-05.md)
+- about: [DECISION-05: jag keeps rg exit codes and adds one code for each model failure](DECISION-05.md)
 - traced by: [FEATURE-02: Readiness check](../../roadmap/features/FEATURE-02.md)
 - traced by: [STORY-07: Use the check result as an exit code](../../roadmap/stories/STORY-07.md)
 <!-- LINKS:END -->
