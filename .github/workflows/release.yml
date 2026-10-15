@@ -1,0 +1,541 @@
+name: release
+
+# The trusted publishers of crates.io and npm name this file and the
+# environment "release". Do not rename them.
+#
+# A push of a version tag "v*" builds, scans, and publishes jag on GitHub
+# Releases, crates.io, and npm. A pull request that changes a release file,
+# and a manual run, do a dry run: the jobs up to the scan, and nothing is
+# published. The spec is
+# docs/superpowers/specs/2026-10-14-STORY-48-install-jag-from-github-releases-crates-io-or-npm-design.md.
+# The steps of the release are in scripts/release/release.py. Read
+# scripts/release/README.md before you push a tag.
+
+on:
+  push:
+    tags: ['v*']
+  pull_request:
+    paths:
+      - .github/workflows/release.yml
+      - scripts/release/**
+      - npm/**
+      - Cargo.toml
+      - Cargo.lock
+      - rust-toolchain.toml
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+# A tag release has its own group. So a dry run never stops a release that waits.
+concurrency:
+  group: ${{ github.event_name == 'push' && 'release-publish' || format('release-dry-run-{0}', github.ref) }}
+  cancel-in-progress: ${{ github.event_name != 'push' }}
+
+env:
+  CARGO_TERM_COLOR: always
+
+jobs:
+  prepare:
+    name: prepare
+    runs-on: ubuntu-24.04
+    outputs:
+      version: ${{ steps.version.outputs.version }}
+      publish: ${{ steps.version.outputs.publish }}
+      matrix: ${{ steps.version.outputs.matrix }}
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+
+      - name: Check the version and the tag
+        id: version
+        env:
+          EVENT_NAME: ${{ github.event_name }}
+          REF_NAME: ${{ github.ref_name }}
+        run: |
+          set -euo pipefail
+          if [ "$EVENT_NAME" = push ]; then
+            version=$(python3 -I scripts/release/release.py version --tag "$REF_NAME")
+            commit=$(git rev-parse "$REF_NAME^{commit}")
+            if ! git merge-base --is-ancestor "$commit" origin/main; then
+              echo "release: the commit of the tag $REF_NAME is not on main." >&2
+              exit 1
+            fi
+            publish=true
+          else
+            version=$(python3 -I scripts/release/release.py version)
+            publish=false
+          fi
+          matrix=$(python3 -I scripts/release/release.py matrix)
+          {
+            echo "version=$version"
+            echo "publish=$publish"
+            echo "matrix=$matrix"
+          } >> "$GITHUB_OUTPUT"
+          echo "release: version $version, publish $publish"
+
+  npm-main:
+    name: npm-main
+    needs: prepare
+    runs-on: ubuntu-24.04
+    env:
+      VERSION: ${{ needs.prepare.outputs.version }}
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version: '24'
+          package-manager-cache: false
+
+      - name: Make the main package
+        run: |
+          set -euo pipefail
+          python3 -I scripts/release/release.py npm-main --version "$VERSION" --out "$RUNNER_TEMP/npm-main"
+          mkdir "$RUNNER_TEMP/npm-main-out"
+          npm pack "$RUNNER_TEMP/npm-main/jag" --pack-destination "$RUNNER_TEMP/npm-main-out"
+          python3 -I scripts/release/release.py check-npm-tarball --version "$VERSION" "$RUNNER_TEMP/npm-main-out/airf-jag-$VERSION.tgz"
+
+      - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: npm-main
+          path: ${{ runner.temp }}/npm-main-out/airf-jag-${{ needs.prepare.outputs.version }}.tgz
+          if-no-files-found: error
+          retention-days: 14
+
+  build:
+    name: build (${{ matrix.target }})
+    needs: [prepare, npm-main]
+    runs-on: ${{ matrix.runner }}
+    timeout-minutes: 60
+    strategy:
+      fail-fast: false
+      matrix: ${{ fromJSON(needs.prepare.outputs.matrix) }}
+    env:
+      VERSION: ${{ needs.prepare.outputs.version }}
+      TARGET: ${{ matrix.target }}
+      PLATFORM_OS: ${{ matrix.os }}
+      PLATFORM_CPU: ${{ matrix.cpu }}
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version: '24'
+          package-manager-cache: false
+
+      # ring compiles C, so a musl target needs musl-gcc.
+      - name: Install the C compiler for musl
+        if: runner.os == 'Linux'
+        run: |
+          set -euo pipefail
+          sudo apt-get update -qq
+          sudo apt-get install -y musl-tools
+          echo "CC_${TARGET//-/_}=musl-gcc" >> "$GITHUB_ENV"
+
+      # Installs the toolchain that rust-toolchain.toml pins, and the target.
+      - name: Install the toolchain
+        run: |
+          set -euo pipefail
+          rustup show active-toolchain || rustup toolchain install
+          rustup target add "$TARGET"
+          rustc --version
+          cargo --version
+
+      - name: Test on the target
+        run: cargo test --locked --release --target "$TARGET"
+
+      - name: Build
+        run: cargo build --locked --release --target "$TARGET"
+
+      - name: Check the binary
+        run: python3 -I scripts/release/release.py check-binary --target "$TARGET" --version "$VERSION" "target/$TARGET/release/jag"
+
+      - name: Make the archive
+        run: python3 -I scripts/release/release.py archive --target "$TARGET" --version "$VERSION" --binary "target/$TARGET/release/jag" --out dist
+
+      - name: Make the platform package
+        run: |
+          set -euo pipefail
+          python3 -I scripts/release/release.py npm-platform --target "$TARGET" --version "$VERSION" --binary "target/$TARGET/release/jag" --out "$RUNNER_TEMP/npm-platform"
+          npm pack "$RUNNER_TEMP/npm-platform/jag-$PLATFORM_OS-$PLATFORM_CPU" --pack-destination dist
+          python3 -I scripts/release/release.py check-npm-tarball --version "$VERSION" "dist/airf-jag-$PLATFORM_OS-$PLATFORM_CPU-$VERSION.tgz"
+
+      - uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8.0.2
+        with:
+          name: npm-main
+          path: ${{ runner.temp }}/npm-main-file
+
+      - name: Run the launcher and the binary as npm installs them
+        run: |
+          python3 -I scripts/release/release.py local-install \
+            --main "$RUNNER_TEMP/npm-main-file/airf-jag-$VERSION.tgz" \
+            --platform "dist/airf-jag-$PLATFORM_OS-$PLATFORM_CPU-$VERSION.tgz" \
+            --version "$VERSION"
+
+      - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: build-${{ matrix.target }}
+          path: dist/*
+          if-no-files-found: error
+          retention-days: 14
+
+  crate:
+    name: crate
+    needs: prepare
+    runs-on: ubuntu-24.04
+    env:
+      VERSION: ${{ needs.prepare.outputs.version }}
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      - name: Install the toolchain
+        run: |
+          set -euo pipefail
+          rustup show active-toolchain || rustup toolchain install
+          cargo --version
+
+      - name: Check the files of the crate
+        run: |
+          set -euo pipefail
+          cargo package --list --locked > "$RUNNER_TEMP/crate-list.txt"
+          python3 -I scripts/release/release.py check-crate-list "$RUNNER_TEMP/crate-list.txt"
+
+      - name: Pack the crate and build it in a clean folder
+        run: cargo package --locked
+
+      # A dry run needs no token.
+      - name: Publish the crate as a dry run
+        run: cargo publish --dry-run --locked
+
+      - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: crate
+          path: target/package/jag-grep-${{ needs.prepare.outputs.version }}.crate
+          if-no-files-found: error
+          retention-days: 14
+
+  # The only job that gets PRIVATE_PATTERNS. It has no write permission.
+  scan:
+    name: scan
+    needs: [prepare, build, crate, npm-main]
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      - uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8.0.2
+        with:
+          pattern: build-*
+          merge-multiple: true
+          path: ${{ runner.temp }}/scan/files
+
+      - uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8.0.2
+        with:
+          name: crate
+          path: ${{ runner.temp }}/scan/files
+
+      - uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8.0.2
+        with:
+          name: npm-main
+          path: ${{ runner.temp }}/scan/files
+
+      - name: Download gitleaks
+        run: |
+          set -euo pipefail
+          mkdir -p "$RUNNER_TEMP/gitleaks"
+          cd "$RUNNER_TEMP/gitleaks"
+          curl -sSfL -o gitleaks.tar.gz \
+            https://github.com/gitleaks/gitleaks/releases/download/v8.30.1/gitleaks_8.30.1_linux_x64.tar.gz
+          echo "551f6fc83ea457d62a0d98237cbad105af8d557003051f41f3e7ca7b3f2470eb  gitleaks.tar.gz" | sha256sum -c -
+          tar -xzf gitleaks.tar.gz gitleaks
+
+      # 14 files: 4 archives, 4 checksum files, 1 crate, and 5 npm tarballs.
+      - name: Make the text of the packages
+        run: |
+          set -euo pipefail
+          files=("$RUNNER_TEMP"/scan/files/*)
+          if [ "${#files[@]}" -ne 14 ]; then
+            echo "release: the scan expects 14 files, and found ${#files[@]}." >&2
+            exit 1
+          fi
+          python3 -I scripts/release/release.py texts --text "$RUNNER_TEMP/scan/text" --index "$RUNNER_TEMP/scan/index" "${files[@]}"
+
+      - name: Scan the packages
+        env:
+          PRIVATE_PATTERNS: ${{ secrets.PRIVATE_PATTERNS }}
+          GITLEAKS: ${{ runner.temp }}/gitleaks/gitleaks
+          TEXT_FILE: ${{ runner.temp }}/scan/text
+          TEXT_INDEX: ${{ runner.temp }}/scan/index
+        run: scripts/private-data/check.sh
+
+  # The jobs below run only for the push of a tag. A dry run skips them.
+  github-draft:
+    name: github-draft
+    needs: [prepare, scan]
+    if: needs.prepare.outputs.publish == 'true'
+    runs-on: ubuntu-24.04
+    environment: release
+    permissions:
+      contents: write
+    env:
+      VERSION: ${{ needs.prepare.outputs.version }}
+      GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      GH_REPO: ${{ github.repository }}
+    steps:
+      - uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8.0.2
+        with:
+          pattern: build-*
+          merge-multiple: true
+          path: ${{ runner.temp }}/files
+
+      - name: Make or fill the draft
+        run: |
+          set -euo pipefail
+          tag="v$VERSION"
+          files=("$RUNNER_TEMP"/files/jag-"$VERSION"-*.tar.gz*)
+          if [ "${#files[@]}" -ne 8 ]; then
+            echo "release: expected 8 release files, found ${#files[@]}." >&2
+            exit 1
+          fi
+          state=$(gh release list --limit 200 --json tagName,isDraft --jq ".[] | select(.tagName == \"$tag\") | .isDraft")
+          if [ "$state" = false ]; then
+            echo "release: $tag is published already. Nothing to do."
+          elif [ "$state" = true ]; then
+            gh release upload "$tag" "${files[@]}" --clobber
+          else
+            gh release create "$tag" --draft --verify-tag --title "jag $VERSION" --generate-notes "${files[@]}"
+          fi
+
+  crates-io:
+    name: crates-io
+    needs: [prepare, github-draft]
+    if: needs.prepare.outputs.publish == 'true'
+    runs-on: ubuntu-24.04
+    environment: release
+    permissions:
+      contents: read
+      id-token: write
+    env:
+      VERSION: ${{ needs.prepare.outputs.version }}
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      - name: Install the toolchain
+        run: |
+          set -euo pipefail
+          rustup show active-toolchain || rustup toolchain install
+          cargo --version
+
+      - name: Ask crates.io for the version
+        id: exists
+        run: |
+          set -euo pipefail
+          exists=$(python3 -I scripts/release/release.py exists --registry crates --name jag-grep --version "$VERSION")
+          echo "exists=$exists" >> "$GITHUB_OUTPUT"
+
+      - name: Get a token for crates.io
+        if: steps.exists.outputs.exists == 'false'
+        id: auth
+        uses: rust-lang/crates-io-auth-action@c6f97d42243bad5fab37ca0427f495c86d5b1a18 # v1.0.5
+
+      - name: Publish the crate
+        if: steps.exists.outputs.exists == 'false'
+        env:
+          CARGO_REGISTRY_TOKEN: ${{ steps.auth.outputs.token }}
+        run: cargo publish --locked
+
+  npm:
+    name: npm
+    needs: [prepare, crates-io]
+    if: needs.prepare.outputs.publish == 'true'
+    runs-on: ubuntu-24.04
+    environment: release
+    permissions:
+      contents: read
+      id-token: write
+    env:
+      VERSION: ${{ needs.prepare.outputs.version }}
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      - uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8.0.2
+        with:
+          pattern: build-*
+          merge-multiple: true
+          path: ${{ runner.temp }}/files
+
+      - uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8.0.2
+        with:
+          name: npm-main
+          path: ${{ runner.temp }}/files
+
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version: '24'
+          registry-url: https://registry.npmjs.org
+          package-manager-cache: false
+
+      - name: Check the npm version
+        run: python3 -I scripts/release/release.py check-npm-version "$(npm --version)"
+
+      # No step sets NODE_AUTH_TOKEN, so npm uses trusted publishing.
+      # The platform packages come first, and the main package last.
+      - name: Publish the npm packages
+        run: |
+          set -euo pipefail
+          for name in jag-linux-x64 jag-linux-arm64 jag-darwin-arm64 jag-darwin-x64 jag; do
+            exists=$(python3 -I scripts/release/release.py exists --registry npm --name "@airf/$name" --version "$VERSION")
+            if [ "$exists" = true ]; then
+              echo "release: @airf/$name $VERSION is on npm already. Skip."
+            else
+              npm publish "$RUNNER_TEMP/files/airf-$name-$VERSION.tgz"
+            fi
+          done
+
+  verify:
+    name: verify (${{ matrix.target }})
+    needs: [prepare, npm]
+    if: needs.prepare.outputs.publish == 'true'
+    runs-on: ${{ matrix.runner }}
+    timeout-minutes: 60
+    strategy:
+      fail-fast: false
+      matrix: ${{ fromJSON(needs.prepare.outputs.matrix) }}
+    env:
+      VERSION: ${{ needs.prepare.outputs.version }}
+      TARGET: ${{ matrix.target }}
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version: '24'
+          package-manager-cache: false
+
+      # A new version can take some time to show on a registry. Try again up to 5 times.
+      - name: Install from npm
+        env:
+          npm_config_cache: ${{ runner.temp }}/npm-cache-install
+        run: |
+          set -euo pipefail
+          dir="$RUNNER_TEMP/npm-install"
+          log="$RUNNER_TEMP/npm-install.log"
+          attempt() {
+            rm -rf "$dir"
+            mkdir -p "$dir"
+            (cd "$dir" && npm install "@airf/jag@$VERSION" --loglevel http) > "$log" 2>&1
+          }
+          for n in 1 2 3 4 5; do
+            if attempt; then break; fi
+            if [ "$n" -eq 5 ]; then
+              echo "release: npm install failed 5 times." >&2
+              exit 1
+            fi
+            sleep 60
+          done
+          python3 -I scripts/release/release.py check-npm-install --log "$log" --dir "$dir" --target "$TARGET" --version "$VERSION"
+
+      - name: Run with npx
+        env:
+          npm_config_cache: ${{ runner.temp }}/npm-cache-npx
+        run: |
+          set -euo pipefail
+          empty="$RUNNER_TEMP/empty"
+          mkdir -p "$empty"
+          out=""
+          for n in 1 2 3 4 5; do
+            if out=$(npx -y "@airf/jag@$VERSION" --version); then break; fi
+            if [ "$n" -eq 5 ]; then
+              echo "release: npx failed 5 times." >&2
+              exit 1
+            fi
+            sleep 60
+          done
+          if [ "$out" != "jag $VERSION" ]; then
+            echo "release: npx did not print jag $VERSION." >&2
+            exit 1
+          fi
+          rc=0
+          npx -y "@airf/jag@$VERSION" --no-such-option > /dev/null 2>&1 || rc=$?
+          if [ "$rc" -ne 2 ]; then
+            echo "release: npx gave exit $rc for a bad option, not 2." >&2
+            exit 1
+          fi
+          rc=0
+          npx -y "@airf/jag@$VERSION" jag-release-check "$empty" > /dev/null 2>&1 || rc=$?
+          if [ "$rc" -ne 1 ]; then
+            echo "release: npx gave exit $rc for a search with no match, not 1." >&2
+            exit 1
+          fi
+
+      - name: Install the toolchain
+        if: matrix.target == 'x86_64-unknown-linux-musl'
+        run: |
+          set -euo pipefail
+          rustup show active-toolchain || rustup toolchain install
+          cargo --version
+
+      - name: Install from crates.io
+        if: matrix.target == 'x86_64-unknown-linux-musl'
+        run: |
+          set -euo pipefail
+          root="$RUNNER_TEMP/cargo-install"
+          for n in 1 2 3 4 5; do
+            if cargo install --locked jag-grep --version "$VERSION" --root "$root"; then break; fi
+            if [ "$n" -eq 5 ]; then
+              echo "release: cargo install failed 5 times." >&2
+              exit 1
+            fi
+            sleep 60
+          done
+          out=$("$root/bin/jag" --version)
+          if [ "$out" != "jag $VERSION" ]; then
+            echo "release: the crate did not print jag $VERSION." >&2
+            exit 1
+          fi
+
+  github-publish:
+    name: github-publish
+    needs: [prepare, verify]
+    if: needs.prepare.outputs.publish == 'true'
+    runs-on: ubuntu-24.04
+    environment: release
+    permissions:
+      contents: write
+    env:
+      VERSION: ${{ needs.prepare.outputs.version }}
+      GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      GH_REPO: ${{ github.repository }}
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      # A published immutable release cannot change its files, so the check runs on the draft.
+      - name: Check the release and publish it
+        run: |
+          set -euo pipefail
+          tag="v$VERSION"
+          mkdir "$RUNNER_TEMP/release-files"
+          gh release download "$tag" --dir "$RUNNER_TEMP/release-files"
+          python3 -I scripts/release/release.py check-release --dir "$RUNNER_TEMP/release-files" --version "$VERSION"
+          state=$(gh release list --limit 200 --json tagName,isDraft --jq ".[] | select(.tagName == \"$tag\") | .isDraft")
+          if [ "$state" = true ]; then
+            gh release edit "$tag" --draft=false --latest
+          fi
