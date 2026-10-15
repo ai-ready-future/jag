@@ -413,12 +413,15 @@ is `rg` (verifier-1 on PR #135, comment 6203457295; reviewer-1 on PR #132,
 comment 6204222618).
 
 Test PR #132 holds 69 more cases than this table, so `cases.yaml` holds 149
-cases: the test scenarios S1 to S14 of verifier-1 (68 cases, commit
-`62a3dcb`) and `two-e-path-sorted` (commit `8661273`). Their source:
-verifier-1 on PR #135, comment 6203457295, and the thread of reviewer-1 on
-PR #132, comment 6202934112. Decision 25 names the cases of this table only.
-The reviewer check of CRITERION-110 compares this table with `cases.yaml`.
-The 69 more cases are allowed, and each one has the result `rg`.
+cases: the test scenarios S1 to S13 of verifier-1 (68 cases, commit `62a3dcb`)
+and `two-e-path-sorted` (the variant of `two-e-path` with `--sort path`,
+commit `8661273`). The scenario S14 (the cases that need a file system set-up:
+17 runs in Linux, 16 in macOS) is in `tests/rg_parity_fs.rs`, not in
+`cases.yaml`, and it waits for the card on ADR-0021. Their source: verifier-1
+on PR #135, comment 6203457295 ("about 140 runs that the test set does not
+have"). Decision 25 names the cases of this table only. The reviewer check of
+CRITERION-110 compares this table with `cases.yaml`. The 69 more cases are
+allowed, and each one has the result `rg`.
 
 The stored bytes of the case `version` hold the version of `Cargo.toml`.
 The pull request that changes that version also changes
