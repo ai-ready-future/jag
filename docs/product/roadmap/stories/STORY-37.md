@@ -39,7 +39,7 @@ As a shell power user (PERSONA-04), I want any other option to give a usage erro
 
 ## Links
 
-- parent: [FEATURE-13: Common grep options and exit codes](../features/FEATURE-13.md)
+- parent: [FEATURE-13: Common rg options and exit codes](../features/FEATURE-13.md)
 - milestone: [MILESTONE-02: Make it good](../milestones/MILESTONE-02.md)
 - traces: [DECISION-34: Release 1 keeps the rg options that people use most](../../prd/decisions/DECISION-34.md)
 - criterion or run of: [CRITERION-57: An unknown option is a usage error](../criteria/CRITERION-57.md)

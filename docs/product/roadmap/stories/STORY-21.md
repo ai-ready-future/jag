@@ -18,7 +18,7 @@ parent: /features/FEATURE-08.md
 milestone: /milestones/MILESTONE-01.md
 traces:
 - to: prd:/decisions/DECISION-15.md
-  hash: 10d26e
+  hash: 535d90
 ---
 
 # STORY-21: See the file, the line, and the snippet of a result
@@ -41,7 +41,7 @@ As a knowledge seeker (PERSONA-03), I want each result to show the file, the lin
 
 - parent: [FEATURE-08: File, line, and snippet for each result](../features/FEATURE-08.md)
 - milestone: [MILESTONE-01: Make it work](../milestones/MILESTONE-01.md)
-- traces: [DECISION-15: A result path has the same form as in grep](../../prd/decisions/DECISION-15.md)
+- traces: [DECISION-15: A result path has the same form as in rg](../../prd/decisions/DECISION-15.md)
 - criterion or run of: [CRITERION-31: Each result shows the file, the line, and the snippet](../criteria/CRITERION-31.md)
 - criterion or run of: [CRITERION-32: The path has the same form as in rg](../criteria/CRITERION-32.md)
 <!-- LINKS:END -->

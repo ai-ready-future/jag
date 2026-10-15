@@ -27,9 +27,9 @@ Source of the change from grep to rg: the user, hitl answer of 2026-10-15 (FEATU
 ## Links
 
 - about: [CAPABILITY-06: Feels like grep](../capabilities/CAPABILITY-06.md)
-- about: [DECISION-05: jag keeps grep exit codes and adds one code for each model failure](DECISION-05.md)
+- about: [DECISION-05: jag keeps rg exit codes and adds one code for each model failure](DECISION-05.md)
 - subject of: [DECISION-50: The -A, -B, and -C options set the context lines of a result](DECISION-50.md)
-- traced by: [FEATURE-13: Common grep options and exit codes](../../roadmap/features/FEATURE-13.md)
-- traced by: [STORY-35: Use the common grep options](../../roadmap/stories/STORY-35.md)
+- traced by: [FEATURE-13: Common rg options and exit codes](../../roadmap/features/FEATURE-13.md)
+- traced by: [STORY-35: Use the common rg options](../../roadmap/stories/STORY-35.md)
 - traced by: [STORY-37: Get a usage error for an unknown option](../../roadmap/stories/STORY-37.md)
 <!-- LINKS:END -->

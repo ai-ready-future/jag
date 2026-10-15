@@ -33,8 +33,8 @@ This milestone holds the capabilities that make jag better to use and easier to 
 | [EPIC-05: Safe public release](../epics/EPIC-05.md) | ready | 2/4 (50%) | - | - | - |
 | [FEATURE-02: Readiness check](../features/FEATURE-02.md) | done | 3/3 (100%) | - | FEATURE-01 | - |
 | [FEATURE-03: Clear failure when the model is not available](../features/FEATURE-03.md) | done | 4/4 (100%) | - | FEATURE-01 | - |
-| [FEATURE-12: Plain grep with no question](../features/FEATURE-12.md) | done | 2/2 (100%) | - | - | - |
-| [FEATURE-13: Common grep options and exit codes](../features/FEATURE-13.md) | done | 4/4 (100%) | - | FEATURE-12 | - |
+| [FEATURE-12: Plain rg with no question](../features/FEATURE-12.md) | done | 2/2 (100%) | - | - | - |
+| [FEATURE-13: Common rg options and exit codes](../features/FEATURE-13.md) | done | 4/4 (100%) | - | FEATURE-12 | - |
 | [FEATURE-14: Files, folders, and piped text](../features/FEATURE-14.md) | done | 3/3 (100%) | - | FEATURE-05 | - |
 | [FEATURE-15: Good behavior in a terminal and in a pipe](../features/FEATURE-15.md) | done | 3/3 (100%) | - | FEATURE-04 | - |
 | [FEATURE-18: Install jag from GitHub Releases, crates.io, or npm](../features/FEATURE-18.md) | backlog | 0/4 (0%) | - | FEATURE-01, FEATURE-17, FEATURE-19, FEATURE-22, FEATURE-23 | - |
@@ -58,8 +58,8 @@ This milestone holds the capabilities that make jag better to use and easier to 
 - item of: [EPIC-05: Safe public release](../epics/EPIC-05.md)
 - item of: [FEATURE-02: Readiness check](../features/FEATURE-02.md)
 - item of: [FEATURE-03: Clear failure when the model is not available](../features/FEATURE-03.md)
-- item of: [FEATURE-12: Plain grep with no question](../features/FEATURE-12.md)
-- item of: [FEATURE-13: Common grep options and exit codes](../features/FEATURE-13.md)
+- item of: [FEATURE-12: Plain rg with no question](../features/FEATURE-12.md)
+- item of: [FEATURE-13: Common rg options and exit codes](../features/FEATURE-13.md)
 - item of: [FEATURE-14: Files, folders, and piped text](../features/FEATURE-14.md)
 - item of: [FEATURE-15: Good behavior in a terminal and in a pipe](../features/FEATURE-15.md)
 - item of: [FEATURE-18: Install jag from GitHub Releases, crates.io, or npm](../features/FEATURE-18.md)
@@ -77,15 +77,15 @@ This milestone holds the capabilities that make jag better to use and easier to 
 - item of: [STORY-12: Fail the full search when the model stops during it](../stories/STORY-12.md)
 - item of: [STORY-24: Label piped text](../stories/STORY-24.md)
 - item of: [STORY-33: Search with a term and no question](../stories/STORY-33.md)
-- item of: [STORY-34: Use plain grep with no key](../stories/STORY-34.md)
-- item of: [STORY-35: Use the common grep options](../stories/STORY-35.md)
+- item of: [STORY-34: Use plain rg mode with no key](../stories/STORY-34.md)
+- item of: [STORY-35: Use the common rg options](../stories/STORY-35.md)
 - item of: [STORY-36: Set the lines around a match](../stories/STORY-36.md)
 - item of: [STORY-37: Get a usage error for an unknown option](../stories/STORY-37.md)
-- item of: [STORY-38: Keep the grep exit codes](../stories/STORY-38.md)
+- item of: [STORY-38: Keep the rg exit codes](../stories/STORY-38.md)
 - item of: [STORY-39: Search with no path](../stories/STORY-39.md)
 - item of: [STORY-40: Search a mix of files and folders](../stories/STORY-40.md)
 - item of: [STORY-41: See progress only in a terminal](../stories/STORY-41.md)
-- item of: [STORY-42: Color the matches as grep does](../stories/STORY-42.md)
+- item of: [STORY-42: Color the matches as rg does](../stories/STORY-42.md)
 - item of: [STORY-43: Stop at once when stopped](../stories/STORY-43.md)
 - item of: [STORY-45: Run the held-out evaluation before release](../stories/STORY-45.md)
 - item of: [STORY-47: Check the full history before jag goes public](../stories/STORY-47.md)

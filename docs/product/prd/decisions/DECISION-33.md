@@ -27,7 +27,7 @@ Source of the change from grep to rg: the user, hitl answer of 2026-10-15 (FEATU
 - about: [CAPABILITY-06: Feels like grep](../capabilities/CAPABILITY-06.md)
 - about: [CAPABILITY-02: Term and question search](../capabilities/CAPABILITY-02.md)
 - traced by: [FEATURE-04: Rank matching lines by a question](../../roadmap/features/FEATURE-04.md)
-- traced by: [FEATURE-13: Common grep options and exit codes](../../roadmap/features/FEATURE-13.md)
+- traced by: [FEATURE-13: Common rg options and exit codes](../../roadmap/features/FEATURE-13.md)
 - traced by: [STORY-13: Rank matching lines by a question](../../roadmap/stories/STORY-13.md)
-- traced by: [STORY-35: Use the common grep options](../../roadmap/stories/STORY-35.md)
+- traced by: [STORY-35: Use the common rg options](../../roadmap/stories/STORY-35.md)
 <!-- LINKS:END -->

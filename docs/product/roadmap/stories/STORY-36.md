@@ -39,7 +39,7 @@ As a shell power user (PERSONA-04), I want -A, -B, and -C to set the lines aroun
 
 ## Links
 
-- parent: [FEATURE-13: Common grep options and exit codes](../features/FEATURE-13.md)
+- parent: [FEATURE-13: Common rg options and exit codes](../features/FEATURE-13.md)
 - milestone: [MILESTONE-02: Make it good](../milestones/MILESTONE-02.md)
 - traces: [DECISION-50: The -A, -B, and -C options set the context lines of a result](../../prd/decisions/DECISION-50.md)
 - criterion or run of: [CRITERION-69: Context options set the lines around a match](../criteria/CRITERION-69.md)

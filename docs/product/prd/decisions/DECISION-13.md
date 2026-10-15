@@ -24,7 +24,7 @@ When jag reaches the limit and no result answers well, exit code 1 wins. The out
 ## Links
 
 - about: [CAPABILITY-02: Term and question search](../capabilities/CAPABILITY-02.md)
-- about: [DECISION-05: jag keeps grep exit codes and adds one code for each model failure](DECISION-05.md)
+- about: [DECISION-05: jag keeps rg exit codes and adds one code for each model failure](DECISION-05.md)
 - subject of: [DECISION-42: The report counts results scored and results skipped](DECISION-42.md)
 - subject of: [DECISION-47: The cost-limit exit code wins over the left-out exit code](DECISION-47.md)
 - subject of: [QUESTION-03: Which exit code wins when both limits apply?](../questions/QUESTION-03.md)

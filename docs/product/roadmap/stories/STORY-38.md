@@ -1,8 +1,8 @@
 ---
 type: Story
-title: Keep the grep exit codes
-description: As a shell power user (PERSONA-04), I want the grep exit codes 0, 1,
-  and 2, so that my scripts that test grep exit codes keep working.
+title: Keep the rg exit codes
+description: As a shell power user (PERSONA-04), I want the rg exit codes 0, 1, and
+  2, so that my scripts that test rg exit codes keep working.
 status: draft
 state: done
 actual_end_date: '2026-10-14'
@@ -18,12 +18,14 @@ parent: /features/FEATURE-13.md
 milestone: /milestones/MILESTONE-02.md
 traces:
 - to: prd:/decisions/DECISION-05.md
-  hash: 2503eb
+  hash: b8f39e
 ---
 
-# STORY-38: Keep the grep exit codes
+# STORY-38: Keep the rg exit codes
 
-As a shell power user (PERSONA-04), I want jag to exit with 0 when it returns a result, 1 when it finds no match, and 2 for a usage error, so that my scripts that test the grep exit codes keep working.
+As a shell power user (PERSONA-04), I want jag to exit with 0 when it returns a result, 1 when it finds no match, and 2 for a usage error, so that my scripts that test the rg exit codes keep working.
+
+Source of the change from grep to rg: the user, hitl answer of 2026-10-15 (FEATURE-23, Q1 option 1: rg is the reference for jag with no question).
 
 <!-- STATUS:START (generated, do not edit) -->
 
@@ -38,8 +40,8 @@ As a shell power user (PERSONA-04), I want jag to exit with 0 when it returns a 
 
 ## Links
 
-- parent: [FEATURE-13: Common grep options and exit codes](../features/FEATURE-13.md)
+- parent: [FEATURE-13: Common rg options and exit codes](../features/FEATURE-13.md)
 - milestone: [MILESTONE-02: Make it good](../milestones/MILESTONE-02.md)
-- traces: [DECISION-05: jag keeps grep exit codes and adds one code for each model failure](../../prd/decisions/DECISION-05.md)
+- traces: [DECISION-05: jag keeps rg exit codes and adds one code for each model failure](../../prd/decisions/DECISION-05.md)
 - criterion or run of: [CRITERION-58: jag keeps the rg exit codes](../criteria/CRITERION-58.md)
 <!-- LINKS:END -->

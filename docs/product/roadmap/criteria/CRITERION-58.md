@@ -17,5 +17,5 @@ Source of the change from grep to rg: the user, hitl answer of 2026-10-15 (FEATU
 
 ## Links
 
-- item: [STORY-38: Keep the grep exit codes](../stories/STORY-38.md)
+- item: [STORY-38: Keep the rg exit codes](../stories/STORY-38.md)
 <!-- LINKS:END -->

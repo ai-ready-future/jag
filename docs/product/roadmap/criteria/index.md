@@ -159,13 +159,13 @@
 * [CRITERION-53: A term with no question works as rg](CRITERION-53.md) - With a term and no question, jag returns the matching lines as rg does.
 * [CRITERION-54: A search with no question costs nothing](CRITERION-54.md) - With no question, jag makes no model call and the search costs nothing.
 
-## STORY-34: Use plain grep with no key
+## STORY-34: Use plain rg mode with no key
 
-* [CRITERION-68: Plain grep works with no key](CRITERION-68.md) - With no stored key, `jag TERM PATH`, with no `--ask`, returns the grep matches and does not ask for a key.
+* [CRITERION-68: Plain rg mode works with no key](CRITERION-68.md) - With no stored key, `jag TERM PATH`, with no `--ask`, returns the rg matches and does not ask for a key.
 
-## STORY-35: Use the common grep options
+## STORY-35: Use the common rg options
 
-* [CRITERION-55: jag keeps the common grep options](CRITERION-55.md) - jag accepts `-i`, `-w`, `-F`, `-e`, `-A`, `-B`, `-C`, `-l`, `-c`, `-q`, `--include`, and `--exclude`, with their grep meaning.
+* [CRITERION-55: jag keeps the common rg options](CRITERION-55.md) - jag accepts the rg options of DECISION-34, with their rg meaning.
 * [CRITERION-56: The -F option makes the term fixed text](CRITERION-56.md) - With `-F`, jag reads the term as fixed text and not as a regular expression.
 
 ## STORY-36: Set the lines around a match
@@ -176,7 +176,7 @@
 
 * [CRITERION-57: An unknown option is a usage error](CRITERION-57.md) - Any other option gives a usage error that names the option, and jag exits with code 2.
 
-## STORY-38: Keep the grep exit codes
+## STORY-38: Keep the rg exit codes
 
 * [CRITERION-58: jag keeps the rg exit codes](CRITERION-58.md) - jag exits with code 0 when it returns a result, code 1 when it finds no match, and code 2 for a usage error, as rg does.
 
@@ -194,9 +194,9 @@
 
 * [CRITERION-62: jag shows progress only in a terminal](CRITERION-62.md) - While jag ranks, it shows a progress line on the error stream only when that stream is a terminal.
 
-## STORY-42: Color the matches as grep does
+## STORY-42: Color the matches as rg does
 
-* [CRITERION-63: Color works as grep --color=auto](CRITERION-63.md) - jag colors the matching text only in a terminal, and `--color=never` and `--color=always` change that.
+* [CRITERION-63: Color works as rg --color=auto](CRITERION-63.md) - jag colors the output only in a terminal, with the rg color codes, and `--color=never` and `--color=always` change that.
 
 ## STORY-43: Stop at once when stopped
 

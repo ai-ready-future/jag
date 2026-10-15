@@ -40,7 +40,7 @@ As a shell power user (PERSONA-04), I want jag with a term and no question to re
 
 ## Links
 
-- parent: [FEATURE-12: Plain grep with no question](../features/FEATURE-12.md)
+- parent: [FEATURE-12: Plain rg with no question](../features/FEATURE-12.md)
 - milestone: [MILESTONE-02: Make it good](../milestones/MILESTONE-02.md)
 - traces: [DECISION-32: A term with no question works as plain rg](../../prd/decisions/DECISION-32.md)
 - criterion or run of: [CRITERION-53: A term with no question works as rg](../criteria/CRITERION-53.md)

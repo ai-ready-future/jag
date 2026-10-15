@@ -39,7 +39,7 @@ jag shows progress and color only in a terminal, and it stops at once with no pa
 | Item | State | Progress | Owner | Blocked by | Drift |
 | --- | --- | --- | --- | --- | --- |
 | [STORY-41: See progress only in a terminal](../stories/STORY-41.md) | done | - | - | - | - |
-| [STORY-42: Color the matches as grep does](../stories/STORY-42.md) | done | - | - | - | - |
+| [STORY-42: Color the matches as rg does](../stories/STORY-42.md) | done | - | - | - | - |
 | [STORY-43: Stop at once when stopped](../stories/STORY-43.md) | done | - | - | - | - |
 <!-- STATUS:END -->
 
@@ -55,6 +55,6 @@ jag shows progress and color only in a terminal, and it stops at once with no pa
 - traces: [DECISION-38: Color works as rg --color=auto](../../prd/decisions/DECISION-38.md)
 - traces: [DECISION-39: When the user stops jag, it stops at once with no partial results](../../prd/decisions/DECISION-39.md)
 - child: [STORY-41: See progress only in a terminal](../stories/STORY-41.md)
-- child: [STORY-42: Color the matches as grep does](../stories/STORY-42.md)
+- child: [STORY-42: Color the matches as rg does](../stories/STORY-42.md)
 - child: [STORY-43: Stop at once when stopped](../stories/STORY-43.md)
 <!-- LINKS:END -->

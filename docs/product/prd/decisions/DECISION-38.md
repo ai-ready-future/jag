@@ -24,5 +24,5 @@ Source of the change from grep to rg: the user, hitl answer of 2026-10-15 (FEATU
 
 - about: [CAPABILITY-06: Feels like grep](../capabilities/CAPABILITY-06.md)
 - traced by: [FEATURE-15: Good behavior in a terminal and in a pipe](../../roadmap/features/FEATURE-15.md)
-- traced by: [STORY-42: Color the matches as grep does](../../roadmap/stories/STORY-42.md)
+- traced by: [STORY-42: Color the matches as rg does](../../roadmap/stories/STORY-42.md)
 <!-- LINKS:END -->

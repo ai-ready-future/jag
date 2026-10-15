@@ -1,9 +1,9 @@
 ---
 type: Story
-title: Color the matches as grep does
+title: Color the matches as rg does
 description: As a shell power user (PERSONA-04), I want jag to color the matching
   text only in a terminal, with --color=never and --color=always to change that, so
-  that color works as grep --color=auto.
+  that color works as rg --color=auto.
 status: draft
 state: done
 actual_end_date: '2026-10-14'
@@ -22,9 +22,11 @@ traces:
   hash: bb2367
 ---
 
-# STORY-42: Color the matches as grep does
+# STORY-42: Color the matches as rg does
 
-As a shell power user (PERSONA-04), I want jag to color the matching text only in a terminal, with --color=never and --color=always to change that, so that color works as grep --color=auto.
+As a shell power user (PERSONA-04), I want jag to color the matching text only in a terminal, with --color=never and --color=always to change that, so that color works as rg --color=auto.
+
+Source of the change from grep to rg: the user, hitl answer of 2026-10-15 (FEATURE-23, Q1 option 1: rg is the reference for jag with no question).
 
 <!-- STATUS:START (generated, do not edit) -->
 
@@ -32,7 +34,7 @@ As a shell power user (PERSONA-04), I want jag to color the matching text only i
 
 | Item | State | Progress | Owner | Blocked by | Drift |
 | --- | --- | --- | --- | --- | --- |
-| [CRITERION-63: Color works as grep --color=auto](../criteria/CRITERION-63.md) | - | - | - | - | - |
+| [CRITERION-63: Color works as rg --color=auto](../criteria/CRITERION-63.md) | - | - | - | - | - |
 <!-- STATUS:END -->
 
 <!-- LINKS:START (generated, do not edit) -->
@@ -42,5 +44,5 @@ As a shell power user (PERSONA-04), I want jag to color the matching text only i
 - parent: [FEATURE-15: Good behavior in a terminal and in a pipe](../features/FEATURE-15.md)
 - milestone: [MILESTONE-02: Make it good](../milestones/MILESTONE-02.md)
 - traces: [DECISION-38: Color works as rg --color=auto](../../prd/decisions/DECISION-38.md)
-- criterion or run of: [CRITERION-63: Color works as grep --color=auto](../criteria/CRITERION-63.md)
+- criterion or run of: [CRITERION-63: Color works as rg --color=auto](../criteria/CRITERION-63.md)
 <!-- LINKS:END -->
