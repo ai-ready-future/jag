@@ -50,6 +50,15 @@ Repository rules:
     Exception: a user `ANSWER` can set the stories of a blocked feature to `ready`. The `blocked_by` list stays. The `Plan` line in `log.md` names the `ANSWER`. FEATURE-18 used this exception (`ANSWER` of 2026-10-15, "start now") until FEATURE-19 was `done`.
     When a feature gets the state `done`, the same PR sets to `ready` each story that waited only for this feature and has a merged spec.
 12. Merge PRs with squash only. After each merge, the session that merges checks the new commit on `main`. The `sha256sum` of its author address must be the `sha256sum` of the author address of `78aa3f5`. Its committer must be the committer of `78aa3f5` (GitHub). The check never prints an address (FEATURE-19 spec decisions 13 and 31). A rebase merge wrote the account address as committer in `3ead9ae`.
+13. Turn exit rule. Each role except the orchestrator, hitl and retro ends each turn with 1 message to the orchestrator: `DONE`, `REVIEW`, `ASK`, `BLOCKED` or `STATUS`. If the role already sent this message for the same item and nothing changed, it does not send it again.
+    - A "needs input:" line, a question in the session, or a status line in the job list does not tell the orchestrator. Send the message.
+    - Never wait for the user. Only chores waits for the user, and only while it guides the user through a step.
+14. When a role cannot continue, it sends `BLOCKED` to the orchestrator at once. It does not try to work around the cause. The message gives the cause, the work that is done, where the work is (branch, commit, worktree), and 1 tag:
+    - `user step`: the user must do an action, for example a login, a token scope or a payment. Give the exact command if you know it.
+    - `decision`: the user must choose. Give the facts for the card, as for an `ASK`.
+    - `team`: another role or a merge must act first.
+
+    Then the role waits for the orchestrator. The orchestrator tells the role when the cause is gone.
 
 ## 3. Roles
 
@@ -87,6 +96,22 @@ Model and Effort: use the exact values in the table.
 - After a PR that changes `docs/product` merges, send a `SYNC` to the projecter.
 - Keep a short status table in the orchestrator session. Do not write it to the repo.
 - If the orchestrator session name changes, the retro updates section 1 and the orchestrator sends `RELOAD`.
+- Send each `BLOCKED` (rule 14) on, by its tag:
+  - `user step`: send it to chores. Chores guides the user through the step.
+  - `decision`: send it to hitl as an `ASK` with the priority `blocks code now`.
+  - `team`: send it to the role that must act.
+
+  When the cause is gone, tell the blocked session (for example `SCOPE OK`). Do not ask the user directly. Chores and hitl talk to the user.
+- Status check every 10 minutes. Start it with `/loop 10m` when the orchestrator starts, or after a `RELOAD` if it does not run. Each check does these steps:
+  1. Read the list of sessions with `ListAgents`. For each team session, read its job state: the folder in `~/.claude/jobs/` whose `state.json` has the session name, and the last line of its `timeline.jsonl`. Do not send a message to a session only to ask its state.
+  2. Compare each session with the status table.
+  3. Send `STATUS` to a session only if 1 of these is true:
+     - It is idle, it has an open item in the table, and it sent no message for that item.
+     - Its last status says that it waits for the user, an input or an answer, and no `ASK` or `BLOCKED` of it is open.
+     - It is busy and its timeline has no new line for 30 minutes.
+  4. Route each new `BLOCKED` or `ASK`. Update the status table.
+
+  The check does not change files and does not restart sessions.
 
 **hitl**
 - The only session that asks the user for decisions.
@@ -171,6 +196,7 @@ Model and Effort: use the exact values in the table.
 - Does manual setup steps that do not need the user (for example: labels, checks, config).
 - If the user must do a step (login, token scope, payment), guides the user directly through the step. Gives the exact commands, 1 step at a time, and checks the result after each step.
 - Sends decisions (a choice between options) to the orchestrator as `ASK`. The hitl session asks the user.
+- For a `BLOCKED` with the tag `user step` from the orchestrator: guides the user through the step, checks the result, and sends `DONE` to the orchestrator. The orchestrator then tells the blocked session.
 
 ## 4. Feature flow
 
@@ -196,6 +222,7 @@ Side flows:
 - User decision → hitl.
 - Manual step → chores.
 - User changes a role → retro.
+- Blocker from any role → orchestrator → chores (`user step`), hitl (`decision`) or the role that must act (`team`) (rule 14).
 
 ### ADR finding flow
 
@@ -235,7 +262,8 @@ Types:
 | `REVIEW` | PR is ready for review |
 | `ASK` | A question for the user. Give the facts for the card |
 | `ANSWER` | The answer to an `ASK` |
-| `BLOCKED` | Cannot continue. Give the cause |
+| `BLOCKED` | Cannot continue. Give the cause, where the work is, and 1 tag: `user step`, `decision` or `team` (rule 14) |
+| `STATUS` | From the orchestrator: give your state. As a reply: 1 line with what you do now and the next step |
 | `SYNC` | Copy `main` to the board |
 | `RETRO` | User wants a team change |
 | `RELOAD` | `docs/adlc.md` changed. Read it again |
@@ -331,3 +359,4 @@ Send a DONE message to the orchestrator when you are ready. Then wait for TASK m
 | 2026-10-15 | The verifier checks ADR adherence on each PR (`adr:reviewing-adr-adherence`): a contradiction of an accepted ADR, or a change that needs an ADR. The architect decides each finding. Hitl asks the user. The architect writes the ADR after the `ANSWER`. Added the "ADR finding flow" to section 4. The retro fast path (section 6) gets a verifier check and a squash merge. The verifier posts a `VERDICT` comment and does not use `gh pr review` | The user asked for this change. The review must catch ADR problems, and the user decides ADR changes. Verifier comment on PR #103: section 6 and the verifier line did not agree with how the team works |
 | 2026-10-15 | Changed the name of the verifier role to reviewer (it reviews PRs). Added a new verifier role: it runs the product from the PR branch (a terminal for a CLI, Playwright for a web app), checks the spec criteria, and sends test scenarios. Added the tester role: it writes and keeps the e2e tests, with no mocks and no unit tests. Added the Build row to section 1. Section 8 restarts a session when its role name changes, and stops a session of the old name before `RELOAD`. The verifier uses its own worktree and checks the last code after an ADR `ANSWER`. The tester sends design questions through the orchestrator. Defined a test PR | The user asked for this change. A review of the code does not show that the functions work for the user |
 | 2026-10-15 | Reviewer: for a release readiness check, a reviewer session does the security review and writes `docs/release-readiness.md` in a docs PR. A different reviewer session reviews that PR | FEATURE-22 spec decision 18 (PR #112). Reviewer comment on PR #112: the reviewer role did not open PRs |
+| 2026-10-15 | Added rule 13 (each turn ends with 1 message to the orchestrator, and no role waits for the user) and rule 14 (`BLOCKED` with the tag `user step`, `decision` or `team`). The orchestrator sends each `BLOCKED` on by its tag: a user step to chores, a decision to hitl. Added a status check every 10 minutes to the orchestrator. It reads the job state of each session and sends `STATUS` only to a session that looks stuck. Added the `STATUS` message type, a chores line and a side flow | The user asked for this change. Roles had no rule to send `BLOCKED`, and a blocker that needs the user had no path to the user. A session can end with a "needs input:" line that only the job list shows, and wait for a user who never sees it |
