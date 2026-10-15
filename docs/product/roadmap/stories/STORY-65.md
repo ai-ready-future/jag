@@ -5,7 +5,7 @@ description: As a shell power user (PERSONA-04), I want rg and jag with the same
   to give the same bytes, in a pipe and with color, so that I can use jag in place
   of rg.
 status: draft
-state: backlog
+state: ready
 github:
   number: 114
   node_id: I_kwDOVKMnL88AAAABXgIzrw
@@ -13,6 +13,7 @@ github:
   pushed_hash: 6a0e1f
   synced:
     state: backlog
+spec: docs/superpowers/specs/2026-10-15-STORY-65-give-the-same-output-as-rg-design.md
 parent: /features/FEATURE-23.md
 milestone: /milestones/MILESTONE-02.md
 ---

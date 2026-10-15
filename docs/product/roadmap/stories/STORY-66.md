@@ -5,7 +5,7 @@ description: As a shell power user (PERSONA-04), I want the rg parity cases to r
   again as automated e2e tests in CI, so that a later change cannot break the parity
   with no failed check.
 status: draft
-state: backlog
+state: ready
 github:
   number: 115
   node_id: I_kwDOVKMnL88AAAABXgI6OQ
@@ -13,6 +13,7 @@ github:
   pushed_hash: 93c7f4
   synced:
     state: backlog
+spec: docs/superpowers/specs/2026-10-15-STORY-65-give-the-same-output-as-rg-design.md
 parent: /features/FEATURE-23.md
 milestone: /milestones/MILESTONE-02.md
 ---
