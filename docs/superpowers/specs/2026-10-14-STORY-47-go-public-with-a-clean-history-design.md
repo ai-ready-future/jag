@@ -80,7 +80,7 @@ decision 1). No agent reads it. So each scan and the clean step run in GitHub
 Actions with the secret, and they print only places, rule ids, and counts.
 
 Some steps only the user can do: change the name of a repository, create a
-repository, set a secret, set an organization setting, and change a
+repository, set a secret, set the Actions event policy, and change a
 visibility. The chores session guides the user through each of them. "The
 go-public steps" names each step and its owner.
 
@@ -117,7 +117,7 @@ Facts on 2026-10-14 (`main` at `daca59a`):
 | 10 | A key in the history | The clean step has no rule for a key that the default gitleaks rules find, because no pattern line names it. When scan 1 lists a key, the user revokes the key and adds a pattern line that matches it to `PRIVATE_PATTERNS` (step A3). Until then, scan 2 finds the key, and the clean step stops | This spec, from CONSTRAINT-01 |
 | 11 | Name of the new repository | The new public repository is `ai-ready-future/jag`. Before step B3 creates it, the private repository gets the name `ai-ready-future/jag-private` (step B2). Before the rename, each copy of the private history changes its remote to `ai-ready-future/jag-private` (step B1). From step B10, the team works in new clones of the new repository. A copy of the old history never pushes to `ai-ready-future/jag` | ANSWER human:404pilo, 2026-10-14, hitl (the name `jag`; the private repository gets a new name first); `docs/adr/0019-give-the-new-public-repository-the-name-ai-ready-future-jag.md`. The name `jag-private`: ANSWER human:404pilo, 2026-10-14, hitl (the recommended option) |
 | 12 | Guard against guesses | No guard. The user: "Do not check on this. Not a concern atm." The check of a fork pull request runs on each event, as FEATURE-17 builds it. `private-data.yml` does not change. STORY-59 (CRITERION-98) held only this guard. It is removed from the roadmap | ANSWER human:404pilo, 2026-10-14, hitl (neither option of the card); STORY-59: ANSWER human:404pilo, 2026-10-14, hitl |
-| 13 | Addresses in the public history | One address for all commits. The user writes one mailmap line into the secret `CLEAN_MAILMAP` of the private repository (step A6). The clean step gives it to git-filter-repo with `--mailmap`. The mailmap is never a file of the repository. The repository, this spec, and the pull request hold no address | ANSWER human:404pilo, 2026-10-14, hitl (the recommended option) |
+| 13 | Addresses in the public history | One address for all commits. The user writes one mailmap line into the secret `CLEAN_MAILMAP` of the private repository (step A6). The clean step gives it to git-filter-repo with `--mailmap`. The mailmap is never a file of the repository. The repository, this spec, and the pull request hold no address. The result (2026-10-15): each commit of the clean history (step B5) has the author address of this decision. Two later commits on `main` of the public repository have an address that is not the address of this decision. `9634a17` (the squash merge of PR #87, step B10) has another author address: the clone of the new repository made the commit with the git address of the user, because the clean step changed the addresses only in the old commits. `3ead9ae` (the rebase merge of PR #90) has another committer address: a rebase merge writes the address of the account that merges as the committer (decision 31). The user chose to fix forward: `main` is not rewritten, and both commits stay. The user also turned on the GitHub email privacy setting ("Keep my email addresses private"). After this: each clone of the new repository commits with its local git config, which has the address of this decision. Before a push, the session that pushes checks that the author address and the committer address of each new commit are the author address of `78aa3f5`. Each line of `git log --format='%ae%n%ce' origin/main..HEAD \| sort -u` must give the same `sha256sum` as `git log -1 --format=%ae 78aa3f5`. The check prints only "match" or "no match", and never shows an address or a hash. After each merge, the session that merges checks the new commit on `main` by hash: its author address must be the author address of `78aa3f5`, and its committer address must be the committer address of `78aa3f5`, because the check before a push does not see the merge commit that GitHub makes. Pull requests merge with squash only (decision 31) | ANSWER human:404pilo, 2026-10-14, hitl (the recommended option). The result: human:404pilo, 2026-10-15 (user decision: fix forward with no rewrite of `main`, for `9634a17` and for `3ead9ae`; the user turned on the GitHub email privacy setting); the author and committer addresses of `78aa3f5`, `9634a17`, and `3ead9ae`, compared by hash on 2026-10-15 |
 | 14 | Text mode of `check.sh` | The new inputs `TEXT_FILE` and `TEXT_INDEX` turn it on. The check scans the file. For each finding, it prints the place on line `StartLine` of the index, then the rule id | This spec |
 | 15 | One mode at a time | `HISTORY`, `TEXT_FILE`, and `BASE_SHA` select the mode. When more than one is set, the check exits 2 | This spec |
 | 16 | The issues scan | The new script `scripts/private-data/issues.sh` reads each issue of the repository, open and closed (`STATE=all`), with the job token (`issues: read`), but no pull request. It reads the title, each old title, the body, each comment, and each revision in the edit history of the body and of each comment. It also reads the name and the description of each label, and the title and the description of each milestone. It writes the text and its index, then runs the text mode. A place holds only numbers | CRITERION-101; this spec |
@@ -126,7 +126,7 @@ Facts on 2026-10-14 (`main` at `daca59a`):
 | 19 | Order of the go-public steps | Parts A, B, and C of "The go-public steps". Steps B1 to B3 change the remotes and the names first. Then the steps keep the order of DECISION-51: the new repository is private; the issues scan of the private repository finds nothing; all issues move; the board items and the issues are checked; the second scan runs; the repository becomes public; then the board | DECISION-51; CRITERION-100; the ANSWER of decision 11 |
 | 20 | Freeze | From the snapshot of step A7, no pull request merges into `main` of the private repository. From step B1 to the end of step B10, no copy of the private history pushes (the hold of the orchestrator). No session opens a pull request from such a copy. The hold does not stop the pushes of the clean history (B5 and B10) or the test fork pull request (B8). The team works in the new repository from step B10. From step B12 to step C1, no one pushes, opens a pull request, or writes an issue or a comment in the new repository | This spec, from CRITERION-86 (one new history) and CRITERION-87; the ANSWER of decision 11 (the orchestrator stops the pushes of all sessions during the switch) |
 | 21 | Owner of each step | The user: change the name of the private repository, create the new repository, set each secret, set the Actions event policy, revoke a key, remove private text from an issue, and change the visibility of the repository and of the board. The chores session gives the exact command for each user step, one step at a time, and checks the result. Chores alone: start the workflows, push, the settings, the labels, the milestones, the ruleset, the move of the issues, the test fork pull requests, and each check. Other roles: see each step | Orchestrator TASK for FEATURE-19; `docs/adlc.md`, role chores |
-| 22 | Actions event policy | The user adds an Actions event policy that targets the new repository. Its rule `restrict_action_events` allows only the events in its list, so the list holds each event of the workflows: `pull_request`, `pull_request_target`, `push`, and `workflow_dispatch`. A policy is an organization setting, and the token of 404pilo has no `admin:org` scope, so this is a user step | CRITERION-99 and its source (GitHub changelog, 2026-09-17); FEATURE-17 spec decision 8; GitHub REST docs, Actions policy rule `restrict_action_events` |
+| 22 | Actions event policy | A repository Actions policy of the new repository, not an organization policy. Its rule `restrict_action_events` allows only the events in its list, so the list holds each event of the workflows: `pull_request`, `pull_request_target`, `push`, and `workflow_dispatch`. The policy (2026-10-15): id 7541, the name "jag: allowed workflow events", `enforcement: active`, and all workflows (`workflow_path` includes `~ALL`). A repository policy needs no `admin:org` scope: the token of 404pilo reads it with `gh api repos/ai-ready-future/jag/actions/policies/7541`. One change (2026-10-15): this decision first gave an organization policy | human:404pilo, 2026-10-15 (user decision: a repository policy, not an organization policy); CRITERION-99 and its source (GitHub changelog, 2026-09-17); FEATURE-17 spec decision 8; GitHub REST docs, "Get a repository Actions policy" and the Actions policy rule `restrict_action_events` |
 | 23 | Fork approval setting | After the new repository is public (step C2), it holds the `pull_request` workflows of each outside contributor until a maintainer approves them (`all_external_contributors`). GitHub uses this setting only for public repositories. It does not hold `pull_request_target`: such workflows "will always run, regardless of approval settings" | This spec, from GitHub docs (context7 `/github/docs`), the setting "Approval for running fork pull request workflows from contributors" |
 | 24 | Wiki | The new repository has no wiki. The wiki of the private repository has no page, and the docs are in `docs/` | Inferred: `git ls-remote` of the wiki on 2026-10-14 (not found) |
 | 25 | When each story is done | STORY-47: after step A1. STORY-52: after steps B13 and C6. STORY-60: after steps B7 and B8, and after step C5 with a test fork pull request on or after 2026-11-02. STORY-61: after step C4. A code merge alone does not finish STORY-52, STORY-60, or STORY-61 | CRITERION-76, CRITERION-86, CRITERION-87, and CRITERION-99 to CRITERION-103 |
@@ -135,6 +135,7 @@ Facts on 2026-10-14 (`main` at `daca59a`):
 | 28 | Pattern check for the clean step | Before the clean, the step checks each pattern line with Python `re` on bytes. A line with `==>`, or a line that Python cannot compile, gives exit 2 and the line number only. git-filter-repo cuts a line at the last `==>`, and compiles it with `re.compile` and no flags | This spec, from git-filter-repo 2.47.0 (`get_replace_text`) |
 | 29 | ADR | ADR-0019 (`status: accepted`): the name `ai-ready-future/jag` of the new public repository, and the rename of the private repository first. The scripts and the workflow need no ADR: they are cheap to change, and each go-public step happens one time | `docs/adr/CLAUDE.md`; the ANSWER of decision 11 (it accepts the ADR) |
 | 30 | The roadmap tool after the move | All issues move, open and closed (decision 18). So after step B10, the repository of the team holds each issue, and the roadmap tool works with no change. The prd plugin 4.4.0 reads the issues of the repository of the remote of the folder. It finds the issue of a page by a marker in the issue body that names the page (`ghsnapshot.issues_by_page`). Else it uses the number in the `github` block of the page. It makes a new issue for each page whose issue it does not find (`ghplan.build`). It writes the number, the node id, and the URL of an issue to its page only when it makes the issue (`ghapply._write_ids`). So the pages need the values of step B9. Also, after B9 an old copy has a remote with no issue, so a sync there makes a new issue for each page. So from step B1, no one runs `prd.py github apply` or `prd.py github pull` in any copy. This hold ends in step B10, after the projecter writes the list of B9 into the pages. It ends only in the clones of the new repository. In a copy of the private repository, it never ends. `prd.py github plan` writes nothing, so it is the check | ANSWER human:404pilo, 2026-10-14, hitl (the card "The roadmap pages of the closed issues after the move": the option "Move the closed issues too", not the recommended option); the prd plugin 4.4.0 (`scripts/prdlib/ghsnapshot.py`, `scripts/prdlib/ghplan.py`, `scripts/prdlib/ghapply.py`) |
+| 31 | Merge settings of the new repository | No merge commits. Squash merges and rebase merges are allowed. GitHub deletes the branch of a pull request when it merges. These are also the values of the private repository (read on 2026-10-15). The team merges each pull request with squash only (`gh pr merge --squash`, or the REST merge with `merge_method=squash`). A rebase merge writes the address of the account that merges as the committer. This occurred in `3ead9ae` (PR #90, 2026-10-15), and the user accepted that commit (decision 13). A squash merge keeps the committer of GitHub, as in `9634a17`. One change (2026-10-15): step B6 first gave merge commits on and no deletion of the branch | human:404pilo, 2026-10-15 (user decision on the values of step B6: "take them as what they should be (story needs to be updated)"); human:404pilo, 2026-10-15 (user decision: merge with squash only, after `3ead9ae`); `gh api repos/ai-ready-future/jag` and `gh api repos/ai-ready-future/jag-private` on 2026-10-15 (`allow_merge_commit: false`, `allow_squash_merge: true`, `allow_rebase_merge: true`, `delete_branch_on_merge: true`) |
 
 ## Design
 
@@ -608,9 +609,12 @@ issue, a pull request, or the board.
   only `HEAD` and `refs/heads/main`, at the last commit of the bundle. The
   `private-data` run of this push passes.
 - **B6. chores:** the settings, in this order:
-  1. The features and the merge settings of the private repository, with no
-     wiki (decision 24), and forks allowed (for B8):
-     `gh repo edit ai-ready-future/jag --enable-wiki=false --enable-issues --enable-projects --enable-merge-commit --enable-squash-merge --enable-rebase-merge --delete-branch-on-merge=false --allow-forking`.
+  1. The features and the merge settings of decision 31, with no wiki
+     (decision 24), and forks allowed (for B8). The merge settings are the
+     same as in the private repository: no merge commits, squash merges and
+     rebase merges allowed, and the branch deleted on merge:
+     `gh repo edit ai-ready-future/jag --enable-wiki=false --enable-issues --enable-projects --enable-merge-commit=false --enable-squash-merge --enable-rebase-merge --delete-branch-on-merge --allow-forking`.
+     The team merges with squash only (decision 31).
   2. The labels, with the same colors and descriptions:
      `gh label clone ai-ready-future/jag-private --repo ai-ready-future/jag --force`.
      Then delete each label of the new repository that the private repository
@@ -631,17 +635,19 @@ issue, a pull request, or the board.
 
   Check: read each value again with `gh api`, and compare it with the private
   repository.
-- **B7. user:** add the Actions event policy of decision 22 in the settings
-  of the organization. Chores gives the steps from the GitHub docs on Actions
-  policies. For the REST API, the user first gives the token the `admin:org`
-  scope:
+- **B7. user:** add the repository Actions policy of decision 22 to the new
+  repository. Chores gives the steps from the GitHub docs on Actions
+  policies. The REST API path is `repos/ai-ready-future/jag/actions/policies`,
+  and it needs no `admin:org` scope. Done on 2026-10-15: policy 7541.
+
+  Check (chores): read the policy:
 
   ```
-  $ gh auth refresh -h github.com -s admin:org
+  $ gh api repos/ai-ready-future/jag/actions/policies/7541 --jq '.enforcement, .rules[].parameters.allowed_events'
   ```
 
-  Check: chores reads the policy when the token can. Else the user confirms
-  it. B8 shows that the check starts.
+  The output is `active`, then the four events of decision 22. B8 shows
+  that the check starts.
 - **B8. chores:** the test fork pull request:
   1. Fork: `gh repo fork ai-ready-future/jag --clone=false`.
   2. In the fork, on a new branch, add the file `docs/test-fork.md` with one
@@ -801,6 +807,15 @@ issue, a pull request, or the board.
   `pull_request_target` by default from 2026-11-02. Before 2026-11-02, this
   run does not test the policy, because GitHub does not block the event yet.
   Then chores does one more test fork pull request on or after 2026-11-02.
+
+  Done on 2026-10-15. When the repository became public (C1), GitHub
+  detached the fork of B8, `404pilo/jag` (PR #1, run 38666599603). It is no
+  longer a fork of the new repository. So C5 used a new fork,
+  `404pilo/jag-fork-test`: PR #89, closed with no merge, and run
+  38723932234 of `private-data` (event `pull_request_target`), which
+  passed. The test fork pull request on or after 2026-11-02 is not done
+  yet. It uses a fork of the public repository, for example
+  `404pilo/jag-fork-test`.
 - **C6. chores:** check the private repository:
 
   ```
@@ -860,7 +875,7 @@ No output holds the word, a key value, or a pattern text.
 | CRITERION-76 The history scan lists each finding and never shows the value | Cases `hist-a` to `hist-n`, and go-public step A1 |
 | CRITERION-86 The new public repository gets one clean history, after the scan | Cases `clean-a` to `clean-k`, and step A8 |
 | CRITERION-87 A second scan is clean before the new repository becomes public | Cases `hist-f`, `hist-g`, `hist-h`, and `hist-m`, and step B13 |
-| CRITERION-99 The Actions event policy lets the check run on fork pull requests | Step B7 (the policy, read again by chores or confirmed by the user) proves that the policy allows the event. Step B8 proves that the check runs. Step C5, on or after 2026-11-02, proves both in the public repository |
+| CRITERION-99 The Actions event policy lets the check run on fork pull requests | Step B7 (chores reads policy 7541 again) proves that the policy allows the event. Step B8 proves that the check runs. The test fork pull request of step C5 on or after 2026-11-02 proves both in the public repository |
 | CRITERION-100 The project board becomes public after the new repository | Steps C1, C3, and C4, in this order. Chores records the time of each |
 | CRITERION-101 The project board holds no private data when it becomes public | Cases `text-a` to `text-f`, and steps B11 and B12 |
 | CRITERION-102 The private repository stays private | Case `clean-e`, and step C6 |
@@ -982,8 +997,10 @@ One implementer pull request can hold steps 1 to 3.
   revision. Check in step A2: for one issue that the projecter changed, the
   scan reads as many revisions as the issue page shows.
 - `gitleaks git` reads a mirror clone. Cases `hist-a` to `hist-n` show it.
-- An Actions event policy can target one repository of the organization
-  (decision 22).
+- A repository Actions policy is enough for the check of a fork pull
+  request; an organization policy is not necessary (decision 22). Checked on
+  2026-10-15: policy 7541 is `active`. The test fork pull request of step C5
+  on or after 2026-11-02 proves it.
 - GitHub keeps a moved issue on the board, also a closed one. All issues
   move, so it keeps each parent link and each sub-issue link.
 - `gh issue transfer` moves a closed issue, and the issue keeps its state and
@@ -1036,7 +1053,7 @@ One implementer pull request can hold steps 1 to 3.
   one more test fork pull request on or after 2026-11-02.
 - The event policy blocks an event that a later workflow needs, for example
   the release workflow of FEATURE-18. Signal: the workflow does not start.
-  Mitigation: add the event to the policy.
+  Mitigation: add the event to policy 7541.
 - A closed issue holds private data in an old comment or in an old revision.
   Signal: A2 or the scan of B9 step 1 lists a finding. Mitigation: A5, then
   the scan again. No issue moves before the scan finds nothing.
@@ -1094,8 +1111,9 @@ One implementer pull request can hold steps 1 to 3.
 
 - The archive of `ai-ready-future/jag-private`. The user can do it later. The
   repository stays private in both cases.
-- The deletion of the test fork. The user can do it later. It holds only
-  invented text.
+- The deletion of the test repositories `404pilo/jag` (the fork of B8,
+  which GitHub detached) and `404pilo/jag-fork-test` (the fork of C5). The
+  user can do it later. They hold only the public history and invented text.
 - A guard against guesses through the result of the check on fork pull
   requests (decision 12). The user answered "Do not check on this. Not a
   concern atm." STORY-59 (CRITERION-98) is removed from the roadmap.
