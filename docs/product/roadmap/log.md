@@ -1,6 +1,8 @@
 # Log
 
 ## 2026-10-15
+* **Sync**: [FEATURE-23](features/FEATURE-23.md) pushed to GitHub, by system:github, at 2026-10-15T20:15:16Z
+* **Sync**: [FEATURE-18](features/FEATURE-18.md) pushed to GitHub, by system:github, at 2026-10-15T20:15:16Z
 * **Plan**: [FEATURE-23](features/FEATURE-23.md) user answer (human:404pilo, hitl, 2026-10-15): Q1 option 1, rg is the reference for jag with no question; Q2 option 1, the parity comes before release 1; DECISION-18, DECISION-32, DECISION-34, and DECISION-38 now name rg in place of grep; FEATURE-18 is blocked_by FEATURE-23; the 9 drifted traces of done items (FEATURE-08, FEATURE-12, FEATURE-13, FEATURE-15, STORY-24, STORY-33, STORY-35, STORY-37, STORY-42) are not accepted, because STORY-67 must change that behavior, by agent:planner, at 2026-10-15T20:06:37Z
 * **Sync**: [STORY-64](stories/STORY-64.md) pushed to GitHub, by system:github, at 2026-10-15T19:27:54Z
 * **Sync**: [STORY-63](stories/STORY-63.md) pushed to GitHub, by system:github, at 2026-10-15T19:27:54Z
