@@ -52,7 +52,7 @@ jag shows progress and color only in a terminal, and it stops at once with no pa
 - milestone: [MILESTONE-02: Make it good](../milestones/MILESTONE-02.md)
 - traces: [CAPABILITY-06: Feels like grep](../../prd/capabilities/CAPABILITY-06.md)
 - traces: [DECISION-37: jag shows progress only in a terminal](../../prd/decisions/DECISION-37.md)
-- traces: [DECISION-38: Color works as grep --color=auto](../../prd/decisions/DECISION-38.md)
+- traces: [DECISION-38: Color works as rg --color=auto](../../prd/decisions/DECISION-38.md)
 - traces: [DECISION-39: When the user stops jag, it stops at once with no partial results](../../prd/decisions/DECISION-39.md)
 - child: [STORY-41: See progress only in a terminal](../stories/STORY-41.md)
 - child: [STORY-42: Color the matches as grep does](../stories/STORY-42.md)

@@ -1,8 +1,8 @@
 ---
 type: Decision
-title: Piped text has the label (standard input)
-description: A result from piped text uses the grep label (standard input) and the
-  line numbers of the piped text.
+title: Piped text has the label <stdin>
+description: A result from piped text uses the rg label <stdin> and the line numbers
+  of the piped text.
 status: stable
 decided_at: '2026-10-06'
 alternatives:
@@ -12,9 +12,11 @@ about:
 - /capabilities/CAPABILITY-03.md
 ---
 
-# DECISION-18: Piped text has the label (standard input)
+# DECISION-18: Piped text has the label <stdin>
 
-Text from a pipe has no file. A result from that text uses the same label as grep, `(standard input)`, and it gives the line numbers in the piped text.
+Text from a pipe has no file. A result from that text uses the same label as rg, `<stdin>`, and it gives the line numbers in the piped text.
+
+Source of the change from grep to rg: the user, hitl answer of 2026-10-15 (FEATURE-23, Q1 option 1: rg is the reference for jag with no question). Before this answer, the label was the grep label `(standard input)`.
 
 <!-- LINKS:START (generated, do not edit) -->
 

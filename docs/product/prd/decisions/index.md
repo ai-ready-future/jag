@@ -17,7 +17,7 @@
 * [DECISION-15: A result path has the same form as in grep](DECISION-15.md) - The path of each result follows the form of the folder that the user gave.
 * [DECISION-16: A joined result shows its line range and marks each matching line](DECISION-16.md) - A result gives its first and last line, and it marks each line that matches the term.
 * [DECISION-17: jag cuts a very long line and marks the cut](DECISION-17.md) - A result shows the exact source text, and jag cuts each line that is longer than a fixed length.
-* [DECISION-18: Piped text has the label (standard input)](DECISION-18.md) - A result from piped text uses the grep label (standard input) and the line numbers of the piped text.
+* [DECISION-18: Piped text has the label <stdin>](DECISION-18.md) - A result from piped text uses the rg label <stdin> and the line numbers of the piped text.
 * [DECISION-19: The size limit counts characters](DECISION-19.md) - The limit on the text that jag returns is a count of characters.
 * [DECISION-20: A default size limit always applies](DECISION-20.md) - jag always applies a default size limit for an agent; the user can raise it or turn it off.
 * [DECISION-21: jag leaves out whole results with the lowest rank first](DECISION-21.md) - To stay in the limit, jag removes whole results, starting with the lowest rank.
@@ -31,13 +31,13 @@
 * [DECISION-29: In text mode, notices go to the error stream](DECISION-29.md) - Text mode writes results to standard output and notices to the error stream; structured mode writes all of it in the structure.
 * [DECISION-30: Structured mode always writes a complete output](DECISION-30.md) - With no results, structured mode writes an empty result list and the summary fields.
 * [DECISION-31: The command takes the term and the paths, and the question only from --ask](DECISION-31.md) - The form is jag [OPTIONS] TERM [PATH...], with the term first as in grep. The question comes only from the option --ask "QUESTION".
-* [DECISION-32: A term with no question works as plain grep](DECISION-32.md) - With no question, that is with no --ask option, jag makes no model call, has no cost, and works as grep.
+* [DECISION-32: A term with no question works as plain rg](DECISION-32.md) - With no question, that is with no --ask option, jag makes no model call, has no cost, and works as rg.
 * [DECISION-33: The term is a regular expression, and -F makes it fixed text](DECISION-33.md) - The term is a regular expression, as in grep; the -F option makes it fixed text.
-* [DECISION-34: Release 1 keeps the grep options that people use most](DECISION-34.md) - jag keeps a fixed set of grep options; any other option is a usage error that names it.
+* [DECISION-34: Release 1 keeps the options that people use most](DECISION-34.md) - jag keeps a fixed set of options that people use most; any other option is a usage error that names it.
 * [DECISION-35: With no path, jag searches the current folder or reads the pipe](DECISION-35.md) - With no path, jag searches the current folder, or reads standard input when text comes in through a pipe.
 * [DECISION-36: The user can give any mix of files and folders](DECISION-36.md) - jag accepts several paths, and each path can be a file or a folder, as in grep.
 * [DECISION-37: jag shows progress only in a terminal](DECISION-37.md) - While jag ranks, it shows a progress line on the error stream only when that stream is a terminal.
-* [DECISION-38: Color works as grep --color=auto](DECISION-38.md) - jag colors the matching text only in a terminal, and --color=never or always changes that.
+* [DECISION-38: Color works as rg --color=auto](DECISION-38.md) - jag colors the matching text only in a terminal, and --color=never or always changes that.
 * [DECISION-39: When the user stops jag, it stops at once with no partial results](DECISION-39.md) - On Ctrl-C or a closed pipe, jag stops, starts no new model call, and shows no partial results.
 * [DECISION-40: The cost is the billed amount in US dollars](DECISION-40.md) - jag shows the amount that the service billed, in US dollars; with no billed figure, it shows a labeled estimate.
 * [DECISION-41: In text mode, the cost line goes to the error stream after each search](DECISION-41.md) - Text mode writes a cost line to the error stream after each search, also in a pipe; structured mode has a cost field.

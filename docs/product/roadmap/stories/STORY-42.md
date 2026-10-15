@@ -41,6 +41,6 @@ As a shell power user (PERSONA-04), I want jag to color the matching text only i
 
 - parent: [FEATURE-15: Good behavior in a terminal and in a pipe](../features/FEATURE-15.md)
 - milestone: [MILESTONE-02: Make it good](../milestones/MILESTONE-02.md)
-- traces: [DECISION-38: Color works as grep --color=auto](../../prd/decisions/DECISION-38.md)
+- traces: [DECISION-38: Color works as rg --color=auto](../../prd/decisions/DECISION-38.md)
 - criterion or run of: [CRITERION-63: Color works as grep --color=auto](../criteria/CRITERION-63.md)
 <!-- LINKS:END -->

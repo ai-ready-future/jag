@@ -1,8 +1,8 @@
 ---
 type: Decision
-title: A term with no question works as plain grep
+title: A term with no question works as plain rg
 description: With no question, that is with no --ask option, jag makes no model call,
-  has no cost, and works as grep.
+  has no cost, and works as rg.
 status: stable
 decided_at: '2026-10-07'
 alternatives:
@@ -13,11 +13,13 @@ about:
 - /capabilities/CAPABILITY-02.md
 ---
 
-# DECISION-32: A term with no question works as plain grep
+# DECISION-32: A term with no question works as plain rg
 
-When the user gives a term and no question, that is with no `--ask` option (DECISION-31), jag works as plain grep. It makes no model call and has no cost. The user can then use jag in place of grep for each search.
+When the user gives a term and no question, that is with no `--ask` option (DECISION-31), jag works as plain rg. It makes no model call and has no cost. The user can then use jag in place of rg for each search.
 
 Source of the words "no `--ask` option": the user, hitl answer of 2026-10-14 (FEATURE-12).
+
+Source of the change from grep to rg: the user, hitl answer of 2026-10-15 (FEATURE-23, Q1 option 1: rg is the reference for jag with no question).
 
 <!-- LINKS:START (generated, do not edit) -->
 

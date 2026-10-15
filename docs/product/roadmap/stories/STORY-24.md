@@ -40,6 +40,6 @@ As a shell power user (PERSONA-04), I want a result from piped text to have the 
 
 - parent: [FEATURE-14: Files, folders, and piped text](../features/FEATURE-14.md)
 - milestone: [MILESTONE-02: Make it good](../milestones/MILESTONE-02.md)
-- traces: [DECISION-18: Piped text has the label (standard input)](../../prd/decisions/DECISION-18.md)
+- traces: [DECISION-18: Piped text has the label <stdin>](../../prd/decisions/DECISION-18.md)
 - criterion or run of: [CRITERION-35: Piped text has the label (standard input)](../criteria/CRITERION-35.md)
 <!-- LINKS:END -->

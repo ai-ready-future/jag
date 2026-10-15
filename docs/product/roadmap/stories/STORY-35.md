@@ -45,7 +45,7 @@ As a shell power user (PERSONA-04), I want jag to accept the grep options that I
 - parent: [FEATURE-13: Common grep options and exit codes](../features/FEATURE-13.md)
 - milestone: [MILESTONE-02: Make it good](../milestones/MILESTONE-02.md)
 - traces: [DECISION-33: The term is a regular expression, and -F makes it fixed text](../../prd/decisions/DECISION-33.md)
-- traces: [DECISION-34: Release 1 keeps the grep options that people use most](../../prd/decisions/DECISION-34.md)
+- traces: [DECISION-34: Release 1 keeps the options that people use most](../../prd/decisions/DECISION-34.md)
 - criterion or run of: [CRITERION-55: jag keeps the common grep options](../criteria/CRITERION-55.md)
 - criterion or run of: [CRITERION-56: The -F option makes the term fixed text](../criteria/CRITERION-56.md)
 <!-- LINKS:END -->

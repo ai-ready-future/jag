@@ -1,6 +1,6 @@
 ---
 type: Decision
-title: Color works as grep --color=auto
+title: Color works as rg --color=auto
 description: jag colors the matching text only in a terminal, and --color=never or
   always changes that.
 status: stable
@@ -11,9 +11,11 @@ about:
 - /capabilities/CAPABILITY-06.md
 ---
 
-# DECISION-38: Color works as grep --color=auto
+# DECISION-38: Color works as rg --color=auto
 
-jag colors the matching text only when the output is a terminal, as `grep --color=auto` does. The `--color=never` and `--color=always` options change this.
+jag colors the matching text only when the output is a terminal, as `rg --color=auto` does. The `--color=never` and `--color=always` options change this. The color codes are the rg color codes.
+
+Source of the change from grep to rg: the user, hitl answer of 2026-10-15 (FEATURE-23, Q1 option 1: rg is the reference for jag with no question).
 
 <!-- LINKS:START (generated, do not edit) -->
 
