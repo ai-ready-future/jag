@@ -857,7 +857,8 @@ orchestrator sends the task on or after 2026-11-02.
   `pull_request_target` by default in a public repository, so this run is
   the first test of policy 7541 (decision 22) with that block. Close the
   pull request with no merge, and record the URL of the run. When the check
-  does not run, open a bug issue in `ai-ready-future/jag`.
+  does not start, does not pass, or waits for an approval, open a bug issue
+  in `ai-ready-future/jag`.
 
 ### Other features
 
@@ -1064,7 +1065,8 @@ One implementer pull request can hold steps 1 to 3.
   (and never in a private repository). Signal: the date of C5. Mitigation:
   the read of the policy in B7 is the proof of the policy. The follow-up
   test fork pull request on or after 2026-11-02 tests the policy (see
-  "Follow-up"). When the check does not run, chores opens a bug issue.
+  "Follow-up"). When the check does not start, does not pass, or waits for
+  an approval, chores opens a bug issue.
 - The event policy blocks an event that a later workflow needs, for example
   the release workflow of FEATURE-18. Signal: the workflow does not start.
   Mitigation: add the event to policy 7541.
@@ -1127,7 +1129,9 @@ One implementer pull request can hold steps 1 to 3.
   repository stays private in both cases.
 - The deletion of the test repositories `404pilo/jag` (the fork of B8,
   which GitHub detached) and `404pilo/jag-fork-test` (the fork of C5). The
-  user can do it later. They hold only the public history and invented text.
+  user can do it later. Keep `404pilo/jag-fork-test` until the follow-up is
+  done (see "Follow-up"). They hold only the public history and invented
+  text.
 - A guard against guesses through the result of the check on fork pull
   requests (decision 12). The user answered "Do not check on this. Not a
   concern atm." STORY-59 (CRITERION-98) is removed from the roadmap.
