@@ -5,6 +5,7 @@ description: Open this when you change the name of a release archive, its checks
 area: deployment
 status: accepted
 date: 2026-10-14
+amended: 2026-10-15
 supersedes: null
 superseded_by: null
 amends: null
@@ -45,7 +46,7 @@ The name of each file or package that holds the binary of one platform shows tha
 
 ## Consequences
 
-- Archive: `jag-<version>-<target>.tar.gz`, for example `jag-1.2.3-x86_64-unknown-linux-musl.tar.gz`. It holds the folder `jag-<version>-<target>/` with `jag`, `README.md`, and `LICENSE`.
+- Archive: `jag-<version>-<target>.tar.gz`, for example `jag-1.2.3-x86_64-unknown-linux-musl.tar.gz`. It holds the folder `jag-<version>-<target>/` with `jag`, `README.md`, `LICENSE`, and `THIRD-PARTY-LICENSES`.
 - Checksum: `jag-<version>-<target>.tar.gz.sha256`. It holds one line: the SHA-256 in hex, two spaces, and the archive name. `sha256sum -c` and `shasum -a 256 -c` read this form.
 - The four targets: `x86_64-unknown-linux-musl`, `aarch64-unknown-linux-musl`, `aarch64-apple-darwin`, and `x86_64-apple-darwin`.
 - npm: `@airf/jag-linux-x64`, `@airf/jag-linux-arm64`, `@airf/jag-darwin-arm64`, and `@airf/jag-darwin-x64`. Each has one `os` value, one `cpu` value, and no `libc` value. The main package `@airf/jag` keeps its name (0010-ship-jag-on-github-releases-crates-io-and-npm.md).
