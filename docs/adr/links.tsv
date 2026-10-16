@@ -48,3 +48,6 @@ source	relation	target	target_state	target_status	source_area	target_area	note
 0022-use-rg-as-the-reference-for-the-output-of-jag-with-no.md	related	0007-number-the-exit-codes-above-2-from-3-to-8.md	live	accepted	contracts	contracts	-
 0022-use-rg-as-the-reference-for-the-output-of-jag-with-no.md	related	0008-write-structured-output-as-one-json-document.md	live	accepted	contracts	contracts	-
 0022-use-rg-as-the-reference-for-the-output-of-jag-with-no.md	related	0018-take-the-question-only-from-the-ask-option.md	live	accepted	contracts	contracts	-
+0023-run-the-rg-parity-cases-that-git-cannot-store-as-rust-code.md	deviates_from	0021-check-rg-parity-with-a-cargo-test-that-runs-a-pinned-rg-and.md	live	accepted	quality	quality	-
+0023-run-the-rg-parity-cases-that-git-cannot-store-as-rust-code.md	parent_spec	docs/product/roadmap/features/FEATURE-23.md	doc	-	quality	-	-
+0023-run-the-rg-parity-cases-that-git-cannot-store-as-rust-code.md	related	0022-use-rg-as-the-reference-for-the-output-of-jag-with-no.md	live	accepted	quality	contracts	-

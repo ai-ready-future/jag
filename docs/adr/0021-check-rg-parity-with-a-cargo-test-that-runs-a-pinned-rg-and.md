@@ -5,6 +5,7 @@ description: Open this when you add or change an rg parity case, a fixture, a de
 area: quality
 status: accepted
 date: 2026-10-15
+amended: 2026-10-15
 supersedes: null
 superseded_by: null
 amends: null
@@ -65,7 +66,7 @@ The rg parity tests are one cargo integration test, `tests/rg_parity.rs`. It rea
 
 - Files:
   - `tests/rg_parity.rs`: the test.
-  - `tests/parity/cases.yaml`: the cases. Each case has an id, the arguments, the fixture tree, the modes (pipe, color, and terminal; default all three), and an optional stdin file and optional extra environment variables.
+  - `tests/parity/cases.yaml`: the cases. Each case has an id, the arguments, the fixture tree, the modes (pipe, color, and terminal; default all three), and an optional stdin file and optional extra environment variables (a `null` value removes a fixed variable).
   - `tests/parity/fixtures/<tree>/`: the fixture trees. A name that starts with `.` is stored with the prefix `dot-` in place of the `.`, and the copy gets the real name. So a fixture cannot have a real name that starts with `dot-`. The private-data check also reads the fixtures, so a fixture must not hold a private name.
   - `tests/parity/expected/`: the stored jag bytes of the deliberate differences.
   - `tests/parity/stdin/<name>`: the stdin files. A case names its file with `stdin: <name>`.
@@ -73,7 +74,7 @@ The rg parity tests are one cargo integration test, `tests/rg_parity.rs`. It rea
   - `scripts/parity/install-rg.sh`: it downloads the archive of the target of the machine from the ripgrep GitHub release, checks it against the pin with `sha256sum -c` or `shasum -a 256 -c`, and extracts `rg`.
   - `.gitattributes` (a new file; the repository has none today): `tests/parity/fixtures/** -text`, `tests/parity/expected/** -text`, and `tests/parity/stdin/** -text`, so that git does not change the bytes.
 - Run:
-  - Both programs get an empty environment, then the same fixed variables: `HOME` (an empty temporary folder), `TERM=xterm-256color`, and the extra variables of the case. So rg reads no config file (`RIPGREP_CONFIG_PATH` is not set), and jag reads no key and no settings.
+  - Both programs get an empty environment, then the same fixed variables: `HOME` (an empty temporary folder), `TERM=xterm-256color`, and the extra variables of the case. A `null` value of an extra variable removes a fixed variable, for example `TERM`. So rg reads no config file (`RIPGREP_CONFIG_PATH` is not set), and jag reads no key and no settings.
   - Stdin is `/dev/null`, or the file `tests/parity/stdin/<name>` that the case names. Stdin is never the pseudo terminal, so a program cannot wait for input. Each run has a time limit.
   - In the terminal mode, stdout is the other end of a new pseudo terminal with a fixed size and the default settings, and stderr is a pipe. The test closes its own copy of the terminal side after the program starts. It reads stdout and stderr while the program runs, so that a full buffer does not stop the program. It reads the pseudo terminal until the program closes it: on Linux, that read gives `EIO`, not end of file, and the test takes `EIO` as the end. Both programs get the same settings, so the `\r\n` of the terminal is the same for both.
   - In the color mode, stdout is a pipe, and the test puts `--color=always` before the arguments of the case, for both programs (CRITERION-112).

@@ -424,6 +424,25 @@ def command_check_npm_tarball(args):
     print(f"release: the tarball of {package['name']} passes.")
 
 
+NPM_DEPENDENCY_FIELDS = ("dependencies", "peerDependencies", "bundleDependencies", "bundledDependencies")
+
+
+def check_npm_deps(package):
+    """The npm package has no third-party dependency (FEATURE-22 spec, decision 13)."""
+    for field in NPM_DEPENDENCY_FIELDS:
+        if field in package:
+            fail(f"the package has a {field} field.")
+    allowed = {npm_platform_name(p) for p in PLATFORMS}
+    for name in package.get("optionalDependencies") or {}:
+        if name not in allowed:
+            fail(f"the optional dependency {name} is not a platform package.")
+
+
+def command_check_npm_deps(args):
+    check_npm_deps(read_json(args.file))
+    print(f"release: {args.file} has no third-party dependency.")
+
+
 def extract_npm_tarball(path, destination):
     """Unpack a tarball as npm does: strip the first folder, keep the mode."""
     destination = Path(destination)
@@ -774,6 +793,10 @@ def build_parser():
     p.add_argument("--version", required=True)
     p.add_argument("file")
     p.set_defaults(func=command_check_npm_tarball)
+
+    p = sub.add_parser("check-npm-deps")
+    p.add_argument("file", help="a package.json")
+    p.set_defaults(func=command_check_npm_deps)
 
     p = sub.add_parser("local-install")
     p.add_argument("--main", required=True)
