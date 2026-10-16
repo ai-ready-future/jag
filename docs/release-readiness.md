@@ -18,7 +18,19 @@ Not done.
 
 Criterion: CRITERION-106 (STORY-63).
 
-Not done.
+Done for the first part: the audit tools run on `main`. The criterion is
+checked again on the commit of the first tag (see "Before the first tag").
+
+- Commit: `16b5cc7` (`main`, PR #146).
+- Date: 2026-10-16 (UTC).
+- Result: the run of `deps.yml` is green. It runs `scripts/deps/check.sh`:
+  `cargo-deny` (advisories, licenses, bans, and sources), `npm audit`, and
+  `release.py check-npm-deps`. No open finding of high or critical severity.
+- Evidence: https://github.com/ai-ready-future/jag/actions/runs/38837824825
+- `ignore` entries in `deny.toml`: none, so no issue with the label
+  `security` is necessary.
+- The fix of the 4 advisories of `rustls` 0.23.45 (RUSTSEC-2026-0346 to
+  RUSTSEC-2026-0349): `Cargo.lock` has `rustls` 0.23.46 (PR #146).
 
 ## Security review
 
