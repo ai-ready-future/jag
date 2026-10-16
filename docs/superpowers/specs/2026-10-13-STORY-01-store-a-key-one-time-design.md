@@ -44,7 +44,7 @@ its tests, its lint, and its CI. Each later feature builds on this project.
 | 6 | Options for setup and removal | `--setup` stores the key. `--forget-key` removes it | 0006-run-setup-the-readiness-check-and-key-removal-as-options.md |
 | 7 | Key sources and order | `JAG_TYPESAFE_API_KEY`, then `TYPESAFE_API_KEY`, then `~/.config/jag/config.yml`. The first key found wins | DECISION-03 |
 | 8 | Config file form | A nested map: `config:`, then `api-key: <key>` under it | human:404pilo, 2026-10-13 (Q-b) |
-| 9 | Exit codes | 3: each local key problem that jag finds before a call. These are: no key, a key file that others can read, a key file that jag cannot read, a key file that is not valid YAML, a key with a bad format in a variable or in the file, and a failed write of the key file (`KeyFileWrite`). 4 stays for a key that the service refuses. 2: a wrong use of `--setup` or `--forget-key`. These are: no terminal, a typed key with a bad format, no `$HOME`, a key file with other keys, and a key file that is a symbolic link | 0007-number-the-exit-codes-above-2-from-3-to-8.md; CV-6; 0013-exit-2-when-setup-runs-with-no-terminal.md |
+| 9 | Exit codes | 3: each local key problem that jag finds before a call. These are: no key, a key file that others can read, a key file that jag cannot read, a key file that is not valid YAML, a key with a bad format in a variable or in the file, a failed write of the key file (`KeyFileWrite`), and a failed removal of a stale temporary copy of the key file in `--forget-key` (`KeyFileWrite`, security issue #162, PR #169). 4 stays for a key that the service refuses. 2: a wrong use of `--setup` or `--forget-key`. These are: no terminal, a typed key with a bad format, no `$HOME`, a key file with other keys, and a key file that is a symbolic link | 0007-number-the-exit-codes-above-2-from-3-to-8.md; CV-6; 0013-exit-2-when-setup-runs-with-no-terminal.md |
 | 10 | Key secrecy | Only the `config` module reads the key. The `ApiKey` type never prints itself. No option takes the key. `--setup` reads it with no echo. jag refuses a key file with any group or other permission bit | system-design.md CV-6 |
 | 11 | Failure shape | Each failure has a cause, a fix, and an exit code. In text mode, jag writes it to the error stream | system-design.md CV-1, CV-3 |
 | 12 | Missing-key page | `https://console.typesafe.ai/keys` | DECISION-09; TypeSafe quick start, `docs.typesafe.ai/introduction/quickstart.md` |
@@ -246,6 +246,14 @@ step 3.
 5. When step 3 or 4 fails after the temporary file exists, remove the
    temporary file, then return `KeyFileWrite`, exit 3, with the path and the
    `io::ErrorKind` only.
+6. After a successful rename, remove each stale temporary copy: each
+   regular file in the jag config folder whose name starts with
+   `config.yml.tmp-`. jag does not follow a link. A link, a folder, and each
+   other file stay. A missing folder is not an error. A write that stopped
+   between step 3 and step 4 (Ctrl-C, a crash, or a kill) can leave such a
+   copy, and it can hold a key that the user removed since. The file is
+   written, so a failed removal here does not fail the write (security issue
+   #162, PR #169).
 
 ### Setup (`--setup`)
 
@@ -284,12 +292,21 @@ Setup makes no network call (decision 13).
    A bad YAML file or an unreadable file gives exit 3. A link or a file with
    other keys gives exit 2. The file stays as it is.
 3. No file, or a file with no `config.api-key`: print
-   "No stored key in <path>." and exit 0.
+   "No stored key in <path>.", then do step 6, then exit 0.
 4. Delete `config.yml`. Decision 18 makes sure that the file holds only the
    key.
-5. Print "Removed the stored key from <path>." and exit 0.
-6. When a key variable is set, also print "Note: <VARIABLE> is still set,
-   so jag still has a key."
+5. Print "Removed the stored key from <path>.".
+6. Remove each stale temporary copy: each regular file in the jag config
+   folder whose name starts with `config.yml.tmp-`. jag does not follow a
+   link. A link, a folder, and each other file stay. A missing folder is not
+   an error. A first setup that stopped before the rename can leave a copy and no `config.yml`, so step 3 does this step
+   too. A failed removal gives `KeyFileWrite`, exit 3 (decision 9), also when
+   standard output already shows "No stored key in <path>.". Standard error
+   then shows "jag: jag could not change <folder> (<kind>)." and "Check that
+   you can write to the folder." This step prints no line of its own
+   (security issue #162, PR #169).
+7. When a key variable is set, also print "Note: <VARIABLE> is still set,
+   so jag still has a key." Exit 0.
 
 `--forget-key` does not check the file mode. It removes the file and shows
 no key text, so an open mode does not stop it.
@@ -308,6 +325,7 @@ no key text, so an open mode does not stop it.
 | Open file in setup | Unit: `--setup` on a key file with mode `0o644` gives exit 3 and the `chmod 600` fix before any question. The fake prompter records no call. |
 | Other keys and links | Unit: a file with `config:\n  api-key: k\nother: 1` gives exit 2 for `--setup` and `--forget-key`, and a search still finds `k`. A `config.yml` that is a link to a `0o600` file: a search finds the key; `--setup` and `--forget-key` give exit 2 and leave the link and the target. A link to a `0o644` file: a search gives `KeyFileOpen`. |
 | Write failure | Unit with a fake `Fs` whose rename fails: `write_key_file` gives `KeyFileWrite`, exit 3, and no `config.yml.tmp-*` file stays. A real `<home>/.config` that setup creates keeps the default mode, not `0o700`. |
+| Stale temporary copies (issue #162) | `tests/setup.rs`: after `--forget-key`, a stale `config.yml.tmp-*` file is gone, in each path that reaches step 3 or step 4 (also "No stored key"). A link and a folder with that name start, and each other file, stay, and the target of the link stays. Unit: a successful `write_key_file` removes a stale copy. Verifier case J on PR #169: when jag cannot write to the jag config folder, `--forget-key` gives `KeyFileWrite`, exit 3, also after "No stored key in <path>.". |
 | CRITERION-06 jag refuses a key file that others can read | Unit: a file with mode `0o640`, `0o604`, and `0o644` gives `KeyFileOpen`, exit 3, and the fix `chmod 600 <path>`. Mode `0o600` and `0o400` pass. |
 | CRITERION-07 A missing key points to where to get one | Unit: `Failure::from(ConfigError::KeyMissing)` has exit 3, and its text holds `https://console.typesafe.ai/keys` and `jag --setup`. |
 | CRITERION-08 A TypeSafe key is enough to start | Unit: with only `TYPESAFE_API_KEY` set, and no other variable or file, `find_key` returns the key. Setup asks for no value other than the key. The run of a search is in FEATURE-04. |
@@ -359,7 +377,9 @@ production impl over `rpassword` and standard input.
   then, `--setup` and `--forget-key` refuse such a file and a search
   ignores the other keys (decision 18).
 - `--forget-key` with no stored key exits 0, so a clean-up script can run it
-  two times.
+  two times. Exception (security issue #162, PR #169): when jag cannot
+  remove a stale temporary copy of the key file, `--forget-key` exits 3,
+  also with no stored key, because the copy can hold the key.
 - `--setup` and `--forget-key` print a note when a key variable is set,
   because the variable wins over the file.
 
