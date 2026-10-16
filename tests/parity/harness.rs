@@ -21,7 +21,7 @@ use rustix::fs::{Mode, OFlags};
 #[cfg(not(target_os = "linux"))]
 use rustix::io::{FdFlags, fcntl_setfd};
 use rustix::pty::{OpenptFlags, grantpt, openpt, ptsname, unlockpt};
-use rustix::termios::{Winsize, tcsetwinsize};
+use rustix::termios::{OptionalActions, OutputModes, Winsize, tcgetattr, tcsetattr, tcsetwinsize};
 use serde::Deserialize;
 
 /// The time limit of one program run.
@@ -132,7 +132,8 @@ pub fn copy_tree(from: &Path, to: &Path) {
     }
 }
 
-/// Make a pseudo terminal with a fixed size and the default settings. The
+/// Make a pseudo terminal with a fixed size, the default settings, and no output
+/// processing. The
 /// first file is the master side, and the second file is the slave side.
 fn open_pty() -> (OwnedFd, OwnedFd) {
     // Only Linux (and two BSD systems) can set close-on-exec in `openpt`.
@@ -165,6 +166,14 @@ fn open_pty() -> (OwnedFd, OwnedFd) {
         },
     )
     .expect("set the pty size");
+    // Turn off the output processing of the terminal (`\n` to `\r\n`). When
+    // the output queue is full, the macOS terminal can write the `\r` two
+    // times, and the number of these cases depends on how the program splits
+    // its writes. With no processing, the test compares the bytes that the
+    // program wrote, on each system.
+    let mut settings = tcgetattr(&slave).expect("get the pty settings");
+    settings.output_modes.remove(OutputModes::OPOST);
+    tcsetattr(&slave, OptionalActions::Now, &settings).expect("set the pty settings");
     (master, slave)
 }
 
