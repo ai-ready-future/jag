@@ -813,10 +813,14 @@ clean_cases() {
 
   CUR="clean-g: a pattern line with ==>"
   new_repo clean-g
-  run_clean PRIVATE_PATTERNS='abc==>def'
+  # The values hold a hyphen and letters that a hex hash, a date, a run number,
+  # or a name of a temporary folder cannot hold, so the check below cannot fail
+  # by chance.
+  run_clean PRIVATE_PATTERNS='zq-left==>zq-right'
   assert_rc 2
   assert_has "pattern line 1 cannot be used"
-  assert_lacks "abc"
+  assert_lacks "zq-left"
+  assert_lacks "zq-right"
 
   CUR="clean-h: a pattern that Python does not accept"
   new_repo clean-h
