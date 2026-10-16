@@ -1,4 +1,4 @@
-Grep with a model that ranks the matches by how well they answer your question
+Hrep with a model that ranks the matches by how well they answer your question
 
 Usage: jag [OPTIONS] TERM [PATH...]
        jag [OPTIONS] --ask QUESTION TERM [PATH...]
