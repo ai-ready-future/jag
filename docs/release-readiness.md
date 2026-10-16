@@ -100,8 +100,10 @@ the first tag").
 - `THIRD-PARTY-LICENSES` is made by the job `notices` with cargo-about 0.9.2.
   In this run it has 118,698 bytes and 64 license sections, and
   `check-notices` passes. The file is not stored in the repository. The size
-  is not the size of the first test (118,661 bytes on `0dad67b`): `Cargo.lock`
-  changed with `rustls` 0.23.46.
+  is not the size of the first test (118,661 bytes on `0dad67b`):
+  PR #135 added the crates `grep-printer` 0.3.1 and `termcolor` 1.4.1 to
+  `Cargo.lock`, and the "Used by" lines name them (37 bytes). The number of
+  sections is the same.
 - The metadata of the crate and of the 5 npm packages is checked in the same
   run. `check-crate-metadata` (job `crate`) and `check-npm-tarball` (job
   `build` and job `npm-main`) check `license` (`MIT`), `repository`, and
