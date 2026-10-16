@@ -13,7 +13,7 @@ github:
   url: https://github.com/ai-ready-future/jag/issues/114
   pushed_hash: 6a0e1f
   synced:
-    state: ready
+    state: done
 spec: docs/superpowers/specs/2026-10-15-STORY-65-give-the-same-output-as-rg-design.md
 parent: /features/FEATURE-23.md
 milestone: /milestones/MILESTONE-02.md

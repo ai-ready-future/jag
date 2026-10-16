@@ -13,7 +13,7 @@ github:
   url: https://github.com/ai-ready-future/jag/issues/113
   pushed_hash: 922c26
   synced:
-    state: backlog
+    state: done
 parent: /epics/EPIC-04.md
 milestone: /milestones/MILESTONE-02.md
 traces:
