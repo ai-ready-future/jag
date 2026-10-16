@@ -5,7 +5,8 @@ description: As an agent builder (PERSONA-01), I want a security audit of the co
   the dependencies, and the release workflow before the first publish, so that the
   first release has no known high vulnerability.
 status: draft
-state: ready
+state: done
+actual_end_date: '2026-10-16'
 github:
   number: 108
   node_id: I_kwDOVKMnL88AAAABXfz4sQ
