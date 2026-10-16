@@ -5,7 +5,8 @@ description: As an agent builder (PERSONA-01), I want a license and compliance a
   before the first publish, so that I can use jag and its packages with no license
   problem.
 status: draft
-state: ready
+state: done
+actual_end_date: '2026-10-16'
 github:
   number: 109
   node_id: I_kwDOVKMnL88AAAABXf0ASg

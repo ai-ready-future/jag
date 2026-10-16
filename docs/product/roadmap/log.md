@@ -1,6 +1,8 @@
 # Log
 
 ## 2026-10-16
+* **Plan**: [STORY-64](stories/STORY-64.md) done by FEATURE-22 spec decision 21 (standing done approval, Q-au): step 3 is complete (build PR #147, 6d77602; release dry run on main green, run 38838966142; record sections "Licenses" and "Notices and metadata" merged in PR #153, 367219e); STORY-63 waits for step 4 and STORY-62 waits for the use period, so FEATURE-22 stays backlog; drift --all is empty; regen moved no blocked item, by agent:planner, at 2026-10-16T02:29:24Z
+* **State**: [STORY-64](stories/STORY-64.md) ready -> done, by human:404pilo, at 2026-10-16T02:29:21Z
 * **Sync**: [STORY-66](stories/STORY-66.md) pushed to GitHub, by system:github, at 2026-10-16T02:20:12Z
 * **Sync**: [STORY-65](stories/STORY-65.md) pushed to GitHub, by system:github, at 2026-10-16T02:20:12Z
 * **Sync**: [FEATURE-23](features/FEATURE-23.md) pushed to GitHub, by system:github, at 2026-10-16T02:20:12Z
