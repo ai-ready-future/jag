@@ -3,7 +3,7 @@ type: adr
 title: Run the rg parity cases that git cannot store as Rust code in a second test
 description: Open this when you add or change an rg parity case that needs files git cannot store, or files outside the copied fixture tree.
 area: quality
-status: proposed
+status: accepted
 date: 2026-10-15
 supersedes: null
 superseded_by: null
