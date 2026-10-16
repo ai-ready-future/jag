@@ -10,7 +10,7 @@ okf_version: "0.2"
 * [context](#context) - 1 decision: 1 accepted
 * [contracts](#contracts) - 10 decisions: 10 accepted
 * [deployment](#deployment) - 3 decisions: 3 accepted
-* [quality](#quality) - 1 decision: 1 accepted
+* [quality](#quality) - 2 decisions: 1 accepted, 1 proposed
 * [strategy](#strategy) - 3 decisions: 3 accepted
 
 ## building-blocks
@@ -56,6 +56,10 @@ okf_version: "0.2"
 ### accepted
 
 * [0021: Check rg parity with a cargo test that runs a pinned rg and jag](./0021-check-rg-parity-with-a-cargo-test-that-runs-a-pinned-rg-and.md) - accepted. Open this when you add or change an rg parity case, a fixture, a deliberate difference, the rg pin, or how the parity tests run in CI.
+
+### proposed
+
+* [0023: Run the rg parity cases that git cannot store as Rust code in a second test](./0023-run-the-rg-parity-cases-that-git-cannot-store-as-rust-code.md) - proposed. Open this when you add or change an rg parity case that needs files git cannot store, or files outside the copied fixture tree.
 
 ## strategy
 
