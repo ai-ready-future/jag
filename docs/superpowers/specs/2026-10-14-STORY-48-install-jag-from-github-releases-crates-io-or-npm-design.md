@@ -101,7 +101,7 @@ The facts on 2026-10-14:
 | 13 | npm package fields | Each `package.json` has `license: MIT`, `repository.url: git+https://github.com/ai-ready-future/jag.git`, and `publishConfig.access: public`. No package has a `preinstall`, `install`, `postinstall`, or `prepare` script. The main package has `bin: {"jag": "bin/jag.js"}` and `engines.node: >=18`. Its `optionalDependencies` name the four platform packages with the exact version. A platform package has no `bin` field | npm docs: provenance needs a `repository` that matches the workflow repository, and a scoped package is not public by default. CRITERION-80: with no install script, the install downloads nothing from GitHub |
 | 14 | Launcher | `bin/jag.js` finds the platform package and starts its binary. jag gets the arguments as they are, and the same standard input, output, and error. The launcher gives back the exit code of jag. It sends SIGINT, SIGTERM, SIGHUP, and SIGQUIT on to jag. When jag ends by a signal, the launcher ends by the same signal | Inferred from IF-3, IF-4, CV-4, and CV-6. jag ends by the default action of SIGINT or SIGPIPE (`src/cli/stop.rs`) |
 | 15 | Job order and a re-run | The order: build, scan, a draft GitHub Release, crates.io, npm, the checks of the channels, and the publish of the GitHub Release. npm gets the platform packages before the main package. Each publish job skips a version that its channel already has. So "Re-run failed jobs" ends a part release | Inferred: crates.io and npm do not take one version two times. GitHub docs, immutable releases: a draft, then the files, then the publish |
-| 16 | Scan of the packages | Before any publish, the job `scan` reads each archive, the `.crate` file, and the five npm tarballs. `check.sh` checks each text line, each string of a binary, and each file name in its text mode. It uses `PRIVATE_PATTERNS` and the gitleaks pin of `private-data.yml`. Exit 1 or 2 stops the release | CRITERION-84. FEATURE-17 spec: "The check of the published packages (CRITERION-84): FEATURE-18". FEATURE-19 spec in pull request #154: the text mode of `check.sh` |
+| 16 | Scan of the packages | Before any publish, the job `scan` reads each archive, the `.crate` file, and the five npm tarballs. `check.sh` checks each text line, each string of a binary, and each file name in its text mode. It uses `PRIVATE_PATTERNS` and the gitleaks pin of `private-data.yml`. Exit 1 or 2 stops the release. The step "Scan the packages" runs only on the push of a tag and on `workflow_dispatch` on `main`. In a dry run of a pull request, the step does not run, because `private-data.yml` already checks the files of the pull request | CRITERION-84. FEATURE-17 spec: "The check of the published packages (CRITERION-84): FEATURE-18". FEATURE-19 spec in pull request #154: the text mode of `check.sh`. Security issue #161, architect choice (a): FEATURE-22 spec item 11 says that a dry run has no secret, and FEATURE-22 spec decision 27 says that FEATURE-22 applies where the specs differ |
 | 17 | Binary check | Linux: `readelf` shows no `INTERP` header and no `NEEDED` entry. macOS: each library that `otool -L` shows is in `/usr/lib/` or `/System/Library/Frameworks/`. On each runner, `jag --version` with an empty environment prints `jag <version>` | CRITERION-78. Deployment-2. Inferred: the platform verifier of `docs/adr/0014-call-the-model-service-with-ureq-and-serde-json-on-std.md` links the macOS Security framework |
 | 18 | Tests | Python `unittest` tests for `scripts/release/release.py`, and `node --test` tests for the launcher, in the new job `release-tools` of `ci.yml`. The dry run of each pull request that changes a release file. The job `verify` of each release | Inferred. Q-ar: unit tests now, and the full test when the registries are ready |
 | 19 | Precondition | The npm parts and the crates.io parts depend on the user steps U1 to U6, not on a user name. CHORE-02 is U1. See "The user steps before the first tag" | Orchestrator INFO, 2026-10-14: the organization `airf` does not exist yet, nothing is published, and nothing has trusted publishing. crates.io docs. npm docs |
@@ -113,7 +113,7 @@ The facts on 2026-10-14:
 | 25 | README | A new section "Install" before "Store your TypeSafe key", with the three channels | METRIC-04. Inferred |
 | 26 | macOS signature | No Apple signature and no notarization in this feature. The linker gives each arm64 binary an ad hoc signature. The README tells a user who downloads with a browser how to remove the quarantine mark | ANSWER human:404pilo, 2026-10-14, hitl (no signature now; the README gives the `xattr` command). ADR-0010 names no signature. npm, cargo, and `curl` set no quarantine mark |
 | 27 | `jag-bench` | Not in the archives and not in the npm packages. The feature that builds it decides | `docs/adr/0011-build-jag-as-one-cargo-package-with-one-module-per-component.md`: "A second binary, `jag-bench`, comes later in the same package". No roadmap page names it |
-| 28 | Secrets, permissions, and cache | `release.yml` uses only the secrets `PRIVATE_PATTERNS` (job `scan`) and `GITHUB_TOKEN`. The workflow default is `contents: read`. A job gets `contents: write` or `id-token: write` only when it needs it. No job uses a cache. Each action has a full commit SHA. Each checkout has `persist-credentials: false` | CRITERION-83. The conventions of `ci.yml` and `private-data.yml`. Inferred: a cache from another run can change what the release builds |
+| 28 | Secrets, permissions, and cache | `release.yml` uses only the secrets `PRIVATE_PATTERNS` (job `scan`, only on the push of a tag and on `workflow_dispatch` on `main`) and `GITHUB_TOKEN`. The workflow default is `contents: read`. A job gets `contents: write` or `id-token: write` only when it needs it. No job uses a cache. Each action has a full commit SHA. Each checkout has `persist-credentials: false` | CRITERION-83. The conventions of `ci.yml` and `private-data.yml`. Inferred: a cache from another run can change what the release builds. Security issue #161, architect choice (a): the condition on `PRIVATE_PATTERNS` (FEATURE-22 spec item 11 and decision 27) |
 | 29 | When each story is done | STORY-48 to STORY-51 are done after the first release run with each job green, and after U5. A code merge alone does not finish them | CRITERION-77 to CRITERION-84. FEATURE-19 spec decision 25 uses the same form |
 | 30 | Story state | STORY-48 to STORY-51 stay `backlog`, with the `spec:` line, because FEATURE-19 is not `done`. The ASKs of decisions 20 and 26 have their ANSWERs (human:404pilo, 2026-10-14) | `docs/adlc.md` rule 11; the ANSWERs of decisions 20 and 26 |
 | 31 | LICENSE | The MIT text of GitHub, with the holder "AI Ready Future" and the year 2026, in pull request #181. The release copies it into each archive, the crate, and each npm package | `Cargo.toml`: `license = "MIT"`. Orchestrator ANSWER, 2026-10-14. The holder is inferred: the display name of the organization. The user can change it |
@@ -198,7 +198,9 @@ release that waits.
 | `github-publish` | `ubuntu-24.04` | `verify` | `publish` | `contents: write` | `release` |
 
 No job has both `contents: write` and `id-token: write`. The job `scan` is
-the only job that gets `PRIVATE_PATTERNS`, and it has no write permission.
+the only job that gets `PRIVATE_PATTERNS`, and it has no write permission. It
+gets `PRIVATE_PATTERNS` only on the push of a tag and on `workflow_dispatch`
+on `main` (security issue #161, architect choice (a)).
 
 **`prepare`.** Check out with `fetch-depth: 0`. Run `release.py version`,
 with `--tag "$GITHUB_REF_NAME"` on the push of a tag. The command reads
@@ -452,6 +454,7 @@ the target. An index line never holds a member path or a value. Then:
 
 ```yaml
 - name: Scan the packages
+  if: github.event_name == 'push' || (github.event_name == 'workflow_dispatch' && github.ref == 'refs/heads/main')
   env:
     PRIVATE_PATTERNS: ${{ secrets.PRIVATE_PATTERNS }}
     GITLEAKS: ${{ runner.temp }}/gitleaks/gitleaks
@@ -463,6 +466,12 @@ the target. An index line never holds a member path or a value. Then:
 `check.sh` runs both configs: the key rules of gitleaks and the private
 patterns. A finding gives `<index line>: <RuleID>` and exit 1. Exit 1 or 2
 stops the release before any publish.
+
+The `if:` of the step gives `PRIVATE_PATTERNS` to the job `scan` only on the
+push of a tag and on `workflow_dispatch` on `main` (decision 16 and decision
+28; security issue #161, architect choice (a)). In a dry run of a pull
+request, or of `workflow_dispatch` on another branch, the step does not run.
+`private-data.yml` already checks the files of a pull request.
 
 The job `crates-io` publishes from the same commit, so `cargo publish` packs
 the same files as the scanned `.crate` file. The job `npm` publishes the
