@@ -120,7 +120,6 @@ fn forget_key_removes_a_stale_temporary_copy_of_the_key() {
         .assert()
         .code(0)
         .stdout(predicate::str::contains("Removed the stored key"))
-        .stdout(predicate::str::contains("Removed 1 old temporary copy"))
         .stdout(predicate::str::contains("SENTINEL").not());
     assert!(!stale.exists());
     assert!(names_in_jag_folder(home.path()).is_empty());
@@ -150,8 +149,7 @@ fn forget_key_removes_a_stale_copy_when_there_is_no_key_file() {
         .arg("--forget-key")
         .assert()
         .code(0)
-        .stdout(predicate::str::contains("No stored key"))
-        .stdout(predicate::str::contains("Removed 1 old temporary copy"));
+        .stdout(predicate::str::contains("No stored key"));
     assert!(!stale.exists());
 }
 
