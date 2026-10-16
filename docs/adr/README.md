@@ -39,6 +39,7 @@
 
 ### quality — <!-- TODO: describe this area -->
 - [0021 — Check rg parity with a cargo test that runs a pinned rg and jag](./0021-check-rg-parity-with-a-cargo-test-that-runs-a-pinned-rg-and.md) — accepted — <!-- TODO: summary -->
+- [0023 — Run the rg parity cases that git cannot store as Rust code in a second test](./0023-run-the-rg-parity-cases-that-git-cannot-store-as-rust-code.md) — proposed — <!-- TODO: summary -->
 
 <!-- ADR-INDEX:END -->
 
