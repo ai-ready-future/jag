@@ -31,6 +31,7 @@ generated:
 * [FEATURE-19: Go public with a clean history](FEATURE-19.md) - A scan lists the private data in the history. A new public repository gets a clean history, and a second scan finds none. The private repository stays private.
 * [FEATURE-20: Show the cost of a search](FEATURE-20.md) - After each search, jag reports how many results it scored and skipped, and the billed cost in US dollars, as a text line or a structured field.
 * [FEATURE-21: Send the model calls through an AI gateway](FEATURE-21.md) - The user can set a base URL and a model name, so that jag sends the same model calls through an AI gateway. With no setting, jag calls TypeSafe directly.
+* [FEATURE-23: Give the same output as rg for the same arguments](FEATURE-23.md) - An rg command and a jag command with the same arguments and no question give the same bytes, the same color, and the same exit code, and e2e tests check this in CI.
 
 ## MILESTONE-03: Make it fast
 

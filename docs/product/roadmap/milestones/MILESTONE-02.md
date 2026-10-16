@@ -29,7 +29,7 @@ This milestone holds the capabilities that make jag better to use and easier to 
 
 | Item | State | Progress | Owner | Blocked by | Drift |
 | --- | --- | --- | --- | --- | --- |
-| [EPIC-04: A shell user keeps their habits](../epics/EPIC-04.md) | ready | 5/6 (83%) | - | - | - |
+| [EPIC-04: A shell user keeps their habits](../epics/EPIC-04.md) | done | 6/6 (100%) | - | - | - |
 | [EPIC-05: Safe public release](../epics/EPIC-05.md) | ready | 2/4 (50%) | - | - | - |
 | [FEATURE-02: Readiness check](../features/FEATURE-02.md) | done | 3/3 (100%) | - | FEATURE-01 | - |
 | [FEATURE-03: Clear failure when the model is not available](../features/FEATURE-03.md) | done | 4/4 (100%) | - | FEATURE-01 | - |
@@ -42,7 +42,7 @@ This milestone holds the capabilities that make jag better to use and easier to 
 | [FEATURE-20: Show the cost of a search](../features/FEATURE-20.md) | done | 4/4 (100%) | - | FEATURE-04, FEATURE-11 | - |
 | [FEATURE-21: Send the model calls through an AI gateway](../features/FEATURE-21.md) | done | 2/2 (100%) | - | FEATURE-04 | - |
 | [FEATURE-22: Check that jag is ready before the first publish](../features/FEATURE-22.md) | backlog | 0/3 (0%) | - | - | - |
-| [FEATURE-23: Give the same output as rg for the same arguments](../features/FEATURE-23.md) | backlog | 1/3 (33%) | - | - | - |
+| [FEATURE-23: Give the same output as rg for the same arguments](../features/FEATURE-23.md) | done | 3/3 (100%) | - | - | - |
 <!-- STATUS:END -->
 
 <!-- LINKS:START (generated, do not edit) -->

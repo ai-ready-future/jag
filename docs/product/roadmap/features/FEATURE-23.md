@@ -5,7 +5,8 @@ description: An rg command and a jag command with the same arguments and no ques
   give the same bytes, the same color, and the same exit code, and e2e tests check
   this in CI.
 status: draft
-state: backlog
+state: done
+actual_end_date: '2026-10-16'
 github:
   number: 113
   node_id: I_kwDOVKMnL88AAAABXgIsWw
@@ -36,8 +37,8 @@ User answer (hitl, 2026-10-15): Q1 option 1, rg is the reference for jag with no
 
 | Item | State | Progress | Owner | Blocked by | Drift |
 | --- | --- | --- | --- | --- | --- |
-| [STORY-65: Compare rg and jag output on a parity test set](../stories/STORY-65.md) | ready | - | - | - | - |
-| [STORY-66: Run the rg parity cases as e2e tests in CI](../stories/STORY-66.md) | ready | - | - | - | - |
+| [STORY-65: Compare rg and jag output on a parity test set](../stories/STORY-65.md) | done | - | - | - | - |
+| [STORY-66: Run the rg parity cases as e2e tests in CI](../stories/STORY-66.md) | done | - | - | - | - |
 | [STORY-67: Fix each rg parity difference or record it as deliberate](../stories/STORY-67.md) | done | - | - | - | - |
 <!-- STATUS:END -->
 
