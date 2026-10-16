@@ -194,6 +194,14 @@ jobs:
           rustc --version
           cargo --version
 
+      # The pinned rg for the rg parity test (ADR-0021). A parity failure
+      # stops the release.
+      - name: Install the pinned rg
+        run: |
+          set -euo pipefail
+          rg=$(scripts/parity/install-rg.sh "$RUNNER_TEMP/rg")
+          echo "JAG_PARITY_RG=$rg" >> "$GITHUB_ENV"
+
       - name: Test on the target
         run: cargo test --locked --release --target "$TARGET"
 

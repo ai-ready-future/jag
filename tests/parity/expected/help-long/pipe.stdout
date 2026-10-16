@@ -1,0 +1,47 @@
+Grep with a model that ranks the matches by how well they answer your question
+
+Usage: jag [OPTIONS] TERM [PATH...]
+       jag [OPTIONS] --ask QUESTION TERM [PATH...]
+       jag [OPTIONS] -e TERM ... [PATH...]
+       jag --check [--timeout SECONDS] [--retry-wait SECONDS] [--base-url URL] [--model NAME]
+       jag --setup
+       jag --forget-key
+
+Arguments:
+  [TERM]     The regular expression that the lines must match
+  [PATH]...  The files and folders to search. With no path, jag searches the text of a pipe or the current folder
+
+Options:
+      --json                  Write one JSON document for an agent, in place of text
+      --color <WHEN>          When to color the matches: never, auto, always, or ansi (auto: only in a terminal)
+  -i, --ignore-case           Match upper case and lower case letters as the same
+  -w, --word-regexp           Match only whole words
+  -F, --fixed-strings         Read the term as fixed text, not as a regular expression
+  -e, --regexp <TERM>         Use TERM as the term. With more than one -e, a line matches one of the terms
+  -A, --after-context <NUM>   Show NUM lines after each match
+  -B, --before-context <NUM>  Show NUM lines before each match
+  -C, --context <NUM>         Show NUM lines before and after each match
+  -l, --files-with-matches    Show only the path of each file with a match (not with --ask or --json)
+  -c, --count                 Show only the count of matching lines of each file (not with --ask or --json)
+  -q, --quiet                 Write nothing to standard output: give only the exit code (not with --ask or --json)
+  -g, --glob <GLOB>           Search only the files that match GLOB. With ! in front, leave them out. The last glob that matches decides
+  -n, --line-number           Show the line number of each matching line (not with --ask or --json)
+  -N, --no-line-number        Do not show line numbers (not with --ask or --json)
+  -H, --with-filename         Show the path of each file with a match (not with --ask or --json)
+  -I, --no-filename           Do not show the path of each file (not with --ask or --json)
+      --heading               Show each path once, above its matches (not with --ask or --json)
+      --no-heading            Show the path on each line (not with --ask or --json)
+      --sort <SORTBY>         The order of the files: path (the default) or none. It does not change the order of --ask
+      --check                 Check that jag is ready: the key, the service, and the key file
+      --setup                 Store your API key, with no echo: the TypeSafe key, or the gateway key when JAG_BASE_URL or config.base-url names a gateway
+      --forget-key            Remove the stored key: the TypeSafe key, or the gateway key when JAG_BASE_URL or config.base-url names a gateway
+      --timeout <SECONDS>     Seconds to wait for one model call, from 1 to 60 (default 4)
+      --retry-wait <SECONDS>  Seconds to wait before the one retry, from 1 to 60 (default 1)
+      --base-url <URL>        The address of the model service or of an AI gateway (default https://api.typesafe.ai/v1)
+      --model <NAME>          The model name to send (default jev-1.13.0)
+      --max-scored <COUNT>    The most results that the model scores, from 1 to 2,000 (default 200)
+      --max-chars <COUNT>     The most characters that jag writes to standard output, 1,000 or more (default 20,000 with --ask or --json, no limit with no --ask)
+      --no-max-chars          Turn off the size limit on standard output
+      --ask <QUESTION>        What you look for: the model ranks the matches by this question. With no --ask, jag gives the output of rg: no model call, no cost, and no key
+  -h, --help                  Print help
+  -V, --version               Print version
