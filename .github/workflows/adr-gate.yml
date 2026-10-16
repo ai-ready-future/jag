@@ -5,20 +5,26 @@ on:
     paths:
       - "docs/adr/**"
 
+permissions:
+  contents: read
+
 jobs:
   # ADR-GATE:DETERMINISTIC:BEGIN
   deterministic:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           fetch-depth: 0
+          persist-credentials: false
       - name: Lint ADRs changed in this pull request
+        env:
+          BASE_REF: ${{ github.base_ref }}
         run: |
           set -euo pipefail
-          git fetch --no-tags --depth=1 origin "${{ github.base_ref }}"
+          git fetch --no-tags --depth=1 origin "$BASE_REF"
           mapfile -t CHANGED < <(git diff --name-only \
-            "origin/${{ github.base_ref }}...HEAD" | grep -E '\.md$' || true)
+            "origin/$BASE_REF...HEAD" | grep -E '\.md$' || true)
           python3 scripts/adr/adr_lint.py --changed "${CHANGED[@]}"
       - run: python3 scripts/adr/adr_index.py --check
   # ADR-GATE:DETERMINISTIC:END
