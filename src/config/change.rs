@@ -7,6 +7,7 @@ use std::path::{Path, PathBuf};
 
 use std::fmt;
 
+use super::fs::TEMP_PREFIX;
 use super::{
     ConfigError, Env, File, Fs, StrictFile, has_yaml_content, open_key_file, parse_loose,
     read_open_file,
@@ -198,7 +199,7 @@ pub fn write_key_file(
     let mut attempt = 1;
     let temp = loop {
         let temp = jag_dir.join(format!(
-            "config.yml.tmp-{}-{:016x}",
+            "{TEMP_PREFIX}{}-{:016x}",
             std::process::id(),
             random_u64()
         ));
@@ -221,6 +222,10 @@ pub fn write_key_file(
         let _ = fs.remove_file(&temp);
         return Err(write_error(&path, error));
     }
+    // 5. Remove each stale temporary copy of an old write that stopped. It can
+    //    hold a key that the user has removed since. The file is written, so a
+    //    failure here does not fail the write.
+    let _ = fs.remove_stale_temporary_files(&jag_dir);
     Ok(path)
 }
 
@@ -550,6 +555,9 @@ mod tests {
         fn remove_file(&self, path: &Path) -> io::Result<()> {
             RealFs.remove_file(path)
         }
+        fn remove_stale_temporary_files(&self, dir: &Path) -> io::Result<usize> {
+            RealFs.remove_stale_temporary_files(dir)
+        }
     }
 
     #[test]
@@ -573,15 +581,28 @@ mod tests {
     }
 
     #[test]
-    fn a_stale_temporary_file_does_not_block_setup() {
+    fn a_stale_temporary_file_does_not_block_setup_and_a_write_removes_it() {
         let home = tempfile::tempdir().unwrap();
         let dir = home.path().join(".config").join("jag");
         std::fs::create_dir_all(&dir).unwrap();
-        let stale = dir.join(format!("config.yml.tmp-{}", std::process::id()));
+        let stale = dir.join(format!("{TEMP_PREFIX}{}", std::process::id()));
         std::fs::write(&stale, "stale").unwrap();
         write_key_file(&RealFs, home.path(), &only_key("k")).unwrap();
-        assert_eq!(std::fs::read_to_string(&stale).unwrap(), "stale");
+        assert!(!stale.exists());
         assert!(dir.join("config.yml").exists());
+        assert_eq!(std::fs::read_dir(&dir).unwrap().count(), 1);
+    }
+
+    #[test]
+    fn a_failed_rename_leaves_a_stale_temporary_file_of_an_old_write_alone() {
+        // A failed write changes nothing that it did not make.
+        let home = tempfile::tempdir().unwrap();
+        let dir = home.path().join(".config").join("jag");
+        std::fs::create_dir_all(&dir).unwrap();
+        let stale = dir.join(format!("{TEMP_PREFIX}old"));
+        std::fs::write(&stale, "stale").unwrap();
+        write_key_file(&Faulty::new(true, 0), home.path(), &only_key("k")).unwrap_err();
+        assert!(stale.exists());
     }
 
     #[test]

@@ -2,8 +2,13 @@
 
 use std::fs::{self, DirBuilder, File, OpenOptions};
 use std::io::{self, Read, Write};
+use std::os::unix::ffi::OsStrExt;
 use std::os::unix::fs::{DirBuilderExt, MetadataExt, OpenOptionsExt};
 use std::path::Path;
+
+/// The start of the name of a temporary copy of the key file. The name goes on
+/// with the process id and a random part (`write_key_file`).
+pub const TEMP_PREFIX: &str = "config.yml.tmp-";
 
 /// An open file. The mode comes from the open handle (`fstat`), so no other
 /// file can take its place between the check and the read.
@@ -28,6 +33,10 @@ pub trait Fs {
     fn create_private_file(&self, path: &Path, text: &str) -> io::Result<()>;
     fn rename(&self, from: &Path, to: &Path) -> io::Result<()>;
     fn remove_file(&self, path: &Path) -> io::Result<()>;
+    /// Remove each regular file in `dir` whose name starts with `TEMP_PREFIX`.
+    /// A link, a folder, and each other file stay, and jag does not follow a
+    /// link. A missing folder is fine. Returns the count of removed files.
+    fn remove_stale_temporary_files(&self, dir: &Path) -> io::Result<usize>;
 }
 
 /// The production file system.
@@ -95,5 +104,83 @@ impl Fs for RealFs {
 
     fn remove_file(&self, path: &Path) -> io::Result<()> {
         fs::remove_file(path)
+    }
+
+    fn remove_stale_temporary_files(&self, dir: &Path) -> io::Result<usize> {
+        let entries = match fs::read_dir(dir) {
+            Ok(entries) => entries,
+            Err(error) if error.kind() == io::ErrorKind::NotFound => return Ok(0),
+            Err(error) => return Err(error),
+        };
+        let mut removed = 0;
+        for entry in entries {
+            let entry = entry?;
+            if !entry
+                .file_name()
+                .as_bytes()
+                .starts_with(TEMP_PREFIX.as_bytes())
+            {
+                continue;
+            }
+            // `DirEntry::file_type` is the type of the entry itself: a link
+            // is a link, and jag never follows it.
+            if !entry.file_type()?.is_file() {
+                continue;
+            }
+            match fs::remove_file(entry.path()) {
+                Ok(()) => removed += 1,
+                // Another process removed it, or renamed it over `config.yml`.
+                Err(error) if error.kind() == io::ErrorKind::NotFound => {}
+                Err(error) => return Err(error),
+            }
+        }
+        Ok(removed)
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use std::os::unix::fs::symlink;
+
+    use super::*;
+
+    #[test]
+    fn it_removes_each_regular_temporary_file_and_nothing_else() {
+        let dir = tempfile::tempdir().unwrap();
+        let outside = tempfile::tempdir().unwrap();
+        let target = outside.path().join("target.txt");
+        fs::write(&target, "target").unwrap();
+        fs::write(dir.path().join("config.yml.tmp-1-aa"), "old").unwrap();
+        fs::write(dir.path().join("config.yml.tmp-"), "old").unwrap();
+        fs::write(dir.path().join("config.yml"), "keep").unwrap();
+        fs::write(dir.path().join("config.yml.tmp"), "keep").unwrap();
+        fs::write(dir.path().join("other.txt"), "keep").unwrap();
+        fs::create_dir(dir.path().join("config.yml.tmp-dir")).unwrap();
+        symlink(&target, dir.path().join("config.yml.tmp-link")).unwrap();
+        let removed = RealFs.remove_stale_temporary_files(dir.path()).unwrap();
+        assert_eq!(removed, 2);
+        let mut left: Vec<String> = fs::read_dir(dir.path())
+            .unwrap()
+            .map(|entry| entry.unwrap().file_name().into_string().unwrap())
+            .collect();
+        left.sort();
+        assert_eq!(
+            left,
+            [
+                "config.yml",
+                "config.yml.tmp",
+                "config.yml.tmp-dir",
+                "config.yml.tmp-link",
+                "other.txt"
+            ]
+        );
+        assert_eq!(fs::read_to_string(&target).unwrap(), "target");
+    }
+
+    #[test]
+    fn a_missing_folder_has_nothing_to_remove() {
+        let dir = tempfile::tempdir().unwrap();
+        let missing = dir.path().join("missing");
+        assert_eq!(RealFs.remove_stale_temporary_files(&missing).unwrap(), 0);
     }
 }

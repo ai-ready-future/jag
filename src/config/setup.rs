@@ -212,6 +212,30 @@ pub fn setup(
     Ok(())
 }
 
+/// Remove each stale temporary copy of the key file, next to `path`. A copy
+/// that stays would hold a key that the user wants gone, so a failure is an
+/// error.
+fn remove_stale_copies(fs: &dyn Fs, path: &Path, out: &mut dyn Write) -> Result<(), ConfigError> {
+    let Some(dir) = path.parent() else {
+        return Ok(());
+    };
+    let removed =
+        fs.remove_stale_temporary_files(dir)
+            .map_err(|error| ConfigError::KeyFileWrite {
+                path: dir.to_owned(),
+                kind: error.kind(),
+            })?;
+    if removed > 0 {
+        let _ = writeln!(
+            out,
+            "Removed {removed} old temporary {} of the key file from {}.",
+            if removed == 1 { "copy" } else { "copies" },
+            dir.display()
+        );
+    }
+    Ok(())
+}
+
 /// Remove the stored key of the route.
 pub fn forget_key(env: &Env, fs: &dyn Fs, out: &mut dyn Write) -> Result<(), ConfigError> {
     // 1. No home: there is no stored key.
@@ -237,6 +261,8 @@ pub fn forget_key(env: &Env, fs: &dyn Fs, out: &mut dyn Write) -> Result<(), Con
             },
             path.display()
         );
+        // A write that stopped can leave a temporary copy of a key.
+        remove_stale_copies(fs, &path, out)?;
         return Ok(());
     }
     // 5. Clear the field of the route. When no value is left, remove the
@@ -264,6 +290,9 @@ pub fn forget_key(env: &Env, fs: &dyn Fs, out: &mut dyn Write) -> Result<(), Con
         },
         path.display()
     );
+    // A write that stopped can leave a temporary copy of the key. The write
+    // above removes it already, but a removal of the file does not.
+    remove_stale_copies(fs, &path, out)?;
     note_variable(env, route, out, |name| {
         format!("Note: {name} is still set, so jag still has a key.")
     });

@@ -53,7 +53,7 @@ pub(super) struct Client {
 
 impl Client {
     pub fn new(key: &ApiKey, settings: &ScoreSettings) -> Self {
-        let agent = Agent::config_builder()
+        let builder = Agent::config_builder()
             .tls_config(
                 TlsConfig::builder()
                     .root_certs(RootCerts::PlatformVerifier)
@@ -62,9 +62,17 @@ impl Client {
             .timeout_global(Some(settings.timeout))
             .max_redirects(0)
             .http_status_as_error(false)
-            .user_agent(format!("jag/{}", env!("CARGO_PKG_VERSION")))
-            .build()
-            .new_agent();
+            .user_agent(format!("jag/{}", env!("CARGO_PKG_VERSION")));
+        // `ureq` reads the proxy of the environment by default. A call with
+        // the scheme `http` goes to this machine only (`address_is_allowed`),
+        // and a proxy would send the key on without TLS. So only `https` may
+        // use a proxy.
+        let builder = if may_use_proxy(&settings.base_url) {
+            builder
+        } else {
+            builder.proxy(None)
+        };
+        let agent = builder.build().new_agent();
         Self {
             agent,
             url: format!("{}/systemone", settings.base_url),
@@ -126,6 +134,13 @@ impl Client {
             parse_scores(&bytes, count).ok_or_else(|| Attempt::stop(ScoreError::BadResponse));
         (scores, bill)
     }
+}
+
+/// True only for the scheme `https`. Any other address gets no proxy.
+fn may_use_proxy(base_url: &str) -> bool {
+    base_url
+        .get(..8)
+        .is_some_and(|start| start.eq_ignore_ascii_case("https://"))
 }
 
 fn map_transport_error(error: &ureq::Error) -> ScoreError {
@@ -197,5 +212,17 @@ mod tests {
     fn the_edge_values_are_scores() {
         let body = br#"{"answers":{"s1":{"noul":0},"s2":{"noul":1}}}"#;
         assert_eq!(parse_scores(body, 2), Some(vec![0.0, 1.0]));
+    }
+
+    #[test]
+    fn only_an_https_address_may_use_a_proxy() {
+        assert!(may_use_proxy("https://api.typesafe.ai/v1"));
+        assert!(may_use_proxy("HTTPS://openrouter.ai/api"));
+        assert!(!may_use_proxy("http://127.0.0.1:8080"));
+        assert!(!may_use_proxy("HTTP://localhost/v1"));
+        assert!(!may_use_proxy("http://[::1]:9000"));
+        assert!(!may_use_proxy("ftp://example.com"));
+        assert!(!may_use_proxy("https:/"));
+        assert!(!may_use_proxy(""));
     }
 }

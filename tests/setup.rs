@@ -86,6 +86,98 @@ fn forget_key_removes_the_stored_key() {
     );
 }
 
+/// A temporary copy of the key file that an old write left, as a write that
+/// stops between the file and the rename does. It holds the made-up key.
+fn write_stale_copy(home: &Path, name: &str) -> PathBuf {
+    let path = key_path(home).parent().unwrap().join(name);
+    std::fs::create_dir_all(path.parent().unwrap()).unwrap();
+    std::fs::write(&path, "config:\n  api-key: SENTINEL-SENTINEL-SENTINEL\n").unwrap();
+    std::fs::set_permissions(&path, std::fs::Permissions::from_mode(0o600)).unwrap();
+    path
+}
+
+/// The names of the files in the folder of the key file.
+fn names_in_jag_folder(home: &Path) -> Vec<String> {
+    let mut names: Vec<String> = std::fs::read_dir(key_path(home).parent().unwrap())
+        .unwrap()
+        .map(|entry| entry.unwrap().file_name().into_string().unwrap())
+        .collect();
+    names.sort();
+    names
+}
+
+// Issue 162: the removal of the key leaves no copy in the config folder.
+#[test]
+fn forget_key_removes_a_stale_temporary_copy_of_the_key() {
+    let home = tempfile::tempdir().unwrap();
+    write_key_file(
+        home.path(),
+        "config:\n  api-key: SENTINEL-SENTINEL-SENTINEL\n",
+    );
+    let stale = write_stale_copy(home.path(), "config.yml.tmp-4242-00000000000000aa");
+    jag(home.path())
+        .arg("--forget-key")
+        .assert()
+        .code(0)
+        .stdout(predicate::str::contains("Removed the stored key"))
+        .stdout(predicate::str::contains("Removed 1 old temporary copy"))
+        .stdout(predicate::str::contains("SENTINEL").not());
+    assert!(!stale.exists());
+    assert!(names_in_jag_folder(home.path()).is_empty());
+}
+
+#[test]
+fn forget_key_removes_a_stale_copy_when_other_values_stay() {
+    let home = tempfile::tempdir().unwrap();
+    write_key_file(
+        home.path(),
+        "config:\n  api-key: SENTINEL-SENTINEL-SENTINEL\n  model: jev-1.13.0\n",
+    );
+    write_stale_copy(home.path(), "config.yml.tmp-1-0000000000000001");
+    write_stale_copy(home.path(), "config.yml.tmp-2-0000000000000002");
+    jag(home.path()).arg("--forget-key").assert().code(0);
+    assert_eq!(names_in_jag_folder(home.path()), ["config.yml"]);
+    let text = std::fs::read_to_string(key_path(home.path())).unwrap();
+    assert_eq!(text, "config:\n  model: jev-1.13.0\n");
+}
+
+#[test]
+fn forget_key_removes_a_stale_copy_when_there_is_no_key_file() {
+    let home = tempfile::tempdir().unwrap();
+    // A first setup stopped before the rename: no `config.yml`, one copy.
+    let stale = write_stale_copy(home.path(), "config.yml.tmp-7-0000000000000007");
+    jag(home.path())
+        .arg("--forget-key")
+        .assert()
+        .code(0)
+        .stdout(predicate::str::contains("No stored key"))
+        .stdout(predicate::str::contains("Removed 1 old temporary copy"));
+    assert!(!stale.exists());
+}
+
+#[test]
+fn forget_key_leaves_a_link_a_folder_and_other_files_alone() {
+    use std::os::unix::fs::symlink;
+    let home = tempfile::tempdir().unwrap();
+    write_key_file(
+        home.path(),
+        "config:\n  api-key: SENTINEL-SENTINEL-SENTINEL\n",
+    );
+    let outside = tempfile::tempdir().unwrap();
+    let target = outside.path().join("target.txt");
+    std::fs::write(&target, "not ours").unwrap();
+    let jag_dir = key_path(home.path()).parent().unwrap().to_owned();
+    symlink(&target, jag_dir.join("config.yml.tmp-link")).unwrap();
+    std::fs::create_dir(jag_dir.join("config.yml.tmp-folder")).unwrap();
+    std::fs::write(jag_dir.join("notes.txt"), "keep").unwrap();
+    jag(home.path()).arg("--forget-key").assert().code(0);
+    assert_eq!(
+        names_in_jag_folder(home.path()),
+        ["config.yml.tmp-folder", "config.yml.tmp-link", "notes.txt"]
+    );
+    assert_eq!(std::fs::read_to_string(&target).unwrap(), "not ours");
+}
+
 #[test]
 fn forget_key_with_no_file_exits_0() {
     let home = tempfile::tempdir().unwrap();
