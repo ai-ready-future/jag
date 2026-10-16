@@ -107,11 +107,6 @@ fn parent_gitignore_repo(root: &Path) {
     write(root, "work/b.rs", b"foo b\n");
 }
 
-fn hidden_folder(root: &Path) {
-    write(root, ".hidden/x.txt", b"foo x\n");
-    write(root, "a.txt", b"foo a\n");
-}
-
 #[cfg(target_os = "linux")]
 fn not_utf8_name(root: &Path) {
     use std::ffi::OsStr;
@@ -212,12 +207,6 @@ fn scenarios() -> Vec<Scenario> {
             cwd: "work",
             args: &["--sort", "path", "foo"],
             setup: parent_gitignore_repo,
-        },
-        Scenario {
-            id: "hidden-folder-path",
-            cwd: "",
-            args: &["--sort", "path", "foo", ".hidden"],
-            setup: hidden_folder,
         },
     ];
     #[cfg(target_os = "linux")]

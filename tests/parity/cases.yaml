@@ -533,3 +533,6 @@
 - id: missing-sort-none
   args: ["--sort", "none", "foo", "nope.txt", "a.txt"]
   tree: basic
+- id: hidden-folder-path
+  args: ["--sort", "path", "foo", ".h"]
+  tree: hidden-only
