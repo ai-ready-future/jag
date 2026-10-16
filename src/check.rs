@@ -264,6 +264,9 @@ mod tests {
         fn remove_file(&self, _: &Path) -> io::Result<()> {
             unreachable!("the check changes no file")
         }
+        fn remove_stale_temporary_files(&self, _: &Path) -> io::Result<usize> {
+            unreachable!("the check changes no file")
+        }
     }
 
     const KEY_FILE_TEXT: &str = "config:\n  api-key: SENTINEL-SENTINEL-SENTINEL\n";

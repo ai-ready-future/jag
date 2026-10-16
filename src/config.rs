@@ -807,6 +807,9 @@ mod mode_tests {
         fn remove_file(&self, _: &Path) -> io::Result<()> {
             unreachable!()
         }
+        fn remove_stale_temporary_files(&self, _: &Path) -> io::Result<usize> {
+            unreachable!()
+        }
     }
 
     fn mode_of(home: Option<&Path>, fs: &dyn Fs) -> Result<Option<(PathBuf, u32)>, ConfigError> {
@@ -1063,6 +1066,9 @@ mod tests {
             unreachable!()
         }
         fn remove_file(&self, _: &Path) -> io::Result<()> {
+            unreachable!()
+        }
+        fn remove_stale_temporary_files(&self, _: &Path) -> io::Result<usize> {
             unreachable!()
         }
     }
