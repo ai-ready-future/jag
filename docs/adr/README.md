@@ -1,6 +1,6 @@
 # Architecture decisions
 
-<!-- Intro is hand-authored. Edit freely above the markers; the block below is generated. -->
+<!-- Intro is hand-authored (gate check). Edit freely above the markers; the block below is generated. -->
 
 <!-- ADR-INDEX:BEGIN (generated — do not edit) -->
 
