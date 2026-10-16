@@ -16,6 +16,7 @@ import stat
 import subprocess
 import tarfile
 import tempfile
+import tomllib
 import unittest
 import urllib.error
 from pathlib import Path
@@ -24,6 +25,7 @@ import release
 
 ROOT = Path(__file__).resolve().parents[2]
 WORKFLOW = ROOT / ".github" / "workflows" / "release.yml"
+DEPS_WORKFLOW = ROOT / ".github" / "workflows" / "deps.yml"
 VERSION = "1.2.3"
 
 
@@ -678,7 +680,7 @@ class WorkflowTests(unittest.TestCase):
     def test_the_jobs_of_the_spec(self):
         self.assertEqual(
             list(self.jobs),
-            ["prepare", "npm-main", "build", "crate", "scan", "github-draft", "crates-io", "npm", "verify", "github-publish"],
+            ["prepare", "npm-main", "build", "crate", "deps", "scan", "github-draft", "crates-io", "npm", "verify", "github-publish"],
         )
 
     def test_the_only_secrets_are_private_patterns_and_the_github_token(self):
@@ -714,7 +716,7 @@ class WorkflowTests(unittest.TestCase):
     def test_the_publish_jobs_run_only_for_a_tag(self):
         for name in ["github-draft", "crates-io", "npm", "verify", "github-publish"]:
             self.assertIn("needs.prepare.outputs.publish == 'true'", self.jobs[name], name)
-        for name in ["prepare", "npm-main", "build", "crate", "scan"]:
+        for name in ["prepare", "npm-main", "build", "crate", "deps", "scan"]:
             self.assertNotIn("environment:", self.jobs[name], name)
         self.assertIn('if [ "$EVENT_NAME" = push ]', self.jobs["prepare"])
 
@@ -738,7 +740,10 @@ class WorkflowTests(unittest.TestCase):
 
     def test_the_triggers(self):
         head = self.text.split("jobs:")[0]
-        for needle in ["tags: ['v*']", "workflow_dispatch:", "pull_request:", "- npm/**", "- scripts/release/**"]:
+        for needle in [
+            "tags: ['v*']", "workflow_dispatch:", "pull_request:", "- npm/**", "- scripts/release/**",
+            "- deny.toml", "- scripts/deps/**",
+        ]:
             self.assertIn(needle, head)
 
     def test_the_npm_job_publishes_the_platform_packages_before_the_main_package(self):
@@ -746,10 +751,123 @@ class WorkflowTests(unittest.TestCase):
         self.assertEqual(order[-1], "jag")
         self.assertEqual(sorted(order[:-1]), sorted(f"jag-{p['os']}-{p['cpu']}" for p in release.PLATFORMS))
 
+    def test_the_draft_waits_for_the_dependency_checks(self):
+        self.assertRegex(self.jobs["github-draft"], r"needs: \[[^\]]*\bdeps\b[^\]]*\]")
+        self.assertRegex(self.jobs["deps"], r"needs: prepare\n")
+        self.assertIn("run: scripts/deps/check.sh", self.jobs["deps"])
+        self.assertNotIn("secrets.", self.jobs["deps"])
+        self.assertNotIn("permissions:", self.jobs["deps"])
+
     def test_ci_runs_the_tests_of_the_tools(self):
         ci = (ROOT / ".github" / "workflows" / "ci.yml").read_text(encoding="utf-8")
         self.assertIn("python3 -I -m unittest discover -s scripts/release -p 'test_*.py'", ci)
         self.assertIn("node --test npm/jag/test/launcher.test.js", ci)
+
+
+class DepsWorkflowTests(unittest.TestCase):
+    """CRITERION-106: the dependency checks run on each pull request, each push to main, and each release."""
+
+    @classmethod
+    def setUpClass(cls):
+        cls.text = DEPS_WORKFLOW.read_text(encoding="utf-8")
+        cls.jobs = job_blocks(cls.text)
+        cls.script = (ROOT / "scripts" / "deps" / "check.sh").read_text(encoding="utf-8")
+        cls.deny = tomllib.loads((ROOT / "deny.toml").read_text(encoding="utf-8"))
+
+    def test_the_triggers_have_no_schedule(self):
+        head = self.text.split("jobs:")[0]
+        for needle in ["pull_request:", "push:\n    branches: [main]", "workflow_dispatch:"]:
+            self.assertIn(needle, head)
+        self.assertNotIn("schedule", head.replace("No schedule event", ""))
+        self.assertNotIn("cron", self.text)
+
+    def test_the_workflow_has_one_job_that_only_reads(self):
+        self.assertEqual(list(self.jobs), ["deps"])
+        self.assertRegex(self.text.split("jobs:")[0], r"\npermissions:\n  contents: read\n")
+        self.assertNotIn("write", self.text.replace("no write", ""))
+        self.assertNotIn("secrets.", self.text)
+        self.assertFalse("actions/cache" in self.text, "the job uses a cache")
+        self.assertIn("run: scripts/deps/check.sh", self.jobs["deps"])
+
+    def test_each_action_has_a_full_commit_sha_and_the_checkout_keeps_no_credentials(self):
+        for match in re.finditer(r"uses: (\S+)@(\S+)", self.text):
+            self.assertRegex(match.group(2), r"^[0-9a-f]{40}$", match.group(0))
+        self.assertEqual(self.text.count("actions/checkout@"), self.text.count("persist-credentials: false"))
+
+    def test_the_script_can_run_and_pins_cargo_deny_by_sha256(self):
+        path = ROOT / "scripts" / "deps" / "check.sh"
+        self.assertTrue(os.access(path, os.X_OK), "check.sh is not executable")
+        self.assertRegex(self.script, r"\nCARGO_DENY_SHA256=[0-9a-f]{64}\n")
+        self.assertIn("sha256sum -c", self.script)
+        self.assertIn("--locked check advisories licenses bans sources", self.script)
+        self.assertIn("npm audit\n", self.script)
+        self.assertNotIn("--audit-level", self.script)
+        self.assertIn("python3 -I scripts/release/release.py check-npm-deps npm/jag/package.json", self.script)
+
+    def test_the_policy_checks_the_four_release_targets_and_no_dev_dependency(self):
+        self.assertEqual(
+            sorted(self.deny["graph"]["targets"]), sorted(p["target"] for p in release.PLATFORMS)
+        )
+        self.assertIs(self.deny["graph"]["exclude-dev"], True)
+
+    def test_each_kind_of_advisory_fails_the_check(self):
+        advisories = self.deny["advisories"]
+        self.assertEqual(advisories["yanked"], "deny")
+        self.assertEqual(advisories["unmaintained"], "all")
+        self.assertEqual(advisories["unsound"], "all")
+        self.assertNotIn("severity-threshold", advisories)
+
+    def test_each_ignore_entry_names_an_advisory_and_an_issue(self):
+        for entry in self.deny["advisories"]["ignore"]:
+            self.assertRegex(entry["id"], r"^RUSTSEC-\d{4}-\d{4}$")
+            self.assertRegex(entry["reason"], r"^#\d+: (medium|low), ", entry["id"])
+
+    def test_the_licenses_are_the_six_of_the_spec_and_none_is_unused(self):
+        self.assertEqual(
+            sorted(self.deny["licenses"]["allow"]),
+            ["Apache-2.0", "BSD-3-Clause", "CDLA-Permissive-2.0", "ISC", "MIT", "Unicode-3.0"],
+        )
+        self.assertEqual(self.deny["licenses"]["unused-allowed-license"], "deny")
+        self.assertEqual(self.deny["sources"], {"unknown-registry": "deny", "unknown-git": "deny"})
+
+
+class CheckNpmDepsTests(TempCase):
+    """CRITERION-106: the npm packages have no third-party dependency, so npm audit has nothing to find."""
+
+    PLATFORM_NAMES = [release.npm_platform_name(p) for p in release.PLATFORMS]
+
+    def check(self, package):
+        path = self.tmp / "package.json"
+        path.write_text(json.dumps(package), encoding="utf-8")
+        return run_main(["check-npm-deps", str(path)])
+
+    def test_the_main_package_of_the_repository_passes(self):
+        code, out, err = run_main(["check-npm-deps", str(ROOT / "npm" / "jag" / "package.json")])
+        self.assertEqual(code, 0, err)
+        self.assertIn("no third-party dependency", out)
+
+    def test_a_package_with_no_dependency_field_passes(self):
+        self.assertEqual(self.check({"name": "x"})[0], 0)
+
+    def test_the_four_platform_packages_as_optional_dependencies_pass(self):
+        self.assertEqual(self.check({"optionalDependencies": {n: "1.0.0" for n in self.PLATFORM_NAMES}})[0], 0)
+
+    def test_a_dependency_fails(self):
+        code, _, err = self.check({"dependencies": {"left-pad": "1.3.0"}})
+        self.assertEqual(code, 1)
+        self.assertIn("dependencies", err)
+
+    def test_each_other_dependency_field_fails(self):
+        for field in ["peerDependencies", "bundleDependencies", "bundledDependencies"]:
+            code, _, err = self.check({field: []})
+            self.assertEqual(code, 1, field)
+            self.assertIn(field, err)
+
+    def test_an_optional_dependency_that_is_not_a_platform_package_fails(self):
+        code, _, err = self.check({"optionalDependencies": {"fsevents": "2.3.3"}})
+        self.assertEqual(code, 1)
+        self.assertIn("fsevents", err)
+        self.assertEqual(self.check({"optionalDependencies": {"@airf/jag-linux-x64": "1.0.0", "@airf/other": "1.0.0"}})[0], 1)
 
 
 class FirstPublishTests(TempCase):

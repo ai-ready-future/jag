@@ -40,11 +40,39 @@ valid. The tag must be `v` and that version, and its commit must be on
 A pull request that changes a release file starts a dry run. A manual run of
 the workflow on `main` (`workflow_dispatch`) does the same. A dry run runs
 the jobs `prepare`, `npm-main`, `build` (four platforms), `crate`, and
-`scan`. It runs `cargo publish --dry-run` and publishes nothing. It needs no
-environment and no registry account.
+`scan`. It also runs the job `deps` (see "The dependency checks"). It runs
+`cargo publish --dry-run` and publishes nothing. It needs no environment and
+no registry account.
 
-The release files are `release.yml`, `scripts/release/`, `npm/`,
-`Cargo.toml`, `Cargo.lock`, and `rust-toolchain.toml`.
+The release files are `release.yml`, `scripts/release/`, `scripts/deps/`,
+`npm/`, `Cargo.toml`, `Cargo.lock`, `deny.toml`, and `rust-toolchain.toml`.
+
+## The dependency checks
+
+`scripts/deps/check.sh` checks the dependencies of jag. It runs on each pull
+request and on each push to `main` (the workflow `deps.yml`), and in the job
+`deps` of each release run. It is not a required check: a new advisory can
+fail it with no change in the pull request. It runs:
+
+1. `cargo-deny` (version 0.20.2, checked with a fixed SHA-256) with the
+   policy in `deny.toml`: the Rust advisories, the licenses, the bans, and the
+   sources, for the four release targets, with no dev-dependency.
+2. `npm audit` of `npm/jag/package.json`, in a new folder.
+3. `release.py check-npm-deps`: the npm packages have no third-party
+   dependency.
+
+```
+$ scripts/deps/check.sh
+```
+
+The script needs `cargo`, `npm`, `curl`, `tar`, and `sha256sum`.
+
+The level of a finding comes from its CVSS v3.1 base score: critical 9.0 to
+10.0, high 7.0 to 8.9, medium 4.0 to 6.9, low 0.1 to 3.9. A critical or high
+finding blocks the first publish until a fix is on `main`. For a medium or
+low RustSec advisory, add an `ignore` entry to `deny.toml` with the number of
+an open issue with the label `security` in `reason`. The job `deps` is a
+`needs` of `github-draft`, so a release with a finding stops before the draft.
 
 ## The tests of the tools
 
@@ -60,7 +88,7 @@ The job `release-tools` of `ci.yml` runs both on each pull request.
 Only the user pushes a `v*` tag, or a session on a TASK of the orchestrator
 that names the version. The jobs run in this order:
 
-1. `prepare`, `npm-main`, `build`, `crate`, and `scan`: the dry run.
+1. `prepare`, `npm-main`, `build`, `crate`, `deps`, and `scan`: the dry run.
 2. `github-draft`: a draft GitHub Release with the 8 files.
 3. `crates-io`: `cargo publish` with trusted publishing.
 4. `npm`: the four platform packages, then the main package.
@@ -141,6 +169,29 @@ account that the user logs in with.
   $ git tag -a v<version> -m "jag <version>" <commit of main>
   $ git push origin v<version>
   ```
+
+### Before the first tag
+
+Before U6, chores does this list on the commit of the tag, and writes the
+result in `docs/release-readiness.md`:
+
+1. The run of `deps.yml` on the commit is green.
+2. The release dry run on the commit is green.
+3. The security review: compare the commit with the reviewed commit
+   (`git diff --stat <reviewed commit> <commit>`) for `src/`, `npm/`,
+   `.github/workflows/`, `scripts/release/`, `scripts/deps/`, `deny.toml`,
+   `Cargo.toml`, `Cargo.lock`, and `rust-toolchain.toml`. When a file changed,
+   a reviewer reviews the change and adds a dated line to the record.
+4. Each issue with the labels `bug` and `use-period` is open, or closed as
+   completed by a commit on `main`, or closed as not planned with the label
+   `duplicate` or `invalid`.
+
+A pull request that changes only `docs/release-readiness.md` can merge after
+the list. Then the files that differ between the commit and the new commit
+(`git diff --name-only <commit> <new commit>`) must all be in `docs/`. If
+not, do the list again on the new commit. The tag then goes on the new
+commit. The job `deps` of the release run checks the advisories again on the
+commit of the tag.
 
 After the first release, mark the empty versions:
 
