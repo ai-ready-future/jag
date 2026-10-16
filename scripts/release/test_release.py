@@ -893,6 +893,19 @@ class WorkflowTests(unittest.TestCase):
             [name for name, block in self.jobs.items() if "secrets.PRIVATE_PATTERNS" in block], ["scan"]
         )
 
+    def test_the_private_patterns_reach_only_the_scan_step_of_a_tag_or_a_manual_run_on_main(self):
+        # FEATURE-18 spec decision 28 and the security issue #161: a dry run of a pull request gets no secret.
+        condition = "github.event_name == 'push' || (github.event_name == 'workflow_dispatch' && github.ref == 'refs/heads/main')"
+        self.assertEqual(self.text.count("secrets.PRIVATE_PATTERNS"), 1)
+        steps = re.split(r"\n      - ", self.jobs["scan"])
+        holders = [step for step in steps if "secrets.PRIVATE_PATTERNS" in step]
+        self.assertEqual(len(holders), 1)
+        step = holders[0]
+        self.assertTrue(step.startswith("name: Scan the packages"), step[:60])
+        self.assertIn(f"\n        if: {condition}\n", step)
+        # The condition names no pull request event, so a dry run of a pull request skips the step.
+        self.assertNotIn("pull_request", condition)
+
     def test_only_the_two_publish_jobs_have_id_token_write(self):
         self.assertNotIn("id-token", self.text.split("jobs:")[0])
         self.assertEqual(

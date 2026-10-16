@@ -51,7 +51,9 @@ the workflow on `main` (`workflow_dispatch`) does the same. A dry run runs
 the jobs `prepare`, `npm-main`, `notices`, `build` (four platforms),
 `crate`, and `scan`. It also runs the job `deps` (see "The dependency
 checks"). It runs `cargo publish --dry-run` and publishes nothing. It needs
-no environment and no registry account.
+no environment and no registry account. The step "Scan the packages" of the job `scan` runs
+only for a tag and for a manual run on `main`; a dry run of a pull request
+skips it, because it gets no secret.
 
 The release files are `release.yml`, `scripts/release/`, `scripts/deps/`,
 `npm/`, `Cargo.toml`, `Cargo.lock`, `deny.toml`, and `rust-toolchain.toml`.
@@ -188,7 +190,10 @@ result in `docs/release-readiness.md`:
 1. The run of `deps.yml` on the commit is green.
 2. The release dry run on the commit is green. It checks the archives, the
    platform packages (`check-npm-tarball`), the crate (`check-crate-metadata`
-   and `check-crate-list`), and the notice file (`check-notices`).
+   and `check-crate-list`), and the notice file (`check-notices`). After a
+   change of `Cargo.lock` or `release.yml`, run a dry run by hand on `main`
+   (`gh workflow run release.yml --ref main`): the dry run of a pull request
+   does not scan the built files, because it gets no `PRIVATE_PATTERNS`.
 3. The security review: compare the commit with the reviewed commit
    (`git diff --stat <reviewed commit> <commit>`) for `src/`, `npm/`,
    `.github/workflows/`, `scripts/release/`, `scripts/deps/`, `deny.toml`,
