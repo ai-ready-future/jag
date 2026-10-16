@@ -1,0 +1,13 @@
+THIRD-PARTY LICENSES
+
+The jag binary holds code from the Rust crates below. Each license
+applies to the crates that it names.
+{{#each licenses}}
+
+==============================================================================
+{{{name}}} ({{{id}}})
+Used by:{{#each used_by}} {{{crate.name}}} {{{crate.version}}};{{/each}}
+------------------------------------------------------------------------------
+
+{{{text}}}
+{{/each}}

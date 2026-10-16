@@ -23,7 +23,16 @@ The names of the archives and the npm packages are in
 | macOS x86_64 | `x86_64-apple-darwin` | `macos-15-intel` | `@airf/jag-darwin-x64` |
 
 - Archive: `jag-<version>-<target>.tar.gz`. It holds the folder
-  `jag-<version>-<target>/` with `jag`, `README.md`, and `LICENSE`.
+  `jag-<version>-<target>/` with `jag`, `README.md`, `LICENSE`, and
+  `THIRD-PARTY-LICENSES`. Each platform npm package holds the same four
+  files (and `package.json`). The crate and `@airf/jag` hold no third-party
+  code, so they do not hold `THIRD-PARTY-LICENSES`.
+- `THIRD-PARTY-LICENSES`: the license texts of the Rust crates in the
+  binary. The job `notices` makes the file at release time with cargo-about
+  0.9.2 (`about.toml` and `notices.hbs` in this folder). It is not stored in
+  the repository. The same input gives the same bytes. If the job fails
+  because cargo-about cannot find the license of a new crate, add a `clarify`
+  entry to `about.toml` in a pull request.
 - Checksum: `jag-<version>-<target>.tar.gz.sha256`. One line: the SHA-256 in
   hex, two spaces, and the archive name.
 
@@ -39,10 +48,10 @@ valid. The tag must be `v` and that version, and its commit must be on
 
 A pull request that changes a release file starts a dry run. A manual run of
 the workflow on `main` (`workflow_dispatch`) does the same. A dry run runs
-the jobs `prepare`, `npm-main`, `build` (four platforms), `crate`, and
-`scan`. It also runs the job `deps` (see "The dependency checks"). It runs
-`cargo publish --dry-run` and publishes nothing. It needs no environment and
-no registry account.
+the jobs `prepare`, `npm-main`, `notices`, `build` (four platforms),
+`crate`, and `scan`. It also runs the job `deps` (see "The dependency
+checks"). It runs `cargo publish --dry-run` and publishes nothing. It needs
+no environment and no registry account.
 
 The release files are `release.yml`, `scripts/release/`, `scripts/deps/`,
 `npm/`, `Cargo.toml`, `Cargo.lock`, `deny.toml`, and `rust-toolchain.toml`.
@@ -88,7 +97,8 @@ The job `release-tools` of `ci.yml` runs both on each pull request.
 Only the user pushes a `v*` tag, or a session on a TASK of the orchestrator
 that names the version. The jobs run in this order:
 
-1. `prepare`, `npm-main`, `build`, `crate`, `deps`, and `scan`: the dry run.
+1. `prepare`, `npm-main`, `notices`, `build`, `crate`, `deps`, and `scan`:
+   the dry run.
 2. `github-draft`: a draft GitHub Release with the 8 files.
 3. `crates-io`: `cargo publish` with trusted publishing.
 4. `npm`: the four platform packages, then the main package.
@@ -176,15 +186,17 @@ Before U6, chores does this list on the commit of the tag, and writes the
 result in `docs/release-readiness.md`:
 
 1. The run of `deps.yml` on the commit is green.
-2. The release dry run on the commit is green.
+2. The release dry run on the commit is green. It checks the archives, the
+   platform packages (`check-npm-tarball`), the crate (`check-crate-metadata`
+   and `check-crate-list`), and the notice file (`check-notices`).
 3. The security review: compare the commit with the reviewed commit
    (`git diff --stat <reviewed commit> <commit>`) for `src/`, `npm/`,
    `.github/workflows/`, `scripts/release/`, `scripts/deps/`, `deny.toml`,
    `Cargo.toml`, `Cargo.lock`, and `rust-toolchain.toml`. When a file changed,
    a reviewer reviews the change and adds a dated line to the record.
 4. Each issue with the labels `bug` and `use-period` is open, or closed as
-   completed by a commit on `main`, or closed as not planned with the label
-   `duplicate` or `invalid`.
+   `completed` by a merged pull request or a commit on `main`, or closed as
+   not planned with the label `duplicate` or `invalid`.
 
 A pull request that changes only `docs/release-readiness.md` can merge after
 the list. Then the files that differ between the commit and the new commit
