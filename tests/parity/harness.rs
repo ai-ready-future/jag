@@ -14,10 +14,12 @@ use std::io::{self, Read};
 use std::os::fd::OwnedFd;
 use std::path::{Path, PathBuf};
 use std::process::{Command, Stdio};
+use std::sync::Arc;
+use std::sync::atomic::{AtomicBool, Ordering};
 use std::thread::{self, JoinHandle};
 use std::time::{Duration, Instant};
 
-use rustix::fs::{Mode, OFlags};
+use rustix::fs::{Mode, OFlags, fcntl_getfl, fcntl_setfl};
 #[cfg(not(target_os = "linux"))]
 use rustix::io::{FdFlags, fcntl_setfd};
 use rustix::pty::{OpenptFlags, grantpt, openpt, ptsname, unlockpt};
@@ -198,6 +200,40 @@ fn read_all(mut source: impl Read + Send + 'static) -> JoinHandle<Result<Vec<u8>
     })
 }
 
+/// Read the master side of a pseudo terminal in a thread, until the program has
+/// exited and the queue is empty. The test keeps its own copy of the slave side
+/// open, so the master side never gives the end by itself. On macOS, the
+/// terminal can drop the output that is still in the queue when the last slave
+/// closes, and a short output (for example `2\n`) is gone when the program
+/// exits before the test reads. With the slave open, no output is dropped.
+fn read_pty(master: File, done: Arc<AtomicBool>) -> JoinHandle<Result<Vec<u8>, String>> {
+    thread::spawn(move || {
+        let mut master = master;
+        let mut data = Vec::new();
+        let mut buffer = [0u8; 8192];
+        loop {
+            // Read the flag first: a program that is done wrote all its bytes
+            // before the flag was set, so an empty queue after this is the end.
+            let finished = done.load(Ordering::Acquire);
+            match master.read(&mut buffer) {
+                Ok(0) => return Ok(data),
+                Ok(count) => data.extend_from_slice(&buffer[..count]),
+                Err(e) if e.kind() == io::ErrorKind::Interrupted => {}
+                Err(e) if e.kind() == io::ErrorKind::WouldBlock => {
+                    if finished {
+                        return Ok(data);
+                    }
+                    thread::sleep(Duration::from_millis(1));
+                }
+                Err(e) if e.raw_os_error() == Some(rustix::io::Errno::IO.raw_os_error()) => {
+                    return Ok(data);
+                }
+                Err(e) => return Err(e.to_string()),
+            }
+        }
+    })
+}
+
 /// Run one program with the fixed environment of ADR-0021: an empty
 /// environment, then `HOME`, `TERM=xterm-256color`, and the variables of the
 /// invocation. Stdin is `/dev/null` or the file of the invocation, never a
@@ -238,10 +274,17 @@ pub fn run(
     command.stderr(Stdio::piped());
 
     let mut master = None;
+    // The test keeps this copy of the slave side open until the end of the run.
+    let mut slave_copy = None;
     if mode == RunMode::Terminal {
         let (m, slave) = open_pty();
-        command.stdout(Stdio::from(slave));
+        let flags = fcntl_getfl(&m).expect("get the pty flags");
+        fcntl_setfl(&m, flags | OFlags::NONBLOCK).expect("make the pty master not block");
+        command.stdout(Stdio::from(
+            slave.try_clone().expect("copy the pty slave side"),
+        ));
         master = Some(m);
+        slave_copy = Some(slave);
     } else {
         command.stdout(Stdio::piped());
     }
@@ -249,12 +292,11 @@ pub fn run(
     let mut child = command
         .spawn()
         .map_err(|e| format!("start {}: {e}", program.display()))?;
-    // The command holds its own copy of the terminal side. Drop it, so that
-    // the master side sees the end when the program closes the terminal.
     drop(command);
 
+    let done = Arc::new(AtomicBool::new(false));
     let stdout_reader = match master {
-        Some(master) => read_all(File::from(master)),
+        Some(master) => read_pty(File::from(master), Arc::clone(&done)),
         None => read_all(child.stdout.take().expect("a stdout pipe")),
     };
     let stderr_reader = read_all(child.stderr.take().expect("a stderr pipe"));
@@ -266,6 +308,7 @@ pub fn run(
             None if start.elapsed() > TIME_LIMIT => {
                 let _ = child.kill();
                 let _ = child.wait();
+                done.store(true, Ordering::Release);
                 return Err(format!(
                     "the program ran for more than {} s and was stopped",
                     TIME_LIMIT.as_secs()
@@ -274,12 +317,14 @@ pub fn run(
             None => thread::sleep(Duration::from_millis(2)),
         }
     };
+    done.store(true, Ordering::Release);
     let stdout = stdout_reader
         .join()
         .map_err(|_| "the stdout reader failed".to_string())??;
     let stderr = stderr_reader
         .join()
         .map_err(|_| "the stderr reader failed".to_string())??;
+    drop(slave_copy);
     Ok(Run {
         stdout,
         stderr,
