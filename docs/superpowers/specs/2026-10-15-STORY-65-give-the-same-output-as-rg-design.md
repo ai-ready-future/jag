@@ -412,15 +412,16 @@ changes the result of that case to `rg`. This is so for `unknown-option` and
 is `rg` (verifier-1 on PR #135, comment 6203457295; reviewer-1 on PR #132,
 comment 6204222618).
 
-Test PR #132 holds 69 more cases than this table, so `cases.yaml` holds 149
-cases: the test scenarios S1 to S13 of verifier-1 (68 cases, commit `62a3dcb`)
-and `two-e-path-sorted` (the variant of `two-e-path` with `--sort path`,
-commit `8661273`). The scenario S14 (the cases that need a file system set-up:
-17 runs in Linux, 16 in macOS) is in `tests/rg_parity_fs.rs`, not in
-`cases.yaml`, and it waits for the card on ADR-0021. Their source: verifier-1
+Test PR #132 holds 70 more cases than this table, so `cases.yaml` holds 150
+cases: the test scenarios S1 to S13 of verifier-1 (68 cases, commit `62a3dcb`),
+`two-e-path-sorted` (the variant of `two-e-path` with `--sort path`,
+commit `8661273`), and `hidden-folder-path` (commit `e2b6ebd`, ADR-0023). The
+scenario S14 (the cases that need a file system set-up that git cannot store:
+16 runs on Linux, 15 on macOS) is in `tests/rg_parity_fs.rs`, not in
+`cases.yaml` (ADR-0023, accepted). Their source: verifier-1
 on PR #135, comment 6203457295 ("about 140 runs that the test set does not
 have"). Decision 25 names the cases of this table only. The reviewer check of
-CRITERION-110 compares this table with `cases.yaml`. The 69 more cases are
+CRITERION-110 compares this table with `cases.yaml`. The 70 more cases are
 allowed, and each one has the result `rg`.
 
 The stored bytes of the case `version` hold the version of `Cargo.toml`.

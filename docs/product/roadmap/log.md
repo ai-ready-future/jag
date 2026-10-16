@@ -1,5 +1,12 @@
 # Log
 
+## 2026-10-16
+* **Plan**: [FEATURE-23](features/FEATURE-23.md) done after code merge (standing done approval, Q-au): STORY-65 and STORY-66 (test PR #132, a15526f, verifier-1 and reviewer-1 approve) and FEATURE-23 are done; EPIC-04 is done because its 6 features are done; drift --all is empty, so no trace accept is necessary; regen moved no blocked item (FEATURE-18 stays blocked by FEATURE-22); the STORY-65 spec now says 70 more cases, 150 cases, S14 with 16 runs on Linux and 15 on macOS, and ADR-0023 accepted (reviewer-1 should-fix); CRITERION-55 says `--sort` with `path` or `none` (DECISION-34, card C option 1), by agent:planner, at 2026-10-16T02:15:46Z
+* **State**: [EPIC-04](epics/EPIC-04.md) ready -> done, by human:404pilo, at 2026-10-16T02:15:38Z
+* **State**: [FEATURE-23](features/FEATURE-23.md) backlog -> done, by human:404pilo, at 2026-10-16T02:15:29Z
+* **State**: [STORY-66](stories/STORY-66.md) ready -> done, by human:404pilo, at 2026-10-16T02:15:27Z
+* **State**: [STORY-65](stories/STORY-65.md) ready -> done, by human:404pilo, at 2026-10-16T02:15:27Z
+
 ## 2026-10-15
 * **Sync**: [STORY-42](stories/STORY-42.md) pushed to GitHub, by system:github, at 2026-10-15T23:41:15Z
 * **Sync**: [STORY-38](stories/STORY-38.md) pushed to GitHub, by system:github, at 2026-10-15T23:41:15Z
