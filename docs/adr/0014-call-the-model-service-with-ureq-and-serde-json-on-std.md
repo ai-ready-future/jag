@@ -5,6 +5,7 @@ description: Open this when you add or replace the HTTP or JSON crate, add an as
 area: building-blocks
 status: accepted
 date: 2026-10-13
+amended: 2026-10-15
 supersedes: null
 superseded_by: null
 amends: null
@@ -33,7 +34,7 @@ C-scorer calls the TypeSafe API, or an AI gateway, over HTTPS with JSON (IF-1, I
 
 ## Why
 
-6 calls in parallel need only 6 threads, so an async runtime gives no gain. A blocking client keeps the code short, and the tests do not need a runtime. `ureq` has few dependencies, so the binary stays small and builds fast. rustls needs no OpenSSL on the machine, so the static binary of 0010-ship-jag-on-github-releases-crates-io-and-npm.md works on each platform. `ureq` reads the proxy settings from the environment by default, which a gateway setup can need. The certificate store of the machine holds the company certificates, so a company gateway (IF-2) or a company proxy that checks TLS works with no jag setting.
+6 calls in parallel need only 6 threads, so an async runtime gives no gain. A blocking client keeps the code short, and the tests do not need a runtime. `ureq` has few dependencies, so the binary stays small and builds fast. rustls needs no OpenSSL on the machine, so the static binary of 0010-ship-jag-on-github-releases-crates-io-and-npm.md works on each platform. `ureq` reads the proxy settings from the environment by default, which a gateway setup can need. jag keeps this only for an `https` base URL. The certificate store of the machine holds the company certificates, so a company gateway (IF-2) or a company proxy that checks TLS works with no jag setting.
 
 ## Alternatives considered
 
@@ -47,3 +48,4 @@ C-scorer calls the TypeSafe API, or an AI gateway, over HTTPS with JSON (IF-1, I
 - A new HTTP or JSON crate needs a new ADR.
 - A machine with no certificate store, for example a minimal container, must install the CA certificates of the system before jag can connect.
 - `Cargo.lock` pins the rustls crypto provider, so a change of provider shows in a pull request.
+- A base URL with `http` (only for this machine, FEATURE-04 spec decision 29) gets an agent with no proxy (`.proxy(None)`). So a proxy variable cannot send the key on with no TLS (issue #160).
