@@ -355,7 +355,10 @@ jobs:
           fi
           python3 -I scripts/release/release.py texts --text "$RUNNER_TEMP/scan/text" --index "$RUNNER_TEMP/scan/index" "${files[@]}"
 
+      # PRIVATE_PATTERNS reaches only this step, and only for a tag or for a
+      # manual run on main. A dry run of a pull request does not get it.
       - name: Scan the packages
+        if: github.event_name == 'push' || (github.event_name == 'workflow_dispatch' && github.ref == 'refs/heads/main')
         env:
           PRIVATE_PATTERNS: ${{ secrets.PRIVATE_PATTERNS }}
           GITLEAKS: ${{ runner.temp }}/gitleaks/gitleaks
