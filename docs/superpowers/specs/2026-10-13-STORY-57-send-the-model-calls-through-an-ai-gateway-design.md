@@ -66,7 +66,7 @@ key for a gateway: `JAG_GATEWAY_API_KEY` and `config.gateway-api-key`
 | 20 | `--check` | The same options, settings, address rule, route, and key of the route as a search. A bad value stops the check before the first item (exit 2). A file error of the settings read goes to item 1 (see "The readiness check"). The item texts stay | FEATURE-02 spec decision 17 and "Out of scope"; 0017 Consequences; the check shows what a search does (inferred); item 1 shows a file error of the settings read (inferred: with no route, jag cannot find the key, and FEATURE-02 shows a file error of the key read on item 1) |
 | 21 | Structured output | With `--json`, a failure of this spec goes in the error document, with the same cause and fix. No new field | FEATURE-11 spec decisions 9 and 21 |
 | 22 | Usage line | The search lines of FEATURE-12 do not change, because `[OPTIONS]` holds the two options. The check line gets `[--base-url URL] [--model NAME]`. The code that merges later keeps the lines of each merged feature | FEATURE-12 spec decision 22; 0018-take-the-question-only-from-the-ask-option.md; FEATURE-13 spec decision 31; FEATURE-11 spec "The option (C-cli)" (the same merge rule) |
-| 23 | TLS and proxy | No new setting. The certificate store of the machine and the proxy variables, as now | 0014-call-the-model-service-with-ureq-and-serde-json-on-std.md |
+| 23 | TLS and proxy | No new setting. The certificate store of the machine, as now. The proxy variables, as now, only for a base URL that starts with `https://`. A base URL with `http` (allowed only for this machine) uses no proxy, so a proxy never gets the gateway key with no TLS | 0014-call-the-model-service-with-ureq-and-serde-json-on-std.md. Security issue #160, PR #169 (`Client::new` sets `.proxy(None)` unless the base URL starts with `https://`) |
 | 24 | Crates | No new crate | 0012-use-clap-serde-saphyr-and-rpassword-as-the-outside-crates.md; 0014-call-the-model-service-with-ureq-and-serde-json-on-std.md |
 | 25 | Docs | The README gets the section "Use an AI gateway" | FEATURE-11 spec decision 29 (a README section for each feature that the user sees) (inferred) |
 | 26 | Story state | `ready` in the spec PR: the spec is in the PR, FEATURE-04 (the only feature in `blocked_by`) is `done`, and the ASK has its answer (human:404pilo, 2026-10-14) | docs/adlc.md rule 11 |
@@ -645,6 +645,7 @@ The texts of each route:
 | After the write | `Stored the key in <path>.` (as now) | `Stored the gateway key in <path>.` |
 | `--forget-key` with no key of the route | `No stored key in <path>.` (as now) | `No stored gateway key in <path>.` |
 | `--forget-key` after the removal | `Removed the stored key from <path>.` (as now) | `Removed the stored gateway key from <path>.` |
+| `--forget-key` removes the stale temporary copies | no line of its own; a failed removal gives `KeyFileWrite`, exit 3, with `jag: jag could not change <folder> (<kind>).` and `Check that you can write to the folder.` (issue #162) | the same |
 | The note when a key variable of the route is set | `Note: <name> is set, and it wins over the stored key.` and `Note: <name> is still set, so jag still has a key.` (as now) | the same texts, with `JAG_GATEWAY_API_KEY` |
 
 `--setup` runs these steps:
@@ -667,10 +668,20 @@ The texts of each route:
 1. No home: `No stored key: HOME is not set.`, as now.
 2. `load_for_change`, as now.
 3. The route, from `change_route`. A bad value gives exit 2.
-4. No file, or no key of the route in the file: the message, exit 0.
+4. No file, or no key of the route in the file: the message, then step 7,
+   then exit 0.
 5. jag clears the field of the route. When no value is left, jag removes the
    file, as now. Else jag writes the file again with `write_key_file`.
-6. The message, and the note from `env.set_key_variable(route)`.
+   A successful `write_key_file` also removes the stale temporary copies
+   (STORY-01 spec, `write_key_file` step 6).
+6. The message.
+7. jag removes each regular file in the jag config folder whose name starts
+   with `config.yml.tmp-`. jag does not follow a link. A link, a folder, and
+   each other file stay. A failed removal gives `KeyFileWrite`, exit 3
+   (STORY-01 spec decision 9), also after the message "No stored key in
+   <path>." or "No stored gateway key in <path>.". This step prints no line
+   of its own (security issue #162, PR #169).
+8. The note from `env.set_key_variable(route)`.
 
 To store or remove the key of the other route, the user sets
 `JAG_BASE_URL` for one command. For example,
