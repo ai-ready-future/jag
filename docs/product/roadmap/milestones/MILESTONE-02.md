@@ -12,13 +12,11 @@ traces:
 - to: prd:/scope/SCOPE-03.md
   hash: e57d07
 - to: prd:/capabilities/CAPABILITY-11.md
-  hash: 0ab6ec
+  hash: 05fecd
 - to: prd:/capabilities/CAPABILITY-06.md
   hash: 79d5d3
 - to: prd:/scope/SCOPE-10.md
   hash: 1a7d4e
-drifted:
-- prd:/capabilities/CAPABILITY-11.md
 ---
 
 # MILESTONE-02: Make it good
