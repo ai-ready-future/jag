@@ -25,6 +25,7 @@ The limit protects the context of the agent that reads the results. It is separa
 - addresses: [NEED-02: Search output fills the agent context with noise](../needs/NEED-02.md)
 - addresses: [NEED-14: A sub-agent or a vector index adds cost and can still miss](../needs/NEED-14.md)
 - depends on: [CAPABILITY-02: Term and question search](CAPABILITY-02.md)
+- depended on by: [CAPABILITY-11: Agent instructions to install or copy](CAPABILITY-11.md)
 - subject of: [DECISION-10: A result is a matching line with the lines around it](../decisions/DECISION-10.md)
 - subject of: [DECISION-17: With --ask or --json, jag cuts a very long line and marks the cut](../decisions/DECISION-17.md)
 - subject of: [DECISION-19: The size limit counts characters](../decisions/DECISION-19.md)

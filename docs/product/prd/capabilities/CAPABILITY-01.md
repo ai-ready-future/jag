@@ -23,6 +23,7 @@ When the key is missing or out of credit, or the model service is down, jag fail
 - addresses: [JOURNEY-01: Agent builder fixes a wrong answer](../journeys/JOURNEY-01.md)
 - addresses: [NEED-03: Drop-in search with no setup](../needs/NEED-03.md)
 - depended on by: [CAPABILITY-02: Term and question search](CAPABILITY-02.md)
+- depended on by: [CAPABILITY-11: Agent instructions to install or copy](CAPABILITY-11.md)
 - constrained by: [CONSTRAINT-04: jag tries again one time before it reports the service as down](../constraints/CONSTRAINT-04.md)
 - constrained by: [CONSTRAINT-07: jag fails within 2 × timeout + retry wait when the model service is down](../constraints/CONSTRAINT-07.md)
 - subject of: [DECISION-01: jag fails clearly when the model is not available](../decisions/DECISION-01.md)

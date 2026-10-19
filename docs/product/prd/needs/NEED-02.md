@@ -21,5 +21,6 @@ Keyword search output fills the context window of the agent. The agent loses foc
 - addressed by: [CAPABILITY-04: Limit on the text that jag returns](../capabilities/CAPABILITY-04.md)
 - addressed by: [CAPABILITY-07: Show the cost of a search](../capabilities/CAPABILITY-07.md)
 - addressed by: [CAPABILITY-08: A repeated search costs nothing](../capabilities/CAPABILITY-08.md)
+- addressed by: [CAPABILITY-11: Agent instructions to install or copy](../capabilities/CAPABILITY-11.md)
 - measured by: [METRIC-02: Context saved](../metrics/METRIC-02.md)
 <!-- LINKS:END -->

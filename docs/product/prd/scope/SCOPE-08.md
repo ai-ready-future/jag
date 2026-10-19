@@ -9,3 +9,10 @@ kind: non-goal
 # SCOPE-08: jag has no GUI, web app, or editor plugin
 
 jag is a command-line tool only. It has no desktop app, no web page, and no editor plugin.
+
+<!-- LINKS:START (generated, do not edit) -->
+
+## Links
+
+- subject of: [DECISION-53: An agent skill is not an editor plugin](../decisions/DECISION-53.md)
+<!-- LINKS:END -->

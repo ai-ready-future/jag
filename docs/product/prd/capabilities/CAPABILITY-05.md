@@ -23,6 +23,7 @@ jag gives readable text to a person at the shell. On request, jag gives structur
 - addresses: [JOURNEY-01: Agent builder fixes a wrong answer](../journeys/JOURNEY-01.md)
 - addresses: [JOURNEY-02: A person asks a question at the shell](../journeys/JOURNEY-02.md)
 - depends on: [CAPABILITY-02: Term and question search](CAPABILITY-02.md)
+- depended on by: [CAPABILITY-11: Agent instructions to install or copy](CAPABILITY-11.md)
 - constrained by: [CONSTRAINT-05: The structured form only adds fields in one major version](../constraints/CONSTRAINT-05.md)
 - subject of: [DECISION-07: Errors are structured in structured output mode](../decisions/DECISION-07.md)
 - subject of: [DECISION-27: Only an explicit option turns on structured output](../decisions/DECISION-27.md)
