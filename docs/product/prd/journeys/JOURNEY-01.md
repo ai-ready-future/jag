@@ -36,7 +36,7 @@ The agent answers correctly over many runs, with no more tuning of the search in
 - serves: [PERSONA-01: Agent builder](../personas/PERSONA-01.md)
 - addressed by: [CAPABILITY-01: Guided key setup and health check](../capabilities/CAPABILITY-01.md)
 - addressed by: [CAPABILITY-05: Text output for people and structured output for agents](../capabilities/CAPABILITY-05.md)
-- addressed by: [CAPABILITY-11: Agent instructions to copy](../capabilities/CAPABILITY-11.md)
+- addressed by: [CAPABILITY-11: Agent instructions to install or copy](../capabilities/CAPABILITY-11.md)
 - addressed by: [CAPABILITY-12: Measure jag on your own questions](../capabilities/CAPABILITY-12.md)
 - measured by: [METRIC-02: Context saved](../metrics/METRIC-02.md)
 - measured by: [METRIC-04: Time to first result](../metrics/METRIC-04.md)

@@ -1,5 +1,9 @@
 # Log
 
+## 2026-10-19
+
+* **Plan**: [MILESTONE-02](milestones/MILESTONE-02.md) trace to CAPABILITY-11 accepted after the user's own `/prd:explore` answers changed CAPABILITY-11 (skill plus snippet, PR #175); MILESTONE-02 is not done and no feature traces CAPABILITY-11 yet; `github pull` failed on a prd 4.4.0 bug, so this accept ran with no GitHub sync, by human:404pilo, at 2026-10-19T11:40:00Z
+
 ## 2026-10-16
 * **Sync**: [STORY-63](stories/STORY-63.md) pushed to GitHub, by system:github, at 2026-10-16T02:54:54Z
 * **Plan**: [STORY-63](stories/STORY-63.md) done by FEATURE-22 spec decision 21 (standing done approval, Q-au): steps 1, 2, and 4 are complete (build PR #146; record PR #150 with deps.yml green on main; security review record PR #163, 8066c51, with no open critical or high finding and 1 medium and 5 low findings, each with an open `security` issue, #157 to #162); STORY-62 waits for the use period, so FEATURE-22 stays backlog; drift --all is empty; regen moved no blocked item; the FEATURE-18 spec (STORY-48 design) now gives `PRIVATE_PATTERNS` to the job `scan` only on the push of a tag and on `workflow_dispatch` on `main` (decisions 16 and 28, security issue #161, architect choice (a), no ADR), by agent:planner, at 2026-10-16T02:48:22Z

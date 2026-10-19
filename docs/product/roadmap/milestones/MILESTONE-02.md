@@ -12,7 +12,7 @@ traces:
 - to: prd:/scope/SCOPE-03.md
   hash: e57d07
 - to: prd:/capabilities/CAPABILITY-11.md
-  hash: 0ab6ec
+  hash: 05fecd
 - to: prd:/capabilities/CAPABILITY-06.md
   hash: 79d5d3
 - to: prd:/scope/SCOPE-10.md
@@ -51,7 +51,7 @@ This milestone holds the capabilities that make jag better to use and easier to 
 
 - traces: [SCOPE-02: Release 2: trust and cost](../../prd/scope/SCOPE-02.md)
 - traces: [SCOPE-03: Release 3: question without a term](../../prd/scope/SCOPE-03.md)
-- traces: [CAPABILITY-11: Agent instructions to copy](../../prd/capabilities/CAPABILITY-11.md)
+- traces: [CAPABILITY-11: Agent instructions to install or copy](../../prd/capabilities/CAPABILITY-11.md)
 - traces: [CAPABILITY-06: Feels like grep](../../prd/capabilities/CAPABILITY-06.md)
 - traces: [SCOPE-10: The held-out score confirms the gain over grep](../../prd/scope/SCOPE-10.md)
 - item of: [EPIC-04: A shell user keeps their habits](../epics/EPIC-04.md)

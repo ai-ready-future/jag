@@ -1,5 +1,9 @@
 # Log
 
+## 2026-10-19
+
+* **Save**: [product](product.md) capabilities: CAPABILITY-11, CONSTRAINT-08, DECISION-53, by human:Pilo, at 2026-10-19T11:34:44Z
+
 ## 2026-10-08
 
 * **Save**: [product](product.md) capabilities (plan Make it work): DECISION-47, DECISION-48, DECISION-49, DECISION-50, QUESTION-03, by human:Pilo, at 2026-10-08T13:42:10Z

@@ -18,6 +18,6 @@ After a wrong answer, the agent builder tells the agent to search better or to r
 ## Links
 
 - serves: [PERSONA-01: Agent builder](../personas/PERSONA-01.md)
-- addressed by: [CAPABILITY-11: Agent instructions to copy](../capabilities/CAPABILITY-11.md)
+- addressed by: [CAPABILITY-11: Agent instructions to install or copy](../capabilities/CAPABILITY-11.md)
 - addressed by: [CAPABILITY-12: Measure jag on your own questions](../capabilities/CAPABILITY-12.md)
 <!-- LINKS:END -->

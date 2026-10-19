@@ -18,5 +18,5 @@ The agent builder gives their agent a way to find facts in a folder of text, suc
 ## Links
 
 - serves: [PERSONA-01: Agent builder](../personas/PERSONA-01.md)
-- addressed by: [CAPABILITY-11: Agent instructions to copy](../capabilities/CAPABILITY-11.md)
+- addressed by: [CAPABILITY-11: Agent instructions to install or copy](../capabilities/CAPABILITY-11.md)
 <!-- LINKS:END -->

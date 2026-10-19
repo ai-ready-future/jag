@@ -52,3 +52,4 @@
 * [DECISION-50: The -A, -B, and -C options set the context lines of a result](DECISION-50.md) - The grep context options set the lines around each match; with no option, jag uses its default.
 * [DECISION-51: jag goes public as a new repository with a clean history](DECISION-51.md) - A new public repository gets a clean history. The private repository stays private as ai-ready-future/jag-private, and its history is not rewritten.
 * [DECISION-52: The failure limit comes from the timeout and the retry wait](DECISION-52.md) - When the model service does not answer, the time limit is 2 × the timeout + the retry wait, not a fixed number.
+* [DECISION-53: An agent skill is not an editor plugin](DECISION-53.md) - The installable jag skill is text for an agent, so it is outside the non-goal 'no GUI, web app, or editor plugin'; SCOPE-08 does not change.
