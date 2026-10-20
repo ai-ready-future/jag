@@ -35,5 +35,6 @@ The user gives a folder, a term, and a question, and gets ranked lines that show
 - child: [FEATURE-05: Search a folder as rg does](../features/FEATURE-05.md)
 - child: [FEATURE-06: Cost limit on scoring](../features/FEATURE-06.md)
 - child: [FEATURE-08: File, line, and snippet for each result](../features/FEATURE-08.md)
+- child: [FEATURE-27: README examples for people](../features/FEATURE-27.md)
 - child: [STORY-45: Run the held-out evaluation before release](../stories/STORY-45.md)
 <!-- LINKS:END -->
