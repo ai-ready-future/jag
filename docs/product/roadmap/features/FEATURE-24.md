@@ -4,7 +4,8 @@ title: Install the jag skill with one README command
 description: The agent builder runs one command from the README, and the jag skill
   teaches the agent the four behaviors and what to tell the user when jag fails.
 status: draft
-state: ready
+state: done
+actual_end_date: '2026-10-20'
 github:
   number: 178
   node_id: I_kwDOVKMnL88AAAABYgDL6A
@@ -31,10 +32,10 @@ The README gives one command that installs the jag skill into each agent that th
 
 | Item | State | Progress | Owner | Blocked by | Drift |
 | --- | --- | --- | --- | --- | --- |
-| [STORY-68: Install the skill with one command](../stories/STORY-68.md) | ready | - | - | - | - |
-| [STORY-69: The agent uses jag in place of rg and sets a limit](../stories/STORY-69.md) | ready | - | - | - | - |
-| [STORY-70: The agent reads the structured output](../stories/STORY-70.md) | ready | - | - | - | - |
-| [STORY-71: The agent tells the user the cause and the fix](../stories/STORY-71.md) | ready | - | - | - | - |
+| [STORY-68: Install the skill with one command](../stories/STORY-68.md) | done | - | - | - | - |
+| [STORY-69: The agent uses jag in place of rg and sets a limit](../stories/STORY-69.md) | done | - | - | - | - |
+| [STORY-70: The agent reads the structured output](../stories/STORY-70.md) | done | - | - | - | - |
+| [STORY-71: The agent tells the user the cause and the fix](../stories/STORY-71.md) | done | - | - | - | - |
 <!-- STATUS:END -->
 
 <!-- LINKS:START (generated, do not edit) -->

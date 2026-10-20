@@ -4,7 +4,7 @@ title: Copy the same teaching as a snippet
 description: For an agent that can't install a skill, the agent builder copies a snippet
   that holds the same teaching as the jag skill.
 status: draft
-state: blocked
+state: ready
 github:
   number: 179
   node_id: I_kwDOVKMnL88AAAABYgDQoQ

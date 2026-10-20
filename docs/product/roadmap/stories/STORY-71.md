@@ -5,7 +5,8 @@ description: As an agent builder (PERSONA-01), I want my agent to give the user 
   cause and the fix that jag writes when jag cannot run, so that the user can fix
   it.
 status: draft
-state: ready
+state: done
+actual_end_date: '2026-10-20'
 github:
   number: 184
   node_id: I_kwDOVKMnL88AAAABYgDuNw

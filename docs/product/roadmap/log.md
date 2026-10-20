@@ -1,6 +1,13 @@
 # Log
 
 ## 2026-10-20
+* **State**: [FEATURE-26](features/FEATURE-26.md) blocked -> ready, by system:regen, at 2026-10-20T11:56:34Z
+* **State**: [FEATURE-25](features/FEATURE-25.md) blocked -> ready, by system:regen, at 2026-10-20T11:56:34Z
+* **State**: [FEATURE-24](features/FEATURE-24.md) ready -> done, by human:404pilo, at 2026-10-20T11:56:33Z
+* **State**: [STORY-71](stories/STORY-71.md) ready -> done, by human:404pilo, at 2026-10-20T11:56:33Z
+* **State**: [STORY-70](stories/STORY-70.md) ready -> done, by human:404pilo, at 2026-10-20T11:56:33Z
+* **State**: [STORY-69](stories/STORY-69.md) ready -> done, by human:404pilo, at 2026-10-20T11:56:33Z
+* **State**: [STORY-68](stories/STORY-68.md) ready -> done, by human:404pilo, at 2026-10-20T11:56:33Z
 * **Plan**: [STORY-49](stories/STORY-49.md) user answer (human:404pilo, hitl card on the crates.io name, 2026-10-20: "Rename to jag-cli"): CRITERION-79 now names the crates.io package `jag-cli` in place of `jag-grep`; the command stays `jag` and the npm package stays `@airf/jag`; this is a name, not a rule, so there is no decision page; the ADRs and the code change later (architect, implementer), by agent:planner, at 2026-10-20T11:51:39Z
 * **Sync**: [STORY-69](stories/STORY-69.md) pushed to GitHub, by system:github, at 2026-10-20T11:32:39Z
 * **Sync**: [FEATURE-24](features/FEATURE-24.md) pushed to GitHub, by system:github, at 2026-10-20T11:32:39Z

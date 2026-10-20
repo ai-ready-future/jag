@@ -4,7 +4,8 @@ title: The agent reads the structured output
 description: As an agent builder (PERSONA-01), I want my agent to read the structured
   output and the failures of jag, so that it uses the file and line of each result.
 status: draft
-state: ready
+state: done
+actual_end_date: '2026-10-20'
 github:
   number: 183
   node_id: I_kwDOVKMnL88AAAABYgDoXQ
