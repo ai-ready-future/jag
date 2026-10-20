@@ -1,9 +1,5 @@
 # features
 
-## MILESTONE-01: Make it work
-
-* [FEATURE-27: README examples for people](FEATURE-27.md) - The README gives worked examples that show a person how to search with jag at the shell, with the command to copy and what jag shows.
-
 ## MILESTONE-02: Make it good
 
 * [FEATURE-18: Install jag from GitHub Releases, crates.io, or npm](FEATURE-18.md) - One version tag builds the jag binary for four platforms and publishes it on GitHub Releases, crates.io, and npm with the same version (ADR-0010).

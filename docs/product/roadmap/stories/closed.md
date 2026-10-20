@@ -36,6 +36,7 @@ generated:
 * [STORY-31: Get a complete structured output with notices and errors](STORY-31.md) - As an agent builder (PERSONA-01), I want structured output to hold each notice and each error inside the structure, so that my agent parses every outcome in one form.
 * [STORY-32: Rely on a stable structured form](STORY-32.md) - As an agent builder (PERSONA-01), I want the structured output to show its form version and to only add fields in one major version, so that my agent keeps working when jag updates.
 * [STORY-46: Fail a pull request that adds private data](STORY-46.md) - As an agent builder (PERSONA-01), I want each pull request checked for private data, so that the public repository never holds keys, case content, private evaluation data, or internal project names.
+* [STORY-76: Learn jag from worked examples in the README](STORY-76.md) - As a person at the shell (PERSONA-02, PERSONA-03, PERSONA-04), I want worked examples in the README, so that I can copy a command and see what jag shows before I read each option.
 
 ## MILESTONE-02: Make it good
 
