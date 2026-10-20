@@ -28,7 +28,7 @@ As an agent builder (PERSONA-01), I want my agent to use jag in place of rg and 
 | Item | State | Progress | Owner | Blocked by | Drift |
 | --- | --- | --- | --- | --- | --- |
 | [CRITERION-117: The agent runs jag in place of rg](../criteria/CRITERION-117.md) | - | - | - | - | - |
-| [CRITERION-118: The agent writes a broad term and a clear question](../criteria/CRITERION-118.md) | - | - | - | - | - |
+| [CRITERION-118: With --ask, the agent writes a broad term and a clear question](../criteria/CRITERION-118.md) | - | - | - | - | - |
 | [CRITERION-119: The agent sets a limit](../criteria/CRITERION-119.md) | - | - | - | - | - |
 <!-- STATUS:END -->
 
@@ -39,6 +39,6 @@ As an agent builder (PERSONA-01), I want my agent to use jag in place of rg and 
 - parent: [FEATURE-24: Install the jag skill with one README command](../features/FEATURE-24.md)
 - milestone: [MILESTONE-02: Make it good](../milestones/MILESTONE-02.md)
 - criterion or run of: [CRITERION-117: The agent runs jag in place of rg](../criteria/CRITERION-117.md)
-- criterion or run of: [CRITERION-118: The agent writes a broad term and a clear question](../criteria/CRITERION-118.md)
+- criterion or run of: [CRITERION-118: With --ask, the agent writes a broad term and a clear question](../criteria/CRITERION-118.md)
 - criterion or run of: [CRITERION-119: The agent sets a limit](../criteria/CRITERION-119.md)
 <!-- LINKS:END -->

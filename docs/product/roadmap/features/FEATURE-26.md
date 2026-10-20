@@ -19,7 +19,7 @@ blocked_by:
 milestone: /milestones/MILESTONE-02.md
 traces:
 - to: prd:/capabilities/CAPABILITY-11.md
-  hash: 6c96fe
+  hash: 6a8a68
 ---
 
 # FEATURE-26: Prove that an agent with the skill uses jag well

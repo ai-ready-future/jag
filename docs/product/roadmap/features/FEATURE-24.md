@@ -16,14 +16,14 @@ parent: /epics/EPIC-06.md
 milestone: /milestones/MILESTONE-02.md
 traces:
 - to: prd:/capabilities/CAPABILITY-11.md
-  hash: 6c96fe
+  hash: 6a8a68
 - to: prd:/constraints/CONSTRAINT-08.md
   hash: 26d3ad
 ---
 
 # FEATURE-24: Install the jag skill with one README command
 
-The README gives one command that installs the jag skill into each agent that the install command supports, such as Claude Code. The README installs the program first and the skill second. After the install, the agent uses jag in place of rg, writes a broad term and a clear question in `--ask`, sets a limit on the text that jag returns, and reads the structured output and the failures. If jag is not installed, the key is not set, or the model service is down, the agent gives the user the cause and the fix that jag writes. The skill says nothing about other tools.
+The README gives one command that installs the jag skill into each agent that the install command supports, such as Claude Code. The README installs the program first and the skill second. After the install, the agent uses jag in place of rg, knows that `--ask` exists and decides when to use it, writes a broad term and a clear question when it uses `--ask`, sets a limit on the text that jag returns, and reads the structured output and the failures. If jag is not installed, the key is not set, or the model service is down, the agent gives the user the cause and the fix that jag writes. The skill says nothing about other tools.
 
 <!-- STATUS:START (generated, do not edit) -->
 
