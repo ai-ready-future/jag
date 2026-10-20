@@ -4,7 +4,8 @@ title: README examples for people
 description: The README gives worked examples that show a person how to search with
   jag at the shell, with the command to copy and what jag shows.
 status: draft
-state: ready
+state: done
+actual_end_date: '2026-10-20'
 github:
   number: 194
   node_id: I_kwDOVKMnL88AAAABYg3i0g
@@ -31,7 +32,7 @@ Source: the user, in the hitl card on ADR-0025, 2026-10-20: "We need some exampl
 
 | Item | State | Progress | Owner | Blocked by | Drift |
 | --- | --- | --- | --- | --- | --- |
-| [STORY-76: Learn jag from worked examples in the README](../stories/STORY-76.md) | ready | - | - | - | - |
+| [STORY-76: Learn jag from worked examples in the README](../stories/STORY-76.md) | done | - | - | - | - |
 <!-- STATUS:END -->
 
 <!-- LINKS:START (generated, do not edit) -->
