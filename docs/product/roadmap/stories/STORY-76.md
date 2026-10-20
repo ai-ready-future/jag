@@ -5,7 +5,7 @@ description: As a person at the shell (PERSONA-02, PERSONA-03, PERSONA-04), I wa
   worked examples in the README, so that I can copy a command and see what jag shows
   before I read each option.
 status: draft
-state: backlog
+state: ready
 github:
   number: 195
   node_id: I_kwDOVKMnL88AAAABYg3oBg
@@ -13,6 +13,7 @@ github:
   pushed_hash: 4b4319
   synced:
     state: backlog
+spec: docs/superpowers/specs/2026-10-20-STORY-76-readme-examples-for-people-design.md
 parent: /features/FEATURE-27.md
 milestone: /milestones/MILESTONE-01.md
 ---
