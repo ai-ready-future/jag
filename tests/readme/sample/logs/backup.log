@@ -1,0 +1,54 @@
+02:01:00 copy of volume 1 started
+02:01:10 copied 10 percent of volume 1
+02:01:20 copied 40 percent of volume 1
+02:01:30 copied 70 percent of volume 1
+02:01:40 error 1: the backup disk answered too slowly
+02:01:41 error 1: the copy of volume 1 was cut off
+02:01:50 copy of volume 1 started again
+02:01:55 copied 100 percent of volume 1
+02:01:59 check of volume 1 passed
+02:02:00 copy of volume 2 started
+02:02:10 copied 10 percent of volume 2
+02:02:20 copied 40 percent of volume 2
+02:02:30 copied 70 percent of volume 2
+02:02:40 error 2: the backup disk answered too slowly
+02:02:41 error 2: the copy of volume 2 was cut off
+02:02:50 copy of volume 2 started again
+02:02:55 copied 100 percent of volume 2
+02:02:59 check of volume 2 passed
+02:03:00 copy of volume 3 started
+02:03:10 copied 10 percent of volume 3
+02:03:20 copied 40 percent of volume 3
+02:03:30 copied 70 percent of volume 3
+02:03:40 error 3: the backup disk answered too slowly
+02:03:41 error 3: the copy of volume 3 was cut off
+02:03:50 copy of volume 3 started again
+02:03:55 copied 100 percent of volume 3
+02:03:59 check of volume 3 passed
+02:04:00 copy of volume 4 started
+02:04:10 copied 10 percent of volume 4
+02:04:20 copied 40 percent of volume 4
+02:04:30 copied 70 percent of volume 4
+02:04:40 error 4: the backup disk answered too slowly
+02:04:41 error 4: the copy of volume 4 was cut off
+02:04:50 copy of volume 4 started again
+02:04:55 copied 100 percent of volume 4
+02:04:59 check of volume 4 passed
+02:05:00 copy of volume 5 started
+02:05:10 copied 10 percent of volume 5
+02:05:20 copied 40 percent of volume 5
+02:05:30 copied 70 percent of volume 5
+02:05:40 error 5: the backup disk answered too slowly
+02:05:41 error 5: the copy of volume 5 was cut off
+02:05:50 copy of volume 5 started again
+02:05:55 copied 100 percent of volume 5
+02:05:59 check of volume 5 passed
+02:06:00 copy of volume 6 started
+02:06:10 copied 10 percent of volume 6
+02:06:20 copied 40 percent of volume 6
+02:06:30 copied 70 percent of volume 6
+02:06:40 error 6: the backup disk answered too slowly
+02:06:41 error 6: the copy of volume 6 was cut off
+02:06:50 copy of volume 6 started again
+02:06:55 copied 100 percent of volume 6
+02:06:59 check of volume 6 passed
