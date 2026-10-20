@@ -1,6 +1,8 @@
 # Log
 
 ## 2026-10-20
+* **State**: [STORY-75](stories/STORY-75.md) backlog -> ready, by human:404pilo, at 2026-10-20T14:44:09Z
+* **State**: [STORY-74](stories/STORY-74.md) backlog -> ready, by human:404pilo, at 2026-10-20T14:44:08Z
 * **Sync**: [STORY-73](stories/STORY-73.md) pushed to GitHub, by system:github, at 2026-10-20T12:50:54Z
 * **Sync**: [STORY-72](stories/STORY-72.md) pushed to GitHub, by system:github, at 2026-10-20T12:50:54Z
 * **Sync**: [FEATURE-25](features/FEATURE-25.md) pushed to GitHub, by system:github, at 2026-10-20T12:50:54Z

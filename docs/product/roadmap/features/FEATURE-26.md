@@ -32,8 +32,8 @@ The maintainer runs one repeatable test. The test gives an agent with the jag sk
 
 | Item | State | Progress | Owner | Blocked by | Drift |
 | --- | --- | --- | --- | --- | --- |
-| [STORY-74: Run one repeatable agent test](../stories/STORY-74.md) | backlog | - | - | - | - |
-| [STORY-75: The test records what the agent did](../stories/STORY-75.md) | backlog | - | - | - | - |
+| [STORY-74: Run one repeatable agent test](../stories/STORY-74.md) | ready | - | - | - | - |
+| [STORY-75: The test records what the agent did](../stories/STORY-75.md) | ready | - | - | - | - |
 <!-- STATUS:END -->
 
 <!-- LINKS:START (generated, do not edit) -->
