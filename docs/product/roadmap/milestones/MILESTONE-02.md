@@ -12,7 +12,7 @@ traces:
 - to: prd:/scope/SCOPE-03.md
   hash: e57d07
 - to: prd:/capabilities/CAPABILITY-11.md
-  hash: 6c96fe
+  hash: 6a8a68
 - to: prd:/capabilities/CAPABILITY-06.md
   hash: 79d5d3
 - to: prd:/scope/SCOPE-10.md

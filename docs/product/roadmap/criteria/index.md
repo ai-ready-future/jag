@@ -323,7 +323,7 @@
 ## STORY-69: The agent uses jag in place of rg and sets a limit
 
 * [CRITERION-117: The agent runs jag in place of rg](CRITERION-117.md) - For a search, the agent runs jag in place of rg.
-* [CRITERION-118: The agent writes a broad term and a clear question](CRITERION-118.md) - The agent gives jag a broad term and a clear question.
+* [CRITERION-118: With --ask, the agent writes a broad term and a clear question](CRITERION-118.md) - When the agent uses --ask, it gives jag a broad term and a clear question.
 * [CRITERION-119: The agent sets a limit](CRITERION-119.md) - The agent sets a limit on the text that jag returns.
 
 ## STORY-70: The agent reads the structured output

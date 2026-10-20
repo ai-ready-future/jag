@@ -24,8 +24,8 @@ jag ships one set of agent instructions in two forms. The agent builder installs
 
 After the install, the agent does these things with no instructions from the agent builder:
 
-1. The agent uses jag in place of rg, with a term and a plain-language question in `--ask`.
-2. The agent gives jag a broad term and a clear plain-language question.
+1. The agent uses jag in place of rg. The agent knows both forms: `jag TERM PATH`, which works as rg with no model call and no cost, and `--ask` with a plain-language question, which makes a paid model call. The agent decides when to use `--ask`.
+2. When the agent uses `--ask`, it gives jag a broad term and a clear plain-language question.
 3. The agent sets a limit on the text that jag returns.
 4. The agent reads the structured output and opens the file and the line of each result. It acts correctly when jag reports no answer, text that it left out, or a service failure.
 
@@ -47,6 +47,7 @@ If jag is not installed, the key is not set, or the model service is down, the a
 - subject of: [DECISION-53: An agent skill is not an editor plugin](../decisions/DECISION-53.md)
 - subject of: [DECISION-54: The skill teaches jag as an enhanced rg, with no advice on when to use which tool](../decisions/DECISION-54.md)
 - subject of: [DECISION-55: After jag fails, the skill tells the agent to tell the user, with no fallback rule](../decisions/DECISION-55.md)
+- subject of: [DECISION-56: The skill tells the agent that --ask exists; the agent decides when to use it](../decisions/DECISION-56.md)
 - included by: [SCOPE-01: Release 1: first public release](../scope/SCOPE-01.md) (should)
 - traced by: [EPIC-06: An agent uses jag well](../../roadmap/epics/EPIC-06.md)
 - traced by: [FEATURE-24: Install the jag skill with one README command](../../roadmap/features/FEATURE-24.md)

@@ -15,14 +15,14 @@ github:
 milestone: /milestones/MILESTONE-02.md
 traces:
 - to: prd:/capabilities/CAPABILITY-11.md
-  hash: 6c96fe
+  hash: 6a8a68
 - to: prd:/constraints/CONSTRAINT-08.md
   hash: 26d3ad
 ---
 
 # EPIC-06: An agent uses jag well
 
-The agent builder installs the jag skill with one README command, or copies the same teaching as a snippet. The agent then uses jag in place of rg, writes a good term and question, sets the size limit, reads the results and the failures, and gives the user the cause and the fix when jag can't run. A repeatable test proves this behavior.
+The agent builder installs the jag skill with one README command, or copies the same teaching as a snippet. The agent then uses jag in place of rg, decides when to use `--ask`, writes a good term and question for it, sets the size limit, reads the results and the failures, and gives the user the cause and the fix when jag can't run. A repeatable test proves this behavior.
 
 <!-- LINKS:START (generated, do not edit) -->
 
