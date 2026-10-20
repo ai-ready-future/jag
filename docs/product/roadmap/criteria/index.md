@@ -357,3 +357,8 @@
 * [CRITERION-131: The record shows the limit](CRITERION-131.md) - For each task, the record shows if the agent set a limit on the text.
 * [CRITERION-132: The record shows the use of file and line](CRITERION-132.md) - For each task, the record shows if the agent used the file and the line of a result.
 * [CRITERION-133: The record shows the fallback](CRITERION-133.md) - For each task where jag cannot run, the record shows if the agent told the user and fell back.
+
+## STORY-76: Learn jag from worked examples in the README
+
+* [CRITERION-134: The README has worked examples for people](CRITERION-134.md) - The README has a section of worked examples for a person at the shell; each example gives a command to copy and the output that jag shows.
+* [CRITERION-135: Each README example gives the output that it shows](CRITERION-135.md) - A test runs each README example on a fixed test folder and checks that jag gives the output that the README shows; an example that needs the model service uses a fake service.
