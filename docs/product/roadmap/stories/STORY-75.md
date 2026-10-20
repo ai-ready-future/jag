@@ -29,7 +29,7 @@ As an agent builder (PERSONA-01), I want the test to record the choices of the a
 | [CRITERION-130: The record shows the choice of tool](../criteria/CRITERION-130.md) | - | - | - | - | - |
 | [CRITERION-131: The record shows the limit](../criteria/CRITERION-131.md) | - | - | - | - | - |
 | [CRITERION-132: The record shows the use of file and line](../criteria/CRITERION-132.md) | - | - | - | - | - |
-| [CRITERION-133: The record shows the fallback](../criteria/CRITERION-133.md) | - | - | - | - | - |
+| [CRITERION-133: The record shows what the agent told the user](../criteria/CRITERION-133.md) | - | - | - | - | - |
 <!-- STATUS:END -->
 
 <!-- LINKS:START (generated, do not edit) -->
@@ -41,5 +41,5 @@ As an agent builder (PERSONA-01), I want the test to record the choices of the a
 - criterion or run of: [CRITERION-130: The record shows the choice of tool](../criteria/CRITERION-130.md)
 - criterion or run of: [CRITERION-131: The record shows the limit](../criteria/CRITERION-131.md)
 - criterion or run of: [CRITERION-132: The record shows the use of file and line](../criteria/CRITERION-132.md)
-- criterion or run of: [CRITERION-133: The record shows the fallback](../criteria/CRITERION-133.md)
+- criterion or run of: [CRITERION-133: The record shows what the agent told the user](../criteria/CRITERION-133.md)
 <!-- LINKS:END -->
