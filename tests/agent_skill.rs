@@ -68,6 +68,56 @@ fn body() -> String {
     split(&text).1.to_owned()
 }
 
+/// The marker lines around the snippet in the README (FEATURE-25, spec row 8).
+/// They are the one place in the tests that holds the marker text.
+const SNIPPET_START: &str = "<!-- agent-instructions:start (made from skills/jag/SKILL.md by JAG_SNIPPET_BLESS=1 cargo test --locked --test agent_skill, do not edit) -->";
+const SNIPPET_END: &str = "<!-- agent-instructions:end -->";
+
+/// The body of the skill as the snippet holds it: with no line break at its
+/// start and none at its end (spec row 3).
+fn snippet_body() -> String {
+    body().trim_matches('\n').to_owned()
+}
+
+/// The region of the README between the markers, markers included (spec
+/// row 9). The make step and the check both call this function.
+fn snippet_region(body: &str) -> String {
+    format!("{SNIPPET_START}\n\n````markdown\n{body}\n````\n\n{SNIPPET_END}")
+}
+
+/// The place of the region in the README: from the start of the start marker
+/// line to the end of the end marker line, with no line break at its end. It
+/// gives an error when the README does not hold exactly one start marker and
+/// one end marker after it.
+fn locate_region(readme: &str) -> Result<(usize, usize), String> {
+    let start_name = SNIPPET_START.split(" (").next().unwrap();
+    let end_name = SNIPPET_END.trim_end_matches(" -->");
+    let find = |name: &str| -> Result<usize, String> {
+        let found: Vec<usize> = readme.match_indices(name).map(|(index, _)| index).collect();
+        match found[..] {
+            [index] if index == 0 || readme.as_bytes()[index - 1] == b'\n' => Ok(index),
+            [_] => Err(format!("the marker {name} is not at the start of a line")),
+            _ => Err(format!(
+                "the README holds {} times the marker {name}, not 1",
+                found.len()
+            )),
+        }
+    };
+    let start = find(start_name)?;
+    let end = find(end_name)?;
+    if end < start {
+        return Err("the end marker is before the start marker".to_owned());
+    }
+    let end = readme[end..].find('\n').map_or(readme.len(), |n| end + n);
+    Ok((start, end))
+}
+
+/// The README with the region replaced.
+fn replace_region(readme: &str, region: &str) -> Result<String, String> {
+    let (start, end) = locate_region(readme)?;
+    Ok(format!("{}{}{}", &readme[..start], region, &readme[end..]))
+}
+
 // CRITERION-115: the README shows one command that installs the skill.
 #[test]
 fn the_readme_gives_one_install_command() {
@@ -357,4 +407,129 @@ fn the_skill_names_no_other_search_tool_after_a_failure() {
     }
     // The rows of the table are in the text.
     assert!(flat.contains("jag cannot run: see the next section"));
+}
+
+// CRITERION-124: the README shows the snippet as one block to copy, after
+// `## Install`, and `## Install` points to it.
+#[test]
+fn the_readme_shows_the_snippet_after_install() {
+    let readme = read("README.md");
+    let heading = "## Copy the instructions into an agent";
+    let install = readme
+        .find("\n## Install\n")
+        .expect("the README has ## Install")
+        + 1;
+    let after_install = &readme[install + 1..];
+    let next = after_install
+        .lines()
+        .find(|line| line.starts_with("## "))
+        .expect("a section follows ## Install");
+    assert_eq!(next, heading);
+
+    let (start, end) = locate_region(&readme).unwrap_or_else(|error| panic!("{error}"));
+    let heading_start = readme.find(&format!("\n{heading}\n")).unwrap() + 1;
+    assert!(heading_start < start);
+    // No section starts between the heading and the region, and the next
+    // section after the region is the key section.
+    assert!(
+        !readme[heading_start + heading.len()..start]
+            .lines()
+            .any(|line| line.starts_with("## "))
+    );
+    let following = readme[end..].lines().find(|line| line.starts_with("## "));
+    assert_eq!(following, Some("## Store your TypeSafe key"));
+
+    // The region: the start marker, the opening fence, the fence that
+    // closes it, and the end marker. Blank lines stand between them.
+    let lines: Vec<&str> = readme[start..end]
+        .lines()
+        .filter(|line| !line.is_empty())
+        .collect();
+    assert_eq!(lines.first(), Some(&SNIPPET_START));
+    assert_eq!(lines.get(1), Some(&"````markdown"));
+    assert_eq!(lines.get(lines.len() - 2), Some(&"````"));
+    assert_eq!(lines.last(), Some(&SNIPPET_END));
+
+    // The text before the snippet (spec row 5).
+    assert!(flat(&readme[heading_start..start]).contains(
+        "If your agent cannot install a skill, copy the text below into the instructions of the agent. It is the text of the jag skill, with no frontmatter. The agent also needs the jag program (step 1 of [Install](#install))."
+    ));
+    // Part 2 of `## Install` points to the section (spec row 6).
+    assert!(flat(section(&readme, "Install")).contains(
+        "If your agent cannot install a skill, copy the instructions in [Copy the instructions into an agent](#copy-the-instructions-into-an-agent)."
+    ));
+}
+
+// CRITERION-126: the snippet is the body of the skill, byte for byte. With
+// `JAG_SNIPPET_BLESS` set, the test makes the snippet and passes.
+#[test]
+fn the_readme_snippet_is_the_skill_body() {
+    let body = snippet_body();
+    // The body must not close the fence of the snippet or hold a marker
+    // (spec row 12).
+    for line in body.lines() {
+        let indent = line.len() - line.trim_start_matches(' ').len();
+        assert!(
+            indent > 3 || !line.trim_start_matches(' ').starts_with("````"),
+            "the body holds a line that closes the fence of the snippet: {line}"
+        );
+    }
+    assert!(!body.contains("<!-- agent-instructions:"));
+
+    let region = snippet_region(&body);
+    let readme = read("README.md");
+    if std::env::var_os("JAG_SNIPPET_BLESS").is_some() {
+        let made = replace_region(&readme, &region).unwrap_or_else(|error| panic!("{error}"));
+        if made != readme {
+            // A temporary file and a rename: a test that reads the README at
+            // the same time reads the old file or the new file, never a part.
+            let path = root().join("README.md");
+            let temporary = root().join("README.md.snippet-tmp");
+            fs::write(&temporary, &made).unwrap();
+            fs::rename(&temporary, &path).unwrap();
+        }
+        return;
+    }
+
+    let (start, end) = locate_region(&readme).unwrap_or_else(|error| {
+        panic!("{error}. Fix: JAG_SNIPPET_BLESS=1 cargo test --locked --test agent_skill")
+    });
+    let have = &readme[start..end];
+    if have != region {
+        let before = readme[..start].matches('\n').count();
+        let different = have
+            .lines()
+            .zip(region.lines())
+            .position(|(left, right)| left != right)
+            .unwrap_or_else(|| have.lines().count().min(region.lines().count()));
+        panic!(
+            "the snippet in README.md is not the body of skills/jag/SKILL.md. The first line that is different is line {}. Fix: JAG_SNIPPET_BLESS=1 cargo test --locked --test agent_skill",
+            before + different + 1
+        );
+    }
+}
+
+// CRITERION-127: a change of the body changes the snippet. Memory only: the
+// test writes no file.
+#[test]
+fn a_change_of_the_body_changes_the_snippet() {
+    let readme = read("README.md");
+    let region = snippet_region(&snippet_body());
+    let changed_body = format!("{}\nA changed line of the source.", snippet_body());
+    let changed = snippet_region(&changed_body);
+
+    // (1) The check finds the old region: it is not the changed region.
+    assert_ne!(changed, region);
+    let (start, end) = locate_region(&readme).unwrap_or_else(|error| panic!("{error}"));
+    assert_ne!(&readme[start..end], changed);
+
+    // (2) The make step puts the changed region in the README.
+    let made = replace_region(&readme, &changed).unwrap();
+    let (made_start, made_end) = locate_region(&made).unwrap();
+    assert_eq!(&made[made_start..made_end], changed);
+    assert!(made[made_start..made_end].contains("A changed line of the source."));
+
+    // (3) The bytes before and after the region do not change.
+    assert_eq!(&made[..made_start], &readme[..start]);
+    assert_eq!(&made[made_end..], &readme[end..]);
 }
