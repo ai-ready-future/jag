@@ -226,7 +226,7 @@
 
 ## STORY-49: Install jag with cargo from crates.io
 
-* [CRITERION-79: cargo install gives the release version](CRITERION-79.md) - cargo install jag-grep installs the jag command, with the same version as the GitHub Release.
+* [CRITERION-79: cargo install gives the release version](CRITERION-79.md) - cargo install jag-cli installs the jag command, with the same version as the GitHub Release.
 
 ## STORY-50: Install or run jag with npm
 
