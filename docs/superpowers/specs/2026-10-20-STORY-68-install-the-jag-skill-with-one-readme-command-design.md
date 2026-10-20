@@ -16,21 +16,24 @@ session: 4acb9f7a-4603-41fb-8e74-395e5117e288
 An agent builder (PERSONA-01) wants a coding agent to use jag well with no
 instructions that the builder writes (FEATURE-24, CAPABILITY-11,
 CONSTRAINT-08). CONSTRAINT-08: "The README of jag gives one command that
-installs the jag skill into an agent. The agent builder runs that command.
-The agent builder writes no instructions and edits no file."
+installs the jag skill into an agent. The agent builder runs that command
+after the program is installed. The agent builder writes no instructions
+and edits no file."
 
 CAPABILITY-11 gives the four behaviors that the instructions teach:
 
-1. The agent chooses jag when plain keyword search returns too much text.
-   It uses plain search when that is enough.
+1. The agent uses jag in place of rg, with a term and a plain-language
+   question in `--ask`.
 2. The agent gives jag a broad term and a clear plain-language question.
-3. The agent sets a limit on the text.
-4. The agent reads the structured output, opens the file and line, and acts
-   correctly on no answer, on text that jag left out, and on a service
-   failure.
+3. The agent sets a limit on the text that jag returns.
+4. The agent reads the structured output and opens the file and the line of
+   each result. It acts correctly when jag reports no answer, text that it
+   left out, or a service failure.
 
-When jag cannot run, the agent tells the user what is wrong and how to fix
-it. Then it continues with grep or rg (CAPABILITY-11).
+If jag is not installed, the key is not set, or the model service is down,
+the agent gives the user the cause and the fix that jag writes. The skill
+says nothing about other tools, so the agent then does what it does by
+default (CAPABILITY-11).
 
 The user answered six questions in the explore session of 2026-10-19
 (orchestrator TASK for FEATURE-24). This spec cites them as "user answer N":
@@ -49,15 +52,25 @@ The user answered six questions in the explore session of 2026-10-19
 6. An agent skill is not an editor plugin. SCOPE-08 does not change
    (DECISION-53).
 
+Two later user answers of 2026-10-20 replace parts of answers 4 and 5:
+
+- DECISION-54: the skill tells the agent to use jag in place of rg, and it
+  shows how jag and `--ask` work. It gives no advice on when to use jag and
+  when to use another tool. This replaces "choose jag over grep or rg when
+  keyword search gives too much text" of answer 4.
+- DECISION-55: when jag cannot run, the skill tells the agent to give the
+  user the cause and the fix that jag writes. It says nothing about other
+  tools. This replaces "Then it falls back to its own search tool" of
+  answer 5.
+
 The stories and their criteria:
 
 - STORY-68: install the skill with one command.
   - CRITERION-115: the README shows one command that installs the jag skill.
   - CRITERION-116: after the command runs, the jag skill is present in each
     agent that the install command supports, such as Claude Code.
-- STORY-69: the agent chooses jag and sets a limit.
-  - CRITERION-117: when plain keyword search returns too much text, the
-    agent chooses jag.
+- STORY-69: the agent uses jag in place of rg and sets a limit.
+  - CRITERION-117: for a search, the agent runs jag in place of rg.
   - CRITERION-118: the agent gives jag a broad term and a clear question.
   - CRITERION-119: the agent sets a limit on the text that jag returns.
 - STORY-70: the agent reads the structured output.
@@ -65,16 +78,18 @@ The stories and their criteria:
     cite the source.
   - CRITERION-121: the agent reads a failure in the output of jag and does
     not treat it as a result.
-- STORY-71: the agent tells the user and falls back.
+- STORY-71: the agent tells the user the cause and the fix.
   - CRITERION-122: when jag is not installed, the key is not set, or the
     model service is down, the agent tells the user what is wrong and how
     to fix it.
-  - CRITERION-123: after the agent tells the user, it continues the task
-    with its own search tool.
+  - CRITERION-123: the skill names no other search tool for the case where
+    jag fails. After the agent tells the user, it does what it does by
+    default.
 
-Criteria 117 to 123 are about what an agent does. This spec proves that the
+Criteria 117 to 122 are about what an agent does. This spec proves that the
 skill text holds each instruction. FEATURE-26 builds the repeatable agent
-test that records what an agent does (see Out of scope).
+test that records what an agent does (see Out of scope). CRITERION-123 is
+about the text of the skill, so the test of this spec proves it.
 
 ## Decisions
 
@@ -86,16 +101,16 @@ in the Assumptions list, with the source that a reviewer can open.
 | 1 | Specs | One spec for STORY-68 to STORY-71. The four stories share one file, `skills/jag/SKILL.md`: STORY-69 to STORY-71 are its text, and STORY-68 installs it | Orchestrator TASK for FEATURE-24 ("1 feature = 1 spec = 1 PR") |
 | 2 | The install tool | The `skills` command line tool (npm package `skills`, source `vercel-labs/skills`). The README command is `npx skills add ai-ready-future/jag`. The tests pin `skills@1.7.4` | User answer 2; ADR-0019 (the repository name) |
 | 3 | The place and the name of the skill | One folder `skills/jag/` with one file `SKILL.md`. The skill name is `jag`, the name of the command. The `skills` tool finds a skill in the folder `skills/` of a repository | Inferred: the discovery order of the `skills` tool (github.com/vercel-labs/skills v1.7.4, docs/creating-skills.md, "Skill Discovery"); README line 4 (the command is `jag`) |
-| 4 | The frontmatter | Only `name: jag` and `description`. No key of one agent, for example no `allowed-tools`. The description is one line in double quotes, so that a simple reader of each agent can read it. It is 1,024 characters or less | Inferred: user answer 3; the Agent Skills format (agentskills.io/specification, fields `name` and `description`) |
+| 4 | The frontmatter | Only `name: jag` and `description`. No key of one agent, for example no `allowed-tools`. The description is one line in double quotes, so that a simple reader of each agent can read it. It is 1,024 characters or less. It says what jag is, as row 7 does, and gives no advice on when to use which tool | Inferred: user answer 3; the Agent Skills format (agentskills.io/specification, fields `name` and `description`). The words: DECISION-54 |
 | 5 | One source | `skills/jag/SKILL.md` is the one source of the agent instructions. The body after the frontmatter is complete alone: one file, no folder `references/` or `scripts/`, no relative link, no word that only one agent knows. FEATURE-25 makes the README snippet from this body | Inferred: user answer 1; FEATURE-25 (CRITERION-126, CRITERION-127) |
 | 6 | Words for one agent | The skill tells the agent to "run the command in a shell". It names no tool of one agent | Inferred: user answer 3 |
-| 7 | When to choose jag (CRITERION-117) | No number. The skill gives the condition of the PRD: plain search gives more lines than the agent can read, or the agent does not know the exact text. Plain search stays when the agent knows the exact text or the result is short | Inferred: NEED-11 ("A broad term such as `error` returns too many matches"); NEED-02; CAPABILITY-11 behavior 1 |
+| 7 | What jag is (CRITERION-117) | The skill tells the agent to use jag in place of rg. jag is an enhanced rg: the same command form as rg, a term and a path, plus `--ask`, which ranks the matching lines by how well they answer a plain-language question. The skill gives no condition and no advice on when to use jag and when to use another tool | DECISION-54; ADR-0022 (with no `--ask`, rg is the reference for jag) |
 | 8 | The command form (CRITERION-118, CRITERION-119) | `jag --json --max-chars N --ask "QUESTION" TERM PATH`. Always `--json`. Always `--max-chars`. Always a path, for example `.`. A question that starts with `-` uses `--ask="..."`. The term is one broad word or a short regex. The question is one sentence in plain language | ADR-0018 (the question only through `--ask`); README "Where jag searches" (an agent gives a path, because jag waits on an open pipe); README line 222 (`--ask=`); CAPABILITY-11 behavior 2 |
 | 9 | The size limit (CRITERION-119) | The agent always sets `--max-chars`. It chooses N from the text that it can read now. The limit counts characters, not tokens. The smallest limit is 1,000. The default is 20,000 | README "The size limit" (FEATURE-09, built) |
 | 10 | Options that the skill does not name | `-q`, `-l`, `-c`, `-n`, `-N`, `-H`, `-I`, `--heading`, and `--no-heading` do not work with `--ask` or `--json`: jag gives exit 2 and a fix, and row 12 covers code 2. `--no-max-chars` turns the limit off. The skill names none of them. It can name `-i`, `-w`, `-F`, and `-g GLOB`, which work with `--ask` | `src/cli/grep.rs` `refuse_plain_options` (FEATURE-13 decisions 19 to 22, FEATURE-23 decision 23, built); row 9 |
 | 11 | The fields that the agent reads (CRITERION-120) | `exit_code`, `error.cause`, `error.fix`, `no_good_answer`, `results_found`, `left_out`, `size_limit_fix`, and in each result `path`, `first_line`, `last_line`, and in each line `number`, `text`, `is_match`. The agent opens `path` at `first_line` to `last_line`, or cites `path:number` | FEATURE-11 spec (built); ADR-0008 (fields are only added) |
 | 12 | What each exit code tells the agent (CRITERION-121) | One table in the skill with each code of IF-4: 0, 1, 2, 3, 4, 5, 6, 7, 8, 126, 127, 130. Code 1 is not a failure: with `no_good_answer: true`, no match answers the question; with `results_found: 0`, the term matched nothing, so the agent tries a broader term. Codes 7 and 8 still carry valid results: the agent uses them, then raises the limit or narrows the term. Code 2: the agent fixes the command from `error.fix` | ADR-0007; IF-4 |
-| 13 | The fallback set (CRITERION-122, CRITERION-123) | Codes 3, 4, 5, 6, 126, 127, and "command not found" from the shell. The agent tells the user the cause and the fix one time in the task. Then it continues with its own search tool. It does not run jag again in that task, unless the user says that the fix is done | User answer 5; CAPABILITY-11 ("then continue with grep or rg") |
+| 13 | The codes where jag cannot run (CRITERION-122, CRITERION-123) | Codes 3, 4, 5, 6, 126, 127, and "command not found" from the shell. The agent gives the user the cause and the fix one time in the task. It does not run jag again in that task, unless the user says that the fix is done. The skill names no other search tool and gives no rule for what the agent does next | DECISION-55; CAPABILITY-11 ("the agent gives the user the cause and the fix that jag writes"); row 18 and CV-5 (no run again) |
 | 14 | The failure text | The skill does not copy the failure texts of jag. It tells the agent to give `error.cause` and `error.fix` to the user as jag writes them. The skill holds its own text for one case only: jag is not installed, so no JSON document exists | Inferred: CV-1 (each failure gives its cause and its fix) |
 | 15 | jag is not installed | The agent does not install jag. It tells the user that jag is not installed, gives the README Install section (`https://github.com/ai-ready-future/jag#install`), and names `npm install -g @airf/jag` | User answer 5; ADR-0010 (the install channels) |
 | 16 | The key | The agent never asks for the key in the chat, never puts it in a command, and never reads or prints the files in `~/.config/jag/`. For code 3 or 4, it tells the user to run `jag --setup` in their own terminal, or to set `JAG_TYPESAFE_API_KEY` | CV-6; ADR-0006; ADR-0013 (setup with no terminal gives exit 2) |
@@ -121,24 +136,26 @@ The frontmatter:
 ```yaml
 ---
 name: jag
-description: "Search code and text with jag, a grep that ranks the matching lines by how well they answer a plain-language question. Use when grep or rg gives more lines than you can read, or when you know what you look for but not the exact text."
+description: "jag is a code and text search tool to use in place of rg. It takes a term and a path as rg does, and with --ask it ranks the matching lines by how well they answer a plain-language question. Use it for each search of code or text files."
 ---
 ```
 
 The build can change the words of the description. The description says
-when an agent loads the skill: the agent searches code
-or text files, and keyword search (grep or rg) gives too many lines, or the
-agent needs the lines that answer a question. It names jag as the tool and
-says that jag ranks the matches by how well they answer a plain-language
-question. It is one line in double quotes, with 1,024 characters or less.
+what jag is and that the agent uses it in place of rg (row 7). It says
+that jag ranks the matching lines by how well they answer a
+plain-language question. The agent loads the skill for a search of code
+or text files. The description gives no advice on when to use jag and
+when to use another tool. It is one line in double quotes, with 1,024
+characters or less.
 
 The body has these sections, in this order. Each section is short. The body
 names only the options, the fields, and the exit codes of rows 8 to 19.
 
-1. **When to use jag** (CRITERION-117, row 7). Use plain search when you
-   know the exact text, or when the result is short. Use jag when a broad
-   term gives more lines than you can read, or when you do not know the
-   exact text but you can say what you look for.
+1. **What jag is** (CRITERION-117, row 7). jag is an enhanced rg. It has
+   the same command form as rg, a term and a path. `--ask` ranks the
+   matching lines by how well they answer a plain-language question. Use
+   jag in place of rg. The section gives no condition and no advice on
+   when to use jag and when to use another tool.
 2. **How to run jag** (CRITERION-118, CRITERION-119, rows 8 to 10, 19). Run
    the command in a shell. Give the form of row 8 with one example, for
    example `jag --json --max-chars 8000 --ask "Where does the code retry a
@@ -158,9 +175,10 @@ names only the options, the fields, and the exit codes of rows 8 to 19.
 5. **When jag cannot run** (CRITERION-122, CRITERION-123, rows 13 to 18).
    Give the cause and the fix to the user: `error.cause` and `error.fix` as
    jag writes them; for 126, 127, or "command not found", the text of row
-   15. Say this one time in the task. Then continue with your own search
-   tool, for example grep or rg. The rules of the key (row 16) and the rule
-   of code 6 (row 18) are in this section.
+   15. Say this one time in the task. Do not run jag again in the task,
+   unless the user says that the fix is done. The section names no other
+   search tool and gives no rule for what to do next. The rules of the key
+   (row 16) and the rule of code 6 (row 18) are in this section.
 
 ### Interfaces: the README command
 
@@ -201,13 +219,13 @@ change.
 |---|---|---|
 | CRITERION-115 | `tests/agent_skill.rs`, `the_readme_gives_one_install_command`. It reads `README.md`, finds each fenced block, and finds each line that starts with `$ npx skills add`. Exactly one such line exists, and it is `$ npx skills add ai-ready-future/jag`. The repository name is the name of ADR-0019 | The README shows one command |
 | CRITERION-116 | `tests/agent_skill/install.test.js`, run with `node --test`. It makes an empty project folder and an empty home folder in a temporary folder. In the project folder, with `HOME` set to the home folder and `DO_NOT_TRACK=1`, it runs `npx --yes skills@1.7.4 add <checkout> --all --json`. `<checkout>` is the path of the repository. Then it runs `npx --yes skills@1.7.4 list --json` in the same folder. It checks: the add command exits with 0, and its output has no entry with `"status": "failed"`; the list has one skill only, `jag`; the `agents` of that entry are each agent that the tool installs to with `--agent '*'` (row 24); and for each agent, the `SKILL.md` file at its path has the same bytes as `skills/jag/SKILL.md`. It also checks the path `.claude/skills/jag/SKILL.md` by name, for Claude Code | The command installs the skill into each agent that the tool supports |
-| CRITERION-117 | `tests/agent_skill.rs`, `the_skill_says_when_to_use_jag`. The section "When to use jag" exists and names grep and rg | The skill holds the rule of row 7. FEATURE-26 proves the choice of an agent |
+| CRITERION-117 | `tests/agent_skill.rs`, `the_skill_says_to_use_jag_in_place_of_rg`. The section "What jag is" exists and holds the words "in place of rg" and `--ask`. With no regard to letter case, the skill holds none of the phrases "plain search", "too many lines", "too much text", "more lines than", and "when to use" | The skill holds the rule of row 7 and no advice on when to use which tool. FEATURE-26 proves what an agent does |
 | CRITERION-118 | `tests/agent_skill.rs`, `the_skill_gives_the_command_form`. The skill holds `--ask`, `--json`, a path in the example, and the `--ask=` form | The skill holds the form of row 8 |
 | CRITERION-119 | Same test: the skill holds `--max-chars`, `1,000`, and `20,000`. And `src/cli.rs`, `the_agent_skill_names_only_options_of_jag`: in each code span of `SKILL.md` whose first word is `jag`, each word that starts with `-` is a short or a long option of `Cli::command()`, and no option of row 10 is in the skill. A code span of grep or rg is not checked | The skill holds the limit, and it names no option that jag does not have |
 | CRITERION-120 | `src/output.rs`, `the_agent_skill_names_only_fields_of_the_document`. It holds the field list of row 11. It checks that each field is in `SKILL.md` and is a field of the document (the lists `TOP_LEVEL`, `ERROR`, `RESULT`, and `LINE` of the test module) | The skill names the fields of the file and the line, and each one exists |
 | CRITERION-121 | `tests/agent_skill.rs`, `the_skill_has_one_row_for_each_exit_code`. It reads the rows of the exit-code table. The set of codes is exactly 0, 1, 2, 3, 4, 5, 6, 7, 8, 126, 127, 130 | The skill tells the meaning of each code |
 | CRITERION-122 | `tests/agent_skill.rs`, `the_skill_tells_the_user_the_cause_and_the_fix`. The section "When jag cannot run" names `error.cause`, `error.fix`, `jag --setup`, `JAG_TYPESAFE_API_KEY`, `command not found`, and the README Install link. It holds no text of `src/` that starts with "the TypeSafe API" (row 14) | The skill holds the rules of rows 13 to 16 |
-| CRITERION-123 | Same file, `the_skill_falls_back_to_the_agent_search`. The section "When jag cannot run" names grep and rg as the tools to continue with | The skill holds the fallback |
+| CRITERION-123 | Same file, `the_skill_names_no_other_search_tool_after_a_failure`. The section "When jag cannot run" and the table rows of codes 3, 4, 5, 6, 126, and 127 hold none of the words `grep`, `rg`, `ripgrep`, `ag`, and `ack`, and none of the phrases "fall back" and "fallback", as whole words with no regard to letter case | The skill gives no fallback rule |
 
 One more test in `tests/agent_skill.rs`, `the_skill_frontmatter_is_for_each_agent`,
 checks rows 3 to 5: the folder is `skills/jag`; the frontmatter has only
@@ -278,14 +296,15 @@ sends anonymous usage data and a security-audit request to skills.sh for a publi
    the build copies from the agent list of the tool source at tag `v1.7.4`.
    The file name holds the version, so a new pin needs a new file.
 3. STORY-69: write sections 1 and 2 of the skill. Add
-   `the_skill_says_when_to_use_jag`, `the_skill_gives_the_command_form`, and
+   `the_skill_says_to_use_jag_in_place_of_rg`,
+   `the_skill_gives_the_command_form`, and
    `the_agent_skill_names_only_options_of_jag`.
 4. STORY-70: write sections 3 and 4. Add
    `the_agent_skill_names_only_fields_of_the_document` and
    `the_skill_has_one_row_for_each_exit_code`.
 5. STORY-71: write section 5. Add
    `the_skill_tells_the_user_the_cause_and_the_fix` and
-   `the_skill_falls_back_to_the_agent_search`.
+   `the_skill_names_no_other_search_tool_after_a_failure`.
 6. Run `cargo fmt --check`, `cargo clippy --locked -- -D warnings`,
    `cargo test --locked`, and `node --test tests/agent_skill/install.test.js`.
 
@@ -300,8 +319,6 @@ sends anonymous usage data and a security-audit request to skills.sh for a publi
 - Row 5 (one self-contained body) comes from user answer 1 and FEATURE-25
   (CRITERION-126 and CRITERION-127).
 - Row 6 (no word of one agent) comes from user answer 3.
-- Row 7 (no number for "too much text") comes from NEED-11, NEED-02, and
-  CAPABILITY-11 behavior 1. The PRD gives no number.
 - Row 14 (the skill does not copy the failure texts) comes from CV-1.
 - Row 17 (no `jag --check` before a search) comes from the README section
   "Check that jag is ready" and ADR-0006.
@@ -327,7 +344,8 @@ sends anonymous usage data and a security-audit request to skills.sh for a publi
 | A new version of `skills` changes the discovery, the agent list, or the JSON output | The job `agent-skill` fails after a pin change, or a user report that `npx skills add ai-ready-future/jag` finds no skill |
 | The `skills` tool sends anonymous usage data and a security-audit request to skills.sh. A user expects no telemetry, because jag sends none (CV-8) | A user report or an issue about telemetry |
 | The agent reads 20,000 as tokens, or chooses a limit that is too large for its context | A FEATURE-26 run that records a limit above the free context of the agent |
-| The agent treats exit 1 as a failure and falls back when it should try a broader term | A FEATURE-26 run that records a fallback after exit 1 |
+| The agent treats exit 1 as a failure and tells the user that jag cannot run, when it should try a broader term | A FEATURE-26 run that records a message to the user after exit 1 |
+| The agent uses jag in place of rg for each search, and row 8 always has `--ask`. So each search makes a paid call to the model, also for an exact text | The cost of an agent task with the skill is much higher than the cost of the same task with rg |
 | The system design says that CAPABILITY-11 "is a text file that ships with the release". Row 25 puts the skill in the repository only | The architect changes the system design (see the pull request text) |
 | The job `agent-skill` downloads `skills` from npm. An npm outage makes it fail | The job fails at `npx --yes skills@1.7.4` with a network error |
 | The change of `ci.yml` needs the `workflow` scope of the token | The push of the build pull request fails |
@@ -336,10 +354,11 @@ sends anonymous usage data and a security-audit request to skills.sh for a publi
 
 - The README snippet of the same instructions: FEATURE-25 (STORY-72,
   STORY-73). This spec keeps one source for it (row 5).
-- The repeatable agent test that records the tool choice, the limit, the use
-  of the file and the line, and the fallback: FEATURE-26 (STORY-74,
-  STORY-75). This spec proves CRITERION-117 to CRITERION-123 by the text of
-  the skill only.
+- The repeatable agent test that shows that an agent with the skill uses
+  jag in place of rg, sets the limit, reads the results, and gives the user
+  the cause and the fix when jag fails: FEATURE-26 (STORY-74, STORY-75).
+  This spec proves CRITERION-117 to CRITERION-122 by the text of the skill
+  only.
 - An editor plugin: SCOPE-08 does not change (DECISION-53).
 - A change of the CLI, the JSON document, or the exit codes of jag.
 - The release of jag: FEATURE-18.
