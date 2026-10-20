@@ -60,7 +60,7 @@ okf_version: "0.2"
 
 ### proposed
 
-* [0024: Install the jag agent skill from the repository with the skills tool](./0024-install-the-jag-agent-skill-from-the-repository-with-the.md) - proposed. Open this when you change how an agent gets the jag skill, where the skill file lives, or the pinned version of the skills tool.
+* [0024: Install the jag agent skill from the repository with the skills tool](./0024-install-the-jag-agent-skill-from-the-repository-with-the.md) - proposed. Open this when you change how users get the jag program or the jag skill, where the skill file lives, or the pinned version of the skills tool.
 
 ## quality
 
