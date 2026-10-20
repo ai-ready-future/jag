@@ -31,7 +31,7 @@
 - [0010 — Ship jag on GitHub Releases, crates.io, and npm](./0010-ship-jag-on-github-releases-crates-io-and-npm.md) — accepted — <!-- TODO: summary -->
 - [0019 — Give the new public repository the name ai-ready-future/jag](./0019-give-the-new-public-repository-the-name-ai-ready-future-jag.md) — accepted — <!-- TODO: summary -->
 - [0020 — Name the release archives and the npm platform packages by platform](./0020-name-the-release-archives-and-the-npm-platform-packages-by.md) — accepted — <!-- TODO: summary -->
-- [0024 — Install the jag agent skill from the repository with the skills tool](./0024-install-the-jag-agent-skill-from-the-repository-with-the.md) — proposed — <!-- TODO: summary -->
+- [0024 — Install the jag agent skill from the repository with the skills tool](./0024-install-the-jag-agent-skill-from-the-repository-with-the.md) — accepted — <!-- TODO: summary -->
 
 ### strategy — <!-- TODO: describe this area -->
 - [0002 — Score the top 200 results in calls of 32, six calls in parallel](./0002-score-the-top-200-results-in-calls-of-32-six-calls-in.md) — accepted — <!-- TODO: summary -->

@@ -553,7 +553,7 @@ gateway key, the base URL, and the model name.
 | deployment-3 | |  | deployment | The release path and the checks that guard it | human:404pilo, 2026-10-12 |
 | deployment-4 | 0019-give-the-new-public-repository-the-name-ai-ready-future-jag.md | accepted | deployment | The name of the public repository | adr |
 | deployment-5 | 0020-name-the-release-archives-and-the-npm-platform-packages-by.md | accepted | deployment | The names of the release archives, the checksum files, and the npm platform packages | adr |
-| deployment-6 | 0024-install-the-jag-agent-skill-from-the-repository-with-the.md | proposed | deployment | npm is the main channel of the program, and the `skills` tool is the channel of the skill: after `npm install -g @airf/jag`, `npx skills add ai-ready-future/jag` reads `skills/jag/SKILL.md` from the repository. cargo and the release downloads stay in the README under "Other ways to install" | adr |
+| deployment-6 | 0024-install-the-jag-agent-skill-from-the-repository-with-the.md | accepted | deployment | npm is the main channel of the program, and the `skills` tool is the channel of the skill: after `npm install -g @airf/jag`, `npx skills add ai-ready-future/jag` reads `skills/jag/SKILL.md` from the repository. cargo and the release downloads stay in the README under "Other ways to install" | adr |
 
 ## Requirements to components
 

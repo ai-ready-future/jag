@@ -3,7 +3,7 @@ type: adr
 title: Install the jag agent skill from the repository with the skills tool
 description: Open this when you change how users get the jag program or the jag skill, where the skill file lives, or the pinned version of the skills tool.
 area: deployment
-status: proposed
+status: accepted
 date: 2026-10-20
 supersedes: null
 superseded_by: null
