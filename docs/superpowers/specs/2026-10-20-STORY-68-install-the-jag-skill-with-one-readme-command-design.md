@@ -77,6 +77,16 @@ Two user ANSWERs of 2026-10-20 decide the install route. ADR-0024
 DECISION-54 also records card 2 (a) of the same day: "Program first, then
 skill".
 
+The user accepted ADR-0024 on 2026-10-20. Until the pull request of the
+architect that accepts it merges, its file says `proposed`, so this spec
+cites it as "ADR-0024 (proposed)".
+
+One more user ANSWER of 2026-10-20, on the card "Does the skill tell the
+agent to always ask a question?": "just tells the agent of the existence
+of that option .. it is up to the agent to use it or not". The skill
+shows the form with no question and the form with `--ask`, and gives no
+advice on when to use `--ask` (row 8).
+
 The stories and their criteria:
 
 - STORY-68: install the skill with one command.
@@ -119,7 +129,7 @@ in the Assumptions list, with the source that a reviewer can open.
 | 5 | One source | `skills/jag/SKILL.md` is the one source of the agent instructions. The body after the frontmatter is complete alone: one file, no folder `references/` or `scripts/`, no relative link, no word that only one agent knows. FEATURE-25 makes the README snippet from this body | Inferred: user answer 1; FEATURE-25 (CRITERION-126, CRITERION-127) |
 | 6 | Words for one agent | The skill tells the agent to "run the command in a shell". It names no tool of one agent | Inferred: user answer 3 |
 | 7 | What jag is (CRITERION-117) | The skill tells the agent to use jag in place of rg. jag is an enhanced rg: the same command form as rg, a term and a path, plus `--ask`, which ranks the matching lines by how well they answer a plain-language question. The skill gives no condition and no advice on when to use jag and when to use another tool | DECISION-54; ADR-0022 (with no `--ask`, rg is the reference for jag) |
-| 8 | The command form (CRITERION-118, CRITERION-119) | `jag --json --max-chars N --ask "QUESTION" TERM PATH`. Always `--json`. Always `--max-chars`. Always a path, for example `.`. A question that starts with `-` uses `--ask="..."`. The term is one broad word or a short regex. The question is one sentence in plain language | ADR-0018 (the question only through `--ask`); README "Where jag searches" (an agent gives a path, because jag waits on an open pipe); README line 222 (`--ask=`); CAPABILITY-11 behavior 2 |
+| 8 | The command form (CRITERION-118, CRITERION-119) | The skill shows two forms. With no question, `jag --json --max-chars N TERM PATH` finds the lines as rg does, with no call to the model and no cost. With a question, `jag --json --max-chars N --ask "QUESTION" TERM PATH` ranks the matching lines by how well they answer the question, with a call to the model and a cost. The skill tells the agent that `--ask` exists and what it does. It does not tell the agent to always use `--ask`, and it gives no advice on when to use it: the agent decides. Always `--json`. Always `--max-chars`. Always a path, for example `.`. A question that starts with `-` uses `--ask="..."`. The term is one broad word or a short regex. The question is one sentence in plain language | The user ANSWER of 2026-10-20 (card "Does the skill tell the agent to always ask a question?": "just tells the agent of the existence of that option .. it is up to the agent to use it or not"); README "Search with no question" (no call to the model); README "Output for an agent" (with no question, the cost kind is `no_call`); ADR-0018 (the question only through `--ask`); README "Where jag searches" (an agent gives a path, because jag waits on an open pipe); README line 222 (`--ask=`); CAPABILITY-11 behavior 2 |
 | 9 | The size limit (CRITERION-119) | The agent always sets `--max-chars`. It chooses N from the text that it can read now. The limit counts characters, not tokens. The smallest limit is 1,000. The default is 20,000 | README "The size limit" (FEATURE-09, built) |
 | 10 | Options that the skill does not name | `-q`, `-l`, `-c`, `-n`, `-N`, `-H`, `-I`, `--heading`, and `--no-heading` do not work with `--ask` or `--json`: jag gives exit 2 and a fix, and row 12 covers code 2. `--no-max-chars` turns the limit off. The skill names none of them. It can name `-i`, `-w`, `-F`, and `-g GLOB`, which work with `--ask` | `src/cli/grep.rs` `refuse_plain_options` (FEATURE-13 decisions 19 to 22, FEATURE-23 decision 23, built); row 9 |
 | 11 | The fields that the agent reads (CRITERION-120) | `exit_code`, `error.cause`, `error.fix`, `no_good_answer`, `results_found`, `left_out`, `size_limit_fix`, and in each result `path`, `first_line`, `last_line`, and in each line `number`, `text`, `is_match`. The agent opens `path` at `first_line` to `last_line`, or cites `path:number` | FEATURE-11 spec (built); ADR-0008 (fields are only added) |
@@ -172,10 +182,15 @@ names only the options, the fields, and the exit codes of rows 8 to 19.
    jag in place of rg. The section gives no condition and no advice on
    when to use jag and when to use another tool.
 2. **How to run jag** (CRITERION-118, CRITERION-119, rows 8 to 10, 19). Run
-   the command in a shell. Give the form of row 8 with one example, for
-   example `jag --json --max-chars 8000 --ask "Where does the code retry a
-   failed request?" retry .`. Say that the term is broad and the question is
-   one clear sentence. Say that `--max-chars` is always present, how to
+   the command in a shell. Give the two forms of row 8 with one example
+   each, for example `jag --json --max-chars 8000 retry .` and
+   `jag --json --max-chars 8000 --ask "Where does the code retry a failed
+   request?" retry .`. Say that the form with no question finds the lines
+   as rg does, with no call to the model and no cost, and that `--ask`
+   ranks the matching lines by how well they answer the question, with a
+   call to the model and a cost. Do not say when to use `--ask`, and do
+   not say that the agent always uses it. Say that the term is broad and
+   the question is one clear sentence. Say that `--max-chars` is always present, how to
    choose N, the smallest value, and the default. Say why a path is always
    present. Do not name the options of row 10 that the skill does not use.
 3. **How to read the output** (CRITERION-120, row 11). Read `exit_code`
@@ -256,7 +271,7 @@ change.
 | CRITERION-115 | `tests/agent_skill.rs`, `the_readme_gives_one_install_command`. It reads `README.md`, finds each fenced block, and finds each line that starts with `$ npx skills add`. Exactly one such line exists, and it is `$ npx skills add ai-ready-future/jag`. The repository name is the name of ADR-0019. The test also checks the order of row 20: in `## Install`, from its heading to the next line that starts with `## `, the line `$ npm install -g @airf/jag` comes first, then the skill line, then the line `$ cargo install --locked jag-grep` | The README shows one command, after the program install |
 | CRITERION-116 | `tests/agent_skill/install.test.js`, run with `node --test`. It makes an empty project folder and an empty home folder in a temporary folder. In the project folder, with `HOME` set to the home folder and `DO_NOT_TRACK=1`, it runs `npx --yes skills@1.7.4 add <checkout> --all --json`. `<checkout>` is the path of the repository. Then it runs `npx --yes skills@1.7.4 list --json` in the same folder. It checks: the add command exits with 0, and its output has no entry with `"status": "failed"`; the list has one skill only, `jag`; the `agents` of that entry are each agent that the tool installs to with `--agent '*'` (row 24); and for each agent, the `SKILL.md` file at its path has the same bytes as `skills/jag/SKILL.md`. It also checks the path `.claude/skills/jag/SKILL.md` by name, for Claude Code | The command installs the skill into each agent that the tool supports |
 | CRITERION-117 | `tests/agent_skill.rs`, `the_skill_says_to_use_jag_in_place_of_rg`. The section "What jag is" exists and holds the words "in place of rg" and `--ask`. With no regard to letter case, the skill holds none of the phrases "plain search", "too many lines", "too much text", "more lines than", and "when to use" | The skill holds the rule of row 7 and no advice on when to use which tool. FEATURE-26 proves what an agent does |
-| CRITERION-118 | `tests/agent_skill.rs`, `the_skill_gives_the_command_form`. The skill holds `--ask`, `--json`, a path in the example, and the `--ask=` form | The skill holds the form of row 8 |
+| CRITERION-118 | `tests/agent_skill.rs`, `the_skill_gives_the_command_form`. The skill holds a code span that starts with `jag --json --max-chars` and has no `--ask`, and a code span that starts with `jag --json --max-chars` and has `--ask`, each with a path. It holds the `--ask=` form. No line of the skill holds both the word "always" and `--ask`, with no regard to letter case | The skill holds the two forms of row 8, and no rule that the agent always asks |
 | CRITERION-119 | Same test: the skill holds `--max-chars`, `1,000`, and `20,000`. And `src/cli.rs`, `the_agent_skill_names_only_options_of_jag`: in each code span of `SKILL.md` whose first word is `jag`, each word that starts with `-` is a short or a long option of `Cli::command()`, and no option of row 10 is in the skill. A code span of grep or rg is not checked | The skill holds the limit, and it names no option that jag does not have |
 | CRITERION-120 | `src/output.rs`, `the_agent_skill_names_only_fields_of_the_document`. It holds the field list of row 11. It checks that each field is in `SKILL.md` and is a field of the document (the lists `TOP_LEVEL`, `ERROR`, `RESULT`, and `LINE` of the test module) | The skill names the fields of the file and the line, and each one exists |
 | CRITERION-121 | `tests/agent_skill.rs`, `the_skill_has_one_row_for_each_exit_code`. It reads the rows of the exit-code table. The set of codes is exactly 0, 1, 2, 3, 4, 5, 6, 7, 8, 126, 127, 130 | The skill tells the meaning of each code |
@@ -383,8 +398,7 @@ sends anonymous usage data and a security-audit request to skills.sh for a publi
 | The `skills` tool sends anonymous usage data and a security-audit request to skills.sh. A user expects no telemetry, because jag sends none (CV-8) | A user report or an issue about telemetry |
 | The agent reads 20,000 as tokens, or chooses a limit that is too large for its context | A FEATURE-26 run that records a limit above the free context of the agent |
 | The agent treats exit 1 as a failure and tells the user that jag cannot run, when it should try a broader term | A FEATURE-26 run that records a message to the user after exit 1 |
-| The agent uses jag in place of rg for each search, and row 8 always has `--ask`. So each search makes a paid call to the model, also for an exact text | The cost of an agent task with the skill is much higher than the cost of the same task with rg |
-| ADR-0024 is proposed, not accepted. If its acceptance card changes the route, rows 2, 3, 15, 20, 23 to 25, and 27 change | The answer of the ADR-0024 acceptance card is not "accept" |
+| The agent decides when to use `--ask` (row 8). It can use `--ask` for each search, also for an exact text, and pay for each one. Or it can never use `--ask`, and get no ranking | A FEATURE-26 run that records `--ask` on each search, or on none |
 | The job `agent-skill` downloads `skills` from npm. An npm outage makes it fail | The job fails at `npx --yes skills@1.7.4` with a network error |
 | The change of `ci.yml` needs the `workflow` scope of the token | The push of the build pull request fails |
 
