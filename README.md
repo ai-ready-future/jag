@@ -1,7 +1,7 @@
 # jag
 
 Grep with a model that ranks the matches by how well they answer your
-question. The package on crates.io is `jag-grep`. The command is `jag`.
+question. The package on crates.io is `jag-cli`. The command is `jag`.
 
 ## Install
 
@@ -42,7 +42,7 @@ With cargo (Rust 1.99 or later). This builds jag from source in some
 minutes:
 
 ```
-$ cargo install --locked jag-grep
+$ cargo install --locked jag-cli
 ```
 
 From GitHub Releases: download the archive for your system and its
@@ -183,8 +183,9 @@ shell says `command not found`. Do this one time in the task:
   installed. Do not install it yourself. Give the user the install steps at
   https://github.com/ai-ready-future/jag#install. One way is
   `npm install -g @airf/jag`.
-- For 3 and 4, tell the user to run `jag --setup` in their own terminal, or
-  to set the variable `JAG_TYPESAFE_API_KEY`.
+- For 3 and 4, the user does the fix in their own terminal. `error.fix` says
+  how: for example, it can name `jag --setup`. Do not run `jag --setup`
+  yourself.
 
 Do not run jag again in this task, unless the user says that the fix is
 done. For 6, do not run jag again at once: jag already tried again in the
@@ -479,7 +480,7 @@ logs/backup.log-36-02:04:59 check of volume 4 passed
 jag: cost $0.000189: scored 6 of 6 results, skipped 0.
 ```
 
-A developer asks a question before jag has a key. jag exits with exit code 3 and tells what to do. Run `jag --setup` (see "Store your TypeSafe key"):
+A developer asks a question before jag has a key. jag exits with exit code 3 and tells what to do. Run `jag --setup` (see [Store your TypeSafe key](#store-your-typesafe-key)):
 
 <!-- example: missing-key -->
 ```
