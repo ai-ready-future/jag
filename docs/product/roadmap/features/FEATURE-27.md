@@ -5,6 +5,13 @@ description: The README gives worked examples that show a person how to search w
   jag at the shell, with the command to copy and what jag shows.
 status: draft
 state: ready
+github:
+  number: 194
+  node_id: I_kwDOVKMnL88AAAABYg3i0g
+  url: https://github.com/ai-ready-future/jag/issues/194
+  pushed_hash: 9b9b91
+  synced:
+    state: ready
 parent: /epics/EPIC-02.md
 milestone: /milestones/MILESTONE-01.md
 traces:

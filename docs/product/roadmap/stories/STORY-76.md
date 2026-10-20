@@ -6,6 +6,13 @@ description: As a person at the shell (PERSONA-02, PERSONA-03, PERSONA-04), I wa
   before I read each option.
 status: draft
 state: backlog
+github:
+  number: 195
+  node_id: I_kwDOVKMnL88AAAABYg3oBg
+  url: https://github.com/ai-ready-future/jag/issues/195
+  pushed_hash: 4b4319
+  synced:
+    state: backlog
 parent: /features/FEATURE-27.md
 milestone: /milestones/MILESTONE-01.md
 ---
