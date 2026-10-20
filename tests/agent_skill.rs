@@ -309,7 +309,6 @@ fn the_skill_tells_the_user_the_cause_and_the_fix() {
         "`error.cause`",
         "`error.fix`",
         "jag --setup",
-        "JAG_TYPESAFE_API_KEY",
         "command not found",
         "npm install -g @airf/jag",
         install_link().as_str(),
@@ -320,6 +319,14 @@ fn the_skill_tells_the_user_the_cause_and_the_fix() {
     }
     // The skill does not copy a failure text of jag (spec decision 14).
     assert!(!body.contains("the TypeSafe API"));
+    // The skill names no key variable: the fix depends on the cause, the
+    // route, and the place of the key (spec row 16).
+    let key_variable = body
+        .split(|c: char| !(c.is_ascii_alphanumeric() || c == '_'))
+        .find(|word| word.ends_with("_API_KEY"));
+    assert_eq!(key_variable, None, "the skill names a key variable");
+    // The agent does not run the setup itself (spec row 16).
+    assert!(text.contains("Do not run `jag --setup` yourself"));
 }
 
 // CRITERION-123: the skill names no other search tool for a failure of jag
