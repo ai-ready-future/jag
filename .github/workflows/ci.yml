@@ -53,6 +53,24 @@ jobs:
       - run: cargo test --locked
       - run: cargo test --locked --release --test speed
 
+  # The install test of the agent skill (FEATURE-24). Not a required check.
+  agent-skill:
+    name: agent-skill
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version: 24
+          package-manager-cache: false
+
+      - run: node --test tests/agent_skill/install.test.js
+        env:
+          DO_NOT_TRACK: "1"
+
   # The tests of the release tools (FEATURE-18). Not a required check.
   release-tools:
     name: release-tools (${{ matrix.os }}, node ${{ matrix.node }})

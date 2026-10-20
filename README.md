@@ -8,17 +8,33 @@ question. The package on crates.io is `jag-grep`. The command is `jag`.
 jag runs on Linux (x86_64 and arm64) and on macOS (arm64 and x86_64). Each
 way gives the same version.
 
+### 1. Install the jag program
+
 With npm (Node.js 18 or later):
 
 ```
 $ npm install -g @airf/jag
 ```
 
-Or run jag with no install:
+### 2. Add the jag skill to your agent
+
+A skill tells a coding agent how to use jag. To add it to your agent, after
+step 1:
 
 ```
-$ npx @airf/jag --help
+$ npx skills add ai-ready-future/jag
 ```
+
+The tool asks which agents get the skill and where it goes. To install for
+Claude Code with no question, add `--agent claude-code -y`. The tool writes
+`skills-lock.json` in the project. You write no instructions and edit no
+file.
+
+jag sends no usage data. The `skills` tool, not jag, sends anonymous usage
+data and a security-audit request to skills.sh. `DO_NOT_TRACK=1` stops both:
+`DO_NOT_TRACK=1 npx skills add ai-ready-future/jag`.
+
+### Other ways to install
 
 With cargo (Rust 1.99 or later). This builds jag from source in some
 minutes:
@@ -44,6 +60,15 @@ The targets are `x86_64-unknown-linux-musl`, `aarch64-unknown-linux-musl`,
 On macOS, a browser marks each file that it downloads, and macOS then stops
 `jag`. Download with `curl -LO`, or remove the mark:
 `xattr -d com.apple.quarantine jag`.
+
+Or run jag with no install:
+
+```
+$ npx @airf/jag --help
+```
+
+The jag skill runs the command `jag`, so an agent needs one of the installs
+above.
 
 On Linux, a question to the model needs the CA certificates of the system
 (the package `ca-certificates`).

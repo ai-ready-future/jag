@@ -1,7 +1,7 @@
 ---
 type: AcceptanceCriterion
 title: cargo install gives the release version
-description: cargo install jag-grep installs the jag command, with the same version
+description: cargo install jag-cli installs the jag command, with the same version
   as the GitHub Release.
 status: draft
 item: /stories/STORY-49.md
@@ -9,7 +9,7 @@ item: /stories/STORY-49.md
 
 # CRITERION-79: cargo install gives the release version
 
-cargo install jag-grep installs the jag command, with the same version as the GitHub Release.
+cargo install jag-cli installs the jag command, with the same version as the GitHub Release.
 
 <!-- LINKS:START (generated, do not edit) -->
 
