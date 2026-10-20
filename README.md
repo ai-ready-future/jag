@@ -1,7 +1,7 @@
 # jag
 
 Grep with a model that ranks the matches by how well they answer your
-question. The package on crates.io is `jag-grep`. The command is `jag`.
+question. The package on crates.io is `jag-cli`. The command is `jag`.
 
 ## Install
 
@@ -40,7 +40,7 @@ With cargo (Rust 1.99 or later). This builds jag from source in some
 minutes:
 
 ```
-$ cargo install --locked jag-grep
+$ cargo install --locked jag-cli
 ```
 
 From GitHub Releases: download the archive for your system and its

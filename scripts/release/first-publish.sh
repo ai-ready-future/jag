@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 # first-publish.sh: step U3 of the first release.
 #
-# It publishes an empty version 0.0.0 of the crate jag-grep and of the five
+# It publishes an empty version 0.0.0 of the crate jag-cli and of the five
 # npm packages, from the machine of the user. Each registry needs a first
 # version before it accepts a trusted publisher. The spec is
 # docs/superpowers/specs/2026-10-14-STORY-48-install-jag-from-github-releases-crates-io-or-npm-design.md,
@@ -24,7 +24,7 @@
 set -euo pipefail
 
 VERSION=0.0.0
-CRATE=jag-grep
+CRATE=jag-cli
 REPOSITORY=https://github.com/ai-ready-future/jag
 EMPTY_TEXT="This version holds no program. Install a later version."
 

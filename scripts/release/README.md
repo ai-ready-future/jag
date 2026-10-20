@@ -4,7 +4,7 @@ One version tag publishes jag on three channels with the same version:
 
 - GitHub Releases: one archive and one checksum file for each of four
   platforms.
-- crates.io: the crate `jag-grep`.
+- crates.io: the crate `jag-cli`.
 - npm: the package `@airf/jag` and four packages for the platforms.
 
 The workflow is `.github/workflows/release.yml`. The steps are in
@@ -128,7 +128,7 @@ A published version cannot change. A fix that needs new code needs a new
 patch version. Mark the bad version:
 
 ```
-$ cargo yank --version <version> jag-grep
+$ cargo yank --version <version> jag-cli
 $ npm deprecate @airf/jag@<version> "<reason>"
 ```
 
@@ -157,7 +157,7 @@ account that the user logs in with.
   (`CARGO_REGISTRY_TOKEN`, or the script asks for it). npm asks for the 2FA
   code at each publish. The script writes no token and reads no key file.
 - **U4.** The trusted publishers.
-  - crates.io: open the crate `jag-grep`, then Settings, then Trusted
+  - crates.io: open the crate `jag-cli`, then Settings, then Trusted
     Publishing. Add a GitHub publisher: owner `ai-ready-future`, repository
     `jag`, workflow `release.yml`, environment `release`.
   - npm: use npm 11.15.0 or later, with 2FA on. For each of the five
@@ -213,6 +213,6 @@ commit of the tag.
 After the first release, mark the empty versions:
 
 ```
-$ cargo yank --version 0.0.0 jag-grep
+$ cargo yank --version 0.0.0 jag-cli
 $ npm deprecate <package>@0.0.0 "This version holds no program."
 ```

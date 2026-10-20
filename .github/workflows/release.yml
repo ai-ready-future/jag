@@ -272,7 +272,7 @@ jobs:
         run: cargo package --locked
 
       - name: Check the metadata of the crate
-        run: python3 -I scripts/release/release.py check-crate-metadata "target/package/jag-grep-$VERSION.crate"
+        run: python3 -I scripts/release/release.py check-crate-metadata "target/package/jag-cli-$VERSION.crate"
 
       # A dry run needs no token.
       - name: Publish the crate as a dry run
@@ -281,7 +281,7 @@ jobs:
       - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
         with:
           name: crate
-          path: target/package/jag-grep-${{ needs.prepare.outputs.version }}.crate
+          path: target/package/jag-cli-${{ needs.prepare.outputs.version }}.crate
           if-no-files-found: error
           retention-days: 14
 
@@ -430,7 +430,7 @@ jobs:
         id: exists
         run: |
           set -euo pipefail
-          exists=$(python3 -I scripts/release/release.py exists --registry crates --name jag-grep --version "$VERSION")
+          exists=$(python3 -I scripts/release/release.py exists --registry crates --name jag-cli --version "$VERSION")
           echo "exists=$exists" >> "$GITHUB_OUTPUT"
 
       - name: Get a token for crates.io
@@ -585,7 +585,7 @@ jobs:
           set -euo pipefail
           root="$RUNNER_TEMP/cargo-install"
           for n in 1 2 3 4 5; do
-            if cargo install --locked jag-grep --version "$VERSION" --root "$root"; then break; fi
+            if cargo install --locked jag-cli --version "$VERSION" --root "$root"; then break; fi
             if [ "$n" -eq 5 ]; then
               echo "release: cargo install failed 5 times." >&2
               exit 1

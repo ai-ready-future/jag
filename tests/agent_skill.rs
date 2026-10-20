@@ -93,7 +93,7 @@ fn the_readme_gives_one_install_command() {
     };
     let npm = position("$ npm install -g @airf/jag");
     let skill = position(&install_command());
-    let cargo = position("$ cargo install --locked jag-grep");
+    let cargo = position("$ cargo install --locked jag-cli");
     assert!(npm < skill && skill < cargo);
 
     // The text after the skill command says what the tool does and sends.
