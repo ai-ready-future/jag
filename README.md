@@ -217,6 +217,155 @@ Exit codes:
 When more than one item fails, the code is the code of the first item that
 fails.
 
+## Examples
+
+The output below is what jag shows in a terminal, with no color. It comes from a test of jag. The test searches a small sample folder, and a test service takes the place of the model. The scores, the order of the results, and the cost come from that test service. With the real model, the order of your results and your cost can be different. In a pipe, the layout and the number of results can be different.
+
+An operator reads the log of a deploy that failed. The log goes into jag through a pipe, and the question asks which step failed:
+
+<!-- example: operator-pipe -->
+```
+$ cat logs/deploy.log | jag --ask "which step made the deploy fail" fail
+<stdin>-6-10:00:10 step 3 of 6: update the database
+<stdin>-7-10:00:14 step 3 of 6 done
+<stdin>-8-10:00:15 step 4 of 6: start the new service
+<stdin>:9:10:00:19 health check failed once, will try again
+<stdin>-10-10:00:24 step 4 of 6 done
+<stdin>-11-10:00:25 step 5 of 6: warm the cache
+<stdin>-12-10:00:31 step 5 of 6 done
+<stdin>-13-10:00:32 step 6 of 6: send traffic to the new service
+<stdin>:14:10:00:36 step 6 of 6 failed: the new service has no free disk space
+<stdin>-15-10:00:37 roll back started
+<stdin>-16-10:00:40 traffic is back on the old service
+<stdin>-17-10:00:41 roll back done
+--
+<stdin>:18:10:00:42 deploy of build 412 failed
+jag: cost $0.000063: scored 2 of 2 results, skipped 0.
+```
+
+A new employee reads the notes of the company and asks about leave:
+
+<!-- example: notes-question -->
+```
+$ jag --ask "how many days of leave do new staff get" days notes
+notes/leave.md-1-# Leave
+notes/leave.md-2-
+notes/leave.md:3:New staff get 25 days of paid leave each year.
+notes/leave.md-4-Leave starts to count on the first day of work.
+notes/leave.md:5:Ask your manager before you book more than 10 days in a row.
+--
+notes/onboarding.md-1-# First weeks
+notes/onboarding.md-2-
+notes/onboarding.md:3:In the first 30 days, a new person meets the team and reads the guides.
+notes/onboarding.md-4-They get a laptop on the first day.
+notes/onboarding.md-5-Their manager checks in each week.
+--
+notes/expenses.md-1-# Expenses
+notes/expenses.md-2-
+notes/expenses.md-3-Send a receipt with each claim.
+notes/expenses.md:4:The company pays a claim within 14 days.
+notes/expenses.md-5-A claim without a receipt waits until the receipt comes.
+jag: cost $0.000095: scored 3 of 3 results, skipped 0.
+```
+
+A developer looks for the place where the code waits before it tries a request again:
+
+<!-- example: code-question -->
+```
+$ jag --ask "where does the code wait before it tries a request again" retry src
+src/client.py-12-        # Wait before the next try.
+src/client.py:13:        time.sleep(retry_wait)
+src/client.py-14-    raise RuntimeError("the service did not answer")
+--
+src/queue.py-3-        try:
+src/queue.py-4-            job.run()
+src/queue.py-5-        except TimeoutError:
+src/queue.py:6:            job.retry_count += 1
+src/queue.py-7-            jobs.append(job)
+--
+src/client.py-1-import time
+src/client.py-2-
+src/client.py:3:max_retry = 3
+src/client.py:4:retry_wait = 2
+src/client.py-5-
+src/client.py-6-
+src/client.py-7-def send(request):
+src/client.py:8:    for attempt in range(max_retry):
+src/client.py-9-        reply = call_service(request)
+src/client.py-10-        if reply.ok:
+src/client.py-11-            return reply
+--
+src/settings.py:1:# How many times to retry a job.
+src/settings.py:2:job_retry_limit = 5
+jag: cost $0.000126: scored 4 of 4 results, skipped 0.
+```
+
+A developer who does not need the model gives no question. jag then gives the same output as `rg`, with no cost line:
+
+<!-- example: no-question -->
+```
+$ jag retry src
+src/client.py
+3:max_retry = 3
+4:retry_wait = 2
+8:    for attempt in range(max_retry):
+13:        time.sleep(retry_wait)
+
+src/queue.py
+6:            job.retry_count += 1
+
+src/settings.py
+1:# How many times to retry a job.
+2:job_retry_limit = 5
+```
+
+An employee asks a question that the notes do not answer. jag exits with exit code 1 and shows the label before the results. Ask a better question, or search for a broader term:
+
+<!-- example: no-good-answer -->
+```
+$ jag --ask "what is the refund policy" policy notes
+jag: no good answer. The results below do not answer the question well.
+notes/security.md-1-# Security
+notes/security.md-2-
+notes/security.md:3:Read the security policy before you use a company laptop.
+notes/security.md-4-Lock the screen when you leave your desk.
+notes/security.md-5-Report a lost laptop on the same day.
+--
+notes/travel.md-1-# Travel
+notes/travel.md-2-
+notes/travel.md:3:The travel policy says to book trains before planes.
+notes/travel.md-4-Book at least one week before the trip.
+notes/travel.md-5-Keep the tickets for the expense claim.
+jag: cost $0.000063: scored 2 of 2 results, skipped 0.
+```
+
+A technician looks for the reason that a backup stopped, and sets a small size limit. jag leaves out some results, exits with exit code 8, and tells how to raise the limit. Use a larger `--max-chars`:
+
+<!-- example: size-limit -->
+```
+$ jag --max-chars 1000 --ask "why did the backup stop" error logs
+jag: size limit reached: showed 1 of 6 results, left out 5. To see more, use --max-chars with a number larger than 1000, or --no-max-chars.
+logs/backup.log-29-02:04:10 copied 10 percent of volume 4
+logs/backup.log-30-02:04:20 copied 40 percent of volume 4
+logs/backup.log-31-02:04:30 copied 70 percent of volume 4
+logs/backup.log:32:02:04:40 error 4: the backup disk answered too slowly
+logs/backup.log:33:02:04:41 error 4: the copy of volume 4 was cut off
+logs/backup.log-34-02:04:50 copy of volume 4 started again
+logs/backup.log-35-02:04:55 copied 100 percent of volume 4
+logs/backup.log-36-02:04:59 check of volume 4 passed
+jag: cost $0.000189: scored 6 of 6 results, skipped 0.
+```
+
+A developer asks a question before jag has a key. jag exits with exit code 3 and tells what to do. Run `jag --setup` (see "Store your TypeSafe key"):
+
+<!-- example: missing-key -->
+```
+$ jag --ask "where does the code wait before it tries a request again" retry src
+jag: no TypeSafe API key found.
+Get a key at https://console.typesafe.ai/keys, then run `jag --setup`,
+or set JAG_TYPESAFE_API_KEY.
+```
+
 ## Search with no question
 
 With no question, jag gives the same output as `rg` (ripgrep) 15.2.0 gives

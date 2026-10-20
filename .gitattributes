@@ -1,3 +1,4 @@
 tests/parity/fixtures/** -text
 tests/parity/expected/** -text
 tests/parity/stdin/** -text
+tests/readme/** -text

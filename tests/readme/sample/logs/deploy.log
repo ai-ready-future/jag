@@ -1,0 +1,18 @@
+10:00:01 deploy of build 412 started
+10:00:02 step 1 of 6: fetch the build
+10:00:05 step 1 of 6 done
+10:00:06 step 2 of 6: stop the old service
+10:00:09 step 2 of 6 done
+10:00:10 step 3 of 6: update the database
+10:00:14 step 3 of 6 done
+10:00:15 step 4 of 6: start the new service
+10:00:19 health check failed once, will try again
+10:00:24 step 4 of 6 done
+10:00:25 step 5 of 6: warm the cache
+10:00:31 step 5 of 6 done
+10:00:32 step 6 of 6: send traffic to the new service
+10:00:36 step 6 of 6 failed: the new service has no free disk space
+10:00:37 roll back started
+10:00:40 traffic is back on the old service
+10:00:41 roll back done
+10:00:42 deploy of build 412 failed
