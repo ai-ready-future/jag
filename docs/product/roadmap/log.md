@@ -1,6 +1,7 @@
 # Log
 
 ## 2026-10-20
+* **Plan**: [STORY-72](stories/STORY-72.md) CRITERION-125 no longer says "the same fallback as the skill": as the skill does (DECISION-55), the snippet tells the agent to give the user the cause and the fix that jag writes, and names no other search tool; no user decision is necessary, because CAPABILITY-11 says that both forms teach the same behavior, by agent:planner, at 2026-10-20T11:12:24Z
 * **Sync**: [STORY-76](stories/STORY-76.md) pushed to GitHub, by system:github, at 2026-10-20T10:59:06Z
 * **Sync**: [STORY-71](stories/STORY-71.md) pushed to GitHub, by system:github, at 2026-10-20T10:48:16Z
 * **Sync**: [STORY-69](stories/STORY-69.md) pushed to GitHub, by system:github, at 2026-10-20T10:48:16Z
