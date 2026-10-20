@@ -183,8 +183,9 @@ shell says `command not found`. Do this one time in the task:
   installed. Do not install it yourself. Give the user the install steps at
   https://github.com/ai-ready-future/jag#install. One way is
   `npm install -g @airf/jag`.
-- For 3 and 4, tell the user to run `jag --setup` in their own terminal, or
-  to set the variable `JAG_TYPESAFE_API_KEY`.
+- For 3 and 4, the user does the fix in their own terminal. `error.fix` says
+  how: for example, it can name `jag --setup`. Do not run `jag --setup`
+  yourself.
 
 Do not run jag again in this task, unless the user says that the fix is
 done. For 6, do not run jag again at once: jag already tried again in the
