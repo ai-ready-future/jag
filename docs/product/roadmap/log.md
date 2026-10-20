@@ -1,6 +1,9 @@
 # Log
 
 ## 2026-10-20
+* **Sync**: [STORY-69](stories/STORY-69.md) pushed to GitHub, by system:github, at 2026-10-20T11:32:39Z
+* **Sync**: [FEATURE-24](features/FEATURE-24.md) pushed to GitHub, by system:github, at 2026-10-20T11:32:39Z
+* **Sync**: [EPIC-06](epics/EPIC-06.md) pushed to GitHub, by system:github, at 2026-10-20T11:32:39Z
 * **Plan**: [STORY-69](stories/STORY-69.md) user answer (human:404pilo, hitl card "Does the skill tell the agent to always ask a question?", 2026-10-20, option 1: "just tells the agent of the existence of that option .. it is up to the agent to use it or not"): DECISION-56 with its Principle line; CAPABILITY-11 behaviors 1 and 2, CRITERION-118, FEATURE-24, and EPIC-06 now say that the agent knows both forms (`jag TERM PATH` with no cost, and `--ask` with a paid model call) and decides when to use `--ask`; CRITERION-119 and STORY-69 had no "always" and do not change; STORY-69 stays ready; the 5 drifted traces of EPIC-06, FEATURE-24, FEATURE-25, FEATURE-26, and MILESTONE-02 to CAPABILITY-11 are accepted as human:404pilo, because this answer orders the change and no code of these features is merged, by agent:planner, at 2026-10-20T11:24:18Z
 * **Plan**: [STORY-72](stories/STORY-72.md) CRITERION-125 no longer says "the same fallback as the skill": as the skill does (DECISION-55), the snippet tells the agent to give the user the cause and the fix that jag writes, and names no other search tool; no user decision is necessary, because CAPABILITY-11 says that both forms teach the same behavior, by agent:planner, at 2026-10-20T11:12:24Z
 * **Sync**: [STORY-75](stories/STORY-75.md) pushed to GitHub, by system:github, at 2026-10-20T11:17:36Z
