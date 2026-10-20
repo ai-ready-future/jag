@@ -4,7 +4,8 @@ title: Copy the same teaching as a snippet
 description: For an agent that can't install a skill, the agent builder copies a snippet
   that holds the same teaching as the jag skill.
 status: draft
-state: ready
+state: done
+actual_end_date: '2026-10-20'
 github:
   number: 179
   node_id: I_kwDOVKMnL88AAAABYgDQoQ
@@ -31,8 +32,8 @@ The README shows a snippet that the agent builder copies into the instructions o
 
 | Item | State | Progress | Owner | Blocked by | Drift |
 | --- | --- | --- | --- | --- | --- |
-| [STORY-72: Copy the snippet from the README](../stories/STORY-72.md) | ready | - | - | - | - |
-| [STORY-73: The snippet and the skill share one source](../stories/STORY-73.md) | ready | - | - | - | - |
+| [STORY-72: Copy the snippet from the README](../stories/STORY-72.md) | done | - | - | - | - |
+| [STORY-73: The snippet and the skill share one source](../stories/STORY-73.md) | done | - | - | - | - |
 <!-- STATUS:END -->
 
 <!-- LINKS:START (generated, do not edit) -->

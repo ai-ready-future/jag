@@ -1,6 +1,9 @@
 # Log
 
 ## 2026-10-20
+* **State**: [FEATURE-25](features/FEATURE-25.md) ready -> done, by human:404pilo, at 2026-10-20T12:44:23Z
+* **State**: [STORY-73](stories/STORY-73.md) ready -> done, by human:404pilo, at 2026-10-20T12:44:23Z
+* **State**: [STORY-72](stories/STORY-72.md) ready -> done, by human:404pilo, at 2026-10-20T12:44:23Z
 * **Sync**: [STORY-76](stories/STORY-76.md) pushed to GitHub, by system:github, at 2026-10-20T12:38:47Z
 * **Sync**: [FEATURE-27](features/FEATURE-27.md) pushed to GitHub, by system:github, at 2026-10-20T12:38:47Z
 * **State**: [FEATURE-27](features/FEATURE-27.md) ready -> done, by human:404pilo, at 2026-10-20T12:11:28Z

@@ -34,6 +34,7 @@ generated:
 * [FEATURE-21: Send the model calls through an AI gateway](FEATURE-21.md) - The user can set a base URL and a model name, so that jag sends the same model calls through an AI gateway. With no setting, jag calls TypeSafe directly.
 * [FEATURE-23: Give the same output as rg for the same arguments](FEATURE-23.md) - An rg command and a jag command with the same arguments and no question give the same bytes, the same color, and the same exit code, and e2e tests check this in CI.
 * [FEATURE-24: Install the jag skill with one README command](FEATURE-24.md) - The agent builder runs one command from the README, and the jag skill teaches the agent the four behaviors and what to tell the user when jag fails.
+* [FEATURE-25: Copy the same teaching as a snippet](FEATURE-25.md) - For an agent that can't install a skill, the agent builder copies a snippet that holds the same teaching as the jag skill.
 
 ## MILESTONE-03: Make it fast
 
