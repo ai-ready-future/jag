@@ -12,7 +12,7 @@ github:
   url: https://github.com/ai-ready-future/jag/issues/195
   pushed_hash: 4b4319
   synced:
-    state: backlog
+    state: ready
 spec: docs/superpowers/specs/2026-10-20-STORY-76-readme-examples-for-people-design.md
 parent: /features/FEATURE-27.md
 milestone: /milestones/MILESTONE-01.md
