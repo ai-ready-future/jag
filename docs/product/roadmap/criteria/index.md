@@ -320,9 +320,9 @@
 * [CRITERION-115: The README gives one install command](CRITERION-115.md) - The README shows one command that installs the jag skill.
 * [CRITERION-116: The command installs into each supported agent](CRITERION-116.md) - After the command runs, the jag skill is present in each agent that the install command supports, such as Claude Code.
 
-## STORY-69: The agent chooses jag and sets a limit
+## STORY-69: The agent uses jag in place of rg and sets a limit
 
-* [CRITERION-117: The agent chooses jag for a large result](CRITERION-117.md) - When plain keyword search returns too much text, the agent chooses jag.
+* [CRITERION-117: The agent runs jag in place of rg](CRITERION-117.md) - For a search, the agent runs jag in place of rg.
 * [CRITERION-118: The agent writes a broad term and a clear question](CRITERION-118.md) - The agent gives jag a broad term and a clear question.
 * [CRITERION-119: The agent sets a limit](CRITERION-119.md) - The agent sets a limit on the text that jag returns.
 

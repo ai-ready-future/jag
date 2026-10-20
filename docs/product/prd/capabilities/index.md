@@ -10,5 +10,5 @@
 * [CAPABILITY-08: A repeated search costs nothing](CAPABILITY-08.md) - When the user asks the same question of the same text again, jag does not pay for it again.
 * [CAPABILITY-09: Say which text leaves the machine](CAPABILITY-09.md) - jag tells the user which text it sends to the model service, so the user can decide before a search.
 * [CAPABILITY-10: Question without a term](CAPABILITY-10.md) - The user gives only a question, and jag chooses the candidate lines itself.
-* [CAPABILITY-11: Agent instructions to install or copy](CAPABILITY-11.md) - The agent builder installs a jag skill into their agent, or copies a snippet; either one teaches the agent when and how to call jag.
+* [CAPABILITY-11: Agent instructions to install or copy](CAPABILITY-11.md) - The agent builder installs a jag skill into their agent, or copies a snippet; either one teaches the agent how jag works and how to use it as an enhanced rg.
 * [CAPABILITY-12: Measure jag on your own questions](CAPABILITY-12.md) - The user runs jag and grep on their own questions and sees which one finds the answer more often.

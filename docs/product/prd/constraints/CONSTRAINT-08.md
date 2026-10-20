@@ -10,7 +10,7 @@ constrains:
 
 # CONSTRAINT-08: One README command installs the agent skill
 
-The README of jag gives one command that installs the jag skill into an agent. The agent builder runs that command. The agent builder writes no instructions and edits no file.
+The README of jag gives one command that installs the jag skill into an agent. The agent builder runs that command after the program is installed. The agent builder writes no instructions and edits no file.
 
 <!-- LINKS:START (generated, do not edit) -->
 
