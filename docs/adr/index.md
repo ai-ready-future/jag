@@ -9,7 +9,7 @@ okf_version: "0.2"
 * [building-blocks](#building-blocks) - 4 decisions: 4 accepted
 * [context](#context) - 1 decision: 1 accepted
 * [contracts](#contracts) - 10 decisions: 10 accepted
-* [conventions](#conventions) - 1 decision: 1 proposed
+* [conventions](#conventions) - 1 decision: 1 accepted
 * [deployment](#deployment) - 4 decisions: 3 accepted, 1 proposed
 * [quality](#quality) - 2 decisions: 2 accepted
 * [strategy](#strategy) - 3 decisions: 3 accepted
@@ -46,9 +46,9 @@ okf_version: "0.2"
 
 ## conventions
 
-### proposed
+### accepted
 
-* [0025: Use the body of the jag skill file as the one source of the agent instructions](./0025-use-the-body-of-the-jag-skill-file-as-the-one-source-of-the.md) - proposed. Open this when you change the text of the jag skill or of the README agent snippet, or how the two stay the same.
+* [0025: Use the body of the jag skill file as the one source of the agent instructions](./0025-use-the-body-of-the-jag-skill-file-as-the-one-source-of-the.md) - accepted. Open this when you change the text of the jag skill or of the README agent snippet, or how the two stay the same.
 
 ## deployment
 

@@ -481,8 +481,9 @@ gateway key, the base URL, and the model name.
   from crates.io. The npm package `@airf/jag` installs the same
   prebuilt binary through one npm package for each platform, so `npx`
   works. The npm route needs Node, and the binary does not (deployment-1).
-- Agent skill: the file `skills/jag/SKILL.md` in the repository. The outside
-  `skills` tool installs it into an agent with
+- Agent skill: the file `skills/jag/SKILL.md` in the repository. After the
+  program is installed, the user runs the outside `skills` tool, which
+  installs the skill into an agent with
   `npx skills add ai-ready-future/jag`. It reads the file from the
   repository, not from a release, so no release, crate, or npm package
   holds it (deployment-6). Its body is the one source of the agent
@@ -542,13 +543,13 @@ gateway key, the base URL, and the model name.
 | conventions-5 | |  | conventions | The retry wait, and how you change it | human:404pilo, 2026-10-13 |
 | conventions-6 | |  | conventions | How jag keeps the key secret | human:404pilo, 2026-10-12 |
 | conventions-7 | |  | conventions | The order in which an option, a variable, and the config file set a value | human:404pilo, 2026-10-12 |
-| conventions-8 | 0025-use-the-body-of-the-jag-skill-file-as-the-one-source-of-the.md | proposed | conventions | The one source of the agent instructions: the body of `skills/jag/SKILL.md` | adr |
+| conventions-8 | 0025-use-the-body-of-the-jag-skill-file-as-the-one-source-of-the.md | accepted | conventions | The one source of the agent instructions: the body of `skills/jag/SKILL.md` | adr |
 | deployment-1 | 0010-ship-jag-on-github-releases-crates-io-and-npm.md | accepted | deployment | How users install jag | adr |
 | deployment-2 | |  | deployment | The operating systems and the runtime versions that jag supports | human:404pilo, 2026-10-12 |
 | deployment-3 | |  | deployment | The release path and the checks that guard it | human:404pilo, 2026-10-12 |
 | deployment-4 | 0019-give-the-new-public-repository-the-name-ai-ready-future-jag.md | accepted | deployment | The name of the public repository | adr |
 | deployment-5 | 0020-name-the-release-archives-and-the-npm-platform-packages-by.md | accepted | deployment | The names of the release archives, the checksum files, and the npm platform packages | adr |
-| deployment-6 | 0024-install-the-jag-agent-skill-from-the-repository-with-the.md | proposed | deployment | How an agent gets the jag skill: `npx skills add ai-ready-future/jag` reads `skills/jag/SKILL.md` from the repository | adr |
+| deployment-6 | 0024-install-the-jag-agent-skill-from-the-repository-with-the.md | proposed | deployment | How an agent gets the jag skill: after the program, `npx skills add ai-ready-future/jag` reads `skills/jag/SKILL.md` from the repository | adr |
 
 ## Requirements to components
 

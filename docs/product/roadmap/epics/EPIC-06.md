@@ -9,20 +9,20 @@ github:
   number: 177
   node_id: I_kwDOVKMnL88AAAABYgDHSw
   url: https://github.com/ai-ready-future/jag/issues/177
-  pushed_hash: 44b8f0
+  pushed_hash: 77da0a
   synced:
     state: ready
 milestone: /milestones/MILESTONE-02.md
 traces:
 - to: prd:/capabilities/CAPABILITY-11.md
-  hash: 05fecd
+  hash: 6c96fe
 - to: prd:/constraints/CONSTRAINT-08.md
-  hash: c24329
+  hash: 26d3ad
 ---
 
 # EPIC-06: An agent uses jag well
 
-The agent builder installs the jag skill with one README command, or copies the same teaching as a snippet. The agent then chooses jag over plain keyword search when it must, writes a good term and question, sets the size limit, reads the results and the failures, and falls back to its own search tool when jag can't run. A repeatable test proves this behavior.
+The agent builder installs the jag skill with one README command, or copies the same teaching as a snippet. The agent then uses jag in place of rg, writes a good term and question, sets the size limit, reads the results and the failures, and gives the user the cause and the fix when jag can't run. A repeatable test proves this behavior.
 
 <!-- LINKS:START (generated, do not edit) -->
 

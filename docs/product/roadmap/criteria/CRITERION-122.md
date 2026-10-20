@@ -15,5 +15,5 @@ When jag is not installed, the key is not set, or the model service is down, the
 
 ## Links
 
-- item: [STORY-71: The agent tells the user and falls back](../stories/STORY-71.md)
+- item: [STORY-71: The agent tells the user the cause and the fix](../stories/STORY-71.md)
 <!-- LINKS:END -->

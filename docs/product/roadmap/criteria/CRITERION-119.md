@@ -14,5 +14,5 @@ The agent sets a limit on the text that jag returns.
 
 ## Links
 
-- item: [STORY-69: The agent chooses jag and sets a limit](../stories/STORY-69.md)
+- item: [STORY-69: The agent uses jag in place of rg and sets a limit](../stories/STORY-69.md)
 <!-- LINKS:END -->

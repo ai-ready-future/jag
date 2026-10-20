@@ -2,14 +2,15 @@
 type: Feature
 title: Prove that an agent with the skill uses jag well
 description: A repeatable test runs an agent with the jag skill and shows that it
-  chooses jag, sets the limit, reads the results, and falls back when jag fails.
+  uses jag in place of rg, sets the limit, reads the results, and gives the user the
+  cause and the fix when jag fails.
 status: draft
 state: blocked
 github:
   number: 180
   node_id: I_kwDOVKMnL88AAAABYgDWGw
   url: https://github.com/ai-ready-future/jag/issues/180
-  pushed_hash: 973f14
+  pushed_hash: de3143
   synced:
     state: blocked
 parent: /epics/EPIC-06.md
@@ -18,7 +19,7 @@ blocked_by:
 milestone: /milestones/MILESTONE-02.md
 traces:
 - to: prd:/capabilities/CAPABILITY-11.md
-  hash: 05fecd
+  hash: 6c96fe
 ---
 
 # FEATURE-26: Prove that an agent with the skill uses jag well
