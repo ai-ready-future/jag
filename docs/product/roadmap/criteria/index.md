@@ -339,7 +339,7 @@
 ## STORY-72: Copy the snippet from the README
 
 * [CRITERION-124: The README shows the snippet](CRITERION-124.md) - The README shows a snippet that the agent builder can copy.
-* [CRITERION-125: The snippet teaches the same four behaviors](CRITERION-125.md) - The snippet teaches the same four behaviors and the same fallback as the skill.
+* [CRITERION-125: The snippet teaches the same four behaviors](CRITERION-125.md) - The snippet teaches the same four behaviors as the skill, and the same text for a failure of jag, with no fallback rule.
 
 ## STORY-73: The snippet and the skill share one source
 
