@@ -1,6 +1,8 @@
 # Log
 
 ## 2026-10-20
+* **Sync**: [STORY-75](stories/STORY-75.md) pushed to GitHub, by system:github, at 2026-10-20T11:17:36Z
+* **Sync**: [FEATURE-26](features/FEATURE-26.md) pushed to GitHub, by system:github, at 2026-10-20T11:17:36Z
 * **Plan**: [FEATURE-26](features/FEATURE-26.md) body now uses the words of DECISION-54 and DECISION-55 (the agent runs jag in place of rg; it gives the user the cause and the fix that jag writes), as its description already does (specifier-1 drift note), by agent:planner, at 2026-10-20T11:05:03Z
 * **Sync**: [STORY-76](stories/STORY-76.md) pushed to GitHub, by system:github, at 2026-10-20T10:59:06Z
 * **Sync**: [STORY-71](stories/STORY-71.md) pushed to GitHub, by system:github, at 2026-10-20T10:48:16Z
