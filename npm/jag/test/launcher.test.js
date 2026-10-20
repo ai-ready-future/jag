@@ -59,7 +59,7 @@ test('an unknown platform gives 127 and the message', () => {
   });
   assert.strictEqual(found.code, 127);
   assert.strictEqual(found.message, launcher.messages.unsupported('win32', 'x64'));
-  assert.match(found.message, /cargo install --locked jag-grep/);
+  assert.match(found.message, /cargo install --locked jag-cli/);
 });
 
 test('the table of the launcher agrees with package.json', () => {

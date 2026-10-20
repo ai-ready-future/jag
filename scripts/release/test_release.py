@@ -71,10 +71,10 @@ class TempCase(unittest.TestCase):
 
 class VersionTests(TempCase):
     def cargo(self, version, lock_version=None):
-        toml = write(self.tmp / "Cargo.toml", f'[package]\nname = "jag-grep"\nversion = "{version}"\n')
+        toml = write(self.tmp / "Cargo.toml", f'[package]\nname = "jag-cli"\nversion = "{version}"\n')
         lock = write(
             self.tmp / "Cargo.lock",
-            f'version = 4\n\n[[package]]\nname = "jag-grep"\nversion = "{lock_version or version}"\n',
+            f'version = 4\n\n[[package]]\nname = "jag-cli"\nversion = "{lock_version or version}"\n',
         )
         return ["--cargo-toml", str(toml), "--cargo-lock", str(lock)]
 
@@ -588,7 +588,7 @@ class CrateListTests(unittest.TestCase):
 
 
 class CrateMetadataTests(TempCase):
-    def crate(self, name="jag-grep-1.2.3.crate", manifest=None, folder="jag-grep-1.2.3"):
+    def crate(self, name="jag-cli-1.2.3.crate", manifest=None, folder="jag-cli-1.2.3"):
         text = (ROOT / "Cargo.toml").read_text(encoding="utf-8") if manifest is None else manifest
         return make_tgz(self.tmp / name, [(f"{folder}/Cargo.toml", text.encode(), 0o644)])
 
@@ -627,11 +627,11 @@ class CrateMetadataTests(TempCase):
         self.assertIn("description", err)
 
     def test_a_missing_value_fails(self):
-        manifest = '[package]\nname = "jag-grep"\nversion = "1.2.3"\n'
+        manifest = '[package]\nname = "jag-cli"\nversion = "1.2.3"\n'
         self.assertEqual(run_main(["check-crate-metadata", str(self.crate(manifest=manifest))])[0], 1)
 
     def test_a_crate_with_no_manifest_in_its_folder_fails(self):
-        path = make_tgz(self.tmp / "x.crate", [("jag-grep-1.2.3/src/Cargo.toml", b"x", 0o644)])
+        path = make_tgz(self.tmp / "x.crate", [("jag-cli-1.2.3/src/Cargo.toml", b"x", 0o644)])
         self.assertEqual(run_main(["check-crate-metadata", str(path)])[0], 1)
 
 
@@ -749,10 +749,10 @@ class TextsTests(TempCase):
         self.assertIn("b", text)
 
     def test_a_crate_file_is_read_as_a_tar_gz(self):
-        crate = make_tgz(self.tmp / "jag-grep-1.2.3.crate", [("jag-grep-1.2.3/Cargo.toml", b"[package]\n", 0o644)])
+        crate = make_tgz(self.tmp / "jag-cli-1.2.3.crate", [("jag-cli-1.2.3/Cargo.toml", b"[package]\n", 0o644)])
         text, index = self.run_texts(crate)
         self.assertIn("[package]", text)
-        self.assertIn("jag-grep-1.2.3.crate member 1 line 1", index)
+        self.assertIn("jag-cli-1.2.3.crate member 1 line 1", index)
 
 
 class ReleaseFilesTests(TempCase):
@@ -814,7 +814,7 @@ class ExistsTests(unittest.TestCase):
 
     def test_the_urls(self):
         self.assertEqual(
-            release.registry_url("crates", "jag-grep", VERSION), "https://crates.io/api/v1/crates/jag-grep/1.2.3"
+            release.registry_url("crates", "jag-cli", VERSION), "https://crates.io/api/v1/crates/jag-cli/1.2.3"
         )
         self.assertEqual(
             release.registry_url("npm", "@airf/jag-linux-x64", VERSION),
@@ -823,7 +823,7 @@ class ExistsTests(unittest.TestCase):
 
     def test_found_and_not_found(self):
         seen = []
-        self.assertTrue(release.version_exists("crates", "jag-grep", VERSION, self.opener(200, seen=seen)))
+        self.assertTrue(release.version_exists("crates", "jag-cli", VERSION, self.opener(200, seen=seen)))
         self.assertIn("User-Agent", {k.title() if k.lower() == "user-agent" else k for k in seen[0].headers})
         not_found = urllib.error.HTTPError("u", 404, "Not Found", {}, None)
         self.assertFalse(release.version_exists("npm", "@airf/jag", VERSION, self.opener(error=not_found)))
@@ -1152,7 +1152,7 @@ class FirstPublishTests(TempCase):
             [], {"FAKE_CRATE_HTTP": "200", "FAKE_NPM_EXISTING": "@airf/jag-linux-x64"}, stdin="yes\n"
         )
         self.assertEqual(second.returncode, 0, second.stderr)
-        self.assertIn("jag-grep 0.0.0 is on crates.io already. Skip.", second.stdout)
+        self.assertIn("jag-cli 0.0.0 is on crates.io already. Skip.", second.stdout)
         self.assertIn("@airf/jag-linux-x64 0.0.0 is on npm already. Skip.", second.stdout)
         self.assertEqual(
             [c.split(" name=")[-1] for c in calls],

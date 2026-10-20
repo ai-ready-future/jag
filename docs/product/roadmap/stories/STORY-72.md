@@ -4,14 +4,16 @@ title: Copy the snippet from the README
 description: As an agent builder (PERSONA-01), I want to copy a snippet from the README
   into an agent that cannot install a skill, so that this agent also learns jag.
 status: draft
-state: backlog
+state: done
+actual_end_date: '2026-10-20'
 github:
   number: 185
   node_id: I_kwDOVKMnL88AAAABYgD1Tg
   url: https://github.com/ai-ready-future/jag/issues/185
   pushed_hash: 68ea98
   synced:
-    state: backlog
+    state: done
+spec: docs/superpowers/specs/2026-10-20-STORY-72-copy-the-same-teaching-as-a-snippet-design.md
 parent: /features/FEATURE-25.md
 milestone: /milestones/MILESTONE-02.md
 ---

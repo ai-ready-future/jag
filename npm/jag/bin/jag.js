@@ -24,7 +24,7 @@ const SELF_KILL = new Set([...FORWARDED, 'SIGABRT', 'SIGSEGV', 'SIGKILL']);
 
 const messages = {
   unsupported: (platform, arch) =>
-    `jag: npm has no jag binary for ${platform} ${arch}. jag runs on Linux x64 and arm64, and on macOS arm64 and x64. To build jag from source, run: cargo install --locked jag-grep`,
+    `jag: npm has no jag binary for ${platform} ${arch}. jag runs on Linux x64 and arm64, and on macOS arm64 and x64. To build jag from source, run: cargo install --locked jag-cli`,
   notInstalled: (name) =>
     `jag: the package ${name} is not installed. npm does not install it with --omit=optional or --no-optional. Install @airf/jag again without these options.`,
   cannotStart: (path, code) => `jag: cannot start ${path}: ${code}. Install @airf/jag again.`,

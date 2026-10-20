@@ -19,6 +19,7 @@ generated:
 * [FEATURE-09: Size limit on the text that jag returns](FEATURE-09.md) - jag never writes more characters than the size limit, leaves out whole results with the lowest rank first, and says how many it left out and how to raise the limit.
 * [FEATURE-11: Text output for a person and structured output for an agent](FEATURE-11.md) - An option turns on structured output that an agent can parse, with the same results as the text, a named field for each item, structured errors, and a form version.
 * [FEATURE-17: Block private data in the repository](FEATURE-17.md) - A check on each pull request fails when the change adds a key, case content, private evaluation data, or an internal project name.
+* [FEATURE-27: README examples for people](FEATURE-27.md) - The README gives worked examples that show a person how to search with jag at the shell, with the command to copy and what jag shows.
 
 ## MILESTONE-02: Make it good
 
@@ -33,6 +34,7 @@ generated:
 * [FEATURE-21: Send the model calls through an AI gateway](FEATURE-21.md) - The user can set a base URL and a model name, so that jag sends the same model calls through an AI gateway. With no setting, jag calls TypeSafe directly.
 * [FEATURE-23: Give the same output as rg for the same arguments](FEATURE-23.md) - An rg command and a jag command with the same arguments and no question give the same bytes, the same color, and the same exit code, and e2e tests check this in CI.
 * [FEATURE-24: Install the jag skill with one README command](FEATURE-24.md) - The agent builder runs one command from the README, and the jag skill teaches the agent the four behaviors and what to tell the user when jag fails.
+* [FEATURE-25: Copy the same teaching as a snippet](FEATURE-25.md) - For an agent that can't install a skill, the agent builder copies a snippet that holds the same teaching as the jag skill.
 
 ## MILESTONE-03: Make it fast
 

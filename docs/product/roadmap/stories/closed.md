@@ -36,6 +36,7 @@ generated:
 * [STORY-31: Get a complete structured output with notices and errors](STORY-31.md) - As an agent builder (PERSONA-01), I want structured output to hold each notice and each error inside the structure, so that my agent parses every outcome in one form.
 * [STORY-32: Rely on a stable structured form](STORY-32.md) - As an agent builder (PERSONA-01), I want the structured output to show its form version and to only add fields in one major version, so that my agent keeps working when jag updates.
 * [STORY-46: Fail a pull request that adds private data](STORY-46.md) - As an agent builder (PERSONA-01), I want each pull request checked for private data, so that the public repository never holds keys, case content, private evaluation data, or internal project names.
+* [STORY-76: Learn jag from worked examples in the README](STORY-76.md) - As a person at the shell (PERSONA-02, PERSONA-03, PERSONA-04), I want worked examples in the README, so that I can copy a command and see what jag shows before I read each option.
 
 ## MILESTONE-02: Make it good
 
@@ -78,6 +79,8 @@ generated:
 * [STORY-69: The agent uses jag in place of rg and sets a limit](STORY-69.md) - As an agent builder (PERSONA-01), I want my agent to use jag in place of rg and to set a limit on the text, so that the agent does not fill its context.
 * [STORY-70: The agent reads the structured output](STORY-70.md) - As an agent builder (PERSONA-01), I want my agent to read the structured output and the failures of jag, so that it uses the file and line of each result.
 * [STORY-71: The agent tells the user the cause and the fix](STORY-71.md) - As an agent builder (PERSONA-01), I want my agent to give the user the cause and the fix that jag writes when jag cannot run, so that the user can fix it.
+* [STORY-72: Copy the snippet from the README](STORY-72.md) - As an agent builder (PERSONA-01), I want to copy a snippet from the README into an agent that cannot install a skill, so that this agent also learns jag.
+* [STORY-73: The snippet and the skill share one source](STORY-73.md) - As an agent builder (PERSONA-01), I want the snippet and the skill to come from one source, so that they always teach the same behavior.
 
 ## MILESTONE-03: Make it fast
 

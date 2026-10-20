@@ -5,14 +5,15 @@ description: As a person at the shell (PERSONA-02, PERSONA-03, PERSONA-04), I wa
   worked examples in the README, so that I can copy a command and see what jag shows
   before I read each option.
 status: draft
-state: ready
+state: done
+actual_end_date: '2026-10-20'
 github:
   number: 195
   node_id: I_kwDOVKMnL88AAAABYg3oBg
   url: https://github.com/ai-ready-future/jag/issues/195
   pushed_hash: 4b4319
   synced:
-    state: ready
+    state: done
 spec: docs/superpowers/specs/2026-10-20-STORY-76-readme-examples-for-people-design.md
 parent: /features/FEATURE-27.md
 milestone: /milestones/MILESTONE-01.md

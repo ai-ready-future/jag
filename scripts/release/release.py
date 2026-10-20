@@ -26,7 +26,7 @@ import urllib.error
 import urllib.request
 from pathlib import Path
 
-CRATE = "jag-grep"
+CRATE = "jag-cli"
 NPM_SCOPE = "@airf"
 NPM_MAIN = f"{NPM_SCOPE}/jag"
 REPOSITORY_URL = "git+https://github.com/ai-ready-future/jag.git"

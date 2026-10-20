@@ -4,14 +4,16 @@ title: The snippet and the skill share one source
 description: As an agent builder (PERSONA-01), I want the snippet and the skill to
   come from one source, so that they always teach the same behavior.
 status: draft
-state: backlog
+state: done
+actual_end_date: '2026-10-20'
 github:
   number: 186
   node_id: I_kwDOVKMnL88AAAABYgD88g
   url: https://github.com/ai-ready-future/jag/issues/186
   pushed_hash: 02328a
   synced:
-    state: backlog
+    state: done
+spec: docs/superpowers/specs/2026-10-20-STORY-72-copy-the-same-teaching-as-a-snippet-design.md
 parent: /features/FEATURE-25.md
 milestone: /milestones/MILESTONE-02.md
 ---
