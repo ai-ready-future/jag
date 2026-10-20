@@ -31,7 +31,7 @@ CAPABILITY-11 and CONSTRAINT-08: the README of jag gives one command that instal
 
 Facts that the decision uses:
 
-- The `skills` tool (npm package `skills`, source `vercel-labs/skills`) installs a skill from a code host (GitHub, GitLab, Azure Repos, or any git address), a local folder, a web address, or a download address. It cannot install a skill from an npm package. The shorthand `owner/repo` names a GitHub repository, so `npx skills add airf/jag` would read `github.com/airf/jag`, and that repository does not exist.
+- The `skills` tool (npm package `skills`, source `vercel-labs/skills`) installs a skill from a code host (GitHub, GitLab, Azure Repos, or any git address), a local folder, a web address, or a download address. `skills add` cannot install a skill from an npm package. The experimental command `skills experimental_sync` links skills only from the npm packages that the `package.json` of a project declares, and a global `npm install -g @airf/jag` is not one of them. The shorthand `owner/repo` names a GitHub repository, so `npx skills add airf/jag` would read `github.com/airf/jag`, and that repository does not exist.
 - In a repository, the tool finds a `SKILL.md` at the root, or in the folder `skills/`, in the folders of the agents (for example `.claude/skills/`), and then in other folders. A `SKILL.md` at the root stops the search.
 - The tool puts the skill into the skill folder of each agent that the user selects, for example Claude Code (`.claude/skills/`), Codex, or Pi (`.agents/skills/`).
 - The jag program comes from npm, crates.io, or a GitHub release (0010-ship-jag-on-github-releases-crates-io-and-npm.md). jag has no release yet.
@@ -48,7 +48,7 @@ Facts that the decision uses:
 ## Why
 
 - One command serves each agent: the tool knows the skill folder of each agent, so jag needs no code for each agent.
-- The program comes first, so the agent always finds an installed `jag`, and the skill needs no install steps of its own.
+- The program comes first, so the agent finds an installed `jag` when the user follows the README, and the skill needs no install steps of its own.
 - The tool reads the repository, so the skill is live when its pull request merges. It needs no release step.
 - `ai-ready-future/jag` works today. A move to `airf/jag` would replace the repository name of 0019-give-the-new-public-repository-the-name-ai-ready-future-jag.md and the trusted publishing of npm and crates.io.
 - The folder `skills/` is a place that the tool searches. A `SKILL.md` at the root would stop the search, and it would put the skill text at the root of the repository.
