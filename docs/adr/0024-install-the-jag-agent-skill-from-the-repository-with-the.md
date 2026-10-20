@@ -61,5 +61,5 @@ Facts that the decision uses:
 - `Cargo.toml` `include`, `npm/`, and `release.yml` do not change for the skill.
 - No other `SKILL.md` goes in the repository, also not in the folder of an agent such as `.claude/skills/`, because the tool also finds those files and installs them with the jag skill.
 - A new name of the repository (0019-give-the-new-public-repository-the-name-ai-ready-future-jag.md), a move of the skill file, or a change of the install tool changes the README command, and needs a new ADR.
-- The `skills` tool, not jag, sends an install count to skills.sh. `DO_NOT_TRACK=1` stops it. The README says so. jag itself still sends no telemetry (CV-8).
+- The `skills` tool, not jag, sends anonymous usage data and a security-audit request to skills.sh. `DO_NOT_TRACK=1` stops both. The README says so. jag itself still sends no telemetry (CV-8).
 - A new pin of the tool is a pull request that changes the tests, and it can change the list of agents.
