@@ -54,3 +54,4 @@
 * [DECISION-52: The failure limit comes from the timeout and the retry wait](DECISION-52.md) - When the model service does not answer, the time limit is 2 × the timeout + the retry wait, not a fixed number.
 * [DECISION-53: An agent skill is not an editor plugin](DECISION-53.md) - The installable jag skill is text for an agent, so it is outside the non-goal 'no GUI, web app, or editor plugin'; SCOPE-08 does not change.
 * [DECISION-54: The skill teaches jag as an enhanced rg, with no advice on when to use which tool](DECISION-54.md) - The jag skill tells the agent to use jag in place of rg and shows how jag and --ask work; it gives no advice on when to use which tool.
+* [DECISION-55: After jag fails, the skill tells the agent to tell the user, with no fallback rule](DECISION-55.md) - When jag cannot run, the skill tells the agent to give the user the cause and the fix that jag writes; it says nothing about other tools.

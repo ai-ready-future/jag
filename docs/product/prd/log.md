@@ -2,6 +2,7 @@
 
 ## 2026-10-20
 
+* **Save**: [product](product.md) user answer on the card "What the agent does after jag fails" (option 1): DECISION-55; the fallback paragraph of CAPABILITY-11; the full Principle line of DECISION-54, by agent:planner, at 2026-10-20T10:41:35Z
 * **Save**: [product](product.md) user answers on ADR-0025 (card 2 (a) and (b)): DECISION-54; CAPABILITY-11 behavior 1 and description; CONSTRAINT-08, by agent:planner, at 2026-10-20T10:34:34Z
 
 ## 2026-10-19

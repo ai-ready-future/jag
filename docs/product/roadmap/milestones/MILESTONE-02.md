@@ -12,7 +12,7 @@ traces:
 - to: prd:/scope/SCOPE-03.md
   hash: e57d07
 - to: prd:/capabilities/CAPABILITY-11.md
-  hash: 9c64e8
+  hash: 6c96fe
 - to: prd:/capabilities/CAPABILITY-06.md
   hash: 79d5d3
 - to: prd:/scope/SCOPE-10.md
@@ -120,7 +120,7 @@ This milestone holds the capabilities that make jag better to use and easier to 
 - item of: [STORY-68: Install the skill with one command](../stories/STORY-68.md)
 - item of: [STORY-69: The agent uses jag in place of rg and sets a limit](../stories/STORY-69.md)
 - item of: [STORY-70: The agent reads the structured output](../stories/STORY-70.md)
-- item of: [STORY-71: The agent tells the user and falls back](../stories/STORY-71.md)
+- item of: [STORY-71: The agent tells the user the cause and the fix](../stories/STORY-71.md)
 - item of: [STORY-72: Copy the snippet from the README](../stories/STORY-72.md)
 - item of: [STORY-73: The snippet and the skill share one source](../stories/STORY-73.md)
 - item of: [STORY-74: Run one repeatable agent test](../stories/STORY-74.md)

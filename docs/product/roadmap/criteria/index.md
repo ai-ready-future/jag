@@ -331,10 +331,10 @@
 * [CRITERION-120: The agent uses the file and line](CRITERION-120.md) - The agent uses the file and the line of a result to read or cite the source.
 * [CRITERION-121: The agent reads a failure](CRITERION-121.md) - The agent reads a failure in the output of jag and does not treat it as a result.
 
-## STORY-71: The agent tells the user and falls back
+## STORY-71: The agent tells the user the cause and the fix
 
 * [CRITERION-122: The agent explains each failure](CRITERION-122.md) - When jag is not installed, the key is not set, or the model service is down, the agent tells the user what is wrong and how to fix it.
-* [CRITERION-123: The agent continues with its own search](CRITERION-123.md) - After the agent tells the user, it continues the task with its own search tool.
+* [CRITERION-123: The skill gives no fallback rule](CRITERION-123.md) - The skill names no other search tool for the case where jag fails; after the agent tells the user, it does what it does by default.
 
 ## STORY-72: Copy the snippet from the README
 

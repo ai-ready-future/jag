@@ -18,7 +18,7 @@ blocked_by:
 milestone: /milestones/MILESTONE-02.md
 traces:
 - to: prd:/capabilities/CAPABILITY-11.md
-  hash: 9c64e8
+  hash: 6c96fe
 ---
 
 # FEATURE-25: Copy the same teaching as a snippet

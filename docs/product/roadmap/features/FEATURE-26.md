@@ -2,8 +2,8 @@
 type: Feature
 title: Prove that an agent with the skill uses jag well
 description: A repeatable test runs an agent with the jag skill and shows that it
-  uses jag in place of rg, sets the limit, reads the results, and falls back when
-  jag fails.
+  uses jag in place of rg, sets the limit, reads the results, and gives the user the
+  cause and the fix when jag fails.
 status: draft
 state: blocked
 github:
@@ -19,7 +19,7 @@ blocked_by:
 milestone: /milestones/MILESTONE-02.md
 traces:
 - to: prd:/capabilities/CAPABILITY-11.md
-  hash: 9c64e8
+  hash: 6c96fe
 ---
 
 # FEATURE-26: Prove that an agent with the skill uses jag well
