@@ -85,7 +85,7 @@ in the Assumptions list, with the source that a reviewer can open.
 |---|---|---|---|
 | 1 | Specs | One spec for STORY-68 to STORY-71. The four stories share one file, `skills/jag/SKILL.md`: STORY-69 to STORY-71 are its text, and STORY-68 installs it | Orchestrator TASK for FEATURE-24 ("1 feature = 1 spec = 1 PR") |
 | 2 | The install tool | The `skills` command line tool (npm package `skills`, source `vercel-labs/skills`). The README command is `npx skills add ai-ready-future/jag`. The tests pin `skills@1.7.4` | User answer 2; ADR-0019 (the repository name) |
-| 3 | The place and the name of the skill | One folder `skills/jag/` with one file `SKILL.md`. The skill name is `jag`, the name of the command. The `skills` tool finds a skill in the folder `skills/` of a repository | Inferred: the discovery order of the `skills` tool (github.com/vercel-labs/skills, README, "Skill discovery"); README line 4 (the command is `jag`) |
+| 3 | The place and the name of the skill | One folder `skills/jag/` with one file `SKILL.md`. The skill name is `jag`, the name of the command. The `skills` tool finds a skill in the folder `skills/` of a repository | Inferred: the discovery order of the `skills` tool (github.com/vercel-labs/skills v1.7.4, docs/creating-skills.md, "Skill Discovery"); README line 4 (the command is `jag`) |
 | 4 | The frontmatter | Only `name: jag` and `description`. No key of one agent, for example no `allowed-tools`. The description is one line in double quotes, so that a simple reader of each agent can read it. It is 1,024 characters or less | Inferred: user answer 3; the Agent Skills format (agentskills.io/specification, fields `name` and `description`) |
 | 5 | One source | `skills/jag/SKILL.md` is the one source of the agent instructions. The body after the frontmatter is complete alone: one file, no folder `references/` or `scripts/`, no relative link, no word that only one agent knows. FEATURE-25 makes the README snippet from this body | Inferred: user answer 1; FEATURE-25 (CRITERION-126, CRITERION-127) |
 | 6 | Words for one agent | The skill tells the agent to "run the command in a shell". It names no tool of one agent | Inferred: user answer 3 |
@@ -102,7 +102,7 @@ in the Assumptions list, with the source that a reviewer can open.
 | 17 | No check before a search | The skill does not run `jag --check`. `--check` makes a paid call and has no JSON form. The agent runs the search and reads the exit code | Inferred: README "Check that jag is ready"; ADR-0006 |
 | 18 | No retry loop | For code 6, the agent does not run jag again at once: jag already tried again in the same run | CV-5 |
 | 19 | No pipe that cuts the output | The agent does not pipe the JSON document into `head` or a similar tool. It uses `--max-chars` | Inferred: IF-5 (one JSON document); row 9 |
-| 20 | The README section (CRITERION-115) | A new section `## Add the jag skill to your agent`, after `## Install`. It holds one fenced block with one line: `$ npx skills add ai-ready-future/jag`. The text after the block says that the tool asks which agents get the skill and where it goes; that `--agent claude-code -y` installs with no question; that the tool writes `skills-lock.json` in the project; and that the `skills` tool, not jag, sends an install count to skills.sh, which `DO_NOT_TRACK=1` stops | CONSTRAINT-08; user answer 2; CV-8 (jag sends no telemetry); github.com/vercel-labs/skills, README, "Telemetry" |
+| 20 | The README section (CRITERION-115) | A new section `## Add the jag skill to your agent`, after `## Install`. It holds one fenced block with one line: `$ npx skills add ai-ready-future/jag`. The text after the block says that the tool asks which agents get the skill and where it goes; that `--agent claude-code -y` installs with no question; that the tool writes `skills-lock.json` in the project; and that the `skills` tool, not jag, sends anonymous usage data and a security-audit request to skills.sh, which `DO_NOT_TRACK=1` stops | CONSTRAINT-08; user answer 2; CV-8 (jag sends no telemetry); github.com/vercel-labs/skills, README, "Telemetry" |
 | 21 | README line 6 | Remove "This release has the key setup only. The search comes later." The skill teaches the search, so the line is wrong | Inferred: README line 6; FEATURE-14 and FEATURE-23 specs (built) |
 | 22 | The content tests (CRITERION-115, 117 to 123) | A Rust test file `tests/agent_skill.rs`, one unit test in `src/cli.rs`, and one unit test in `src/output.rs`. They run in the job `rust` of `ci.yml` | Inferred: `src/cli.rs` test `the_hyphen_value_lists_agree_with_cli`; `src/output.rs` test `no_field_of_the_form_is_removed_or_renamed` |
 | 23 | The install test (CRITERION-116) | A Node test `tests/agent_skill/install.test.js`. It runs `skills@1.7.4` on the local checkout, not on GitHub, so that it tests the pull request. A new job `agent-skill` in `ci.yml` runs it with Node 24 and `DO_NOT_TRACK=1` | Inferred: the job `release-tools` of `ci.yml` (`node --test npm/jag/test/launcher.test.js`) |
@@ -259,7 +259,7 @@ folder, so the tool writes nothing in the real home folder.
 
 `skills@1.7.4` runs only in the test, through `npx`. jag gets no new crate
 and no new npm dependency. The user runs the tool through `npx`. The tool
-sends an install count to skills.sh for a public GitHub repository (row 20).
+sends anonymous usage data and a security-audit request to skills.sh for a public GitHub repository (row 20).
 
 ## Build order
 
@@ -292,7 +292,7 @@ sends an install count to skills.sh for a public GitHub repository (row 20).
 ## Assumptions
 
 - Row 3 (`skills/jag/SKILL.md`) comes from the discovery order of the
-  `skills` tool: github.com/vercel-labs/skills, README, "Skill discovery".
+  `skills` tool: github.com/vercel-labs/skills v1.7.4, docs/creating-skills.md, "Skill Discovery".
   A `SKILL.md` at the root of the repository wins over `skills/`, so the
   root gets none.
 - Row 4 (only `name` and `description`) comes from user answer 3 and the
@@ -325,7 +325,7 @@ sends an install count to skills.sh for a public GitHub repository (row 20).
 | The skill comes from the default branch, and the binary comes from a release. The skill can name an option that the installed jag does not have yet | An agent gets exit 2 with "unexpected argument" for an option that the skill names |
 | jag has no release yet (FEATURE-18 is not built). The install commands of row 15 fail until the first release | `npm install -g @airf/jag` fails with "not found" |
 | A new version of `skills` changes the discovery, the agent list, or the JSON output | The job `agent-skill` fails after a pin change, or a user report that `npx skills add ai-ready-future/jag` finds no skill |
-| The `skills` tool sends an install count to skills.sh. A user expects no telemetry, because jag sends none (CV-8) | A user report or an issue about telemetry |
+| The `skills` tool sends anonymous usage data and a security-audit request to skills.sh. A user expects no telemetry, because jag sends none (CV-8) | A user report or an issue about telemetry |
 | The agent reads 20,000 as tokens, or chooses a limit that is too large for its context | A FEATURE-26 run that records a limit above the free context of the agent |
 | The agent treats exit 1 as a failure and falls back when it should try a broader term | A FEATURE-26 run that records a fallback after exit 1 |
 | The system design says that CAPABILITY-11 "is a text file that ships with the release". Row 25 puts the skill in the repository only | The architect changes the system design (see the pull request text) |
