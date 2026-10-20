@@ -1745,4 +1745,54 @@ mod tests {
         assert_eq!(shorten_paths("/ab is short.", 8), "/ab is short.");
         assert_eq!(shorten_paths("no path here", 5), "no path here");
     }
+
+    // CRITERION-120 (FEATURE-24): the agent skill names the fields that the
+    // agent reads, and each one is a field of the document. The skill names
+    // no other field.
+    #[test]
+    fn the_agent_skill_names_only_fields_of_the_document() {
+        let path = std::path::Path::new(env!("CARGO_MANIFEST_DIR")).join("skills/jag/SKILL.md");
+        let skill = std::fs::read_to_string(path).unwrap();
+        // (the name in the skill, the field, the list that holds the field)
+        let named: [(&str, &str, &[&str]); 16] = [
+            ("exit_code", "exit_code", TOP_LEVEL),
+            ("error", "error", TOP_LEVEL),
+            ("error.cause", "cause", ERROR),
+            ("error.fix", "fix", ERROR),
+            ("no_good_answer", "no_good_answer", TOP_LEVEL),
+            ("results_found", "results_found", TOP_LEVEL),
+            ("left_out", "left_out", TOP_LEVEL),
+            ("size_limit_fix", "size_limit_fix", TOP_LEVEL),
+            ("warnings", "warnings", TOP_LEVEL),
+            ("results", "results", TOP_LEVEL),
+            ("path", "path", RESULT),
+            ("first_line", "first_line", RESULT),
+            ("last_line", "last_line", RESULT),
+            ("number", "number", LINE),
+            ("text", "text", LINE),
+            ("is_match", "is_match", LINE),
+        ];
+        for (name, field, list) in named {
+            assert!(list.contains(&field), "{field} is not a field");
+            assert!(
+                skill.contains(&format!("`{name}`")),
+                "the skill lacks `{name}`"
+            );
+        }
+        // A name in code that looks like a field is a field.
+        let all: Vec<&str> = [TOP_LEVEL, ERROR, RESULT, LINE].concat();
+        for name in skill.split('`').skip(1).step_by(2) {
+            let is_name = name
+                .chars()
+                .all(|c| c.is_ascii_lowercase() || c == '_' || c == '.');
+            let has_letter = name.chars().any(|c| c.is_ascii_lowercase());
+            if is_name && has_letter && (name.contains('_') || name.contains('.')) {
+                let field = name.rsplit('.').next().unwrap();
+                assert!(
+                    all.contains(&field),
+                    "`{name}` is not a field of the document"
+                );
+            }
+        }
+    }
 }
