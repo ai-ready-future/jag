@@ -74,6 +74,10 @@ generated:
 * [STORY-65: Compare rg and jag output on a parity test set](STORY-65.md) - As a shell power user (PERSONA-04), I want rg and jag with the same arguments to give the same bytes, in a pipe and with color, so that I can use jag in place of rg.
 * [STORY-66: Run the rg parity cases as e2e tests in CI](STORY-66.md) - As a shell power user (PERSONA-04), I want the rg parity cases to run again as automated e2e tests in CI, so that a later change cannot break the parity with no failed check.
 * [STORY-67: Fix each rg parity difference or record it as deliberate](STORY-67.md) - As a shell power user (PERSONA-04), I want each difference from rg to be fixed in jag or recorded as deliberate by a user answer, so that each difference that stays is known.
+* [STORY-68: Install the skill with one command](STORY-68.md) - As an agent builder (PERSONA-01), I want to install the jag skill with one command from the README, so that my agent learns jag without manual setup.
+* [STORY-69: The agent uses jag in place of rg and sets a limit](STORY-69.md) - As an agent builder (PERSONA-01), I want my agent to use jag in place of rg and to set a limit on the text, so that the agent does not fill its context.
+* [STORY-70: The agent reads the structured output](STORY-70.md) - As an agent builder (PERSONA-01), I want my agent to read the structured output and the failures of jag, so that it uses the file and line of each result.
+* [STORY-71: The agent tells the user the cause and the fix](STORY-71.md) - As an agent builder (PERSONA-01), I want my agent to give the user the cause and the fix that jag writes when jag cannot run, so that the user can fix it.
 
 ## MILESTONE-03: Make it fast
 

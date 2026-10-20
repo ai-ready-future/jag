@@ -4,7 +4,8 @@ title: Install the skill with one command
 description: As an agent builder (PERSONA-01), I want to install the jag skill with
   one command from the README, so that my agent learns jag without manual setup.
 status: draft
-state: ready
+state: done
+actual_end_date: '2026-10-20'
 github:
   number: 181
   node_id: I_kwDOVKMnL88AAAABYgDcqA

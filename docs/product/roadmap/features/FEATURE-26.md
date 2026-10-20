@@ -5,7 +5,7 @@ description: A repeatable test runs an agent with the jag skill and shows that i
   uses jag in place of rg, sets the limit, reads the results, and gives the user the
   cause and the fix when jag fails.
 status: draft
-state: blocked
+state: ready
 github:
   number: 180
   node_id: I_kwDOVKMnL88AAAABYgDWGw

@@ -4,7 +4,8 @@ title: The agent uses jag in place of rg and sets a limit
 description: As an agent builder (PERSONA-01), I want my agent to use jag in place
   of rg and to set a limit on the text, so that the agent does not fill its context.
 status: draft
-state: ready
+state: done
+actual_end_date: '2026-10-20'
 github:
   number: 182
   node_id: I_kwDOVKMnL88AAAABYgDitw
