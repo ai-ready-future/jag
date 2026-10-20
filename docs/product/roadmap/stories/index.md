@@ -1,9 +1,5 @@
 # stories
 
-## MILESTONE-01: Make it work
-
-* [STORY-76: Learn jag from worked examples in the README](STORY-76.md) - As a person at the shell (PERSONA-02, PERSONA-03, PERSONA-04), I want worked examples in the README, so that I can copy a command and see what jag shows before I read each option.
-
 ## MILESTONE-02: Make it good
 
 * [STORY-45: Run the held-out evaluation before release](STORY-45.md) - As an agent builder (PERSONA-01), I want the held-out evaluation run done before release 1, so that I can trust that jag answers better than grep.
