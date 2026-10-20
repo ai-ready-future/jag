@@ -43,7 +43,7 @@
 - [0023 — Run the rg parity cases that git cannot store as Rust code in a second test](./0023-run-the-rg-parity-cases-that-git-cannot-store-as-rust-code.md) — accepted — <!-- TODO: summary -->
 
 ### conventions — <!-- TODO: describe this area -->
-- [0025 — Use the body of the jag skill file as the one source of the agent instructions](./0025-use-the-body-of-the-jag-skill-file-as-the-one-source-of-the.md) — proposed — <!-- TODO: summary -->
+- [0025 — Use the body of the jag skill file as the one source of the agent instructions](./0025-use-the-body-of-the-jag-skill-file-as-the-one-source-of-the.md) — accepted — <!-- TODO: summary -->
 
 <!-- ADR-INDEX:END -->
 
