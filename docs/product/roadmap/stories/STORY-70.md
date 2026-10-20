@@ -4,7 +4,7 @@ title: The agent reads the structured output
 description: As an agent builder (PERSONA-01), I want my agent to read the structured
   output and the failures of jag, so that it uses the file and line of each result.
 status: draft
-state: backlog
+state: ready
 github:
   number: 183
   node_id: I_kwDOVKMnL88AAAABYgDoXQ
@@ -12,6 +12,7 @@ github:
   pushed_hash: a5baa2
   synced:
     state: backlog
+spec: docs/superpowers/specs/2026-10-20-STORY-68-install-the-jag-skill-with-one-readme-command-design.md
 parent: /features/FEATURE-24.md
 milestone: /milestones/MILESTONE-02.md
 ---

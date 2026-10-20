@@ -5,7 +5,7 @@ description: As an agent builder (PERSONA-01), I want my agent to tell the user 
   is wrong and continue with its own search tool when jag cannot run, so that the
   user is never blocked.
 status: draft
-state: backlog
+state: ready
 github:
   number: 184
   node_id: I_kwDOVKMnL88AAAABYgDuNw
@@ -13,6 +13,7 @@ github:
   pushed_hash: 6e4127
   synced:
     state: backlog
+spec: docs/superpowers/specs/2026-10-20-STORY-68-install-the-jag-skill-with-one-readme-command-design.md
 parent: /features/FEATURE-24.md
 milestone: /milestones/MILESTONE-02.md
 ---

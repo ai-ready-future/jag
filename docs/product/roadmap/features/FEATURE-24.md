@@ -31,10 +31,10 @@ The README gives one command that installs the jag skill into each agent that th
 
 | Item | State | Progress | Owner | Blocked by | Drift |
 | --- | --- | --- | --- | --- | --- |
-| [STORY-68: Install the skill with one command](../stories/STORY-68.md) | backlog | - | - | - | - |
-| [STORY-69: The agent chooses jag and sets a limit](../stories/STORY-69.md) | backlog | - | - | - | - |
-| [STORY-70: The agent reads the structured output](../stories/STORY-70.md) | backlog | - | - | - | - |
-| [STORY-71: The agent tells the user and falls back](../stories/STORY-71.md) | backlog | - | - | - | - |
+| [STORY-68: Install the skill with one command](../stories/STORY-68.md) | ready | - | - | - | - |
+| [STORY-69: The agent chooses jag and sets a limit](../stories/STORY-69.md) | ready | - | - | - | - |
+| [STORY-70: The agent reads the structured output](../stories/STORY-70.md) | ready | - | - | - | - |
+| [STORY-71: The agent tells the user and falls back](../stories/STORY-71.md) | ready | - | - | - | - |
 <!-- STATUS:END -->
 
 <!-- LINKS:START (generated, do not edit) -->
