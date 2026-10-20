@@ -353,10 +353,10 @@
 
 ## STORY-75: The test records what the agent did
 
-* [CRITERION-130: The record shows the choice of tool](CRITERION-130.md) - For each task, the record shows if the agent chose jag or plain keyword search.
+* [CRITERION-130: The record shows the choice of tool](CRITERION-130.md) - For each task, the record shows if the agent ran jag in place of rg.
 * [CRITERION-131: The record shows the limit](CRITERION-131.md) - For each task, the record shows if the agent set a limit on the text.
 * [CRITERION-132: The record shows the use of file and line](CRITERION-132.md) - For each task, the record shows if the agent used the file and the line of a result.
-* [CRITERION-133: The record shows the fallback](CRITERION-133.md) - For each task where jag cannot run, the record shows if the agent told the user and fell back.
+* [CRITERION-133: The record shows what the agent told the user](CRITERION-133.md) - For each task where jag cannot run, the record shows if the agent gave the user the cause and the fix that jag writes.
 
 ## STORY-76: Learn jag from worked examples in the README
 
