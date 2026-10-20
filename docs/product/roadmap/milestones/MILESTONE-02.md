@@ -31,6 +31,7 @@ This milestone holds the capabilities that make jag better to use and easier to 
 | --- | --- | --- | --- | --- | --- |
 | [EPIC-04: A shell user keeps their habits](../epics/EPIC-04.md) | done | 6/6 (100%) | - | - | - |
 | [EPIC-05: Safe public release](../epics/EPIC-05.md) | ready | 2/4 (50%) | - | - | - |
+| [EPIC-06: An agent uses jag well](../epics/EPIC-06.md) | ready | 0/3 (0%) | - | - | - |
 | [FEATURE-02: Readiness check](../features/FEATURE-02.md) | done | 3/3 (100%) | - | FEATURE-01 | - |
 | [FEATURE-03: Clear failure when the model is not available](../features/FEATURE-03.md) | done | 4/4 (100%) | - | FEATURE-01 | - |
 | [FEATURE-12: Plain rg with no question](../features/FEATURE-12.md) | done | 2/2 (100%) | - | - | - |
@@ -43,6 +44,9 @@ This milestone holds the capabilities that make jag better to use and easier to 
 | [FEATURE-21: Send the model calls through an AI gateway](../features/FEATURE-21.md) | done | 2/2 (100%) | - | FEATURE-04 | - |
 | [FEATURE-22: Check that jag is ready before the first publish](../features/FEATURE-22.md) | backlog | 2/3 (66%) | - | - | - |
 | [FEATURE-23: Give the same output as rg for the same arguments](../features/FEATURE-23.md) | done | 3/3 (100%) | - | - | - |
+| [FEATURE-24: Install the jag skill with one README command](../features/FEATURE-24.md) | ready | 0/4 (0%) | - | - | - |
+| [FEATURE-25: Copy the same teaching as a snippet](../features/FEATURE-25.md) | blocked | 0/2 (0%) | - | FEATURE-24 | - |
+| [FEATURE-26: Prove that an agent with the skill uses jag well](../features/FEATURE-26.md) | blocked | 0/2 (0%) | - | FEATURE-24 | - |
 <!-- STATUS:END -->
 
 <!-- LINKS:START (generated, do not edit) -->
@@ -56,6 +60,7 @@ This milestone holds the capabilities that make jag better to use and easier to 
 - traces: [SCOPE-10: The held-out score confirms the gain over grep](../../prd/scope/SCOPE-10.md)
 - item of: [EPIC-04: A shell user keeps their habits](../epics/EPIC-04.md)
 - item of: [EPIC-05: Safe public release](../epics/EPIC-05.md)
+- item of: [EPIC-06: An agent uses jag well](../epics/EPIC-06.md)
 - item of: [FEATURE-02: Readiness check](../features/FEATURE-02.md)
 - item of: [FEATURE-03: Clear failure when the model is not available](../features/FEATURE-03.md)
 - item of: [FEATURE-12: Plain rg with no question](../features/FEATURE-12.md)
@@ -68,6 +73,9 @@ This milestone holds the capabilities that make jag better to use and easier to 
 - item of: [FEATURE-21: Send the model calls through an AI gateway](../features/FEATURE-21.md)
 - item of: [FEATURE-22: Check that jag is ready before the first publish](../features/FEATURE-22.md)
 - item of: [FEATURE-23: Give the same output as rg for the same arguments](../features/FEATURE-23.md)
+- item of: [FEATURE-24: Install the jag skill with one README command](../features/FEATURE-24.md)
+- item of: [FEATURE-25: Copy the same teaching as a snippet](../features/FEATURE-25.md)
+- item of: [FEATURE-26: Prove that an agent with the skill uses jag well](../features/FEATURE-26.md)
 - item of: [STORY-06: Check the five items of readiness](../stories/STORY-06.md)
 - item of: [STORY-07: Use the check result as an exit code](../stories/STORY-07.md)
 - item of: [STORY-08: Run the check for almost no cost](../stories/STORY-08.md)
@@ -109,4 +117,12 @@ This milestone holds the capabilities that make jag better to use and easier to 
 - item of: [STORY-65: Compare rg and jag output on a parity test set](../stories/STORY-65.md)
 - item of: [STORY-66: Run the rg parity cases as e2e tests in CI](../stories/STORY-66.md)
 - item of: [STORY-67: Fix each rg parity difference or record it as deliberate](../stories/STORY-67.md)
+- item of: [STORY-68: Install the skill with one command](../stories/STORY-68.md)
+- item of: [STORY-69: The agent chooses jag and sets a limit](../stories/STORY-69.md)
+- item of: [STORY-70: The agent reads the structured output](../stories/STORY-70.md)
+- item of: [STORY-71: The agent tells the user and falls back](../stories/STORY-71.md)
+- item of: [STORY-72: Copy the snippet from the README](../stories/STORY-72.md)
+- item of: [STORY-73: The snippet and the skill share one source](../stories/STORY-73.md)
+- item of: [STORY-74: Run one repeatable agent test](../stories/STORY-74.md)
+- item of: [STORY-75: The test records what the agent did](../stories/STORY-75.md)
 <!-- LINKS:END -->

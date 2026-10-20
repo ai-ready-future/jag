@@ -1,5 +1,12 @@
 # Log
 
+## 2026-10-20
+* **Plan**: [EPIC-06](epics/EPIC-06.md) planned in MILESTONE-02 for CAPABILITY-11 and CONSTRAINT-08 (user slice "MILESTONE-02, CAP-11 only", three features): FEATURE-24 to FEATURE-26, STORY-68 to STORY-75, CRITERION-115 to CRITERION-133; the stories stay backlog because no spec is merged (rule 11); STORY-73 to STORY-75 use the agent builder (PERSONA-01), by human:404pilo, at 2026-10-20T01:04:00Z
+* **State**: [FEATURE-26](features/FEATURE-26.md) backlog -> blocked, by human:404pilo, at 2026-10-20T01:03:44Z
+* **State**: [FEATURE-25](features/FEATURE-25.md) backlog -> blocked, by human:404pilo, at 2026-10-20T01:03:43Z
+* **State**: [FEATURE-24](features/FEATURE-24.md) backlog -> ready, by human:404pilo, at 2026-10-20T01:03:43Z
+* **State**: [EPIC-06](epics/EPIC-06.md) backlog -> ready, by human:404pilo, at 2026-10-20T01:03:43Z
+
 ## 2026-10-19
 
 * **Plan**: [MILESTONE-02](milestones/MILESTONE-02.md) trace to CAPABILITY-11 accepted after the user's own `/prd:explore` answers changed CAPABILITY-11 (skill plus snippet, PR #175); MILESTONE-02 is not done and no feature traces CAPABILITY-11 yet; `github pull` failed on a prd 4.4.0 bug, so this accept ran with no GitHub sync, by human:404pilo, at 2026-10-19T11:40:00Z

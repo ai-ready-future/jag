@@ -45,5 +45,9 @@ If jag is not installed, the key is not set, or the model service is down, the a
 - constrained by: [CONSTRAINT-08: One README command installs the agent skill](../constraints/CONSTRAINT-08.md)
 - subject of: [DECISION-53: An agent skill is not an editor plugin](../decisions/DECISION-53.md)
 - included by: [SCOPE-01: Release 1: first public release](../scope/SCOPE-01.md) (should)
+- traced by: [EPIC-06: An agent uses jag well](../../roadmap/epics/EPIC-06.md)
+- traced by: [FEATURE-24: Install the jag skill with one README command](../../roadmap/features/FEATURE-24.md)
+- traced by: [FEATURE-25: Copy the same teaching as a snippet](../../roadmap/features/FEATURE-25.md)
+- traced by: [FEATURE-26: Prove that an agent with the skill uses jag well](../../roadmap/features/FEATURE-26.md)
 - traced by: [MILESTONE-02: Make it good](../../roadmap/milestones/MILESTONE-02.md)
 <!-- LINKS:END -->
