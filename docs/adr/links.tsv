@@ -55,4 +55,4 @@ source	relation	target	target_state	target_status	source_area	target_area	note
 0024-install-the-jag-agent-skill-from-the-repository-with-the.md	related	0010-ship-jag-on-github-releases-crates-io-and-npm.md	live	accepted	deployment	deployment	-
 0024-install-the-jag-agent-skill-from-the-repository-with-the.md	related	0019-give-the-new-public-repository-the-name-ai-ready-future-jag.md	live	accepted	deployment	deployment	-
 0025-use-the-body-of-the-jag-skill-file-as-the-one-source-of-the.md	parent_spec	docs/product/roadmap/features/FEATURE-25.md	doc	-	conventions	-	-
-0025-use-the-body-of-the-jag-skill-file-as-the-one-source-of-the.md	related	0024-install-the-jag-agent-skill-from-the-repository-with-the.md	live	proposed	conventions	deployment	-
+0025-use-the-body-of-the-jag-skill-file-as-the-one-source-of-the.md	related	0024-install-the-jag-agent-skill-from-the-repository-with-the.md	live	accepted	conventions	deployment	-
