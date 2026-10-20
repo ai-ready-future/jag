@@ -5,6 +5,13 @@ description: For an agent that can't install a skill, the agent builder copies a
   that holds the same teaching as the jag skill.
 status: draft
 state: blocked
+github:
+  number: 179
+  node_id: I_kwDOVKMnL88AAAABYgDQoQ
+  url: https://github.com/ai-ready-future/jag/issues/179
+  pushed_hash: 9c9804
+  synced:
+    state: blocked
 parent: /epics/EPIC-06.md
 blocked_by:
 - /features/FEATURE-24.md

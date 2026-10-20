@@ -5,6 +5,13 @@ description: As an agent builder (PERSONA-01), I want to install the jag skill w
   one command from the README, so that my agent learns jag without manual setup.
 status: draft
 state: backlog
+github:
+  number: 181
+  node_id: I_kwDOVKMnL88AAAABYgDcqA
+  url: https://github.com/ai-ready-future/jag/issues/181
+  pushed_hash: 6dcf3b
+  synced:
+    state: backlog
 parent: /features/FEATURE-24.md
 milestone: /milestones/MILESTONE-02.md
 ---

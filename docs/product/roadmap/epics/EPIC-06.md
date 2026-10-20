@@ -5,6 +5,13 @@ description: The agent builder gives jag to an agent with one install or one cop
   and the agent then uses jag well with no instructions from the builder.
 status: draft
 state: ready
+github:
+  number: 177
+  node_id: I_kwDOVKMnL88AAAABYgDHSw
+  url: https://github.com/ai-ready-future/jag/issues/177
+  pushed_hash: 44b8f0
+  synced:
+    state: ready
 milestone: /milestones/MILESTONE-02.md
 traces:
 - to: prd:/capabilities/CAPABILITY-11.md

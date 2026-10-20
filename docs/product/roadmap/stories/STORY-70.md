@@ -5,6 +5,13 @@ description: As an agent builder (PERSONA-01), I want my agent to read the struc
   output and the failures of jag, so that it uses the file and line of each result.
 status: draft
 state: backlog
+github:
+  number: 183
+  node_id: I_kwDOVKMnL88AAAABYgDoXQ
+  url: https://github.com/ai-ready-future/jag/issues/183
+  pushed_hash: a5baa2
+  synced:
+    state: backlog
 parent: /features/FEATURE-24.md
 milestone: /milestones/MILESTONE-02.md
 ---

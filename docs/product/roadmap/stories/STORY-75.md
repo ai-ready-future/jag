@@ -5,6 +5,13 @@ description: As an agent builder (PERSONA-01), I want the test to record the cho
   of the agent for each task, so that I can see if the agent uses jag well.
 status: draft
 state: backlog
+github:
+  number: 188
+  node_id: I_kwDOVKMnL88AAAABYgEptQ
+  url: https://github.com/ai-ready-future/jag/issues/188
+  pushed_hash: 1abebf
+  synced:
+    state: backlog
 parent: /features/FEATURE-26.md
 milestone: /milestones/MILESTONE-02.md
 ---

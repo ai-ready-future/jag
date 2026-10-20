@@ -5,6 +5,13 @@ description: A repeatable test runs an agent with the jag skill and shows that i
   chooses jag, sets the limit, reads the results, and falls back when jag fails.
 status: draft
 state: blocked
+github:
+  number: 180
+  node_id: I_kwDOVKMnL88AAAABYgDWGw
+  url: https://github.com/ai-ready-future/jag/issues/180
+  pushed_hash: 973f14
+  synced:
+    state: blocked
 parent: /epics/EPIC-06.md
 blocked_by:
 - /features/FEATURE-24.md

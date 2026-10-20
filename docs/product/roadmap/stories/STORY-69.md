@@ -6,6 +6,13 @@ description: As an agent builder (PERSONA-01), I want my agent to choose jag whe
   agent does not fill its context.
 status: draft
 state: backlog
+github:
+  number: 182
+  node_id: I_kwDOVKMnL88AAAABYgDitw
+  url: https://github.com/ai-ready-future/jag/issues/182
+  pushed_hash: 63152d
+  synced:
+    state: backlog
 parent: /features/FEATURE-24.md
 milestone: /milestones/MILESTONE-02.md
 ---
