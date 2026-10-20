@@ -481,8 +481,12 @@ gateway key, the base URL, and the model name.
   from crates.io. The npm package `@airf/jag` installs the same
   prebuilt binary through one npm package for each platform, so `npx`
   works. The npm route needs Node, and the binary does not (deployment-1).
-- Agent skill: the file `skills/jag/SKILL.md` in the repository. After the
-  program is installed, the user runs the outside `skills` tool, which
+  npm is the main channel: the README gives `npm install -g @airf/jag` as
+  the main step, and the cargo command and the release download steps
+  after it, under "Other ways to install" (deployment-6).
+- Agent skill: the file `skills/jag/SKILL.md` in the repository. The
+  `skills` tool is its channel. After the program is installed, the user
+  runs the outside `skills` tool, which
   installs the skill into an agent with
   `npx skills add ai-ready-future/jag`. It reads the file from the
   repository, not from a release, so no release, crate, or npm package
@@ -549,7 +553,7 @@ gateway key, the base URL, and the model name.
 | deployment-3 | |  | deployment | The release path and the checks that guard it | human:404pilo, 2026-10-12 |
 | deployment-4 | 0019-give-the-new-public-repository-the-name-ai-ready-future-jag.md | accepted | deployment | The name of the public repository | adr |
 | deployment-5 | 0020-name-the-release-archives-and-the-npm-platform-packages-by.md | accepted | deployment | The names of the release archives, the checksum files, and the npm platform packages | adr |
-| deployment-6 | 0024-install-the-jag-agent-skill-from-the-repository-with-the.md | proposed | deployment | How an agent gets the jag skill: after the program, `npx skills add ai-ready-future/jag` reads `skills/jag/SKILL.md` from the repository | adr |
+| deployment-6 | 0024-install-the-jag-agent-skill-from-the-repository-with-the.md | proposed | deployment | npm is the main channel of the program, and the `skills` tool is the channel of the skill: after `npm install -g @airf/jag`, `npx skills add ai-ready-future/jag` reads `skills/jag/SKILL.md` from the repository. cargo and the release downloads stay in the README under "Other ways to install" | adr |
 
 ## Requirements to components
 
