@@ -4,7 +4,7 @@ title: The test records what the agent did
 description: As an agent builder (PERSONA-01), I want the test to record the choices
   of the agent for each task, so that I can see if the agent uses jag well.
 status: draft
-state: backlog
+state: ready
 github:
   number: 188
   node_id: I_kwDOVKMnL88AAAABYgEptQ

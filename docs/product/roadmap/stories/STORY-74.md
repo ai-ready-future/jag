@@ -5,7 +5,7 @@ description: As an agent builder (PERSONA-01), I want to run one repeatable test
   gives an agent with the jag skill a set of tasks, so that I can check the skill
   at any time.
 status: draft
-state: backlog
+state: ready
 github:
   number: 187
   node_id: I_kwDOVKMnL88AAAABYgEjrA
