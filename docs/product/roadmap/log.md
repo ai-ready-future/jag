@@ -4,8 +4,12 @@
 * **State**: [FEATURE-25](features/FEATURE-25.md) ready -> done, by human:404pilo, at 2026-10-20T12:44:23Z
 * **State**: [STORY-73](stories/STORY-73.md) ready -> done, by human:404pilo, at 2026-10-20T12:44:23Z
 * **State**: [STORY-72](stories/STORY-72.md) ready -> done, by human:404pilo, at 2026-10-20T12:44:23Z
+* **Sync**: [STORY-76](stories/STORY-76.md) pushed to GitHub, by system:github, at 2026-10-20T12:38:47Z
+* **Sync**: [FEATURE-27](features/FEATURE-27.md) pushed to GitHub, by system:github, at 2026-10-20T12:38:47Z
 * **State**: [FEATURE-27](features/FEATURE-27.md) ready -> done, by human:404pilo, at 2026-10-20T12:11:28Z
 * **State**: [STORY-76](stories/STORY-76.md) ready -> done, by human:404pilo, at 2026-10-20T12:11:28Z
+* **Sync**: [STORY-73](stories/STORY-73.md) pushed to GitHub, by system:github, at 2026-10-20T12:33:36Z
+* **Sync**: [STORY-72](stories/STORY-72.md) pushed to GitHub, by system:github, at 2026-10-20T12:33:36Z
 * **State**: [STORY-73](stories/STORY-73.md) backlog -> ready, by human:404pilo, at 2026-10-20T12:18:13Z
 * **State**: [STORY-72](stories/STORY-72.md) backlog -> ready, by human:404pilo, at 2026-10-20T12:18:13Z
 * **Sync**: [STORY-71](stories/STORY-71.md) pushed to GitHub, by system:github, at 2026-10-20T12:03:26Z
