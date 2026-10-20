@@ -1,6 +1,7 @@
 # Log
 
 ## 2026-10-20
+* **Plan**: [STORY-49](stories/STORY-49.md) user answer (human:404pilo, hitl card on the crates.io name, 2026-10-20: "Rename to jag-cli"): CRITERION-79 now names the crates.io package `jag-cli` in place of `jag-grep`; the command stays `jag` and the npm package stays `@airf/jag`; this is a name, not a rule, so there is no decision page; the ADRs and the code change later (architect, implementer), by agent:planner, at 2026-10-20T11:51:39Z
 * **Sync**: [STORY-69](stories/STORY-69.md) pushed to GitHub, by system:github, at 2026-10-20T11:32:39Z
 * **Sync**: [FEATURE-24](features/FEATURE-24.md) pushed to GitHub, by system:github, at 2026-10-20T11:32:39Z
 * **Sync**: [EPIC-06](epics/EPIC-06.md) pushed to GitHub, by system:github, at 2026-10-20T11:32:39Z
