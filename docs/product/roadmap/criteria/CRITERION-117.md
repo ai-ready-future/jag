@@ -1,18 +1,18 @@
 ---
 type: AcceptanceCriterion
-title: The agent chooses jag for a large result
-description: When plain keyword search returns too much text, the agent chooses jag.
+title: The agent runs jag in place of rg
+description: For a search, the agent runs jag in place of rg.
 status: draft
 item: /stories/STORY-69.md
 ---
 
-# CRITERION-117: The agent chooses jag for a large result
+# CRITERION-117: The agent runs jag in place of rg
 
-When plain keyword search returns too much text, the agent chooses jag.
+For a search, the agent runs jag in place of rg.
 
 <!-- LINKS:START (generated, do not edit) -->
 
 ## Links
 
-- item: [STORY-69: The agent chooses jag and sets a limit](../stories/STORY-69.md)
+- item: [STORY-69: The agent uses jag in place of rg and sets a limit](../stories/STORY-69.md)
 <!-- LINKS:END -->

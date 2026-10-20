@@ -12,7 +12,7 @@ traces:
 - to: prd:/scope/SCOPE-03.md
   hash: e57d07
 - to: prd:/capabilities/CAPABILITY-11.md
-  hash: 05fecd
+  hash: 6c96fe
 - to: prd:/capabilities/CAPABILITY-06.md
   hash: 79d5d3
 - to: prd:/scope/SCOPE-10.md
@@ -118,9 +118,9 @@ This milestone holds the capabilities that make jag better to use and easier to 
 - item of: [STORY-66: Run the rg parity cases as e2e tests in CI](../stories/STORY-66.md)
 - item of: [STORY-67: Fix each rg parity difference or record it as deliberate](../stories/STORY-67.md)
 - item of: [STORY-68: Install the skill with one command](../stories/STORY-68.md)
-- item of: [STORY-69: The agent chooses jag and sets a limit](../stories/STORY-69.md)
+- item of: [STORY-69: The agent uses jag in place of rg and sets a limit](../stories/STORY-69.md)
 - item of: [STORY-70: The agent reads the structured output](../stories/STORY-70.md)
-- item of: [STORY-71: The agent tells the user and falls back](../stories/STORY-71.md)
+- item of: [STORY-71: The agent tells the user the cause and the fix](../stories/STORY-71.md)
 - item of: [STORY-72: Copy the snippet from the README](../stories/STORY-72.md)
 - item of: [STORY-73: The snippet and the skill share one source](../stories/STORY-73.md)
 - item of: [STORY-74: Run one repeatable agent test](../stories/STORY-74.md)
