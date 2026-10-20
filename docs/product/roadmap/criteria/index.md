@@ -314,3 +314,46 @@
 ## STORY-67: Fix each rg parity difference or record it as deliberate
 
 * [CRITERION-114: Each parity difference is fixed or has a user answer](CRITERION-114.md) - Each difference that the parity test finds is fixed in jag, or a user ANSWER records it as a deliberate difference, and the parity test set names that ANSWER.
+
+## STORY-68: Install the skill with one command
+
+* [CRITERION-115: The README gives one install command](CRITERION-115.md) - The README shows one command that installs the jag skill.
+* [CRITERION-116: The command installs into each supported agent](CRITERION-116.md) - After the command runs, the jag skill is present in each agent that the install command supports, such as Claude Code.
+
+## STORY-69: The agent chooses jag and sets a limit
+
+* [CRITERION-117: The agent chooses jag for a large result](CRITERION-117.md) - When plain keyword search returns too much text, the agent chooses jag.
+* [CRITERION-118: The agent writes a broad term and a clear question](CRITERION-118.md) - The agent gives jag a broad term and a clear question.
+* [CRITERION-119: The agent sets a limit](CRITERION-119.md) - The agent sets a limit on the text that jag returns.
+
+## STORY-70: The agent reads the structured output
+
+* [CRITERION-120: The agent uses the file and line](CRITERION-120.md) - The agent uses the file and the line of a result to read or cite the source.
+* [CRITERION-121: The agent reads a failure](CRITERION-121.md) - The agent reads a failure in the output of jag and does not treat it as a result.
+
+## STORY-71: The agent tells the user and falls back
+
+* [CRITERION-122: The agent explains each failure](CRITERION-122.md) - When jag is not installed, the key is not set, or the model service is down, the agent tells the user what is wrong and how to fix it.
+* [CRITERION-123: The agent continues with its own search](CRITERION-123.md) - After the agent tells the user, it continues the task with its own search tool.
+
+## STORY-72: Copy the snippet from the README
+
+* [CRITERION-124: The README shows the snippet](CRITERION-124.md) - The README shows a snippet that the agent builder can copy.
+* [CRITERION-125: The snippet teaches the same four behaviors](CRITERION-125.md) - The snippet teaches the same four behaviors and the same fallback as the skill.
+
+## STORY-73: The snippet and the skill share one source
+
+* [CRITERION-126: One source makes both](CRITERION-126.md) - The snippet and the skill are made from one source file.
+* [CRITERION-127: A change to the source changes both](CRITERION-127.md) - A change to the source shows in the snippet and in the skill.
+
+## STORY-74: Run one repeatable agent test
+
+* [CRITERION-128: One command runs the test](CRITERION-128.md) - The agent builder starts the whole test with one command.
+* [CRITERION-129: Each run gives the same set of tasks](CRITERION-129.md) - Each run gives the agent the same set of tasks.
+
+## STORY-75: The test records what the agent did
+
+* [CRITERION-130: The record shows the choice of tool](CRITERION-130.md) - For each task, the record shows if the agent chose jag or plain keyword search.
+* [CRITERION-131: The record shows the limit](CRITERION-131.md) - For each task, the record shows if the agent set a limit on the text.
+* [CRITERION-132: The record shows the use of file and line](CRITERION-132.md) - For each task, the record shows if the agent used the file and the line of a result.
+* [CRITERION-133: The record shows the fallback](CRITERION-133.md) - For each task where jag cannot run, the record shows if the agent told the user and fell back.

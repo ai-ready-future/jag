@@ -7,3 +7,4 @@
 ## MILESTONE-02: Make it good
 
 * [EPIC-05: Safe public release](EPIC-05.md) - The repository and the packages hold no private data, and the user installs jag from GitHub Releases, crates.io, or npm.
+* [EPIC-06: An agent uses jag well](EPIC-06.md) - The agent builder gives jag to an agent with one install or one copy, and the agent then uses jag well with no instructions from the builder.
