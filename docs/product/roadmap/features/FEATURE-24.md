@@ -9,7 +9,7 @@ github:
   number: 178
   node_id: I_kwDOVKMnL88AAAABYgDL6A
   url: https://github.com/ai-ready-future/jag/issues/178
-  pushed_hash: 6cc628
+  pushed_hash: 01d1a2
   synced:
     state: ready
 parent: /epics/EPIC-06.md
