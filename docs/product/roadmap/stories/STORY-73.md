@@ -4,7 +4,8 @@ title: The snippet and the skill share one source
 description: As an agent builder (PERSONA-01), I want the snippet and the skill to
   come from one source, so that they always teach the same behavior.
 status: draft
-state: ready
+state: done
+actual_end_date: '2026-10-20'
 github:
   number: 186
   node_id: I_kwDOVKMnL88AAAABYgD88g

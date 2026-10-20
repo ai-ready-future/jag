@@ -4,7 +4,8 @@ title: Copy the snippet from the README
 description: As an agent builder (PERSONA-01), I want to copy a snippet from the README
   into an agent that cannot install a skill, so that this agent also learns jag.
 status: draft
-state: ready
+state: done
+actual_end_date: '2026-10-20'
 github:
   number: 185
   node_id: I_kwDOVKMnL88AAAABYgD1Tg
