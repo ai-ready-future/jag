@@ -1454,4 +1454,83 @@ mod tests {
             assert_eq!(search_failure(args), None, "{args:?}");
         }
     }
+
+    /// The words of each command of jag in the agent skill: a code span or a
+    /// line of a code block whose first word is `jag`.
+    fn jag_commands(skill: &str) -> Vec<Vec<String>> {
+        let mut commands = Vec::new();
+        let mut in_block = false;
+        for line in skill.lines() {
+            if line.starts_with("```") {
+                in_block = !in_block;
+                continue;
+            }
+            let pieces: Vec<&str> = if in_block {
+                vec![line.trim()]
+            } else {
+                line.split('`').skip(1).step_by(2).collect()
+            };
+            for piece in pieces {
+                let words: Vec<String> = piece.split_whitespace().map(String::from).collect();
+                if words.first().map(String::as_str) == Some("jag") {
+                    commands.push(words);
+                }
+            }
+        }
+        commands
+    }
+
+    // CRITERION-119 (FEATURE-24): the agent skill names only options that jag
+    // has, and none of the options that do not work with `--ask` or `--json`.
+    #[test]
+    fn the_agent_skill_names_only_options_of_jag() {
+        let path = std::path::Path::new(env!("CARGO_MANIFEST_DIR")).join("skills/jag/SKILL.md");
+        let skill = std::fs::read_to_string(path).unwrap();
+        let command = Cli::command();
+        let has_long = |name: &str| {
+            command
+                .get_arguments()
+                .any(|arg| arg.get_long() == Some(name.trim_start_matches("--")))
+        };
+        let has_short = |name: &str| {
+            command.get_arguments().any(|arg| {
+                arg.get_short()
+                    .is_some_and(|letter| name == format!("-{letter}"))
+            })
+        };
+
+        let commands = jag_commands(&skill);
+        assert!(commands.len() >= 3, "too few commands: {commands:?}");
+        for words in &commands {
+            for word in words.iter().filter(|word| word.starts_with('-')) {
+                let name = word.split('=').next().unwrap();
+                let known = if name.starts_with("--") {
+                    has_long(name)
+                } else {
+                    has_short(name)
+                };
+                assert!(known, "the skill names an option that jag has not: {word}");
+            }
+        }
+
+        // Options that fail with `--ask` or `--json`, and the one that turns
+        // off the size limit (spec decision 10). The skill names none.
+        let words: Vec<&str> = skill
+            .split(|c: char| !(c.is_ascii_alphanumeric() || c == '-' || c == '_'))
+            .collect();
+        for option in [
+            "-q",
+            "-l",
+            "-c",
+            "-n",
+            "-N",
+            "-H",
+            "-I",
+            "--heading",
+            "--no-heading",
+            "--no-max-chars",
+        ] {
+            assert!(!words.contains(&option), "the skill names {option}");
+        }
+    }
 }
