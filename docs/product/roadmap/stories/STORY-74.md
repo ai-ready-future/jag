@@ -6,6 +6,13 @@ description: As an agent builder (PERSONA-01), I want to run one repeatable test
   at any time.
 status: draft
 state: backlog
+github:
+  number: 187
+  node_id: I_kwDOVKMnL88AAAABYgEjrA
+  url: https://github.com/ai-ready-future/jag/issues/187
+  pushed_hash: d54a2a
+  synced:
+    state: backlog
 parent: /features/FEATURE-26.md
 milestone: /milestones/MILESTONE-02.md
 ---

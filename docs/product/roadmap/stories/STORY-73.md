@@ -5,6 +5,13 @@ description: As an agent builder (PERSONA-01), I want the snippet and the skill 
   come from one source, so that they always teach the same behavior.
 status: draft
 state: backlog
+github:
+  number: 186
+  node_id: I_kwDOVKMnL88AAAABYgD88g
+  url: https://github.com/ai-ready-future/jag/issues/186
+  pushed_hash: 02328a
+  synced:
+    state: backlog
 parent: /features/FEATURE-25.md
 milestone: /milestones/MILESTONE-02.md
 ---

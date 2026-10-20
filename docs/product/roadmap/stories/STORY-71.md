@@ -6,6 +6,13 @@ description: As an agent builder (PERSONA-01), I want my agent to tell the user 
   user is never blocked.
 status: draft
 state: backlog
+github:
+  number: 184
+  node_id: I_kwDOVKMnL88AAAABYgDuNw
+  url: https://github.com/ai-ready-future/jag/issues/184
+  pushed_hash: 6e4127
+  synced:
+    state: backlog
 parent: /features/FEATURE-24.md
 milestone: /milestones/MILESTONE-02.md
 ---

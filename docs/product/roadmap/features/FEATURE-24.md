@@ -5,6 +5,13 @@ description: The agent builder runs one command from the README, and the jag ski
   teaches the agent the four behaviors and the fallback.
 status: draft
 state: ready
+github:
+  number: 178
+  node_id: I_kwDOVKMnL88AAAABYgDL6A
+  url: https://github.com/ai-ready-future/jag/issues/178
+  pushed_hash: 48c4a5
+  synced:
+    state: ready
 parent: /epics/EPIC-06.md
 milestone: /milestones/MILESTONE-02.md
 traces:
