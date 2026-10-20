@@ -2,8 +2,8 @@
 type: system-design
 title: jag system design
 status: accepted
-version: 1
-updated: 2026-10-14
+version: 2
+updated: 2026-10-20
 prd_tree: 104339a44fa1f15943107f1ef69c72b169083dfe
 session: 2d045b37-ac91-451e-b37b-928ac1645df2
 areas:
@@ -34,6 +34,13 @@ adrs:
   - 0016-add-v1-to-a-base-url-whose-path-does-not-end-with-v1.md
   - 0017-use-a-separate-key-for-an-ai-gateway.md
   - 0018-take-the-question-only-from-the-ask-option.md
+  - 0019-give-the-new-public-repository-the-name-ai-ready-future-jag.md
+  - 0020-name-the-release-archives-and-the-npm-platform-packages-by.md
+  - 0021-check-rg-parity-with-a-cargo-test-that-runs-a-pinned-rg-and.md
+  - 0022-use-rg-as-the-reference-for-the-output-of-jag-with-no.md
+  - 0023-run-the-rg-parity-cases-that-git-cannot-store-as-rust-code.md
+  - 0024-install-the-jag-agent-skill-from-the-repository-with-the.md
+  - 0025-use-the-body-of-the-jag-skill-file-as-the-one-source-of-the.md
 ---
 
 # jag system design
@@ -474,6 +481,12 @@ gateway key, the base URL, and the model name.
   from crates.io. The npm package `@airf/jag` installs the same
   prebuilt binary through one npm package for each platform, so `npx`
   works. The npm route needs Node, and the binary does not (deployment-1).
+- Agent skill: the file `skills/jag/SKILL.md` in the repository. The outside
+  `skills` tool installs it into an agent with
+  `npx skills add ai-ready-future/jag`. It reads the file from the
+  repository, not from a release, so no release, crate, or npm package
+  holds it (deployment-6). Its body is the one source of the agent
+  instructions (conventions-8).
 - Platforms: Linux x86_64 and arm64 (static), and macOS arm64 and x86_64
   (deployment-2).
 - Environments: the machine of the user only. There is no server and no
@@ -495,6 +508,7 @@ gateway key, the base URL, and the model name.
 |---|---|---|---|---|---|
 | quality-1 | |  | quality | The quality scenarios, their ranking, and their ratings | human:404pilo, 2026-10-12 |
 | quality-2 | 0021-check-rg-parity-with-a-cargo-test-that-runs-a-pinned-rg-and.md | accepted | quality | How the rg parity e2e tests run: the cases, the fixtures, the pinned rg, and the three modes | adr |
+| quality-3 | 0023-run-the-rg-parity-cases-that-git-cannot-store-as-rust-code.md | accepted | quality | The rg parity cases that git cannot store, as Rust code in a second test | adr |
 | context-1 | |  | context | The outside service that scores the matches: TypeSafe API, Jev model | human:404pilo, 2026-10-12 |
 | context-2 | |  | context | The route to the model service: direct API, or an AI gateway too | human:404pilo, 2026-10-12 |
 | context-3 | 0001-find-matches-with-the-ripgrep-libraries.md | accepted | context | How jag finds the matching lines: its own search code, or an outside program such as `ag` | adr |
@@ -528,11 +542,13 @@ gateway key, the base URL, and the model name.
 | conventions-5 | |  | conventions | The retry wait, and how you change it | human:404pilo, 2026-10-13 |
 | conventions-6 | |  | conventions | How jag keeps the key secret | human:404pilo, 2026-10-12 |
 | conventions-7 | |  | conventions | The order in which an option, a variable, and the config file set a value | human:404pilo, 2026-10-12 |
+| conventions-8 | 0025-use-the-body-of-the-jag-skill-file-as-the-one-source-of-the.md | proposed | conventions | The one source of the agent instructions: the body of `skills/jag/SKILL.md` | adr |
 | deployment-1 | 0010-ship-jag-on-github-releases-crates-io-and-npm.md | accepted | deployment | How users install jag | adr |
 | deployment-2 | |  | deployment | The operating systems and the runtime versions that jag supports | human:404pilo, 2026-10-12 |
 | deployment-3 | |  | deployment | The release path and the checks that guard it | human:404pilo, 2026-10-12 |
 | deployment-4 | 0019-give-the-new-public-repository-the-name-ai-ready-future-jag.md | accepted | deployment | The name of the public repository | adr |
 | deployment-5 | 0020-name-the-release-archives-and-the-npm-platform-packages-by.md | accepted | deployment | The names of the release archives, the checksum files, and the npm platform packages | adr |
+| deployment-6 | 0024-install-the-jag-agent-skill-from-the-repository-with-the.md | proposed | deployment | How an agent gets the jag skill: `npx skills add ai-ready-future/jag` reads `skills/jag/SKILL.md` from the repository | adr |
 
 ## Requirements to components
 
@@ -546,14 +562,16 @@ gateway key, the base URL, and the model name.
 | CAPABILITY-06 Feels like grep | C-cli, C-search | OK |
 | CAPABILITY-07 Show the cost of a search | C-scorer, C-output | OK |
 | CAPABILITY-09 Say which text leaves the machine | none | GAP |
-| CAPABILITY-11 Agent instructions to copy | none | GAP |
+| CAPABILITY-11 Agent instructions to install or copy | Agent skill `skills/jag/SKILL.md` (not a component of the program; deployment-6, conventions-8) | OK |
 | CAPABILITY-12 Measure jag on your own questions | C-bench | OK |
 
 CAPABILITY-08 is out of release 1 (DECISION-46). CAPABILITY-10 is in
-release 3. CAPABILITY-09 and CAPABILITY-11 are "could" and "should" items of
-SCOPE-01 with no component yet. CAPABILITY-11 is a text file that ships with
-the release, and CAPABILITY-09 needs a decision on where jag shows the text
-that it sends.
+release 3. CAPABILITY-09 is a "could" item of SCOPE-01 with no component yet: it
+needs a decision on where jag shows the text that it sends. CAPABILITY-11 is
+a text file in the repository, `skills/jag/SKILL.md`, not a part of the
+program and not a release asset. The `skills` tool installs it
+(deployment-6), and the README snippet of FEATURE-25 is made from its body
+(conventions-8).
 
 ## Risks
 

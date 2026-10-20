@@ -9,7 +9,8 @@ okf_version: "0.2"
 * [building-blocks](#building-blocks) - 4 decisions: 4 accepted
 * [context](#context) - 1 decision: 1 accepted
 * [contracts](#contracts) - 10 decisions: 10 accepted
-* [deployment](#deployment) - 3 decisions: 3 accepted
+* [conventions](#conventions) - 1 decision: 1 proposed
+* [deployment](#deployment) - 4 decisions: 3 accepted, 1 proposed
 * [quality](#quality) - 2 decisions: 2 accepted
 * [strategy](#strategy) - 3 decisions: 3 accepted
 
@@ -43,6 +44,12 @@ okf_version: "0.2"
 * [0018: Take the question only from the --ask option](./0018-take-the-question-only-from-the-ask-option.md) - accepted. Open this when you change how jag gets the question on the command line, or when a script depends on the command form.
 * [0022: Use rg as the reference for the output of jag with no question](./0022-use-rg-as-the-reference-for-the-output-of-jag-with-no.md) - accepted. Open this when you change what jag writes with no --ask (stdout, stderr, color, exit code, match rules), or when you change the rg version that jag follows.
 
+## conventions
+
+### proposed
+
+* [0025: Use the body of the jag skill file as the one source of the agent instructions](./0025-use-the-body-of-the-jag-skill-file-as-the-one-source-of-the.md) - proposed. Open this when you change the text of the jag skill or of the README agent snippet, or how the two stay the same.
+
 ## deployment
 
 ### accepted
@@ -50,6 +57,10 @@ okf_version: "0.2"
 * [0010: Ship jag on GitHub Releases, crates.io, and npm](./0010-ship-jag-on-github-releases-crates-io-and-npm.md) - accepted. Open this when you change how users install jag, or when you add or remove a package channel.
 * [0019: Give the new public repository the name ai-ready-future/jag](./0019-give-the-new-public-repository-the-name-ai-ready-future-jag.md) - accepted. Open this when you change the name of the public or the private repository, the remote of a copy, or a link to an issue of the private repository.
 * [0020: Name the release archives and the npm platform packages by platform](./0020-name-the-release-archives-and-the-npm-platform-packages-by.md) - accepted. Open this when you change the name of a release archive, its checksum file, or an npm package of a platform, or when you add a platform.
+
+### proposed
+
+* [0024: Install the jag agent skill from the repository with the skills tool](./0024-install-the-jag-agent-skill-from-the-repository-with-the.md) - proposed. Open this when you change how an agent gets the jag skill, where the skill file lives, or the pinned version of the skills tool.
 
 ## quality
 

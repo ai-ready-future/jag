@@ -31,6 +31,7 @@
 - [0010 — Ship jag on GitHub Releases, crates.io, and npm](./0010-ship-jag-on-github-releases-crates-io-and-npm.md) — accepted — <!-- TODO: summary -->
 - [0019 — Give the new public repository the name ai-ready-future/jag](./0019-give-the-new-public-repository-the-name-ai-ready-future-jag.md) — accepted — <!-- TODO: summary -->
 - [0020 — Name the release archives and the npm platform packages by platform](./0020-name-the-release-archives-and-the-npm-platform-packages-by.md) — accepted — <!-- TODO: summary -->
+- [0024 — Install the jag agent skill from the repository with the skills tool](./0024-install-the-jag-agent-skill-from-the-repository-with-the.md) — proposed — <!-- TODO: summary -->
 
 ### strategy — <!-- TODO: describe this area -->
 - [0002 — Score the top 200 results in calls of 32, six calls in parallel](./0002-score-the-top-200-results-in-calls-of-32-six-calls-in.md) — accepted — <!-- TODO: summary -->
@@ -40,6 +41,9 @@
 ### quality — <!-- TODO: describe this area -->
 - [0021 — Check rg parity with a cargo test that runs a pinned rg and jag](./0021-check-rg-parity-with-a-cargo-test-that-runs-a-pinned-rg-and.md) — accepted — <!-- TODO: summary -->
 - [0023 — Run the rg parity cases that git cannot store as Rust code in a second test](./0023-run-the-rg-parity-cases-that-git-cannot-store-as-rust-code.md) — accepted — <!-- TODO: summary -->
+
+### conventions — <!-- TODO: describe this area -->
+- [0025 — Use the body of the jag skill file as the one source of the agent instructions](./0025-use-the-body-of-the-jag-skill-file-as-the-one-source-of-the.md) — proposed — <!-- TODO: summary -->
 
 <!-- ADR-INDEX:END -->
 
