@@ -22,9 +22,12 @@ and edits no file."
 
 CAPABILITY-11 gives the four behaviors that the instructions teach:
 
-1. The agent uses jag in place of rg, with a term and a plain-language
-   question in `--ask`.
-2. The agent gives jag a broad term and a clear plain-language question.
+1. The agent uses jag in place of rg. The agent knows both forms:
+   `jag TERM PATH`, which works as rg with no model call and no cost, and
+   `--ask` with a plain-language question, which makes a paid model call.
+   The agent decides when to use `--ask`.
+2. When the agent uses `--ask`, it gives jag a broad term and a clear
+   plain-language question.
 3. The agent sets a limit on the text that jag returns.
 4. The agent reads the structured output and opens the file and the line of
    each result. It acts correctly when jag reports no answer, text that it
@@ -63,6 +66,28 @@ Two later user answers of 2026-10-20 replace parts of answers 4 and 5:
   tools. This replaces "Then it falls back to its own search tool" of
   answer 5.
 
+Two user ANSWERs of 2026-10-20 decide the install route. ADR-0024
+records them:
+
+- The acceptance card of ADR-0024, "change it": "decision should be that
+  we are going to use npx skills as the distrivution mechanism for the
+  skill and npm for the distro of the cli".
+- The card "Does the jag program also stay on crates.io and the release
+  downloads?", option 1, with the words "others also in the readme": npm
+  is the main install step of the program. crates.io and the release
+  downloads stay, and the README also shows them.
+
+DECISION-54 also records card 2 (a) of the same day: "Program first, then
+skill".
+
+The user accepted ADR-0024 on 2026-10-20 (PR #208).
+
+One more user ANSWER of 2026-10-20, on the card "Does the skill tell the
+agent to always ask a question?": "just tells the agent of the existence
+of that option .. it is up to the agent to use it or not". The skill
+shows the form with no question and the form with `--ask`, and gives no
+advice on when to use `--ask` (row 8).
+
 The stories and their criteria:
 
 - STORY-68: install the skill with one command.
@@ -71,7 +96,8 @@ The stories and their criteria:
     agent that the install command supports, such as Claude Code.
 - STORY-69: the agent uses jag in place of rg and sets a limit.
   - CRITERION-117: for a search, the agent runs jag in place of rg.
-  - CRITERION-118: the agent gives jag a broad term and a clear question.
+  - CRITERION-118: when the agent uses `--ask`, it gives jag a broad term
+    and a clear question.
   - CRITERION-119: the agent sets a limit on the text that jag returns.
 - STORY-70: the agent reads the structured output.
   - CRITERION-120: the agent uses the file and line of a result to read or
@@ -99,31 +125,32 @@ in the Assumptions list, with the source that a reviewer can open.
 | # | Decision | Choice | Source |
 |---|---|---|---|
 | 1 | Specs | One spec for STORY-68 to STORY-71. The four stories share one file, `skills/jag/SKILL.md`: STORY-69 to STORY-71 are its text, and STORY-68 installs it | Orchestrator TASK for FEATURE-24 ("1 feature = 1 spec = 1 PR") |
-| 2 | The install tool | The `skills` command line tool (npm package `skills`, source `vercel-labs/skills`). The README command is `npx skills add ai-ready-future/jag`. The tests pin `skills@1.7.4` | User answer 2; ADR-0019 (the repository name) |
-| 3 | The place and the name of the skill | One folder `skills/jag/` with one file `SKILL.md`. The skill name is `jag`, the name of the command. The `skills` tool finds a skill in the folder `skills/` of a repository | Inferred: the discovery order of the `skills` tool (github.com/vercel-labs/skills v1.7.4, docs/creating-skills.md, "Skill Discovery"); README line 4 (the command is `jag`) |
+| 2 | The install route | Two channels for the two parts. npm is the main channel of the program: `npm install -g @airf/jag`. The `skills` command line tool (npm package `skills`, source `vercel-labs/skills`) is the channel of the skill: `npx skills add ai-ready-future/jag`. The README gives the program step first and the skill step second. crates.io (`cargo install --locked jag-grep`) and the GitHub release downloads stay, after the two steps, under "Other ways to install". The tests pin `skills@1.7.4` | User answer 2; the two user ANSWERs of 2026-10-20 (see Problem); DECISION-54 ("Program first, then skill"); ADR-0024; ADR-0010 (does not change); ADR-0019 (the repository name) |
+| 3 | The place and the name of the skill | One folder `skills/jag/` with one file `SKILL.md`. The skill name is `jag`, the name of the command. The `skills` tool finds a skill in the folder `skills/` of a repository. No other `SKILL.md` goes in the repository, also not in the folder of an agent such as `.claude/skills/`, because the tool also installs those files | Inferred: the discovery order of the `skills` tool (github.com/vercel-labs/skills v1.7.4, docs/creating-skills.md, "Skill Discovery"); README line 4 (the command is `jag`); ADR-0024 |
 | 4 | The frontmatter | Only `name: jag` and `description`. No key of one agent, for example no `allowed-tools`. The description is one line in double quotes, so that a simple reader of each agent can read it. It is 1,024 characters or less. It says what jag is, as row 7 does, and gives no advice on when to use which tool | Inferred: user answer 3; the Agent Skills format (agentskills.io/specification, fields `name` and `description`). The words: DECISION-54 |
 | 5 | One source | `skills/jag/SKILL.md` is the one source of the agent instructions. The body after the frontmatter is complete alone: one file, no folder `references/` or `scripts/`, no relative link, no word that only one agent knows. FEATURE-25 makes the README snippet from this body | Inferred: user answer 1; FEATURE-25 (CRITERION-126, CRITERION-127) |
 | 6 | Words for one agent | The skill tells the agent to "run the command in a shell". It names no tool of one agent | Inferred: user answer 3 |
 | 7 | What jag is (CRITERION-117) | The skill tells the agent to use jag in place of rg. jag is an enhanced rg: the same command form as rg, a term and a path, plus `--ask`, which ranks the matching lines by how well they answer a plain-language question. The skill gives no condition and no advice on when to use jag and when to use another tool | DECISION-54; ADR-0022 (with no `--ask`, rg is the reference for jag) |
-| 8 | The command form (CRITERION-118, CRITERION-119) | `jag --json --max-chars N --ask "QUESTION" TERM PATH`. Always `--json`. Always `--max-chars`. Always a path, for example `.`. A question that starts with `-` uses `--ask="..."`. The term is one broad word or a short regex. The question is one sentence in plain language | ADR-0018 (the question only through `--ask`); README "Where jag searches" (an agent gives a path, because jag waits on an open pipe); README line 222 (`--ask=`); CAPABILITY-11 behavior 2 |
+| 8 | The command form (CRITERION-118, CRITERION-119) | The skill shows two forms. With no question, `jag --json --max-chars N TERM PATH` finds the lines as rg does, with no call to the model and no cost. With a question, `jag --json --max-chars N --ask "QUESTION" TERM PATH` ranks the matching lines by how well they answer the question, with a call to the model and a cost. The skill tells the agent that `--ask` exists and what it does. It does not tell the agent to always use `--ask`, and it gives no advice on when to use it: the agent decides. Always `--json`. Always `--max-chars`. Always a path, for example `.`. A question that starts with `-` uses `--ask="..."`. The term is one broad word or a short regex. The question is one sentence in plain language | The user ANSWER of 2026-10-20 (card "Does the skill tell the agent to always ask a question?": "just tells the agent of the existence of that option .. it is up to the agent to use it or not"); README "Search with no question" (no call to the model); README "Output for an agent" (with no question, the cost kind is `no_call`); ADR-0018 (the question only through `--ask`); README "Where jag searches" (an agent gives a path, because jag waits on an open pipe); README line 222 (`--ask=`); CAPABILITY-11 behavior 2 |
 | 9 | The size limit (CRITERION-119) | The agent always sets `--max-chars`. It chooses N from the text that it can read now. The limit counts characters, not tokens. The smallest limit is 1,000. The default is 20,000 | README "The size limit" (FEATURE-09, built) |
 | 10 | Options that the skill does not name | `-q`, `-l`, `-c`, `-n`, `-N`, `-H`, `-I`, `--heading`, and `--no-heading` do not work with `--ask` or `--json`: jag gives exit 2 and a fix, and row 12 covers code 2. `--no-max-chars` turns the limit off. The skill names none of them. It can name `-i`, `-w`, `-F`, and `-g GLOB`, which work with `--ask` | `src/cli/grep.rs` `refuse_plain_options` (FEATURE-13 decisions 19 to 22, FEATURE-23 decision 23, built); row 9 |
 | 11 | The fields that the agent reads (CRITERION-120) | `exit_code`, `error.cause`, `error.fix`, `no_good_answer`, `results_found`, `left_out`, `size_limit_fix`, and in each result `path`, `first_line`, `last_line`, and in each line `number`, `text`, `is_match`. The agent opens `path` at `first_line` to `last_line`, or cites `path:number` | FEATURE-11 spec (built); ADR-0008 (fields are only added) |
 | 12 | What each exit code tells the agent (CRITERION-121) | One table in the skill with each code of IF-4: 0, 1, 2, 3, 4, 5, 6, 7, 8, 126, 127, 130. Code 1 is not a failure: with `no_good_answer: true`, no match answers the question; with `results_found: 0`, the term matched nothing, so the agent tries a broader term. Codes 7 and 8 still carry valid results: the agent uses them, then raises the limit or narrows the term. Code 2: the agent fixes the command from `error.fix` | ADR-0007; IF-4 |
 | 13 | The codes where jag cannot run (CRITERION-122, CRITERION-123) | Codes 3, 4, 5, 6, 126, 127, and "command not found" from the shell. The agent gives the user the cause and the fix one time in the task. It does not run jag again in that task, unless the user says that the fix is done. The skill names no other search tool and gives no other rule for what the agent does next | DECISION-55; CAPABILITY-11 ("the agent gives the user the cause and the fix that jag writes"); row 18 and CV-5 (no run again for code 6); inferred for codes 3, 4, 5, 126, and 127: jag fails the same way until the user does the fix |
 | 14 | The failure text | The skill does not copy the failure texts of jag. It tells the agent to give `error.cause` and `error.fix` to the user as jag writes them. The skill holds its own text for one case only: jag is not installed, so no JSON document exists | Inferred: CV-1 (each failure gives its cause and its fix) |
-| 15 | jag is not installed | The agent does not install jag. It tells the user that jag is not installed, gives the README Install section (`https://github.com/ai-ready-future/jag#install`), and names `npm install -g @airf/jag` | User answer 5; ADR-0010 (the install channels) |
+| 15 | jag is not installed | The agent does not install jag. It tells the user that jag is not installed, gives the README Install section (`https://github.com/ai-ready-future/jag#install`), and names `npm install -g @airf/jag` | User answer 5; ADR-0010 (the install channels); ADR-0024 (npm is the main channel of the program) |
 | 16 | The key | The agent never asks for the key in the chat, never puts it in a command, and never reads or prints the files in `~/.config/jag/`. For code 3 or 4, it tells the user to run `jag --setup` in their own terminal, or to set `JAG_TYPESAFE_API_KEY` | CV-6; ADR-0006; ADR-0013 (setup with no terminal gives exit 2) |
 | 17 | No check before a search | The skill does not run `jag --check`. `--check` makes a paid call and has no JSON form. The agent runs the search and reads the exit code | Inferred: README "Check that jag is ready"; ADR-0006 |
 | 18 | No retry loop | For code 6, the agent does not run jag again at once: jag already tried again in the same run | CV-5 |
 | 19 | No pipe that cuts the output | The agent does not pipe the JSON document into `head` or a similar tool. It uses `--max-chars` | Inferred: IF-5 (one JSON document); row 9 |
-| 20 | The README section (CRITERION-115) | A new section `## Add the jag skill to your agent`, after `## Install`. It holds one fenced block with one line: `$ npx skills add ai-ready-future/jag`. The text after the block says that the tool asks which agents get the skill and where it goes; that `--agent claude-code -y` installs with no question; that the tool writes `skills-lock.json` in the project; and that the `skills` tool, not jag, sends anonymous usage data and a security-audit request to skills.sh, which `DO_NOT_TRACK=1` stops | CONSTRAINT-08; user answer 2; CV-8 (jag sends no telemetry); github.com/vercel-labs/skills, README, "Telemetry" |
+| 20 | The README Install section (CRITERION-115) | No new `##` section. `## Install` gives three parts in this order. Part 1 installs the program with npm: `$ npm install -g @airf/jag`. Part 2 installs the skill: one fenced block with one line, `$ npx skills add ai-ready-future/jag`. The text after that block says that the tool asks which agents get the skill and where it goes; that `--agent claude-code -y` installs with no question; that the tool writes `skills-lock.json` in the project; and that the `skills` tool, not jag, sends anonymous usage data and a security-audit request to skills.sh, which `DO_NOT_TRACK=1` stops. Part 3, "Other ways to install", gives the cargo command and the GitHub Releases download steps, with the full commands and the notes of the README of today | CONSTRAINT-08; user answer 2; the two user ANSWERs of 2026-10-20 (see Problem); ADR-0024; CV-8 (jag sends no telemetry); github.com/vercel-labs/skills, README, "Telemetry" |
 | 21 | README line 6 | Remove "This release has the key setup only. The search comes later." The skill teaches the search, so the line is wrong | Inferred: README line 6; FEATURE-14 and FEATURE-23 specs (built) |
 | 22 | The content tests (CRITERION-115, 117 to 123) | A Rust test file `tests/agent_skill.rs`, one unit test in `src/cli.rs`, and one unit test in `src/output.rs`. They run in the job `rust` of `ci.yml` | Inferred: `src/cli.rs` test `the_hyphen_value_lists_agree_with_cli`; `src/output.rs` test `no_field_of_the_form_is_removed_or_renamed` |
-| 23 | The install test (CRITERION-116) | A Node test `tests/agent_skill/install.test.js`. It runs `skills@1.7.4` on the local checkout, not on GitHub, so that it tests the pull request. A new job `agent-skill` in `ci.yml` runs it with Node 24 and `DO_NOT_TRACK=1` | Inferred: the job `release-tools` of `ci.yml` (`node --test npm/jag/test/launcher.test.js`) |
-| 24 | "Each agent that the install command supports" | Each agent that `skills@1.7.4` installs to with `--agent '*'`. A new pin of the tool changes this list | Inferred: CRITERION-116; row 2 |
-| 25 | The release | The skill is not in the crate and not in the npm package. The `skills` tool reads it from the repository. `Cargo.toml` `include` and `npm/` do not change | User answer 2; `Cargo.toml` `include` |
+| 23 | The install test (CRITERION-116) | A Node test `tests/agent_skill/install.test.js`. It runs `skills@1.7.4` on the local checkout, not on GitHub, so that it tests the pull request. A new job `agent-skill` in `ci.yml` runs it with Node 24 and `DO_NOT_TRACK=1`. The test does not install the jag program, because the skill install needs none | Inferred: the job `release-tools` of `ci.yml` (`node --test npm/jag/test/launcher.test.js`); ADR-0024 (the pin `skills@1.7.4`) |
+| 24 | "Each agent that the install command supports" | Each agent that `skills@1.7.4` installs to with `--agent '*'`. A new pin of the tool changes this list | Inferred: CRITERION-116; row 2; ADR-0024 |
+| 25 | The release | The skill is not in the crate and not in the npm package. The `skills` tool reads it from the repository. `Cargo.toml` `include`, `npm/`, and `release.yml` do not change | User answer 2; ADR-0024; `Cargo.toml` `include` |
 | 26 | A change of jag | A pull request that adds or changes an option, a field, or an exit code that the skill names changes `SKILL.md` in the same pull request. The tests of row 22 fail when the skill names an option or a field that jag does not have | Inferred: ADR-0007; ADR-0008; row 22 |
+| 27 | The README line `npx @airf/jag --help` | It moves to the end of "Other ways to install", with the words "Or run jag with no install". One sentence after it says that the jag skill runs the command `jag`, so an agent needs one of the installs above. It is not in part 1: an agent of a user who runs jag with no install gets "command not found" (rows 13 and 15) | Inferred: ADR-0024 (the program comes first, so the agent finds an installed `jag`); rows 13 and 15 |
 
 ## Design
 
@@ -157,10 +184,15 @@ names only the options, the fields, and the exit codes of rows 8 to 19.
    jag in place of rg. The section gives no condition and no advice on
    when to use jag and when to use another tool.
 2. **How to run jag** (CRITERION-118, CRITERION-119, rows 8 to 10, 19). Run
-   the command in a shell. Give the form of row 8 with one example, for
-   example `jag --json --max-chars 8000 --ask "Where does the code retry a
-   failed request?" retry .`. Say that the term is broad and the question is
-   one clear sentence. Say that `--max-chars` is always present, how to
+   the command in a shell. Give the two forms of row 8 with one example
+   each, for example `jag --json --max-chars 8000 retry .` and
+   `jag --json --max-chars 8000 --ask "Where does the code retry a failed
+   request?" retry .`. Say that the form with no question finds the lines
+   as rg does, with no call to the model and no cost, and that `--ask`
+   ranks the matching lines by how well they answer the question, with a
+   call to the model and a cost. Do not say when to use `--ask`, and do
+   not say that the agent always uses it. Say that the term is broad and
+   the question is one clear sentence. Say that `--max-chars` is always present, how to
    choose N, the smallest value, and the default. Say why a path is always
    present. Do not name the options of row 10 that the skill does not use.
 3. **How to read the output** (CRITERION-120, row 11). Read `exit_code`
@@ -185,16 +217,37 @@ names only the options, the fields, and the exit codes of rows 8 to 19.
 `README.md` changes in two places:
 
 - Line 6 goes (row 21).
-- A new section `## Add the jag skill to your agent` goes after `## Install`
-  (row 20). It has one fenced block:
+- `## Install` gets the three parts of row 20, in this order. Each part
+  has a `###` heading. No test of the repository reads a `###` heading of
+  the README. The build can change the words of the headings, not their
+  order. The two lines on the systems stay at the top of `## Install`.
 
-  ```
-  $ npx skills add ai-ready-future/jag
-  ```
+  1. `### 1. Install the jag program`: `With npm (Node.js 18 or later):`
+     and one fenced block:
 
-  The block uses the `$ ` prefix of the other README commands. The other
-  forms of the command (`--agent claude-code -y`, `DO_NOT_TRACK=1`) are in
-  the text, in inline code, not in a fenced block.
+     ```
+     $ npm install -g @airf/jag
+     ```
+
+  2. `### 2. Add the jag skill to your agent`: one fenced block, then the
+     text of row 20:
+
+     ```
+     $ npx skills add ai-ready-future/jag
+     ```
+
+  3. `### Other ways to install`: the cargo text and command, the GitHub
+     Releases text and commands, the targets, and the macOS note, as the
+     README has them today. Then `npx @airf/jag --help` and its sentence
+     (row 27).
+
+  The note on the CA certificates of Linux stays at the end of
+  `## Install`, because it is true for each way.
+
+  The blocks use the `$ ` prefix of the other README commands. The other
+  forms of the skill command (`--agent claude-code -y`,
+  `DO_NOT_TRACK=1`) are in the text, in inline code, not in a fenced
+  block.
 
 The CLI of jag, the JSON document, and the exit codes do not change.
 
@@ -217,10 +270,10 @@ change.
 
 | Criterion | Test | What it proves |
 |---|---|---|
-| CRITERION-115 | `tests/agent_skill.rs`, `the_readme_gives_one_install_command`. It reads `README.md`, finds each fenced block, and finds each line that starts with `$ npx skills add`. Exactly one such line exists, and it is `$ npx skills add ai-ready-future/jag`. The repository name is the name of ADR-0019 | The README shows one command |
+| CRITERION-115 | `tests/agent_skill.rs`, `the_readme_gives_one_install_command`. It reads `README.md`, finds each fenced block, and finds each line that starts with `$ npx skills add`. Exactly one such line exists, and it is `$ npx skills add ai-ready-future/jag`. The repository name is the name of ADR-0019. The test also checks the order of row 20: in `## Install`, from its heading to the next line that starts with `## `, the line `$ npm install -g @airf/jag` comes first, then the skill line, then the line `$ cargo install --locked jag-grep` | The README shows one command, after the program install |
 | CRITERION-116 | `tests/agent_skill/install.test.js`, run with `node --test`. It makes an empty project folder and an empty home folder in a temporary folder. In the project folder, with `HOME` set to the home folder and `DO_NOT_TRACK=1`, it runs `npx --yes skills@1.7.4 add <checkout> --all --json`. `<checkout>` is the path of the repository. Then it runs `npx --yes skills@1.7.4 list --json` in the same folder. It checks: the add command exits with 0, and its output has no entry with `"status": "failed"`; the list has one skill only, `jag`; the `agents` of that entry are each agent that the tool installs to with `--agent '*'` (row 24); and for each agent, the `SKILL.md` file at its path has the same bytes as `skills/jag/SKILL.md`. It also checks the path `.claude/skills/jag/SKILL.md` by name, for Claude Code | The command installs the skill into each agent that the tool supports |
 | CRITERION-117 | `tests/agent_skill.rs`, `the_skill_says_to_use_jag_in_place_of_rg`. The section "What jag is" exists and holds the words "in place of rg" and `--ask`. With no regard to letter case, the skill holds none of the phrases "plain search", "too many lines", "too much text", "more lines than", and "when to use" | The skill holds the rule of row 7 and no advice on when to use which tool. FEATURE-26 proves what an agent does |
-| CRITERION-118 | `tests/agent_skill.rs`, `the_skill_gives_the_command_form`. The skill holds `--ask`, `--json`, a path in the example, and the `--ask=` form | The skill holds the form of row 8 |
+| CRITERION-118 | `tests/agent_skill.rs`, `the_skill_gives_the_command_form`. The skill holds a code span that starts with `jag --json --max-chars` and has no `--ask`, and a code span that starts with `jag --json --max-chars` and has `--ask`, each with a path. It holds the `--ask=` form. No sentence of the skill holds both the word "always" and `--ask`, with no regard to letter case. The test joins the lines of each paragraph before it looks, so a line break does not hide a sentence | The skill holds the two forms of row 8, and no rule that the agent always asks |
 | CRITERION-119 | Same test: the skill holds `--max-chars`, `1,000`, and `20,000`. And `src/cli.rs`, `the_agent_skill_names_only_options_of_jag`: in each code span of `SKILL.md` whose first word is `jag`, each word that starts with `-` is a short or a long option of `Cli::command()`, and no option of row 10 is in the skill. A code span of grep or rg is not checked | The skill holds the limit, and it names no option that jag does not have |
 | CRITERION-120 | `src/output.rs`, `the_agent_skill_names_only_fields_of_the_document`. It holds the field list of row 11. It checks that each field is in `SKILL.md` and is a field of the document (the lists `TOP_LEVEL`, `ERROR`, `RESULT`, and `LINE` of the test module) | The skill names the fields of the file and the line, and each one exists |
 | CRITERION-121 | `tests/agent_skill.rs`, `the_skill_has_one_row_for_each_exit_code`. It reads the rows of the exit-code table. The set of codes is exactly 0, 1, 2, 3, 4, 5, 6, 7, 8, 126, 127, 130 | The skill tells the meaning of each code |
@@ -285,7 +338,7 @@ sends anonymous usage data and a security-audit request to skills.sh for a publi
    five section headings. Write `tests/agent_skill.rs` with
    `the_skill_frontmatter_is_for_each_agent` and
    `the_readme_gives_one_install_command`. Change `README.md`: remove line 6
-   (row 21) and add the section of row 20.
+   (row 21) and change `## Install` to the three parts of rows 20 and 27.
 2. STORY-68, part 2: write `tests/agent_skill/install.test.js` and the job
    `agent-skill`. Confirm the JSON form of `skills@1.7.4 add --json` and
    `list --json` on the real tool, and confirm that `list --json` names each
@@ -313,7 +366,7 @@ sends anonymous usage data and a security-audit request to skills.sh for a publi
 - Row 3 (`skills/jag/SKILL.md`) comes from the discovery order of the
   `skills` tool: github.com/vercel-labs/skills v1.7.4, docs/creating-skills.md, "Skill Discovery".
   A `SKILL.md` at the root of the repository wins over `skills/`, so the
-  root gets none.
+  root gets none. ADR-0024 records the same place.
 - Row 4 (only `name` and `description`) comes from user answer 3 and the
   Agent Skills format (agentskills.io/specification).
 - Row 5 (one self-contained body) comes from user answer 1 and FEATURE-25
@@ -334,19 +387,20 @@ sends anonymous usage data and a security-audit request to skills.sh for a publi
   comes from CRITERION-116 and row 2.
 - Row 26 (one pull request changes jag and the skill) comes from ADR-0007,
   ADR-0008, and row 22.
+- Row 27 (the place of `npx @airf/jag --help`) comes from ADR-0024 (the
+  program comes first) and rows 13 and 15.
 
 ## Risks
 
 | Risk | Signal |
 |---|---|
 | The skill comes from the default branch, and the binary comes from a release. The skill can name an option that the installed jag does not have yet | An agent gets exit 2 with "unexpected argument" for an option that the skill names |
-| jag has no release yet (FEATURE-18 is not built). The install commands of row 15 fail until the first release | `npm install -g @airf/jag` fails with "not found" |
+| jag has no release yet (FEATURE-18 is not built). The main step of the README (part 1 of row 20) and the install command of row 15 fail until the first release. The skill step works, but the agent then finds no `jag` | `npm install -g @airf/jag` fails with "not found" |
 | A new version of `skills` changes the discovery, the agent list, or the JSON output | The job `agent-skill` fails after a pin change, or a user report that `npx skills add ai-ready-future/jag` finds no skill |
 | The `skills` tool sends anonymous usage data and a security-audit request to skills.sh. A user expects no telemetry, because jag sends none (CV-8) | A user report or an issue about telemetry |
 | The agent reads 20,000 as tokens, or chooses a limit that is too large for its context | A FEATURE-26 run that records a limit above the free context of the agent |
 | The agent treats exit 1 as a failure and tells the user that jag cannot run, when it should try a broader term | A FEATURE-26 run that records a message to the user after exit 1 |
-| The agent uses jag in place of rg for each search, and row 8 always has `--ask`. So each search makes a paid call to the model, also for an exact text | The cost of an agent task with the skill is much higher than the cost of the same task with rg |
-| The system design says that CAPABILITY-11 "is a text file that ships with the release". Row 25 puts the skill in the repository only | The architect changes the system design (see the pull request text) |
+| The agent decides when to use `--ask` (row 8). It can use `--ask` for each search, also for an exact text, and pay for each one. Or it can never use `--ask`, and get no ranking | A FEATURE-26 run that records `--ask` on each search, or on none |
 | The job `agent-skill` downloads `skills` from npm. An npm outage makes it fail | The job fails at `npx --yes skills@1.7.4` with a network error |
 | The change of `ci.yml` needs the `workflow` scope of the token | The push of the build pull request fails |
 
