@@ -11,7 +11,7 @@ github:
   url: https://github.com/ai-ready-future/jag/issues/185
   pushed_hash: 68ea98
   synced:
-    state: backlog
+    state: ready
 spec: docs/superpowers/specs/2026-10-20-STORY-72-copy-the-same-teaching-as-a-snippet-design.md
 parent: /features/FEATURE-25.md
 milestone: /milestones/MILESTONE-02.md
