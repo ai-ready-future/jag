@@ -31,8 +31,8 @@ The README shows a snippet that the agent builder copies into the instructions o
 
 | Item | State | Progress | Owner | Blocked by | Drift |
 | --- | --- | --- | --- | --- | --- |
-| [STORY-72: Copy the snippet from the README](../stories/STORY-72.md) | backlog | - | - | - | - |
-| [STORY-73: The snippet and the skill share one source](../stories/STORY-73.md) | backlog | - | - | - | - |
+| [STORY-72: Copy the snippet from the README](../stories/STORY-72.md) | ready | - | - | - | - |
+| [STORY-73: The snippet and the skill share one source](../stories/STORY-73.md) | ready | - | - | - | - |
 <!-- STATUS:END -->
 
 <!-- LINKS:START (generated, do not edit) -->
