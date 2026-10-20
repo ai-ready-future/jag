@@ -10,7 +10,7 @@ github:
   number: 180
   node_id: I_kwDOVKMnL88AAAABYgDWGw
   url: https://github.com/ai-ready-future/jag/issues/180
-  pushed_hash: 973f14
+  pushed_hash: de3143
   synced:
     state: blocked
 parent: /epics/EPIC-06.md
