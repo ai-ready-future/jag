@@ -24,7 +24,7 @@ traces:
 
 # FEATURE-26: Prove that an agent with the skill uses jag well
 
-The maintainer runs one repeatable test. The test gives an agent with the jag skill a set of tasks. For each task, it records whether the agent chose jag or plain keyword search, whether it set a limit on the text, whether it used the file and line of a result, and whether it told the user and fell back when jag could not run.
+The maintainer runs one repeatable test. The test gives an agent with the jag skill a set of tasks. For each task, it records whether the agent ran jag in place of rg, whether it set a limit on the text, whether it used the file and line of a result, and whether it gave the user the cause and the fix that jag writes when jag could not run.
 
 <!-- STATUS:START (generated, do not edit) -->
 
