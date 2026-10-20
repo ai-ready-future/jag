@@ -356,7 +356,7 @@ logs/backup.log-36-02:04:59 check of volume 4 passed
 jag: cost $0.000189: scored 6 of 6 results, skipped 0.
 ```
 
-A developer asks a question before jag has a key. jag exits with exit code 3 and tells what to do. Run `jag --setup` (see "Store your TypeSafe key"):
+A developer asks a question before jag has a key. jag exits with exit code 3 and tells what to do. Run `jag --setup` (see [Store your TypeSafe key](#store-your-typesafe-key)):
 
 <!-- example: missing-key -->
 ```
