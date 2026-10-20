@@ -13,7 +13,7 @@ github:
   url: https://github.com/ai-ready-future/jag/issues/184
   pushed_hash: 486b6b
   synced:
-    state: ready
+    state: done
 spec: docs/superpowers/specs/2026-10-20-STORY-68-install-the-jag-skill-with-one-readme-command-design.md
 parent: /features/FEATURE-24.md
 milestone: /milestones/MILESTONE-02.md
