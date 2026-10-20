@@ -41,6 +41,7 @@ adrs:
   - 0023-run-the-rg-parity-cases-that-git-cannot-store-as-rust-code.md
   - 0024-install-the-jag-agent-skill-from-the-repository-with-the.md
   - 0025-use-the-body-of-the-jag-skill-file-as-the-one-source-of-the.md
+  - 0026-name-the-crates-io-package-jag-cli.md
 ---
 
 # jag system design
@@ -252,7 +253,7 @@ components:
         style: sync
       - id: C-check
         style: sync
-    governed_by: [0005-build-jag-as-one-rust-binary.md, 0006-run-setup-the-readiness-check-and-key-removal-as-options.md, 0007-number-the-exit-codes-above-2-from-3-to-8.md, 0010-ship-jag-on-github-releases-crates-io-and-npm.md, 0011-build-jag-as-one-cargo-package-with-one-module-per-component.md, 0012-use-clap-serde-saphyr-and-rpassword-as-the-outside-crates.md, 0013-exit-2-when-setup-runs-with-no-terminal.md, 0018-take-the-question-only-from-the-ask-option.md, CV-1, CV-3, CV-4, CV-7]
+    governed_by: [0005-build-jag-as-one-rust-binary.md, 0006-run-setup-the-readiness-check-and-key-removal-as-options.md, 0007-number-the-exit-codes-above-2-from-3-to-8.md, 0010-ship-jag-on-github-releases-crates-io-and-npm.md, 0011-build-jag-as-one-cargo-package-with-one-module-per-component.md, 0012-use-clap-serde-saphyr-and-rpassword-as-the-outside-crates.md, 0013-exit-2-when-setup-runs-with-no-terminal.md, 0018-take-the-question-only-from-the-ask-option.md, 0026-name-the-crates-io-package-jag-cli.md, CV-1, CV-3, CV-4, CV-7]
     realizes: [CAPABILITY-05, CAPABILITY-06]
     areas: [building-blocks, contracts, conventions]
   - id: C-config
@@ -477,8 +478,8 @@ gateway key, the base URL, and the model name.
 - Runtime: one static Rust binary for each command, `jag` and `jag-bench`.
   It needs no runtime and no other program (building-blocks-1).
 - Install: prebuilt binaries on GitHub Releases, one archive for each
-  platform, each with a checksum. Rust users can run `cargo install jag-grep`
-  from crates.io. The npm package `@airf/jag` installs the same
+  platform, each with a checksum. Rust users can run `cargo install jag-cli`
+  from crates.io (building-blocks-6). The npm package `@airf/jag` installs the same
   prebuilt binary through one npm package for each platform, so `npx`
   works. The npm route needs Node, and the binary does not (deployment-1).
   npm is the main channel: the README gives `npm install -g @airf/jag` as
@@ -527,6 +528,7 @@ gateway key, the base URL, and the model name.
 | building-blocks-3 | |  | building-blocks | Where the tool lives that measures jag on your own questions | human:404pilo, 2026-10-12 |
 | building-blocks-4 | 0012-use-clap-serde-saphyr-and-rpassword-as-the-outside-crates.md | accepted | building-blocks | The outside crates of setup and their test crates | adr |
 | building-blocks-5 | 0014-call-the-model-service-with-ureq-and-serde-json-on-std.md | accepted | building-blocks | The HTTP and JSON crates of the model calls, and how jag runs them in parallel | adr |
+| building-blocks-6 | 0026-name-the-crates-io-package-jag-cli.md | proposed | building-blocks | The crates.io name of the one package: `jag-cli` (`cargo install --locked jag-cli`); the command stays `jag` | adr |
 | data-1 | |  | data | The store of the API key | human:404pilo, 2026-10-12 |
 | data-2 | |  | data | Nothing is kept between searches | human:404pilo, 2026-10-12 |
 | contracts-1 | 0018-take-the-question-only-from-the-ask-option.md | accepted | contracts | The command form of a search: `jag [OPTIONS] TERM [PATH...]`, with the question only in `--ask QUESTION` | adr |

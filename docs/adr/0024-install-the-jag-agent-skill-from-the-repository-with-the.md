@@ -5,6 +5,7 @@ description: Open this when you change how users get the jag program or the jag 
 area: deployment
 status: accepted
 date: 2026-10-20
+amended: 2026-10-20
 supersedes: null
 superseded_by: null
 amends: null
@@ -43,7 +44,7 @@ Facts that the decision uses:
 
 - jag has two distribution channels for the two parts that a user installs. npm (`@airf/jag`) is the main channel of the jag program. The `skills` tool (`npx skills add ai-ready-future/jag`) is the channel of the jag skill.
 - The README first gives the npm install of the program, `npm install -g @airf/jag`, as the main step. Then it gives the skill command, `npx skills add ai-ready-future/jag`, which the user runs for the agent that they use.
-- crates.io (`cargo install --locked jag-grep`) and the GitHub release downloads stay. 0010-ship-jag-on-github-releases-crates-io-and-npm.md does not change. The README shows them after the npm step, in a part "Other ways to install", with the full command or steps for each.
+- crates.io (`cargo install --locked jag-cli`, 0026-name-the-crates-io-package-jag-cli.md) and the GitHub release downloads stay. 0010-ship-jag-on-github-releases-crates-io-and-npm.md does not change. The README shows them after the npm step, in a part "Other ways to install", with the full command or steps for each.
 - jag has no install code for skills, and the skill does not install the jag program.
 - The skill is one file in the repository, `skills/jag/SKILL.md`. The `skills` tool reads it from the repository on GitHub, not from a release asset. No release archive, no crate, and no npm package holds the skill.
 - The skill name is `jag`. The frontmatter has only `name` and `description`, the fields of the Agent Skills format, so that each agent that the tool supports can read it.

@@ -6,7 +6,7 @@ area: building-blocks
 status: accepted
 date: 2026-10-13
 supersedes: null
-superseded_by: null
+superseded_by: 0026-name-the-crates-io-package-jag-cli.md  # partial: the crates.io name only
 amends: null
 refines: null
 deviates_from: null

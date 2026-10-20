@@ -9,6 +9,7 @@ source	relation	target	target_state	target_status	source_area	target_area	note
 0008-write-structured-output-as-one-json-document.md	parent_spec	docs/product/system-design.md	doc	-	contracts	-	anchor=contracts
 0009-pin-the-jev-model-version-in-each-release.md	parent_spec	docs/product/system-design.md	doc	-	contracts	-	anchor=contracts
 0010-ship-jag-on-github-releases-crates-io-and-npm.md	parent_spec	docs/product/system-design.md	doc	-	deployment	-	anchor=deployment
+0011-build-jag-as-one-cargo-package-with-one-module-per-component.md	superseded_by	0026-name-the-crates-io-package-jag-cli.md	live	proposed	building-blocks	building-blocks	partial
 0011-build-jag-as-one-cargo-package-with-one-module-per-component.md	parent_spec	docs/product/system-design.md	doc	-	building-blocks	-	anchor=building-blocks
 0011-build-jag-as-one-cargo-package-with-one-module-per-component.md	related	0005-build-jag-as-one-rust-binary.md	live	accepted	building-blocks	building-blocks	-
 0012-use-clap-serde-saphyr-and-rpassword-as-the-outside-crates.md	parent_spec	docs/product/system-design.md	doc	-	building-blocks	-	anchor=building-blocks
@@ -56,3 +57,7 @@ source	relation	target	target_state	target_status	source_area	target_area	note
 0024-install-the-jag-agent-skill-from-the-repository-with-the.md	related	0019-give-the-new-public-repository-the-name-ai-ready-future-jag.md	live	accepted	deployment	deployment	-
 0025-use-the-body-of-the-jag-skill-file-as-the-one-source-of-the.md	parent_spec	docs/product/roadmap/features/FEATURE-25.md	doc	-	conventions	-	-
 0025-use-the-body-of-the-jag-skill-file-as-the-one-source-of-the.md	related	0024-install-the-jag-agent-skill-from-the-repository-with-the.md	live	accepted	conventions	deployment	-
+0026-name-the-crates-io-package-jag-cli.md	supersedes	0011-build-jag-as-one-cargo-package-with-one-module-per-component.md	live	accepted	building-blocks	building-blocks	partial
+0026-name-the-crates-io-package-jag-cli.md	parent_spec	docs/product/system-design.md	doc	-	building-blocks	-	anchor=building-blocks
+0026-name-the-crates-io-package-jag-cli.md	related	0010-ship-jag-on-github-releases-crates-io-and-npm.md	live	accepted	building-blocks	deployment	-
+0026-name-the-crates-io-package-jag-cli.md	related	0024-install-the-jag-agent-skill-from-the-repository-with-the.md	live	accepted	building-blocks	deployment	-
