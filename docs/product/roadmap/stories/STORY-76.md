@@ -5,7 +5,7 @@ description: As a person at the shell (PERSONA-02, PERSONA-03, PERSONA-04), I wa
   worked examples in the README, so that I can copy a command and see what jag shows
   before I read each option.
 status: draft
-state: backlog
+state: ready
 github:
   number: 195
   node_id: I_kwDOVKMnL88AAAABYg3oBg

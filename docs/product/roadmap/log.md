@@ -1,6 +1,7 @@
 # Log
 
 ## 2026-10-20
+* **State**: [STORY-76](stories/STORY-76.md) backlog -> ready, by human:404pilo, at 2026-10-20T10:41:20Z
 * **Sync**: [STORY-76](stories/STORY-76.md) pushed to GitHub, by system:github, at 2026-10-20T10:25:05Z
 * **Sync**: [FEATURE-27](features/FEATURE-27.md) pushed to GitHub, by system:github, at 2026-10-20T10:25:05Z
 * **Plan**: [FEATURE-27](features/FEATURE-27.md) planned in EPIC-02 from the user's own words (hitl card on ADR-0025, 2026-10-20: "We need some examples in the readme for users on how to use JAG."): CONSTRAINT-09 (constrains CAPABILITY-02 and CAPABILITY-05), FEATURE-27 (traces CONSTRAINT-09), STORY-76, CRITERION-134 and CRITERION-135; EPIC-02 because JOURNEY-02 (a person asks a question at the shell) is its value and it is not done, and the user separated these examples from the agent side of EPIC-06; STORY-76 stays backlog until its spec merges (rule 11); the specifier asks the rule for the set of examples, by agent:planner, at 2026-10-20T10:17:53Z

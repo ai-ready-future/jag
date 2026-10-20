@@ -31,7 +31,7 @@ Source: the user, in the hitl card on ADR-0025, 2026-10-20: "We need some exampl
 
 | Item | State | Progress | Owner | Blocked by | Drift |
 | --- | --- | --- | --- | --- | --- |
-| [STORY-76: Learn jag from worked examples in the README](../stories/STORY-76.md) | backlog | - | - | - | - |
+| [STORY-76: Learn jag from worked examples in the README](../stories/STORY-76.md) | ready | - | - | - | - |
 <!-- STATUS:END -->
 
 <!-- LINKS:START (generated, do not edit) -->

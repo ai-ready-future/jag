@@ -41,15 +41,15 @@ search is built, so that line is wrong.
 
 ## Decisions
 
-Row 2 waits for the rule card that the specifier sent on 2026-10-20 (Ask the
-Rule, round 1). The row holds the recommended option, and STORY-76 stays in
-`backlog` until the `ANSWER`. Each other row has a source. Rows marked
-"inferred" are in the Assumptions list.
+Row 2 is the answer of the user to the rule card of 2026-10-20 (Ask the
+Rule, round 1, option 1 "Everyday searches and the results that need care").
+Each other row has a source. Rows marked "inferred" are in the Assumptions
+list.
 
 | # | Decision | Choice | Source |
 |---|---|---|---|
 | 1 | Specs | One spec for STORY-76, the only story of the feature | Orchestrator TASK for FEATURE-27 ("1 feature = 1 spec = 1 PR") |
-| 2 | The set of examples | Pending the rule card. Recommended: "Everyday searches and the results that need care", 7 examples in this order: E1 to E7 of the Design section. The other option, "Only the everyday searches", keeps E1 to E4 | Rule card of 2026-10-20 (pending); CONSTRAINT-09 (the three kinds of user) |
+| 2 | The set of examples | "Everyday searches and the results that need care": one everyday search with a question for each kind of user, one search with no question, and three examples of results that need care (no good answer, text left out by the size limit, a missing key with its fix). 7 examples in this order: E1 to E7 of the Design section | human:404pilo, 2026-10-20 (rule card "Which examples the README shows", option 1, relayed by the orchestrator); CONSTRAINT-09 |
 | 3 | For people, not for an agent | No example uses `--json`. No example tells an agent what to do | CONSTRAINT-09; CRITERION-134 |
 | 4 | The place of the section | A new section `## Examples` after `## Check that jag is ready` and before `## Search with no question`. A person installs jag, stores the key, checks it, and then sees the examples before the sections on each option | Inferred: the order of the README sections; STORY-76 ("before I read each option") |
 | 5 | Sections that do not change | `## Install` and each part of the README that FEATURE-24 or FEATURE-25 adds or changes (the agent skill command and the agent snippet) do not change | Orchestrator TASK note 2 (reviewer-1, comment 6288716500) |
@@ -70,7 +70,7 @@ Rule, round 1). The row holds the recommended option, and STORY-76 stays in
 
 ## Design
 
-### The examples (row 2, recommended option)
+### The examples (row 2)
 
 | ID | Person | Command | What it shows | Exit code |
 |---|---|---|---|---|
@@ -226,7 +226,6 @@ None. The test uses `sh`, `cat`, and the crates that the tests already use
 | The FEATURE-24 build and this build both change `README.md` | A merge conflict in `README.md`. The build that merges second keeps the text of the other |
 | The pseudo terminal gives other bytes on macOS | The test fails only on `macos-latest` |
 | A sample file holds a word that the private-data check blocks | The job `private-data` fails on the build pull request |
-| The user picks the other option of the rule card | The `ANSWER`. The specifier changes rows 2 and the table of the examples before STORY-76 goes to `ready` |
 
 ## Out of scope
 
