@@ -3,7 +3,7 @@ type: adr
 title: Use the body of the jag skill file as the one source of the agent instructions
 description: Open this when you change the text of the jag skill or of the README agent snippet, or how the two stay the same.
 area: conventions
-status: proposed
+status: accepted
 date: 2026-10-20
 supersedes: null
 superseded_by: null
