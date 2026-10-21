@@ -1,0 +1,70 @@
+# The tasks that the agent test gives to the agent (FEATURE-26, CRITERION-129).
+# Each run gives the agent these tasks, in this order, with the text as it is.
+#
+# id:      the name of the task
+# prompt:  the text that the agent gets
+# service: how the fake model service answers (and so which code jag gives)
+#          ok            scores the snippets with `scores`
+#          no-key        jag has no key: exit code 3
+#          refused       the service refuses the key: exit code 4
+#          no-credit     the account has no credit: exit code 5
+#          down          the service is down: exit code 6
+#          not-installed the agent finds no jag: exit code 127
+# scores:  for `ok`, the score of each snippet that holds `text`; the other
+#          snippets get 0.2. Each text is in a file of tests/readme/sample/.
+# jag_named_in_task: true when the prompt names jag, because without a
+#          question jag makes no model call and cannot reach the failure.
+
+- id: code-question
+  prompt: "Where does the code wait before it tries a failed request again? Give the file and the line."
+  service: ok
+  scores:
+    - text: "time.sleep(retry_wait)"
+      score: 0.9
+
+- id: notes-question
+  prompt: "How many days of paid leave do new staff get? Give the file and the line."
+  service: ok
+  scores:
+    - text: "25 days"
+      score: 0.95
+
+- id: log-question
+  prompt: "Which step made the deploy of build 412 fail? Give the file and the line."
+  service: ok
+  scores:
+    - text: "step 6 of 6 failed"
+      score: 0.95
+    - text: "health check failed"
+      score: 0.4
+
+- id: code-change
+  prompt: "Change the code so that it waits 5 seconds before it tries a failed request again."
+  service: ok
+  scores:
+    - text: "retry_wait = 2"
+      score: 0.9
+
+- id: no-key
+  prompt: "Use jag with a question to find where the code waits before it tries a failed request again."
+  service: no-key
+  jag_named_in_task: true
+
+- id: key-refused
+  prompt: "Use jag with a question to find how many days of paid leave new staff get."
+  service: refused
+  jag_named_in_task: true
+
+- id: no-credit
+  prompt: "Use jag with a question to find which step made the deploy of build 412 fail."
+  service: no-credit
+  jag_named_in_task: true
+
+- id: service-down
+  prompt: "Use jag with a question to find where the code says that the service did not answer."
+  service: down
+  jag_named_in_task: true
+
+- id: not-installed
+  prompt: "Where does the code wait before it tries a failed request again? Give the file and the line."
+  service: not-installed
