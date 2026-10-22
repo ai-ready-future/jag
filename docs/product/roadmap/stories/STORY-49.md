@@ -4,7 +4,7 @@ title: Install jag with cargo from crates.io
 description: As a shell power user (PERSONA-04), I want to install jag with cargo
   install, so that I can build jag from source with the Rust tools I use.
 status: draft
-state: backlog
+state: ready
 github:
   number: 74
   node_id: I_kwDOVKMnL88AAAABXTMuHw
