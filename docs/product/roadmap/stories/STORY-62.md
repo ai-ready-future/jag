@@ -5,7 +5,8 @@ description: As a shell power user (PERSONA-04), I want the maintainer to use ja
   on real work for a period before the first publish, so that the first release has
   no known bug that this use found.
 status: draft
-state: ready
+state: done
+actual_end_date: '2026-10-21'
 github:
   number: 107
   node_id: I_kwDOVKMnL88AAAABXfzuuQ

@@ -40,7 +40,7 @@ Source: user decision of 2026-10-15, given to chores-2 while step U3 was paused.
 
 | Item | State | Progress | Owner | Blocked by | Drift |
 | --- | --- | --- | --- | --- | --- |
-| [STORY-62: Use jag on real work before the first publish](../stories/STORY-62.md) | ready | - | - | - | - |
+| [STORY-62: Use jag on real work before the first publish](../stories/STORY-62.md) | done | - | - | - | - |
 | [STORY-63: Audit jag for security vulnerabilities before the first publish](../stories/STORY-63.md) | done | - | - | - | - |
 | [STORY-64: Audit the license and the compliance before the first publish](../stories/STORY-64.md) | done | - | - | - | - |
 <!-- STATUS:END -->
