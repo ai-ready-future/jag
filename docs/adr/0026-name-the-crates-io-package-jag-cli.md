@@ -3,7 +3,7 @@ type: adr
 title: Name the crates.io package jag-cli
 description: Open this when you change the crates.io name of jag, the cargo install command, or the name that the release publishes to crates.io.
 area: building-blocks
-status: proposed
+status: accepted
 date: 2026-10-20
 supersedes: 0011-build-jag-as-one-cargo-package-with-one-module-per-component.md  # partial: the crates.io name only
 superseded_by: null
