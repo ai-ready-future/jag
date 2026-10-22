@@ -1088,10 +1088,28 @@ fn run_task(task: &Task, config: &Config, folder: &Path, jag: &Path) -> Result<V
                     "remove that jag (for example an env of the Claude Code settings, a SessionStart hook, or an alias in the shell startup file), then run the command again",
                 ));
             }
-        } else if runs.is_empty() && !call.is_error {
+        }
+    }
+    // Each Bash call that runs jag must add at least one wrapper folder. A
+    // jag that is not the wrapper (for example from a hook or an alias) adds
+    // none. A failed call (is_error) is no exception.
+    if task.service != "not-installed" {
+        let jag_calls: Vec<&str> = transcript
+            .calls
+            .iter()
+            .filter_map(bash_command)
+            .filter(|command| runs_jag(command))
+            .collect();
+        if jag_calls.len() > runs.len() {
             return Err(cause_and_fix(
-                &format!("in task {}, `{command}` added no wrapper folder", task.id),
-                "check the PATH of the agent and the Claude Code settings, then run the command again",
+                &format!(
+                    "in task {}, the agent made {} Bash calls that run jag, but the wrapper saw {} runs (for example `{}`)",
+                    task.id,
+                    jag_calls.len(),
+                    runs.len(),
+                    jag_calls[runs.len()]
+                ),
+                "check the PATH of the agent and the Claude Code settings (env, hooks, aliases), then run the command again",
             ));
         }
     }
@@ -1162,7 +1180,7 @@ fn run_all(config: &Config, jag: &Path) -> Result<(Value, PathBuf), String> {
         "jag_version": version_of(jag),
         "claude_version": version_of(&config.claude),
         "setup": setup_record(&first_init, &version_of(&config.claude), personal),
-        "rg": find_in_path("rg", &path),
+        "rg": find_in_path("rg", &path).map_or_else(|| "none".to_owned(), |rg| rg.display().to_string()),
         "task_file": tasks_text(),
         "total_cost_usd": total,
         "tasks": entries,
@@ -1622,6 +1640,12 @@ mod rules {
             (cause["cause_given"].as_str(), cause["fix_given"].as_str()),
             (Some("yes"), Some("no"))
         );
+        // The fix of jag has backticks, and the text of the agent has none.
+        let plain_text = record(
+            &failed,
+            "No key was found. Run jag --setup in your terminal.",
+        );
+        assert_eq!(plain_text["fix_given"], "yes");
         // A task where the agent used no --ask: jag gave no failure.
         let quiet = [run(1, &["x", "."], None, "", 0)];
         assert_eq!(record(&quiet, "done")["reached"], false);
@@ -1788,12 +1812,78 @@ mod rules {
     // runs the jag wrapper that it finds on its PATH, and it prints stream-json
     // lines. So the test checks the setup of each task, the wrapper, the
     // reading of the folders, and the record file, with no login.
+    fn scripted_config(work: &Path, script: &str) -> Config {
+        let claude = work.join("claude");
+        fs::write(&claude, script).unwrap();
+        fs::set_permissions(&claude, fs::Permissions::from_mode(0o755)).unwrap();
+        let template = work.join("template");
+        let skills = template.join(".claude/skills/jag");
+        fs::create_dir_all(&skills).unwrap();
+        fs::copy(root().join("skills/jag/SKILL.md"), skills.join("SKILL.md")).unwrap();
+        Config {
+            claude,
+            home: work.join("home"),
+            template,
+            out: work.join("out"),
+            time_limit: Duration::from_secs(60),
+        }
+    }
+
+    // Row 21: a Bash call that runs jag but adds no wrapper folder stops the
+    // test, also when the call failed (is_error). The scripted agent prints a
+    // jag call with "Exit code 3" and does not run the wrapper.
+    #[test]
+    fn a_jag_call_with_no_wrapper_run_stops_the_test() {
+        let work = tempfile::tempdir().unwrap();
+        let config = scripted_config(
+            work.path(),
+            r#"#!/bin/sh
+if [ "$1" = "--version" ]; then echo "0.0.0 (scripted)"; exit 0; fi
+echo '{"type":"system","subtype":"init","model":"scripted","skills":["jag"]}'
+echo '{"type":"assistant","message":{"content":[{"type":"tool_use","id":"t1","name":"Bash","input":{"command":"jag --json --ask q retry ."}}]}}'
+echo '{"type":"user","message":{"content":[{"type":"tool_result","tool_use_id":"t1","content":"Exit code 3","is_error":true}]}}'
+echo '{"type":"result","subtype":"success","is_error":false,"num_turns":2,"result":"done"}'
+"#,
+        );
+        let jag = PathBuf::from(assert_cmd::cargo::cargo_bin!("jag"));
+        let error = run_all(&config, &jag).unwrap_err();
+        assert!(error.starts_with("cause: "), "{error}");
+        assert!(error.contains("jag --json --ask q retry ."), "{error}");
+        assert!(error.contains("\nfix: "), "{error}");
+    }
+
+    // The same stop when only a later call misses the wrapper: the first call
+    // runs the wrapper, the second call does not.
+    #[test]
+    fn a_later_jag_call_with_no_wrapper_run_stops_the_test() {
+        let work = tempfile::tempdir().unwrap();
+        let config = scripted_config(
+            work.path(),
+            r#"#!/bin/sh
+if [ "$1" = "--version" ]; then echo "0.0.0 (scripted)"; exit 0; fi
+echo '{"type":"system","subtype":"init","model":"scripted","skills":["jag"]}'
+jag --json --ask q retry . >/dev/null 2>&1
+echo '{"type":"assistant","message":{"content":[{"type":"tool_use","id":"t1","name":"Bash","input":{"command":"jag --json --ask q retry ."}}]}}'
+echo '{"type":"user","message":{"content":[{"type":"tool_result","tool_use_id":"t1","content":"{}"}]}}'
+echo '{"type":"assistant","message":{"content":[{"type":"tool_use","id":"t2","name":"Bash","input":{"command":"~/.cargo/bin/jag retry ."}}]}}'
+echo '{"type":"user","message":{"content":[{"type":"tool_result","tool_use_id":"t2","content":"Exit code 1","is_error":true}]}}'
+echo '{"type":"result","subtype":"success","is_error":false,"num_turns":3,"result":"done"}'
+"#,
+        );
+        let jag = PathBuf::from(assert_cmd::cargo::cargo_bin!("jag"));
+        let error = run_all(&config, &jag).unwrap_err();
+        assert!(error.contains("~/.cargo/bin/jag retry ."), "{error}");
+    }
+
+    // The runner, with a scripted agent in place of Claude Code. The script
+    // runs the jag wrapper that it finds on its PATH, and it prints stream-json
+    // lines. So the test checks the setup of each task, the wrapper, the
+    // reading of the folders, and the record file, with no login.
     #[test]
     fn the_runner_writes_the_record_with_a_scripted_agent() {
         let work = tempfile::tempdir().unwrap();
-        let claude = work.path().join("claude");
-        fs::write(
-            &claude,
+        let config = scripted_config(
+            work.path(),
             r#"#!/bin/sh
 if [ "$1" = "--version" ]; then echo "0.0.0 (scripted)"; exit 0; fi
 echo '{"type":"system","subtype":"init","model":"scripted","skills":["jag"],"tools":["Bash"],"plugins":[],"mcp_servers":[],"apiKeySource":"none"}'
@@ -1807,20 +1897,7 @@ else
 fi
 echo '{"type":"result","subtype":"success","is_error":false,"num_turns":2,"total_cost_usd":0.5,"duration_ms":5,"result":"done"}'
 "#,
-        )
-        .unwrap();
-        fs::set_permissions(&claude, fs::Permissions::from_mode(0o755)).unwrap();
-        let template = work.path().join("template");
-        let skills = template.join(".claude/skills/jag");
-        fs::create_dir_all(&skills).unwrap();
-        fs::copy(root().join("skills/jag/SKILL.md"), skills.join("SKILL.md")).unwrap();
-        let config = Config {
-            claude,
-            home: work.path().join("home"),
-            template,
-            out: work.path().join("out"),
-            time_limit: Duration::from_secs(60),
-        };
+        );
         let jag = PathBuf::from(assert_cmd::cargo::cargo_bin!("jag"));
         let (record, folder) = run_all(&config, &jag).unwrap_or_else(|error| panic!("{error}"));
 
@@ -1865,6 +1942,8 @@ echo '{"type":"result","subtype":"success","is_error":false,"num_turns":2,"total
         assert_eq!(missing["failure"]["reached"], true);
         assert!(missing["jag_runs"].as_array().unwrap().is_empty());
         assert_eq!(record["total_cost_usd"], 4.5);
+        // The field `rg` is a path or the text `none`, never null.
+        assert!(record["rg"].is_string(), "{}", record["rg"]);
         assert!(folder.join("code-question.jsonl").exists());
         assert!(folder.join("code-question/jag-runs/1/argv").exists());
         assert!(table(&record).lines().count() == 10);
