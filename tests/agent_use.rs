@@ -1848,6 +1848,8 @@ echo '{"type":"result","subtype":"success","is_error":false,"num_turns":2,"resul
         let jag = PathBuf::from(assert_cmd::cargo::cargo_bin!("jag"));
         let error = run_all(&config, &jag).unwrap_err();
         assert!(error.starts_with("cause: "), "{error}");
+        assert!(error.contains("in task code-question"), "{error}");
+        assert!(error.contains("the wrapper saw 0 runs"), "{error}");
         assert!(error.contains("jag --json --ask q retry ."), "{error}");
         assert!(error.contains("\nfix: "), "{error}");
     }
