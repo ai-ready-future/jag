@@ -4,7 +4,7 @@ title: Download a prebuilt binary from GitHub Releases
 description: As a shell power user (PERSONA-04), I want a prebuilt binary for my platform
   on GitHub Releases, so that I can install jag in seconds with no runtime.
 status: draft
-state: backlog
+state: ready
 github:
   number: 73
   node_id: I_kwDOVKMnL88AAAABXTMsJQ
