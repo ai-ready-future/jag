@@ -10,7 +10,7 @@ github:
   node_id: I_kwDOVKMnL88AAAABXTLcKQ
   url: https://github.com/ai-ready-future/jag/issues/22
   synced:
-    state: backlog
+    state: ready
   pushed_hash: e1ed45
 parent: /epics/EPIC-05.md
 blocked_by:
