@@ -12,7 +12,7 @@ github:
   url: https://github.com/ai-ready-future/jag/issues/187
   pushed_hash: d54a2a
   synced:
-    state: backlog
+    state: ready
 spec: docs/superpowers/specs/2026-10-20-STORY-74-run-one-repeatable-agent-test-design.md
 parent: /features/FEATURE-26.md
 milestone: /milestones/MILESTONE-02.md
