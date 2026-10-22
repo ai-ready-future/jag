@@ -3,7 +3,7 @@ title: "Install jag from GitHub Releases, crates.io, or npm: one release workflo
 feature: FEATURE-18
 stories: [STORY-48, STORY-49, STORY-50, STORY-51]
 kind: build
-gh_issue: 110
+gh_issue: 73
 lifecycle_state: draft
 inherits: [C-cli, IF-3, IF-4, IF-5, CV-1, CV-4, CV-6]
 session: 84086903-189a-4495-bbe8-0cfb867635cd
@@ -28,7 +28,7 @@ publishes jag on GitHub Releases, crates.io, and npm with the same version
 - STORY-49: "As a shell power user (PERSONA-04), I want to install jag with
   cargo install, so that I can build jag from source with the Rust tools I
   use."
-  - CRITERION-79: "cargo install jag-grep installs the jag command, with the
+  - CRITERION-79: "cargo install jag-cli installs the jag command, with the
     same version as the GitHub Release."
 - STORY-50: "As an agent builder (PERSONA-01), I want to install jag with npm
   or run it with npx, so that my agent setup gets jag with the tools it
@@ -57,7 +57,7 @@ names."
 The facts on 2026-10-14:
 
 - The repository has no release workflow and no version tag. `main` has no
-  `LICENSE` file. Pull request #181 adds it.
+  `LICENSE` file. Pull request 181 of the earlier repository adds it.
 - `Cargo.toml` has no `include` list. So `cargo package` packs 439 files,
   with `docs/` and `CLAUDE.md` (relay:scout, in Docker `rust:1.99`).
 - A test build in Docker `rust:1.99` for `x86_64-unknown-linux-musl`, with
@@ -68,9 +68,10 @@ The facts on 2026-10-14:
   the 88,177 strings of the binary (`strings -a -n 4`).
 - In the same test, `cargo package --list` with the `include` list of
   decision 11 gave 26 paths. These are the files of `src/` and 5 files at
-  the root. `cargo package` wrote `target/package/jag-grep-0.1.0.crate`, and
+  the root. `cargo package` wrote the `.crate` file of version 0.1.0, and
   `cargo publish --dry-run` passed.
-- The crate name `jag-grep` is free on crates.io. `@airf/jag` does not exist
+- The crate name `jag-cli` is free on crates.io (ADR-0026: the crates.io
+  API gave "not found" on 2026-10-20). `@airf/jag` does not exist
   on npm. The npm organization `airf` does not exist yet, and nothing has
   trusted publishing. CHORE-02 is open with the chores role.
 - crates.io: "Your crate must already be published to crates.io (initial
@@ -86,7 +87,7 @@ The facts on 2026-10-14:
 
 | # | Decision | Choice | Source |
 |---|---|---|---|
-| 1 | Channels | GitHub Releases: one archive with a checksum for each platform. crates.io: the crate `jag-grep`. npm: the package `@airf/jag` with a small launcher, and one package for each platform as an optional dependency. One tag publishes the three channels | `docs/adr/0010-ship-jag-on-github-releases-crates-io-and-npm.md` (accepted). System design deployment-1 |
+| 1 | Channels | GitHub Releases: one archive with a checksum for each platform. crates.io: the crate `jag-cli`. npm: the package `@airf/jag` with a small launcher, and one package for each platform as an optional dependency. One tag publishes the three channels | `docs/adr/0010-ship-jag-on-github-releases-crates-io-and-npm.md` (accepted). System design deployment-1. `docs/adr/0026-name-the-crates-io-package-jag-cli.md` (accepted): the user renamed the crate `jag-grep` of ADR-0011 to `jag-cli` before the first publish (hitl ANSWER, 2026-10-20), so no release publishes `jag-grep` |
 | 2 | Platforms and Rust targets | Linux x86_64: `x86_64-unknown-linux-musl`. Linux arm64: `aarch64-unknown-linux-musl`. macOS arm64: `aarch64-apple-darwin`. macOS x86_64: `x86_64-apple-darwin`. The Linux binaries are static, because a musl target links the C library into the binary | CRITERION-77. System design deployment-2 (human:404pilo, 2026-10-12): "Linux x86_64 and arm64 (static)". `docs/adr/0005-build-jag-as-one-rust-binary.md`. musl is inferred. The test build of "Problem" |
 | 3 | Build runners | One native runner for each target: `ubuntu-24.04`, `ubuntu-24.04-arm`, `macos-15`, and `macos-15-intel`. The labels are fixed, not `-latest`. Each job runs the tests and the binary on its own platform, with no cross compiler | Inferred from the runner table of GitHub (`supported-github-runners.md`, 2026-10-14). The runner images have Rust, Python 3, Node, and `readelf`. A CI annotation of 2026-10-14: `ubuntu-latest` moves to Ubuntu 26 from 2026-10-19 |
 | 4 | Start of a release | A push of a version tag `v*` starts `.github/workflows/release.yml` (`on: push: tags`). The workflow builds the four binaries and attaches them to the GitHub Release. It publishes the crate and the npm packages with trusted publishing. The repository stores no publish token | System design deployment-3 (human:404pilo, 2026-10-12). CRITERION-82. CRITERION-83. FEATURE-19 spec decision 22: the event policy allows `push`, `pull_request`, and `workflow_dispatch` |
@@ -101,7 +102,7 @@ The facts on 2026-10-14:
 | 13 | npm package fields | Each `package.json` has `license: MIT`, `repository.url: git+https://github.com/ai-ready-future/jag.git`, and `publishConfig.access: public`. No package has a `preinstall`, `install`, `postinstall`, or `prepare` script. The main package has `bin: {"jag": "bin/jag.js"}` and `engines.node: >=18`. Its `optionalDependencies` name the four platform packages with the exact version. A platform package has no `bin` field | npm docs: provenance needs a `repository` that matches the workflow repository, and a scoped package is not public by default. CRITERION-80: with no install script, the install downloads nothing from GitHub |
 | 14 | Launcher | `bin/jag.js` finds the platform package and starts its binary. jag gets the arguments as they are, and the same standard input, output, and error. The launcher gives back the exit code of jag. It sends SIGINT, SIGTERM, SIGHUP, and SIGQUIT on to jag. When jag ends by a signal, the launcher ends by the same signal | Inferred from IF-3, IF-4, CV-4, and CV-6. jag ends by the default action of SIGINT or SIGPIPE (`src/cli/stop.rs`) |
 | 15 | Job order and a re-run | The order: build, scan, a draft GitHub Release, crates.io, npm, the checks of the channels, and the publish of the GitHub Release. npm gets the platform packages before the main package. Each publish job skips a version that its channel already has. So "Re-run failed jobs" ends a part release | Inferred: crates.io and npm do not take one version two times. GitHub docs, immutable releases: a draft, then the files, then the publish |
-| 16 | Scan of the packages | Before any publish, the job `scan` reads each archive, the `.crate` file, and the five npm tarballs. `check.sh` checks each text line, each string of a binary, and each file name in its text mode. It uses `PRIVATE_PATTERNS` and the gitleaks pin of `private-data.yml`. Exit 1 or 2 stops the release. The step "Scan the packages" runs only on the push of a tag and on `workflow_dispatch` on `main`. In a dry run of a pull request, the step does not run, because `private-data.yml` already checks the files of the pull request | CRITERION-84. FEATURE-17 spec: "The check of the published packages (CRITERION-84): FEATURE-18". FEATURE-19 spec in pull request #154: the text mode of `check.sh`. Security issue #161, architect choice (a): FEATURE-22 spec item 11 says that a dry run has no secret, and FEATURE-22 spec decision 27 says that FEATURE-22 applies where the specs differ |
+| 16 | Scan of the packages | Before any publish, the job `scan` reads each archive, the `.crate` file, and the five npm tarballs. `check.sh` checks each text line, each string of a binary, and each file name in its text mode. It uses `PRIVATE_PATTERNS` and the gitleaks pin of `private-data.yml`. Exit 1 or 2 stops the release. The step "Scan the packages" runs only on the push of a tag and on `workflow_dispatch` on `main`. In a dry run of a pull request, the step does not run, because `private-data.yml` already checks the files of the pull request | CRITERION-84. FEATURE-17 spec: "The check of the published packages (CRITERION-84): FEATURE-18". FEATURE-19 spec in pull request 154 of the earlier repository: the text mode of `check.sh`. Security issue #161, architect choice (a): FEATURE-22 spec item 11 says that a dry run has no secret, and FEATURE-22 spec decision 27 says that FEATURE-22 applies where the specs differ |
 | 17 | Binary check | Linux: `readelf` shows no `INTERP` header and no `NEEDED` entry. macOS: each library that `otool -L` shows is in `/usr/lib/` or `/System/Library/Frameworks/`. On each runner, `jag --version` with an empty environment prints `jag <version>` | CRITERION-78. Deployment-2. Inferred: the platform verifier of `docs/adr/0014-call-the-model-service-with-ureq-and-serde-json-on-std.md` links the macOS Security framework |
 | 18 | Tests | Python `unittest` tests for `scripts/release/release.py`, and `node --test` tests for the launcher, in the new job `release-tools` of `ci.yml`. The dry run of each pull request that changes a release file. The job `verify` of each release | Inferred. Q-ar: unit tests now, and the full test when the registries are ready |
 | 19 | Precondition | The npm parts and the crates.io parts depend on the user steps U1 to U6, not on a user name. CHORE-02 is U1. See "The user steps before the first tag" | Orchestrator INFO, 2026-10-14: the organization `airf` does not exist yet, nothing is published, and nothing has trusted publishing. crates.io docs. npm docs |
@@ -110,14 +111,14 @@ The facts on 2026-10-14:
 | 22 | Node and npm | Node 24 from `actions/setup-node`, with no cache, in each job that uses npm. The job `npm` needs npm 11.5.1 or later. For a public package from a public repository, npm makes the provenance by itself | npm docs: trusted publishing needs npm 11.5.1 and Node 22.14.0 or later. The example of the npm docs sets `package-manager-cache: false` |
 | 23 | crates.io publish | `rust-lang/crates-io-auth-action` gives a token for 30 minutes. Only the step `cargo publish --locked` gets it, through `CARGO_REGISTRY_TOKEN` | crates.io docs: trusted publishing, the setup for GitHub Actions |
 | 24 | Release notes | `gh release create --generate-notes`: the merged pull requests since the last tag | Inferred |
-| 25 | README | A new section "Install" before "Store your TypeSafe key", with the three channels | METRIC-04. Inferred |
+| 25 | README | A section "Install" before "Store your TypeSafe key", with the three channels. FEATURE-24 later put the npm install and the jag skill first, and the other channels under "Other ways to install" | METRIC-04. Inferred. `docs/superpowers/specs/2026-10-20-STORY-68-install-the-jag-skill-with-one-readme-command-design.md` rows 20 and 27 (built in #211) |
 | 26 | macOS signature | No Apple signature and no notarization in this feature. The linker gives each arm64 binary an ad hoc signature. The README tells a user who downloads with a browser how to remove the quarantine mark | ANSWER human:404pilo, 2026-10-14, hitl (no signature now; the README gives the `xattr` command). ADR-0010 names no signature. npm, cargo, and `curl` set no quarantine mark |
 | 27 | `jag-bench` | Not in the archives and not in the npm packages. The feature that builds it decides | `docs/adr/0011-build-jag-as-one-cargo-package-with-one-module-per-component.md`: "A second binary, `jag-bench`, comes later in the same package". No roadmap page names it |
 | 28 | Secrets, permissions, and cache | `release.yml` uses only the secrets `PRIVATE_PATTERNS` (job `scan`, only on the push of a tag and on `workflow_dispatch` on `main`) and `GITHUB_TOKEN`. The workflow default is `contents: read`. A job gets `contents: write` or `id-token: write` only when it needs it. No job uses a cache. Each action has a full commit SHA. Each checkout has `persist-credentials: false` | CRITERION-83. The conventions of `ci.yml` and `private-data.yml`. Inferred: a cache from another run can change what the release builds. Security issue #161, architect choice (a): the condition on `PRIVATE_PATTERNS` (FEATURE-22 spec item 11 and decision 27) |
 | 29 | When each story is done | STORY-48 to STORY-51 are done after the first release run with each job green, and after U5. A code merge alone does not finish them | CRITERION-77 to CRITERION-84. FEATURE-19 spec decision 25 uses the same form |
-| 30 | Story state | STORY-48 to STORY-51 stay `backlog`, with the `spec:` line, because FEATURE-19 is not `done`. The ASKs of decisions 20 and 26 have their ANSWERs (human:404pilo, 2026-10-14) | `docs/adlc.md` rule 11; the ANSWERs of decisions 20 and 26 |
-| 31 | LICENSE | The MIT text of GitHub, with the holder "AI Ready Future" and the year 2026, in pull request #181. The release copies it into each archive, the crate, and each npm package | `Cargo.toml`: `license = "MIT"`. Orchestrator ANSWER, 2026-10-14. The holder is inferred: the display name of the organization. The user can change it |
-| 32 | Failures of the launcher | The launcher is not jag. When it cannot start jag, it writes one line to the error stream. Then it exits with 127 (no binary) or 126 (the binary does not start). It does this also with `--json` | The architect, 2026-10-14: accepted; system-design.md IF-4 and CV-1 (PR #184) |
+| 30 | Story state | STORY-48 to STORY-51 are `ready` (#232), with the `spec:` line, because FEATURE-19 is `done` (#100). The ASKs of decisions 20 and 26 have their ANSWERs (human:404pilo, 2026-10-14) | `docs/adlc.md` rule 11; #100 and #232; the ANSWERs of decisions 20 and 26 |
+| 31 | LICENSE | The MIT text of GitHub, with the holder "AI Ready Future" and the year 2026, in pull request 181 of the earlier repository. The release copies it into each archive, the crate, and each npm package | `Cargo.toml`: `license = "MIT"`. Orchestrator ANSWER, 2026-10-14. The holder is inferred: the display name of the organization. The user can change it |
+| 32 | Failures of the launcher | The launcher is not jag. When it cannot start jag, it writes one line to the error stream. Then it exits with 127 (no binary) or 126 (the binary does not start). It does this also with `--json` | The architect, 2026-10-14: accepted; system-design.md IF-4 and CV-1 (pull request 184 of the earlier repository) |
 
 ## Design
 
@@ -138,7 +139,7 @@ npm/platform/README.md              new: the README of each platform package
 README.md                           changed: the section "Install"
 ```
 
-`LICENSE` comes from pull request #181.
+`LICENSE` comes from pull request 181 of the earlier repository.
 
 ### The platforms
 
@@ -249,7 +250,7 @@ uploads the file as the artifact `npm-main`.
 
 **`crate`.** `cargo package --list --locked`, then
 `release.py check-crate-list <list>`. Then `cargo package --locked`. It
-writes `target/package/jag-grep-<v>.crate` and builds the packed files in a
+writes `target/package/jag-cli-<v>.crate` and builds the packed files in a
 clean folder. Then `cargo publish --dry-run --locked`. It also checks the
 metadata that crates.io needs. Upload the `.crate` file as the artifact
 `crate`.
@@ -316,8 +317,8 @@ include = ["/src/**", "/Cargo.toml", "/Cargo.lock", "/README.md", "/LICENSE"]
 
 Any other path gives exit 1 and the number of the line, not the path.
 
-`cargo install jag-grep` builds the binary `jag` (ADR-0011). It needs Rust
-1.99 or later (`rust-version`).
+`cargo install jag-cli` builds the binary `jag` (ADR-0011, ADR-0026). It
+needs Rust 1.99 or later (`rust-version`).
 
 ### The npm packages
 
@@ -390,7 +391,7 @@ when `require.main === module`.
    pair, it writes this line and exits with 127:
 
    ```
-   jag: npm has no jag binary for <platform> <arch>. jag runs on Linux x64 and arm64, and on macOS arm64 and x64. To build jag from source, run: cargo install --locked jag-grep
+   jag: npm has no jag binary for <platform> <arch>. jag runs on Linux x64 and arm64, and on macOS arm64 and x64. To build jag from source, run: cargo install --locked jag-cli
    ```
 
 2. Path: `require.resolve('<package>/bin/jag')`. When npm did not install
@@ -512,8 +513,8 @@ same run.
   The 8 files are the 4 archives and the 4 `.sha256` files. `GH_TOKEN` is
   `github.token`.
 - **`crates-io`.** Check out the tag. First,
-  `release.py exists --registry crates --name jag-grep --version <v>` asks
-  `https://crates.io/api/v1/crates/jag-grep/<v>`, with a `User-Agent`
+  `release.py exists --registry crates --name jag-cli --version <v>` asks
+  `https://crates.io/api/v1/crates/jag-cli/<v>`, with a `User-Agent`
   header. When the version does not exist, the job runs
   `rust-lang/crates-io-auth-action`, then `cargo publish --locked`.
   `CARGO_REGISTRY_TOKEN` comes from the output `token` of the action, in that
@@ -538,7 +539,7 @@ same run.
      `npx -y @airf/jag@<v> --no-such-option` exits with 2.
      `npx -y @airf/jag@<v> jag-release-check <empty folder>` exits with 1.
   3. On `ubuntu-24.04` only:
-     `cargo install --locked jag-grep --version <v> --root <tmp>`. Then
+     `cargo install --locked jag-cli --version <v> --root <tmp>`. Then
      `<tmp>/bin/jag --version` prints `jag <v>`.
 
   A new version can take some time to show on a registry. Each step tries
@@ -552,7 +553,7 @@ same run.
 
 When a job fails after a channel published, the version on that channel
 stays. A fix that needs new code needs a new patch version. Then the user
-can mark the bad version: `cargo yank --version <v> jag-grep`, and
+can mark the bad version: `cargo yank --version <v> jag-cli`, and
 `npm deprecate @airf/jag@<v> "<reason>"`. `scripts/release/README.md` gives
 these steps.
 
@@ -574,7 +575,7 @@ user. Each step uses the account that the user logs in with.
     `gh api repos/ai-ready-future/jag/rulesets`.
 - **U3. The first publish (decision 20).** On the
   machine of the user, `scripts/release/first-publish.sh` makes an empty
-  version 0.0.0 of the crate `jag-grep` and of the five npm packages. It
+  version 0.0.0 of the crate `jag-cli` and of the five npm packages. It
   works in a new temporary folder.
   - Each one holds only `package.json` or `Cargo.toml`, `LICENSE`, and a
     README with "This version holds no program. Install a later version."
@@ -585,7 +586,7 @@ user. Each step uses the account that the user logs in with.
     code.
   - The script reads no key file and writes no token.
 - **U4. The trusted publishers.**
-  - crates.io: open the crate `jag-grep`, then Settings, then Trusted
+  - crates.io: open the crate `jag-cli`, then Settings, then Trusted
     Publishing. Add a GitHub publisher with these values: owner
     `ai-ready-future`, repository `jag`, workflow `release.yml`, and
     environment `release`.
@@ -593,7 +594,7 @@ user. Each step uses the account that the user logs in with.
     the five packages:
     `npm trust github <package> --file release.yml --repo ai-ready-future/jag --env release --allow-publish`.
 - **U5. Close the token routes.**
-  - crates.io: in the settings of the crate `jag-grep`, turn on "Trusted
+  - crates.io: in the settings of the crate `jag-cli`, turn on "Trusted
     Publishing only". Then revoke the crates.io token of U3.
   - npm: in the settings of each package, under Publishing access, choose
     "Require two-factor authentication and disallow tokens".
@@ -609,13 +610,17 @@ user. Each step uses the account that the user logs in with.
   ```
 
 After the first release, the user can mark the empty versions:
-`cargo yank --version 0.0.0 jag-grep`, and
+`cargo yank --version 0.0.0 jag-cli`, and
 `npm deprecate <package>@0.0.0 "This version holds no program."`.
 
 ### README
 
-A new section "Install", after the first paragraph and before "Store your
-TypeSafe key":
+The section "Install" comes after the first paragraph and before "Store
+your TypeSafe key". The STORY-48 build added it. Then FEATURE-24 split it
+into three parts (STORY-68 spec, rows 20 and 27, #211): part 1 installs
+jag with npm, part 2 adds the jag skill, and "Other ways to install" gives
+cargo, GitHub Releases, and `npx`. FEATURE-25 added the link to "Copy the
+instructions into an agent" (#222). The section on `main` (b76fcd5):
 
 ````markdown
 ## Install
@@ -623,23 +628,41 @@ TypeSafe key":
 jag runs on Linux (x86_64 and arm64) and on macOS (arm64 and x86_64). Each
 way gives the same version.
 
+### 1. Install the jag program
+
 With npm (Node.js 18 or later):
 
 ```
 $ npm install -g @airf/jag
 ```
 
-Or run jag with no install:
+### 2. Add the jag skill to your agent
+
+A skill tells a coding agent how to use jag. To add it to your agent, after
+step 1:
 
 ```
-$ npx @airf/jag --help
+$ npx skills add ai-ready-future/jag
 ```
+
+The tool asks which agents get the skill and where it goes. To install for
+Claude Code with no question, add `--agent claude-code -y`. The tool writes
+`skills-lock.json` in the project. You write no instructions and edit no
+file.
+
+jag sends no usage data. The `skills` tool, not jag, sends anonymous usage
+data and a security-audit request to skills.sh. `DO_NOT_TRACK=1` stops both:
+`DO_NOT_TRACK=1 npx skills add ai-ready-future/jag`.
+
+If your agent cannot install a skill, copy the instructions in [Copy the instructions into an agent](#copy-the-instructions-into-an-agent).
+
+### Other ways to install
 
 With cargo (Rust 1.99 or later). This builds jag from source in some
 minutes:
 
 ```
-$ cargo install --locked jag-grep
+$ cargo install --locked jag-cli
 ```
 
 From GitHub Releases: download the archive for your system and its
@@ -660,6 +683,15 @@ On macOS, a browser marks each file that it downloads, and macOS then stops
 `jag`. Download with `curl -LO`, or remove the mark:
 `xattr -d com.apple.quarantine jag`.
 
+Or run jag with no install:
+
+```
+$ npx @airf/jag --help
+```
+
+The jag skill runs the command `jag`, so an agent needs one of the installs
+above.
+
 On Linux, a question to the model needs the CA certificates of the system
 (the package `ca-certificates`).
 ````
@@ -670,7 +702,7 @@ On Linux, a question to the model needs the CA certificates of the system
 |---|---|
 | CRITERION-77 | `test_release.py`: the archive has the folder, the three files, and their modes. The `.sha256` line agrees with the archive. Release run: the job `github-publish` finds exactly the 4 archives and the 4 `.sha256` files, and each check passes |
 | CRITERION-78 | `test_release.py`: the parsers of `readelf` and `otool` with sample output. A static binary passes. An `INTERP` header, a `NEEDED` entry, or a library in `/opt/homebrew/` fails. Dry run and release run: `release.py check-binary` on each of the 4 runners, with `jag --version` in an empty environment |
-| CRITERION-79 | Release run: the job `verify` on `ubuntu-24.04` runs `cargo install --locked jag-grep --version <v>`. Then `jag --version` prints `jag <v>`. Dry run: `cargo publish --dry-run --locked` builds the packed crate |
+| CRITERION-79 | Release run: the job `verify` on `ubuntu-24.04` runs `cargo install --locked jag-cli --version <v>`. Then `jag --version` prints `jag <v>`. Dry run: `cargo publish --dry-run --locked` builds the packed crate |
 | CRITERION-80 | `launcher.test.js` and `test_release.py`: the 5 packages have no install script, and the launcher loads no network module. Dry run: `release.py local-install` on each of the 4 runners. Release run: in the job `verify`, `npx -y @airf/jag@<v>` runs jag on each of the 4 runners. The npm log names only `https://registry.npmjs.org/` |
 | CRITERION-81 | `test_release.py`: each platform package has one `os` value and one `cpu` value. The main package has the four exact versions. Release run: in the job `verify`, `node_modules/@airf` holds only `jag` and the package of the runner, on each of the 4 runners |
 | CRITERION-82 | `test_release.py`: `release.py version` with a tag that agrees, a tag that does not agree, and a pre-release version. `npm-main` and `npm-platform` write the version in each place. Release run: `prepare`, `check-binary`, `verify`, and `github-publish` each compare the version |
@@ -708,7 +740,7 @@ Its matrix: `ubuntu-24.04` with Node 18, `ubuntu-24.04` with Node 24, and
 
 ## Build order
 
-1. Preconditions: pull request #181 (LICENSE) is merged. FEATURE-19 is done:
+1. Preconditions: pull request 181 of the earlier repository (LICENSE) is merged. FEATURE-19 is done:
    the public repository, the text mode of `check.sh`, and the event policy.
 2. STORY-48:
    - `release.py`: `version`, `check-binary`, `archive`, `texts`,
@@ -750,7 +782,10 @@ Its matrix: `ubuntu-24.04` with Node 18, `ubuntu-24.04` with Node 24, and
   sources in the table.
 - Decision 11: `src/` holds only `.rs` files, and no code uses
   `include_str!` or `include_bytes!` (`src/`, 2026-10-14). A later file that
-  the code reads at build time must be under `src/`.
+  the code reads at build time must be under `src/`. Two unit tests in
+  `src/cli.rs` and `src/output.rs` read `skills/jag/SKILL.md` when they run.
+  They return when the file is not there, so they also pass in the packed
+  crate (#219).
 - Decision 14: jag ends by the default action of SIGINT or SIGPIPE
   (`src/cli/stop.rs`). `--version` prints `jag <version>` (`src/cli.rs`,
   the `version` of clap).
@@ -787,10 +822,10 @@ Its matrix: `ubuntu-24.04` with Node 18, `ubuntu-24.04` with Node 24, and
   in the log. If it is not a key, add an allow rule to the gitleaks config of
   `check.sh` in a pull request. FEATURE-17 owns that config.
 - The text mode of `check.sh` comes from the FEATURE-19 spec in pull request
-  #154, which is not merged. Signal: the merged FEATURE-19 spec or
+  154 of the earlier repository, which is not merged. Signal: the merged FEATURE-19 spec or
   `check.sh` uses another form of `TEXT_FILE` or `TEXT_INDEX`. Mitigation:
   `release.py texts` and the job `scan` follow the merged form.
-- Pull request #170 (FEATURE-13) also changes `README.md` and `Cargo.toml`.
+- Pull request 170 of the earlier repository (FEATURE-13) also changes `README.md` and `Cargo.toml`.
   Signal: a merge conflict in the build pull request of STORY-48 or
   STORY-49. Mitigation: the build merges `main` first and keeps both
   changes.
