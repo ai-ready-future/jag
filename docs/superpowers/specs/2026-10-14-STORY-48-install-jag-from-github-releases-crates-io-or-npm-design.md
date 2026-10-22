@@ -57,7 +57,7 @@ names."
 The facts on 2026-10-14:
 
 - The repository has no release workflow and no version tag. `main` has no
-  `LICENSE` file. Pull request #181 adds it.
+  `LICENSE` file. Pull request 181 of the earlier repository adds it.
 - `Cargo.toml` has no `include` list. So `cargo package` packs 439 files,
   with `docs/` and `CLAUDE.md` (relay:scout, in Docker `rust:1.99`).
 - A test build in Docker `rust:1.99` for `x86_64-unknown-linux-musl`, with
@@ -102,7 +102,7 @@ The facts on 2026-10-14:
 | 13 | npm package fields | Each `package.json` has `license: MIT`, `repository.url: git+https://github.com/ai-ready-future/jag.git`, and `publishConfig.access: public`. No package has a `preinstall`, `install`, `postinstall`, or `prepare` script. The main package has `bin: {"jag": "bin/jag.js"}` and `engines.node: >=18`. Its `optionalDependencies` name the four platform packages with the exact version. A platform package has no `bin` field | npm docs: provenance needs a `repository` that matches the workflow repository, and a scoped package is not public by default. CRITERION-80: with no install script, the install downloads nothing from GitHub |
 | 14 | Launcher | `bin/jag.js` finds the platform package and starts its binary. jag gets the arguments as they are, and the same standard input, output, and error. The launcher gives back the exit code of jag. It sends SIGINT, SIGTERM, SIGHUP, and SIGQUIT on to jag. When jag ends by a signal, the launcher ends by the same signal | Inferred from IF-3, IF-4, CV-4, and CV-6. jag ends by the default action of SIGINT or SIGPIPE (`src/cli/stop.rs`) |
 | 15 | Job order and a re-run | The order: build, scan, a draft GitHub Release, crates.io, npm, the checks of the channels, and the publish of the GitHub Release. npm gets the platform packages before the main package. Each publish job skips a version that its channel already has. So "Re-run failed jobs" ends a part release | Inferred: crates.io and npm do not take one version two times. GitHub docs, immutable releases: a draft, then the files, then the publish |
-| 16 | Scan of the packages | Before any publish, the job `scan` reads each archive, the `.crate` file, and the five npm tarballs. `check.sh` checks each text line, each string of a binary, and each file name in its text mode. It uses `PRIVATE_PATTERNS` and the gitleaks pin of `private-data.yml`. Exit 1 or 2 stops the release. The step "Scan the packages" runs only on the push of a tag and on `workflow_dispatch` on `main`. In a dry run of a pull request, the step does not run, because `private-data.yml` already checks the files of the pull request | CRITERION-84. FEATURE-17 spec: "The check of the published packages (CRITERION-84): FEATURE-18". FEATURE-19 spec in pull request #154: the text mode of `check.sh`. Security issue #161, architect choice (a): FEATURE-22 spec item 11 says that a dry run has no secret, and FEATURE-22 spec decision 27 says that FEATURE-22 applies where the specs differ |
+| 16 | Scan of the packages | Before any publish, the job `scan` reads each archive, the `.crate` file, and the five npm tarballs. `check.sh` checks each text line, each string of a binary, and each file name in its text mode. It uses `PRIVATE_PATTERNS` and the gitleaks pin of `private-data.yml`. Exit 1 or 2 stops the release. The step "Scan the packages" runs only on the push of a tag and on `workflow_dispatch` on `main`. In a dry run of a pull request, the step does not run, because `private-data.yml` already checks the files of the pull request | CRITERION-84. FEATURE-17 spec: "The check of the published packages (CRITERION-84): FEATURE-18". FEATURE-19 spec in pull request 154 of the earlier repository: the text mode of `check.sh`. Security issue #161, architect choice (a): FEATURE-22 spec item 11 says that a dry run has no secret, and FEATURE-22 spec decision 27 says that FEATURE-22 applies where the specs differ |
 | 17 | Binary check | Linux: `readelf` shows no `INTERP` header and no `NEEDED` entry. macOS: each library that `otool -L` shows is in `/usr/lib/` or `/System/Library/Frameworks/`. On each runner, `jag --version` with an empty environment prints `jag <version>` | CRITERION-78. Deployment-2. Inferred: the platform verifier of `docs/adr/0014-call-the-model-service-with-ureq-and-serde-json-on-std.md` links the macOS Security framework |
 | 18 | Tests | Python `unittest` tests for `scripts/release/release.py`, and `node --test` tests for the launcher, in the new job `release-tools` of `ci.yml`. The dry run of each pull request that changes a release file. The job `verify` of each release | Inferred. Q-ar: unit tests now, and the full test when the registries are ready |
 | 19 | Precondition | The npm parts and the crates.io parts depend on the user steps U1 to U6, not on a user name. CHORE-02 is U1. See "The user steps before the first tag" | Orchestrator INFO, 2026-10-14: the organization `airf` does not exist yet, nothing is published, and nothing has trusted publishing. crates.io docs. npm docs |
@@ -117,8 +117,8 @@ The facts on 2026-10-14:
 | 28 | Secrets, permissions, and cache | `release.yml` uses only the secrets `PRIVATE_PATTERNS` (job `scan`, only on the push of a tag and on `workflow_dispatch` on `main`) and `GITHUB_TOKEN`. The workflow default is `contents: read`. A job gets `contents: write` or `id-token: write` only when it needs it. No job uses a cache. Each action has a full commit SHA. Each checkout has `persist-credentials: false` | CRITERION-83. The conventions of `ci.yml` and `private-data.yml`. Inferred: a cache from another run can change what the release builds. Security issue #161, architect choice (a): the condition on `PRIVATE_PATTERNS` (FEATURE-22 spec item 11 and decision 27) |
 | 29 | When each story is done | STORY-48 to STORY-51 are done after the first release run with each job green, and after U5. A code merge alone does not finish them | CRITERION-77 to CRITERION-84. FEATURE-19 spec decision 25 uses the same form |
 | 30 | Story state | STORY-48 to STORY-51 are `ready`, with the `spec:` line, because FEATURE-19 is `done` (#232). The ASKs of decisions 20 and 26 have their ANSWERs (human:404pilo, 2026-10-14) | `docs/adlc.md` rule 11; #232; the ANSWERs of decisions 20 and 26 |
-| 31 | LICENSE | The MIT text of GitHub, with the holder "AI Ready Future" and the year 2026, in pull request #181. The release copies it into each archive, the crate, and each npm package | `Cargo.toml`: `license = "MIT"`. Orchestrator ANSWER, 2026-10-14. The holder is inferred: the display name of the organization. The user can change it |
-| 32 | Failures of the launcher | The launcher is not jag. When it cannot start jag, it writes one line to the error stream. Then it exits with 127 (no binary) or 126 (the binary does not start). It does this also with `--json` | The architect, 2026-10-14: accepted; system-design.md IF-4 and CV-1 (PR #184) |
+| 31 | LICENSE | The MIT text of GitHub, with the holder "AI Ready Future" and the year 2026, in pull request 181 of the earlier repository. The release copies it into each archive, the crate, and each npm package | `Cargo.toml`: `license = "MIT"`. Orchestrator ANSWER, 2026-10-14. The holder is inferred: the display name of the organization. The user can change it |
+| 32 | Failures of the launcher | The launcher is not jag. When it cannot start jag, it writes one line to the error stream. Then it exits with 127 (no binary) or 126 (the binary does not start). It does this also with `--json` | The architect, 2026-10-14: accepted; system-design.md IF-4 and CV-1 (pull request 184 of the earlier repository) |
 
 ## Design
 
@@ -139,7 +139,7 @@ npm/platform/README.md              new: the README of each platform package
 README.md                           changed: the section "Install"
 ```
 
-`LICENSE` comes from pull request #181.
+`LICENSE` comes from pull request 181 of the earlier repository.
 
 ### The platforms
 
@@ -740,7 +740,7 @@ Its matrix: `ubuntu-24.04` with Node 18, `ubuntu-24.04` with Node 24, and
 
 ## Build order
 
-1. Preconditions: pull request #181 (LICENSE) is merged. FEATURE-19 is done:
+1. Preconditions: pull request 181 of the earlier repository (LICENSE) is merged. FEATURE-19 is done:
    the public repository, the text mode of `check.sh`, and the event policy.
 2. STORY-48:
    - `release.py`: `version`, `check-binary`, `archive`, `texts`,
@@ -822,10 +822,10 @@ Its matrix: `ubuntu-24.04` with Node 18, `ubuntu-24.04` with Node 24, and
   in the log. If it is not a key, add an allow rule to the gitleaks config of
   `check.sh` in a pull request. FEATURE-17 owns that config.
 - The text mode of `check.sh` comes from the FEATURE-19 spec in pull request
-  #154, which is not merged. Signal: the merged FEATURE-19 spec or
+  154 of the earlier repository, which is not merged. Signal: the merged FEATURE-19 spec or
   `check.sh` uses another form of `TEXT_FILE` or `TEXT_INDEX`. Mitigation:
   `release.py texts` and the job `scan` follow the merged form.
-- Pull request #170 (FEATURE-13) also changes `README.md` and `Cargo.toml`.
+- Pull request 170 of the earlier repository (FEATURE-13) also changes `README.md` and `Cargo.toml`.
   Signal: a merge conflict in the build pull request of STORY-48 or
   STORY-49. Mitigation: the build merges `main` first and keeps both
   changes.
