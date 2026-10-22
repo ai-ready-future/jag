@@ -5,7 +5,8 @@ description: Before the first publish, the user uses jag on real work and fixes 
   bugs, and audits find no open high security finding and no license or compliance
   problem.
 status: draft
-state: backlog
+state: done
+actual_end_date: '2026-10-22'
 github:
   number: 106
   node_id: I_kwDOVKMnL88AAAABXfzmAQ
