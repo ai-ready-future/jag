@@ -31,6 +31,6 @@ One roadmap bundle is one GitHub Project. The Project is
 | [EPIC-05: Safe public release](../epics/EPIC-05.md) | ready | 2/4 (50%) | - | - | - |
 | [EPIC-06: An agent uses jag well](../epics/EPIC-06.md) | ready | 2/3 (66%) | - | - | - |
 | [MILESTONE-01: Make it work](../milestones/MILESTONE-01.md) | - | 37/38 (97%) | - | - | - |
-| [MILESTONE-02: Make it good](../milestones/MILESTONE-02.md) | - | 53/66 (80%) | - | - | - |
+| [MILESTONE-02: Make it good](../milestones/MILESTONE-02.md) | - | 54/66 (81%) | - | - | - |
 | [MILESTONE-03: Make it fast](../milestones/MILESTONE-03.md) | - | 2/2 (100%) | - | - | - |
 <!-- STATUS:END -->

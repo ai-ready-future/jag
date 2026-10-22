@@ -6,7 +6,7 @@ okf_version: "0.2"
 
 ## Areas
 
-* [building-blocks](#building-blocks) - 5 decisions: 4 accepted, 1 proposed
+* [building-blocks](#building-blocks) - 5 decisions: 5 accepted
 * [context](#context) - 1 decision: 1 accepted
 * [contracts](#contracts) - 10 decisions: 10 accepted
 * [conventions](#conventions) - 1 decision: 1 accepted
@@ -22,10 +22,7 @@ okf_version: "0.2"
 * [0011: Build jag as one Cargo package with one module per component](./0011-build-jag-as-one-cargo-package-with-one-module-per-component.md) - accepted. Open this when you add a component, a crate, a binary, or a build check, or when you change the Rust edition or the toolchain. Partly replaced by: [0026-name-the-crates-io-package-jag-cli.md](./0026-name-the-crates-io-package-jag-cli.md).
 * [0012: Use clap, serde-saphyr, and rpassword as the outside crates of setup](./0012-use-clap-serde-saphyr-and-rpassword-as-the-outside-crates.md) - accepted. Open this when you add or replace an outside crate, or change how jag reads options, YAML settings, or a hidden key prompt.
 * [0014: Call the model service with ureq and serde_json on std threads](./0014-call-the-model-service-with-ureq-and-serde-json-on-std.md) - accepted. Open this when you add or replace the HTTP or JSON crate, add an async runtime, or change how jag runs model calls in parallel.
-
-### proposed
-
-* [0026: Name the crates.io package jag-cli](./0026-name-the-crates-io-package-jag-cli.md) - proposed. Open this when you change the crates.io name of jag, the cargo install command, or the name that the release publishes to crates.io.
+* [0026: Name the crates.io package jag-cli](./0026-name-the-crates-io-package-jag-cli.md) - accepted. Open this when you change the crates.io name of jag, the cargo install command, or the name that the release publishes to crates.io.
 
 ## context
 
