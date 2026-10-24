@@ -5,7 +5,8 @@ description: A repeatable test runs an agent with the jag skill and shows that i
   uses jag in place of rg, sets the limit, reads the results, and gives the user the
   cause and the fix when jag fails.
 status: draft
-state: ready
+state: done
+actual_end_date: '2026-10-24'
 github:
   number: 180
   node_id: I_kwDOVKMnL88AAAABYgDWGw
@@ -32,8 +33,8 @@ The maintainer runs one repeatable test. The test gives an agent with the jag sk
 
 | Item | State | Progress | Owner | Blocked by | Drift |
 | --- | --- | --- | --- | --- | --- |
-| [STORY-74: Run one repeatable agent test](../stories/STORY-74.md) | ready | - | - | - | - |
-| [STORY-75: The test records what the agent did](../stories/STORY-75.md) | ready | - | - | - | - |
+| [STORY-74: Run one repeatable agent test](../stories/STORY-74.md) | done | - | - | - | - |
+| [STORY-75: The test records what the agent did](../stories/STORY-75.md) | done | - | - | - | - |
 <!-- STATUS:END -->
 
 <!-- LINKS:START (generated, do not edit) -->
