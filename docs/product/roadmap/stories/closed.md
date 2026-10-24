@@ -82,6 +82,8 @@ generated:
 * [STORY-71: The agent tells the user the cause and the fix](STORY-71.md) - As an agent builder (PERSONA-01), I want my agent to give the user the cause and the fix that jag writes when jag cannot run, so that the user can fix it.
 * [STORY-72: Copy the snippet from the README](STORY-72.md) - As an agent builder (PERSONA-01), I want to copy a snippet from the README into an agent that cannot install a skill, so that this agent also learns jag.
 * [STORY-73: The snippet and the skill share one source](STORY-73.md) - As an agent builder (PERSONA-01), I want the snippet and the skill to come from one source, so that they always teach the same behavior.
+* [STORY-74: Run one repeatable agent test](STORY-74.md) - As an agent builder (PERSONA-01), I want to run one repeatable test that gives an agent with the jag skill a set of tasks, so that I can check the skill at any time.
+* [STORY-75: The test records what the agent did](STORY-75.md) - As an agent builder (PERSONA-01), I want the test to record the choices of the agent for each task, so that I can see if the agent uses jag well.
 
 ## MILESTONE-03: Make it fast
 

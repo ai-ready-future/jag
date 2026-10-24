@@ -31,7 +31,7 @@ This milestone holds the capabilities that make jag better to use and easier to 
 | --- | --- | --- | --- | --- | --- |
 | [EPIC-04: A shell user keeps their habits](../epics/EPIC-04.md) | done | 6/6 (100%) | - | - | - |
 | [EPIC-05: Safe public release](../epics/EPIC-05.md) | ready | 3/4 (75%) | - | - | - |
-| [EPIC-06: An agent uses jag well](../epics/EPIC-06.md) | ready | 2/3 (66%) | - | - | - |
+| [EPIC-06: An agent uses jag well](../epics/EPIC-06.md) | ready | 3/3 (100%) | - | - | - |
 | [FEATURE-02: Readiness check](../features/FEATURE-02.md) | done | 3/3 (100%) | - | FEATURE-01 | - |
 | [FEATURE-03: Clear failure when the model is not available](../features/FEATURE-03.md) | done | 4/4 (100%) | - | FEATURE-01 | - |
 | [FEATURE-12: Plain rg with no question](../features/FEATURE-12.md) | done | 2/2 (100%) | - | - | - |
@@ -46,7 +46,7 @@ This milestone holds the capabilities that make jag better to use and easier to 
 | [FEATURE-23: Give the same output as rg for the same arguments](../features/FEATURE-23.md) | done | 3/3 (100%) | - | - | - |
 | [FEATURE-24: Install the jag skill with one README command](../features/FEATURE-24.md) | done | 4/4 (100%) | - | - | - |
 | [FEATURE-25: Copy the same teaching as a snippet](../features/FEATURE-25.md) | done | 2/2 (100%) | - | FEATURE-24 | - |
-| [FEATURE-26: Prove that an agent with the skill uses jag well](../features/FEATURE-26.md) | ready | 0/2 (0%) | - | FEATURE-24 | - |
+| [FEATURE-26: Prove that an agent with the skill uses jag well](../features/FEATURE-26.md) | done | 2/2 (100%) | - | FEATURE-24 | - |
 <!-- STATUS:END -->
 
 <!-- LINKS:START (generated, do not edit) -->
