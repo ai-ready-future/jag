@@ -258,7 +258,7 @@ CI text cases in `scripts/private-data/test.sh`. They read
 | `wf-c` | The `environment` `name:` line is the exact text of the Design, with `'private-data-fork'`, `'private-data-auto'`, and the guard `github.event_name == 'pull_request_target'` (rows 4 and 5) |
 | `wf-d` | The first step of the job is the gate step. Its `if:` holds the same fork test as the `environment` line and as `FORK_PR`. It reads `vars.PRIVATE_DATA_FORK_GATE` and exits 1 when the value is not `on` (row 8) |
 | `wf-e` | The first checkout has no `ref:` (FEATURE-17 spec, decision 15) |
-| `wf-f` | The job has no `if:` and the file has no second job (row 3) |
+| `wf-f` | The job has no job-level `if:`, and the file has no second job (row 3) |
 
 Tests on GitHub. Record each result (run URL, event, environment, result)
 in a comment on issue #246:
