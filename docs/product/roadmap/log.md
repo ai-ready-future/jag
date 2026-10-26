@@ -1,6 +1,7 @@
 # Log
 
 ## 2026-10-26
+* **State**: [STORY-77](stories/STORY-77.md) backlog -> ready, by human:404pilo, at 2026-10-26T17:50:13Z
 * **Plan**: [FEATURE-28](features/FEATURE-28.md) planned in EPIC-05 from the user's own words (2026-10-26: "the forks pull requests cannot run or see the results of this specific check .. this is only required for merges to main and it is something that an approve needs to do before merging to main"): DECISION-57 (revisits STORY-47 spec decision 12), FEATURE-28 (traces CONSTRAINT-01 and DECISION-57), STORY-77, CRITERION-136 to CRITERION-139; EPIC-05 because the check of FEATURE-17 keeps private data out of the public release; CRITERION-136 to CRITERION-138 replace the fork test of issue #99; STORY-77 stays backlog until its spec merges (rule 11), by agent:planner, at 2026-10-26T17:20:00Z
 * **State**: [FEATURE-28](features/FEATURE-28.md) backlog -> ready, by human:404pilo, at 2026-10-26T17:13:05Z
 
