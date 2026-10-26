@@ -143,7 +143,9 @@ checked again on the commit of the first tag (see "Before the first tag").
 13. The other workflows: finding #158 (low) for `adr-gate.yml`. `ci.yml`,
     `go-public.yml`, `private-data-tests.yml`, and `deps.yml` pass:
     `contents: read` (`go-public.yml` also `issues: read`), each action has a
-    full commit SHA, and no secret on `pull_request`.
+    full commit SHA, and no secret on `pull_request`. Note: `go-public.yml`
+    was removed on 2026-10-26, because the move to the public repository is
+    done.
 14. Repository settings: findings #157 (medium) and #159 (low). The rest
     passes: the tag ruleset (25184816) has "update" and "deletion" for
     `refs/tags/v*` with no bypass; the environment `release` allows only the

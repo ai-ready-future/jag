@@ -52,19 +52,17 @@ Set `TEXT_FILE` and `TEXT_INDEX`. Line N of `TEXT_INDEX` names the place of
 line N of `TEXT_FILE`. For each finding, the check prints the place and the
 rule id.
 
-## The go-public workflow
+## The go-public scripts
 
-`.github/workflows/go-public.yml` runs on `workflow_dispatch`. It has 3 modes:
+The workflow `go-public.yml` is removed, because the move to the public
+repository is done. The scripts stay. Run them by hand when you need them:
 
-- `history`: scans the history of the repository (`check.sh` in history
-  mode).
-- `issues`: scans each issue, its comments, the revisions of its text, the
-  labels, and the milestones (`issues.sh`).
-- `clean`: makes one clean history of `main` (`clean-history.sh`). Each match
-  of a private pattern becomes `REDACTED`, each `.pyc` file goes out, and each
-  `#N` in a commit message becomes `<old repo>#N`. The result is the artifact
-  `clean-history` (a git bundle). The optional secret `CLEAN_MAILMAP` gives a
-  mailmap that changes the addresses of the commits.
+- `check.sh` in history mode scans the history of the repository.
+- `issues.sh` scans each issue, its comments, the revisions of its text, the
+  labels, and the milestones.
+- `clean-history.sh` makes one clean history of `main`. Each match of a
+  private pattern becomes `REDACTED`, each `.pyc` file goes out, and each
+  `#N` in a commit message becomes `<old repo>#N`.
 
 The steps of the move to a new public repository are in
 `docs/superpowers/specs/2026-10-14-STORY-47-go-public-with-a-clean-history-design.md`.
