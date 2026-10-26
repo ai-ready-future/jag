@@ -3,8 +3,9 @@ type: adr
 title: Approve each fork run of the private-data check through a protected environment
 description: Open this when you change how the private-data check runs for a fork pull request, its GitHub environments, or who approves a fork run.
 area: deployment
-status: proposed
+status: deprecated
 date: 2026-10-26
+amended: 2026-10-26
 supersedes: null
 superseded_by: null
 amends: null
@@ -18,6 +19,10 @@ model:
 ---
 
 # ADR-0027: Approve each fork run of the private-data check through a protected environment
+
+The user rejected this proposal on 2026-10-26, before it was accepted:
+"reject this. we are abandoing this path.. the cost is too high for the
+benefit". The repository does not use this design. Do not build it.
 
 ## Context
 
