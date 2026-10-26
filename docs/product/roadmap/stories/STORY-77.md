@@ -6,6 +6,13 @@ description: As an agent builder (PERSONA-01), I want a maintainer to approve ea
   guesses.
 status: draft
 state: backlog
+github:
+  number: 246
+  node_id: I_kwDOVKMnL88AAAABaEsC2Q
+  url: https://github.com/ai-ready-future/jag/issues/246
+  pushed_hash: e25fe8
+  synced:
+    state: backlog
 parent: /features/FEATURE-28.md
 milestone: /milestones/MILESTONE-02.md
 ---

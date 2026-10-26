@@ -6,6 +6,13 @@ description: The private-data check of a fork pull request runs only after a mai
   passes.
 status: draft
 state: ready
+github:
+  number: 245
+  node_id: I_kwDOVKMnL88AAAABaEr8kg
+  url: https://github.com/ai-ready-future/jag/issues/245
+  pushed_hash: 9f1969
+  synced:
+    state: ready
 parent: /epics/EPIC-05.md
 milestone: /milestones/MILESTONE-02.md
 traces:
