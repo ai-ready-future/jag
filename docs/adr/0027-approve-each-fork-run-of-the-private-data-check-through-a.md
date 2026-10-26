@@ -71,7 +71,7 @@ main." It revisits decision 12 of the STORY-47 spec, "No guard".
 - Two named environments use only documented behavior. A run of
   `pull_request_target` uses the workflow file of `main`, so a pull request
   cannot test a change of this file before the merge.
-- The gate variable makes a wrong environment fail closed.
+- The gate variable makes a fork run in a wrong environment fail with no scan.
 - The sessions use the token of `404pilo`. GitHub cannot tell an approval
   of a session from an approval of the user.
 
@@ -89,7 +89,7 @@ main." It revisits decision 12 of the STORY-47 spec, "No guard".
 
 - The user makes the two environments and the variable before the code
   merges. A later change of their settings changes the gate with no code
-  change. chores checks them through the API.
+  change. The chores role of the build team checks them through the API.
 - After an approval, the pass or the fail of the run is public. The
   maintainer examines the diff, the title, the body, and the history of the
   pull request before an approval.
