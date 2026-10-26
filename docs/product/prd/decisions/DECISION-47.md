@@ -25,6 +25,7 @@ When one search reaches the cost limit and also leaves out results to stay in th
 - about: [QUESTION-03: Which exit code wins when both limits apply?](../questions/QUESTION-03.md)
 - about: [DECISION-13: Reaching the cost limit has its own exit code](DECISION-13.md)
 - about: [DECISION-26: Leaving out results has its own exit code](DECISION-26.md)
+- subject of: [QUESTION-06: Which exit code applies when the private-pattern check skips lines?](../questions/QUESTION-06.md)
 - traced by: [FEATURE-06: Cost limit on scoring](../../roadmap/features/FEATURE-06.md)
 - traced by: [FEATURE-09: Size limit on the text that jag returns](../../roadmap/features/FEATURE-09.md)
 - traced by: [STORY-20: Tell a reached cost limit by its exit code](../../roadmap/stories/STORY-20.md)

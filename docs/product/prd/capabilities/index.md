@@ -12,3 +12,5 @@
 * [CAPABILITY-10: Question without a term](CAPABILITY-10.md) - The user gives only a question, and jag chooses the candidate lines itself.
 * [CAPABILITY-11: Agent instructions to install or copy](CAPABILITY-11.md) - The agent builder installs a jag skill into their agent, or copies a snippet; either one teaches the agent how jag works and how to use it as an enhanced rg.
 * [CAPABILITY-12: Measure jag on your own questions](CAPABILITY-12.md) - The user runs jag and grep on their own questions and sees which one finds the answer more often.
+* [CAPABILITY-13: Score with a Clef server that the user runs](CAPABILITY-13.md) - The user sets the base URL to a Clef or Clef-Flash server, and jag scores each search there, with no TypeSafe key, so that no text goes to TypeSafe.
+* [CAPABILITY-14: Hold private text back from the model](CAPABILITY-14.md) - Before each model call, jag checks each snippet for keys, tokens, passwords, and the patterns of the user, and it does not send a snippet that matches.

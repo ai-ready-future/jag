@@ -1,5 +1,9 @@
 # Log
 
+## 2026-10-26
+
+* **Save**: [product](product.md) capabilities and scope (Clef server and private-pattern check): CAPABILITY-13, CAPABILITY-14, DECISION-57 to DECISION-68, QUESTION-04 to QUESTION-07, SCOPE-04, CONSTRAINT-03, QUESTION-01, DECISION-02 (deprecated), by human:404pilo, at 2026-10-26T12:47:03Z
+
 ## 2026-10-20
 
 * **Save**: [product](product.md) user answer on the card "Does the skill tell the agent to always ask a question?" (option 1): DECISION-56; CAPABILITY-11 behaviors 1 and 2, by agent:planner, at 2026-10-20T11:24:18Z

@@ -41,7 +41,7 @@ This milestone holds the capabilities that make jag better to use and easier to 
 | [FEATURE-18: Install jag from GitHub Releases, crates.io, or npm](../features/FEATURE-18.md) | ready | 0/4 (0%) | - | FEATURE-01, FEATURE-17, FEATURE-19, FEATURE-22, FEATURE-23 | - |
 | [FEATURE-19: Go public with a clean history](../features/FEATURE-19.md) | done | 4/4 (100%) | - | FEATURE-17 | - |
 | [FEATURE-20: Show the cost of a search](../features/FEATURE-20.md) | done | 4/4 (100%) | - | FEATURE-04, FEATURE-11 | - |
-| [FEATURE-21: Send the model calls through an AI gateway](../features/FEATURE-21.md) | done | 2/2 (100%) | - | FEATURE-04 | - |
+| [FEATURE-21: Send the model calls through an AI gateway](../features/FEATURE-21.md) | done | 2/2 (100%) | - | FEATURE-04 | yes |
 | [FEATURE-22: Check that jag is ready before the first publish](../features/FEATURE-22.md) | done | 3/3 (100%) | - | - | - |
 | [FEATURE-23: Give the same output as rg for the same arguments](../features/FEATURE-23.md) | done | 3/3 (100%) | - | - | - |
 | [FEATURE-24: Install the jag skill with one README command](../features/FEATURE-24.md) | done | 4/4 (100%) | - | - | - |

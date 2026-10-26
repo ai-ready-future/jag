@@ -17,6 +17,8 @@ Limits: some users cannot send their text to an outside model service, and each 
 ## Links
 
 - addressed by: [CAPABILITY-09: Say which text leaves the machine](../capabilities/CAPABILITY-09.md)
+- addressed by: [CAPABILITY-13: Score with a Clef server that the user runs](../capabilities/CAPABILITY-13.md)
+- addressed by: [CAPABILITY-14: Hold private text back from the model](../capabilities/CAPABILITY-14.md)
 - subject of: [DECISION-02: Release 1 does not serve users whose text must stay on the machine](../decisions/DECISION-02.md)
 - served by: [JOURNEY-02: A person asks a question at the shell](../journeys/JOURNEY-02.md)
 - served by: [NEED-07: Find the passage that answers a question](../needs/NEED-07.md)
