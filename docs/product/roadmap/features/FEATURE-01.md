@@ -29,7 +29,7 @@ traces:
 - to: prd:/constraints/CONSTRAINT-02.md
   hash: fd39da
 - to: prd:/constraints/CONSTRAINT-03.md
-  hash: 7636cf
+  hash: a42483
 ---
 
 # FEATURE-01: Store a key one time
@@ -61,7 +61,7 @@ The user stores a TypeSafe key one time; jag finds it on each search, never show
 - traces: [DECISION-08: Setup asks before it replaces a key, and one command removes it](../../prd/decisions/DECISION-08.md)
 - traces: [DECISION-09: The missing-key message tells a new user where to get a key](../../prd/decisions/DECISION-09.md)
 - traces: [CONSTRAINT-02: jag protects the API key of the user](../../prd/constraints/CONSTRAINT-02.md)
-- traces: [CONSTRAINT-03: A TypeSafe key is enough to start](../../prd/constraints/CONSTRAINT-03.md)
+- traces: [CONSTRAINT-03: A TypeSafe key or a Clef server is enough to start](../../prd/constraints/CONSTRAINT-03.md)
 - blocks: [FEATURE-02: Readiness check](FEATURE-02.md)
 - blocks: [FEATURE-03: Clear failure when the model is not available](FEATURE-03.md)
 - blocks: [FEATURE-04: Rank matching lines by a question](FEATURE-04.md)

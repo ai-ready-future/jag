@@ -5,7 +5,7 @@ description: A command-line search tool for coding agents that returns only the 
   lines that answer a question, within a size limit.
 status: draft
 created: '2026-10-05'
-updated: '2026-10-19'
+updated: '2026-10-26'
 lenses:
   problem:
     status: complete
@@ -18,10 +18,10 @@ lenses:
     updated: '2026-10-05'
   capabilities:
     status: complete
-    updated: '2026-10-19'
+    updated: '2026-10-26'
   scope:
     status: complete
-    updated: '2026-10-07'
+    updated: '2026-10-26'
   success-metrics:
     status: complete
     updated: '2026-10-06'
@@ -45,11 +45,11 @@ jag is a general tool, like grep, and agents are the primary use case. The prima
 
 ## Capabilities
 
-jag has 12 capabilities: six must-be, three performance, and three delighters. See [CAPABILITY-01](capabilities/CAPABILITY-01.md) to [CAPABILITY-12](capabilities/CAPABILITY-12.md). [DECISION-01](decisions/DECISION-01.md) records that jag fails clearly when the model is not available. Simulations of CAPABILITY-01 to CAPABILITY-08 added [DECISION-03](decisions/DECISION-03.md) to [DECISION-46](decisions/DECISION-46.md), [QUESTION-03](questions/QUESTION-03.md), and [CONSTRAINT-04](constraints/CONSTRAINT-04.md) to [CONSTRAINT-06](constraints/CONSTRAINT-06.md). [CAPABILITY-11](capabilities/CAPABILITY-11.md) gives the agent instructions in two forms: a skill that the agent builder installs with one README command ([CONSTRAINT-08](constraints/CONSTRAINT-08.md)), and a snippet to copy. [DECISION-53](decisions/DECISION-53.md) records that the skill is not an editor plugin.
+jag has 14 capabilities: eight must-be, three performance, and three delighters. See [CAPABILITY-01](capabilities/CAPABILITY-01.md) to [CAPABILITY-14](capabilities/CAPABILITY-14.md). [DECISION-01](decisions/DECISION-01.md) records that jag fails clearly when the model is not available. Simulations of CAPABILITY-01 to CAPABILITY-08 added [DECISION-03](decisions/DECISION-03.md) to [DECISION-46](decisions/DECISION-46.md), [QUESTION-03](questions/QUESTION-03.md), and [CONSTRAINT-04](constraints/CONSTRAINT-04.md) to [CONSTRAINT-06](constraints/CONSTRAINT-06.md). [CAPABILITY-11](capabilities/CAPABILITY-11.md) gives the agent instructions in two forms: a skill that the agent builder installs with one README command ([CONSTRAINT-08](constraints/CONSTRAINT-08.md)), and a snippet to copy. [DECISION-53](decisions/DECISION-53.md) records that the skill is not an editor plugin. [CAPABILITY-13](capabilities/CAPABILITY-13.md) lets the user score with a Clef or Clef-Flash server that the user runs, through the base URL setting and with no key. jag makes no quality claim and has no speed target for Clef. [CAPABILITY-14](capabilities/CAPABILITY-14.md) holds back each snippet that matches a private pattern, on each model service, unless the user turns the check off. [DECISION-58](decisions/DECISION-58.md) to [DECISION-68](decisions/DECISION-68.md) and [QUESTION-04](questions/QUESTION-04.md) to [QUESTION-07](questions/QUESTION-07.md) hold the details.
 
 ## Scope
 
-[SCOPE-01](scope/SCOPE-01.md) is release 1, the first public release. It must include the six must-be capabilities, should include agent instructions to copy, and could include the cost, the data flow, and the measure on your own questions. jag scores each search again, so a free repeated search is not in release 1. Release 2 adds trust and cost, release 3 adds a question without a term, and two later releases add a local model option and a run with no package install. jag builds no index, writes no answers, has no GUI, and has no hosted service. Release 1 goes public only after the held-out score confirms the gain over grep. [DECISION-02](decisions/DECISION-02.md) records that release 1 does not serve users whose text must stay on the machine.
+[SCOPE-01](scope/SCOPE-01.md) is release 1, the first public release. It must include the six must-be capabilities, should include agent instructions to copy, and could include the cost, the data flow, and the measure on your own questions. jag scores each search again, so a free repeated search is not in release 1. The release after release 1 ([SCOPE-04](scope/SCOPE-04.md)) adds the local model option: a Clef server that the user runs, and the private-pattern check. Release 2 adds trust and cost, release 3 adds a question without a term, and a later release adds a run with no package install. jag builds no index, writes no answers, has no GUI, and has no hosted service. Release 1 goes public only after the held-out score confirms the gain over grep. [DECISION-69](decisions/DECISION-69.md) replaces [DECISION-02](decisions/DECISION-02.md): the release after release 1 serves users whose text must stay on the machine.
 
 ## Success metrics
 
