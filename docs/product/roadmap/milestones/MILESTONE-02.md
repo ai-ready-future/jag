@@ -30,7 +30,7 @@ This milestone holds the capabilities that make jag better to use and easier to 
 | Item | State | Progress | Owner | Blocked by | Drift |
 | --- | --- | --- | --- | --- | --- |
 | [EPIC-04: A shell user keeps their habits](../epics/EPIC-04.md) | done | 6/6 (100%) | - | - | - |
-| [EPIC-05: Safe public release](../epics/EPIC-05.md) | ready | 3/4 (75%) | - | - | - |
+| [EPIC-05: Safe public release](../epics/EPIC-05.md) | ready | 3/5 (60%) | - | - | - |
 | [EPIC-06: An agent uses jag well](../epics/EPIC-06.md) | ready | 3/3 (100%) | - | - | - |
 | [FEATURE-02: Readiness check](../features/FEATURE-02.md) | done | 3/3 (100%) | - | FEATURE-01 | - |
 | [FEATURE-03: Clear failure when the model is not available](../features/FEATURE-03.md) | done | 4/4 (100%) | - | FEATURE-01 | - |
@@ -47,6 +47,7 @@ This milestone holds the capabilities that make jag better to use and easier to 
 | [FEATURE-24: Install the jag skill with one README command](../features/FEATURE-24.md) | done | 4/4 (100%) | - | - | - |
 | [FEATURE-25: Copy the same teaching as a snippet](../features/FEATURE-25.md) | done | 2/2 (100%) | - | FEATURE-24 | - |
 | [FEATURE-26: Prove that an agent with the skill uses jag well](../features/FEATURE-26.md) | done | 2/2 (100%) | - | FEATURE-24 | - |
+| [FEATURE-28: A maintainer approves the private-data check of a fork pull request](../features/FEATURE-28.md) | ready | 0/1 (0%) | - | - | - |
 <!-- STATUS:END -->
 
 <!-- LINKS:START (generated, do not edit) -->
@@ -76,6 +77,7 @@ This milestone holds the capabilities that make jag better to use and easier to 
 - item of: [FEATURE-24: Install the jag skill with one README command](../features/FEATURE-24.md)
 - item of: [FEATURE-25: Copy the same teaching as a snippet](../features/FEATURE-25.md)
 - item of: [FEATURE-26: Prove that an agent with the skill uses jag well](../features/FEATURE-26.md)
+- item of: [FEATURE-28: A maintainer approves the private-data check of a fork pull request](../features/FEATURE-28.md)
 - item of: [STORY-06: Check the five items of readiness](../stories/STORY-06.md)
 - item of: [STORY-07: Use the check result as an exit code](../stories/STORY-07.md)
 - item of: [STORY-08: Run the check for almost no cost](../stories/STORY-08.md)
@@ -125,4 +127,5 @@ This milestone holds the capabilities that make jag better to use and easier to 
 - item of: [STORY-73: The snippet and the skill share one source](../stories/STORY-73.md)
 - item of: [STORY-74: Run one repeatable agent test](../stories/STORY-74.md)
 - item of: [STORY-75: The test records what the agent did](../stories/STORY-75.md)
+- item of: [STORY-77: Approve the private-data check of a fork pull request before it runs](../stories/STORY-77.md)
 <!-- LINKS:END -->
