@@ -4,7 +4,9 @@
 //! file. `read_snippets` reads each file of the kept windows one time and
 //! gives the lines of each window.
 
-use std::borrow::Cow;
+use std::fs::File;
+use std::io::{self, Read};
+use std::path::Path;
 
 pub use super::Source;
 use super::walk::{FileMatches, WalkWarning, WarningKind};
@@ -235,16 +237,29 @@ pub fn match_texts<'a>(files: &'a [FileMatches], windows: &[Window]) -> Vec<Vec<
         .collect()
 }
 
+/// The most bytes that jag reads from a file at one time.
+const READ_PART: usize = 64 * 1024;
+
+/// The most bytes of `MAX_LINE_CHARS` characters: a character has at most 4
+/// bytes, and a bad sequence has at most 3 bytes.
+const MAX_KEPT_BYTES: usize = 4 * MAX_LINE_CHARS;
+
 /// Read each file of the windows one time and give the lines of each window.
 /// A window of standard input takes its lines from `input`, the piped text
 /// that the scan searched (decision 13 of FEATURE-14).
 ///
-/// A file that jag cannot read gives a warning and no result. The file can
-/// change after the scan, so the end of a window stops at the last line, and
-/// a match past the last line is dropped.
+/// A file that jag cannot read gives a warning and no result. A path that is
+/// not a regular file (for example a device such as `/dev/zero`) gives the
+/// same warning, and jag reads no byte of it. The file can change after the
+/// scan, so the end of a window stops at the last line, and a match past the
+/// last line is dropped.
+///
+/// jag reads all of each file in parts, but it keeps only the lines inside a
+/// window, and of each line only the bytes that the result shows.
 pub fn read_snippets(windows: &[Window], input: Option<&[u8]>) -> (Vec<Snippet>, Vec<WalkWarning>) {
     let mut snippets = Vec::new();
     let mut warnings = Vec::new();
+    let mut buffer = vec![0; READ_PART];
     let mut index = 0;
     while index < windows.len() {
         let source = &windows[index].source;
@@ -252,23 +267,26 @@ pub fn read_snippets(windows: &[Window], input: Option<&[u8]>) -> (Vec<Snippet>,
             .iter()
             .position(|window| &window.source != source)
             .map_or(windows.len(), |offset| index + offset);
-        let bytes = match source {
+        let group = &windows[index..group_end];
+        let lines = match source {
             Source::File(path) => {
-                std::fs::read(path)
-                    .map(Cow::Owned)
-                    .map_err(|error| WalkWarning {
-                        path: Some(path.clone()),
-                        kind: WarningKind::Read(error.kind()),
-                    })
+                read_file(path, group, &mut buffer).map_err(|error| WalkWarning {
+                    path: Some(path.clone()),
+                    kind: WarningKind::Read(error.kind()),
+                })
             }
-            Source::StandardInput => Ok(Cow::Borrowed(input.unwrap_or_default())),
+            Source::StandardInput => {
+                let mut lines = LineSplitter::new(group);
+                for part in input.unwrap_or_default().chunks(READ_PART) {
+                    lines.push(part);
+                }
+                Ok(lines.finish())
+            }
         };
-        match bytes {
+        match lines {
             Err(warning) => warnings.push(warning),
-            Ok(bytes) => {
-                let bytes = decode(&bytes);
-                let lines = split_lines(&bytes);
-                for window in &windows[index..group_end] {
+            Ok(lines) => {
+                for window in group {
                     snippets.extend(snippet_of(window, &lines));
                 }
             }
@@ -278,49 +296,358 @@ pub fn read_snippets(windows: &[Window], input: Option<&[u8]>) -> (Vec<Snippet>,
     (snippets, warnings)
 }
 
-/// Give the text as the scan sees it: a byte order mark of UTF-16 means the
-/// file is changed to UTF-8, and a mark of UTF-8 is removed. So the line
-/// numbers and the lines are the same as in the scan.
-fn decode(bytes: &[u8]) -> Cow<'_, [u8]> {
-    let little = bytes.starts_with(&[0xFF, 0xFE]);
-    if little || bytes.starts_with(&[0xFE, 0xFF]) {
-        let body = &bytes[2..];
-        let (pairs, _) = body.as_chunks::<2>();
-        let mut units: Vec<u16> = pairs
+/// Read the lines of `windows` from the file at `path`. jag reads no byte of
+/// a path that is not a regular file, because a device or a pipe can have no
+/// end. A folder gives the error that a read of a folder gives.
+fn read_file(path: &Path, windows: &[Window], buffer: &mut [u8]) -> io::Result<KeptLines> {
+    let file = File::open(path)?;
+    let file_type = file.metadata()?.file_type();
+    if file_type.is_dir() {
+        return Err(io::ErrorKind::IsADirectory.into());
+    }
+    if !file_type.is_file() {
+        return Err(io::ErrorKind::InvalidInput.into());
+    }
+    read_lines(file, windows, buffer)
+}
+
+/// Read all of `reader` in parts of the size of `buffer`, and keep the lines
+/// of `windows`. jag reads to the end also after the last line of a window,
+/// so that a read error at any point gives the error, as a read of all of the
+/// file does.
+fn read_lines(
+    mut reader: impl Read,
+    windows: &[Window],
+    buffer: &mut [u8],
+) -> io::Result<KeptLines> {
+    let mut lines = LineSplitter::new(windows);
+    loop {
+        match reader.read(buffer) {
+            Ok(0) => return Ok(lines.finish()),
+            Ok(count) => lines.push(&buffer[..count]),
+            Err(error) if error.kind() == io::ErrorKind::Interrupted => {}
+            Err(error) => return Err(error),
+        }
+    }
+}
+
+/// One line inside a window: its number, the bytes that jag keeps, and the
+/// count of characters cut from the end (as `cut_line` gives them).
+struct KeptLine {
+    number: u64,
+    text: Vec<u8>,
+    cut: u64,
+}
+
+/// The lines of one file that its windows hold, and the count of lines of
+/// the file.
+struct KeptLines {
+    /// In line order.
+    lines: Vec<KeptLine>,
+    count: u64,
+}
+
+impl KeptLines {
+    fn line(&self, number: u64) -> &KeptLine {
+        let index = self
+            .lines
+            .binary_search_by_key(&number, |line| line.number)
+            .expect("each line of a window is kept");
+        &self.lines[index]
+    }
+}
+
+/// Splits the text of one file into lines, part after part, and keeps only
+/// the lines inside the windows. The lines and the line numbers are the same
+/// as in the scan: a byte order mark of UTF-16 means the text is changed to
+/// UTF-8, a mark of UTF-8 is removed, and a text that ends with `\n` has no
+/// empty last line.
+struct LineSplitter {
+    /// The `(start, end)` of each window, in order of `start`.
+    spans: Vec<(u64, u64)>,
+    /// The first span that does not end before the current line.
+    span: usize,
+    /// The first bytes of the text, until there are 3 of them: they tell the
+    /// byte order mark. `None` after that.
+    head: Option<Vec<u8>>,
+    /// After a mark of UTF-16: the state of the change to UTF-8.
+    utf16: Option<Utf16>,
+    /// The count of `\n` in the text so far.
+    newlines: u64,
+    /// The current line has at least one byte.
+    open: bool,
+    /// The bytes of the current line, when a window holds it.
+    line: Option<LineText>,
+    kept: Vec<KeptLine>,
+}
+
+impl LineSplitter {
+    fn new(windows: &[Window]) -> LineSplitter {
+        let mut spans: Vec<(u64, u64)> = windows
             .iter()
-            .map(|pair| {
+            .map(|window| (window.start, window.end))
+            .collect();
+        spans.sort_unstable();
+        LineSplitter {
+            spans,
+            span: 0,
+            head: Some(Vec::new()),
+            utf16: None,
+            newlines: 0,
+            open: false,
+            line: None,
+            kept: Vec::new(),
+        }
+    }
+
+    /// Add the next bytes of the file.
+    fn push(&mut self, mut part: &[u8]) {
+        if let Some(head) = self.head.as_mut() {
+            let count = (3 - head.len()).min(part.len());
+            head.extend_from_slice(&part[..count]);
+            part = &part[count..];
+            if head.len() < 3 {
+                return;
+            }
+        }
+        if let Some(head) = self.head.take() {
+            self.start(&head);
+        }
+        self.push_body(part);
+    }
+
+    /// The kept lines, after the last byte of the file.
+    fn finish(mut self) -> KeptLines {
+        if let Some(head) = self.head.take() {
+            self.start(&head);
+        }
+        if let Some(text) = self.utf16.as_mut().map(Utf16::finish) {
+            self.push_text(text.as_bytes());
+        }
+        let mut count = self.newlines;
+        if self.open {
+            count += 1;
+            self.end_line(count);
+        }
+        KeptLines {
+            lines: self.kept,
+            count,
+        }
+    }
+
+    /// Use the byte order mark at the start of `head`, then add the bytes
+    /// after it.
+    fn start(&mut self, head: &[u8]) {
+        let little = head.starts_with(&[0xFF, 0xFE]);
+        if little || head.starts_with(&[0xFE, 0xFF]) {
+            self.utf16 = Some(Utf16 {
+                little,
+                odd: None,
+                high: None,
+            });
+            self.push_body(&head[2..]);
+        } else {
+            self.push_text(head.strip_prefix(&[0xEF, 0xBB, 0xBF]).unwrap_or(head));
+        }
+    }
+
+    /// Add bytes that come after the byte order mark.
+    fn push_body(&mut self, bytes: &[u8]) {
+        match self.utf16.as_mut() {
+            Some(utf16) => {
+                let text = utf16.push(bytes);
+                self.push_text(text.as_bytes());
+            }
+            None => self.push_text(bytes),
+        }
+    }
+
+    /// Add text that has no byte order mark, and split it on `\n`.
+    fn push_text(&mut self, mut text: &[u8]) {
+        while !text.is_empty() {
+            let number = self.newlines + 1;
+            let kept = self.holds(number);
+            if !kept && self.span == self.spans.len() {
+                // No window holds a later line: count the lines only.
+                self.newlines += text.iter().filter(|byte| **byte == b'\n').count() as u64;
+                self.open = !text.ends_with(b"\n");
+                return;
+            }
+            let (body, ended) = match text.iter().position(|byte| *byte == b'\n') {
+                Some(end) => {
+                    let body = &text[..end];
+                    text = &text[end + 1..];
+                    (body, true)
+                }
+                None => (std::mem::take(&mut text), false),
+            };
+            if kept {
+                self.line.get_or_insert_default().push(body);
+            }
+            if ended {
+                self.end_line(number);
+                self.newlines += 1;
+            }
+            self.open = !ended;
+        }
+    }
+
+    fn end_line(&mut self, number: u64) {
+        if let Some(line) = self.line.take() {
+            let (text, cut) = line.finish();
+            self.kept.push(KeptLine { number, text, cut });
+        }
+    }
+
+    /// A window holds line `number`. Each call must give a number that is not
+    /// less than the number of the call before it.
+    fn holds(&mut self, number: u64) -> bool {
+        while self
+            .spans
+            .get(self.span)
+            .is_some_and(|span| span.1 < number)
+        {
+            self.span += 1;
+        }
+        self.spans
+            .get(self.span)
+            .is_some_and(|span| span.0 <= number)
+    }
+}
+
+/// The state of the change of UTF-16 to UTF-8 between two parts. The text is
+/// the same as `String::from_utf16_lossy` gives for all of the units, with a
+/// last unit of U+FFFD for an odd last byte.
+struct Utf16 {
+    little: bool,
+    /// The first byte of a unit whose second byte is in the next part.
+    odd: Option<u8>,
+    /// A high surrogate at the end of the units so far: the next unit can
+    /// join it.
+    high: Option<u16>,
+}
+
+impl Utf16 {
+    /// The UTF-8 text of the next bytes.
+    fn push(&mut self, bytes: &[u8]) -> String {
+        let mut joined = Vec::with_capacity(bytes.len() + 1);
+        joined.extend(self.odd.take());
+        joined.extend_from_slice(bytes);
+        let (pairs, rest) = joined.as_chunks::<2>();
+        self.odd = rest.first().copied();
+        let little = self.little;
+        let mut units: Vec<u16> = self
+            .high
+            .take()
+            .into_iter()
+            .chain(pairs.iter().map(|pair| {
                 if little {
                     u16::from_le_bytes(*pair)
                 } else {
                     u16::from_be_bytes(*pair)
                 }
-            })
+            }))
             .collect();
-        if body.len() % 2 == 1 {
+        if units
+            .last()
+            .is_some_and(|unit| (0xD800..0xDC00).contains(unit))
+        {
+            self.high = units.pop();
+        }
+        String::from_utf16_lossy(&units)
+    }
+
+    /// The UTF-8 text of the units that are left after the last byte.
+    fn finish(&mut self) -> String {
+        let mut units: Vec<u16> = self.high.take().into_iter().collect();
+        if self.odd.take().is_some() {
             units.push(0xFFFD);
         }
-        return Cow::Owned(String::from_utf16_lossy(&units).into_bytes());
-    }
-    match bytes.strip_prefix(&[0xEF, 0xBB, 0xBF]) {
-        Some(rest) => Cow::Borrowed(rest),
-        None => Cow::Borrowed(bytes),
+        String::from_utf16_lossy(&units)
     }
 }
 
-/// Split on `\n`. A file that ends with `\n` has no empty last line.
-fn split_lines(bytes: &[u8]) -> Vec<&[u8]> {
-    if bytes.is_empty() {
-        return Vec::new();
-    }
-    let mut lines: Vec<&[u8]> = bytes.split(|byte| *byte == b'\n').collect();
-    if bytes.ends_with(b"\n") {
-        lines.pop();
-    }
-    lines
+/// The bytes of one kept line, added part after part. While the line has at
+/// most `MAX_KEPT_BYTES` bytes, `text` holds all of it. After that, `text`
+/// holds only the first `MAX_LINE_CHARS` characters, and `rest` counts the
+/// other characters. So a long line uses little memory, and the kept bytes
+/// and the cut are the same as `cut_line` gives for all of the line.
+#[derive(Default)]
+struct LineText {
+    text: Vec<u8>,
+    rest: Option<CharCount>,
 }
 
-fn snippet_of(window: &Window, lines: &[&[u8]]) -> Option<Snippet> {
-    let last = lines.len() as u64;
+impl LineText {
+    fn push(&mut self, mut bytes: &[u8]) {
+        if self.rest.is_none() {
+            let count = (MAX_KEPT_BYTES + 1 - self.text.len()).min(bytes.len());
+            self.text.extend_from_slice(&bytes[..count]);
+            bytes = &bytes[count..];
+            if self.text.len() <= MAX_KEPT_BYTES {
+                return;
+            }
+            // More than `MAX_KEPT_BYTES` bytes hold more than `MAX_LINE_CHARS`
+            // characters. Each of the first `MAX_LINE_CHARS` characters
+            // starts at least 4 bytes before the end of `text`, so a later
+            // byte cannot change it.
+            let kept = char_prefix(&self.text, MAX_LINE_CHARS).len();
+            let mut rest = CharCount::default();
+            rest.push(&self.text[kept..]);
+            self.text.truncate(kept);
+            self.rest = Some(rest);
+        }
+        if let Some(rest) = self.rest.as_mut() {
+            rest.push(bytes);
+        }
+    }
+
+    /// The kept bytes and the count of characters cut from the end.
+    fn finish(self) -> (Vec<u8>, u64) {
+        match self.rest {
+            None => {
+                let (kept, cut) = cut_line(&self.text);
+                (kept.to_vec(), cut)
+            }
+            Some(rest) => (self.text, rest.finish()),
+        }
+    }
+}
+
+/// Counts the characters of bytes that come in parts, with the rule of
+/// `char_widths`: each bad sequence of bytes is one character.
+#[derive(Default)]
+struct CharCount {
+    count: u64,
+    /// The last bytes, from the start of a character that the next bytes can
+    /// change. Fewer than 4 bytes after each `push`.
+    pending: Vec<u8>,
+}
+
+impl CharCount {
+    fn push(&mut self, bytes: &[u8]) {
+        self.pending.extend_from_slice(bytes);
+        let mut start = 0;
+        for width in char_widths(&self.pending) {
+            // Only the first 4 bytes from its start tell a character. When
+            // they are all here, a later byte cannot change it.
+            if start + 4 > self.pending.len() {
+                break;
+            }
+            start += width;
+            self.count += 1;
+        }
+        self.pending.drain(..start);
+    }
+
+    /// The count of characters, after the last byte.
+    fn finish(self) -> u64 {
+        self.count + char_count(&self.pending) as u64
+    }
+}
+
+fn snippet_of(window: &Window, lines: &KeptLines) -> Option<Snippet> {
+    let last = lines.count;
     let matches: Vec<u64> = window
         .matches
         .iter()
@@ -333,11 +660,13 @@ fn snippet_of(window: &Window, lines: &[&[u8]]) -> Option<Snippet> {
     let end = window.end.min(last);
     let lines = (window.start..=end)
         .map(|number| {
-            SnippetLine::new(
+            let line = lines.line(number);
+            SnippetLine {
                 number,
-                lines[(number - 1) as usize],
-                matches.binary_search(&number).is_ok(),
-            )
+                text: line.text.clone(),
+                is_match: matches.binary_search(&number).is_ok(),
+                cut: line.cut,
+            }
         })
         .collect();
     Some(Snippet {
@@ -348,6 +677,7 @@ fn snippet_of(window: &Window, lines: &[&[u8]]) -> Option<Snippet> {
 
 #[cfg(test)]
 mod tests {
+    use std::borrow::Cow;
     use std::fs;
     use std::io;
     use std::path::{Path, PathBuf};
@@ -852,5 +1182,527 @@ mod tests {
         let sum: usize = lines.iter().map(|line| char_count(line)).sum();
         assert_eq!(char_count(&joined), sum);
         assert_eq!(sum, String::from_utf8_lossy(&joined).chars().count());
+    }
+
+    // The model for the reader in parts: the reader that read all of a file
+    // at one time, decoded all of it, and split all of it.
+    fn whole_decode(bytes: &[u8]) -> Cow<'_, [u8]> {
+        let little = bytes.starts_with(&[0xFF, 0xFE]);
+        if little || bytes.starts_with(&[0xFE, 0xFF]) {
+            let body = &bytes[2..];
+            let (pairs, _) = body.as_chunks::<2>();
+            let mut units: Vec<u16> = pairs
+                .iter()
+                .map(|pair| {
+                    if little {
+                        u16::from_le_bytes(*pair)
+                    } else {
+                        u16::from_be_bytes(*pair)
+                    }
+                })
+                .collect();
+            if body.len() % 2 == 1 {
+                units.push(0xFFFD);
+            }
+            return Cow::Owned(String::from_utf16_lossy(&units).into_bytes());
+        }
+        match bytes.strip_prefix(&[0xEF, 0xBB, 0xBF]) {
+            Some(rest) => Cow::Borrowed(rest),
+            None => Cow::Borrowed(bytes),
+        }
+    }
+
+    fn whole_split(bytes: &[u8]) -> Vec<&[u8]> {
+        if bytes.is_empty() {
+            return Vec::new();
+        }
+        let mut lines: Vec<&[u8]> = bytes.split(|byte| *byte == b'\n').collect();
+        if bytes.ends_with(b"\n") {
+            lines.pop();
+        }
+        lines
+    }
+
+    fn whole_count(bytes: &[u8]) -> u64 {
+        whole_split(&whole_decode(bytes)).len() as u64
+    }
+
+    fn whole_snippets(windows: &[Window], bytes: &[u8]) -> Vec<Snippet> {
+        let text = whole_decode(bytes);
+        let lines = whole_split(&text);
+        let last = lines.len() as u64;
+        windows
+            .iter()
+            .filter_map(|window| {
+                let matches: Vec<u64> = window
+                    .matches
+                    .iter()
+                    .copied()
+                    .filter(|m| *m <= last)
+                    .collect();
+                if matches.is_empty() {
+                    return None;
+                }
+                let end = window.end.min(last);
+                let lines = (window.start..=end)
+                    .map(|number| {
+                        SnippetLine::new(
+                            number,
+                            lines[(number - 1) as usize],
+                            matches.binary_search(&number).is_ok(),
+                        )
+                    })
+                    .collect();
+                Some(Snippet {
+                    source: window.source.clone(),
+                    lines,
+                })
+            })
+            .collect()
+    }
+
+    /// The results and the count of lines, from a read in parts of `part`
+    /// bytes.
+    fn snippets_in_parts(windows: &[Window], bytes: &[u8], part: usize) -> (Vec<Snippet>, u64) {
+        let mut lines = LineSplitter::new(windows);
+        for chunk in bytes.chunks(part) {
+            lines.push(chunk);
+        }
+        let lines = lines.finish();
+        let snippets = windows
+            .iter()
+            .filter_map(|window| snippet_of(window, &lines))
+            .collect();
+        (snippets, lines.count)
+    }
+
+    /// Windows in no order: one for all lines, one for each line (or for
+    /// some lines of a long text), and windows past the last line.
+    fn windows_for(source: &Source, count: u64) -> Vec<Window> {
+        let make = |start: u64, end: u64, matches: Vec<u64>| Window {
+            source: source.clone(),
+            start,
+            end,
+            matches,
+        };
+        let mut windows = vec![make(1, count + 2, (1..=count + 1).collect())];
+        let step = 1 + count as usize / 200;
+        windows.extend(
+            (1..=count + 1)
+                .rev()
+                .step_by(step)
+                .map(|number| make(number, number, vec![number])),
+        );
+        windows.push(make(2, 4, vec![3]));
+        windows.push(make(
+            count.saturating_sub(1).max(1),
+            count + 5,
+            vec![count.max(1)],
+        ));
+        windows
+    }
+
+    struct Random(u64);
+
+    impl Random {
+        fn below(&mut self, limit: usize) -> usize {
+            let mut x = self.0;
+            x ^= x << 13;
+            x ^= x >> 7;
+            x ^= x << 17;
+            self.0 = x;
+            (x % limit as u64) as usize
+        }
+    }
+
+    fn utf16_units(units: &[u16], little: bool, odd: bool) -> Vec<u8> {
+        let mut bytes = if little {
+            vec![0xFF, 0xFE]
+        } else {
+            vec![0xFE, 0xFF]
+        };
+        for unit in units {
+            let pair = if little {
+                unit.to_le_bytes()
+            } else {
+                unit.to_be_bytes()
+            };
+            bytes.extend(pair);
+        }
+        if odd {
+            bytes.push(0x41);
+        }
+        bytes
+    }
+
+    const PIECES: [&[u8]; 16] = [
+        b"a",
+        b"z",
+        b" ",
+        b"\n",
+        b"\r",
+        b"\xC3\xA9",
+        b"\xE6\xBC\xA2",
+        b"\xF0\x9F\x98\x80",
+        b"\xE2\x82",
+        b"\xF0\x9F\x98",
+        b"\xFF",
+        b"\x80",
+        b"\xC3",
+        b"\xED\xA0\x80",
+        b"\xF4\x90\x80\x80",
+        b"\xE0\x80",
+    ];
+
+    const UNITS: [u16; 12] = [
+        0x0041, 0x000D, 0x00E9, 0x6F22, 0xD83D, 0xDE00, 0xD800, 0xDC00, 0xDBFF, 0xDFFF, 0xFFFD,
+        0x0000,
+    ];
+
+    /// Random text of about `pieces` pieces, with a `\n` at about each
+    /// `line` pieces.
+    fn random_utf8(random: &mut Random, pieces: usize, line: usize) -> Vec<u8> {
+        let mut text = Vec::new();
+        for _ in 0..pieces {
+            if random.below(line) == 0 {
+                text.push(b'\n');
+            }
+            text.extend_from_slice(PIECES[random.below(PIECES.len())]);
+        }
+        text
+    }
+
+    fn random_utf16(random: &mut Random, units: usize, line: usize) -> Vec<u8> {
+        let list: Vec<u16> = (0..units)
+            .map(|_| {
+                if random.below(line) == 0 {
+                    0x000A
+                } else {
+                    UNITS[random.below(UNITS.len())]
+                }
+            })
+            .collect();
+        utf16_units(&list, random.below(2) == 0, random.below(3) == 0)
+    }
+
+    /// Texts with each byte order mark, split characters and surrogates, bad
+    /// sequences, no final `\n`, and lines near the cut of 300 characters and
+    /// near `MAX_KEPT_BYTES`.
+    fn corpus() -> Vec<Vec<u8>> {
+        let small: [&[u8]; 22] = [
+            b"",
+            b"\n",
+            b"\n\n",
+            b"a",
+            b"a\n",
+            b"a\nb",
+            b"\r\n",
+            b"one\r\ntwo\r\n",
+            b"\xEF\xBB\xBF",
+            b"\xEF\xBB",
+            b"\xEF",
+            b"\xEF\xBB\xBF\n",
+            b"\xEF\xBB\xBFone\ntwo",
+            b"\xFF",
+            b"\xFE",
+            b"\xFF\xFE",
+            b"\xFE\xFF",
+            b"\xFF\xFE\x0A",
+            b"\xFF\xFE\x0A\x00",
+            b"\xFE\xFF\x00\x0A\x00",
+            b"\xFF\xFEa",
+            b"\xE2\x82\n\xAC",
+        ];
+        let mut texts: Vec<Vec<u8>> = small.iter().map(|text| text.to_vec()).collect();
+        let unit_cases: [&[u16]; 9] = [
+            &[],
+            &[0x0A],
+            &[0x41, 0x0A, 0x42],
+            &[0xD83D, 0xDE00, 0x0A],
+            &[0xD83D],
+            &[0xDE00],
+            &[0xD83D, 0xD83D, 0xDE00],
+            &[0xD83D, 0x0A, 0xDE00],
+            &[0x41, 0xD800],
+        ];
+        let emoji: Vec<u16> = "😀"
+            .repeat(400)
+            .encode_utf16()
+            .chain([0x0A, 0x41])
+            .collect();
+        for units in unit_cases.iter().copied().chain([emoji.as_slice()]) {
+            for little in [true, false] {
+                for odd in [false, true] {
+                    texts.push(utf16_units(units, little, odd));
+                }
+            }
+        }
+        let emojis = |count: usize| "😀".repeat(count).into_bytes();
+        let heads: [Vec<u8>; 13] = [
+            b"a".repeat(298),
+            b"a".repeat(299),
+            b"a".repeat(300),
+            b"a".repeat(1199),
+            b"a".repeat(1200),
+            emojis(299),
+            emojis(300),
+            [b"a".to_vec(), emojis(299)].concat(),
+            [b"aa".to_vec(), emojis(298)].concat(),
+            [b"aaa".to_vec(), emojis(298)].concat(),
+            b"\xF0\x9F\x98".repeat(299),
+            b"\xF0\x9F\x98".repeat(400),
+            b"\xFF".repeat(1199),
+        ];
+        let tails: [&[u8]; 13] = [
+            b"",
+            b"\r",
+            b"\xF0\x9F\x98\x80",
+            b"\xF0\x9F\x98",
+            b"\xF0\x9F",
+            b"\xF0",
+            b"\xE2\x82\xAC",
+            b"\xE2\x82",
+            b"\xC3\xA9",
+            b"\xC3",
+            b"\xFF",
+            b"\x80\x80",
+            b"\xED\xA0\x80",
+        ];
+        let fillers: [Vec<u8>; 6] = [
+            Vec::new(),
+            b"b".to_vec(),
+            b"bbb".to_vec(),
+            b"\x80".to_vec(),
+            b"\xA9b".to_vec(),
+            emojis(250),
+        ];
+        for head in &heads {
+            let mut text = Vec::new();
+            for tail in tails {
+                for filler in &fillers {
+                    text.extend_from_slice(head);
+                    text.extend_from_slice(tail);
+                    text.extend_from_slice(filler);
+                    text.push(b'\n');
+                }
+            }
+            texts.push(text[..text.len() - 1].to_vec());
+            texts.push(text);
+        }
+        let mut random = Random(0x9E37_79B9_7F4A_7C15);
+        for _ in 0..40 {
+            let mut text = Vec::new();
+            if random.below(4) == 0 {
+                text.extend_from_slice(b"\xEF\xBB\xBF");
+            }
+            let pieces = random.below(3000);
+            let line = [8, 200, 900, 5000][random.below(4)];
+            text.extend(random_utf8(&mut random, pieces, line));
+            texts.push(text);
+        }
+        for _ in 0..30 {
+            let units = random.below(3000);
+            let line = [8, 400, 5000][random.below(3)];
+            texts.push(random_utf16(&mut random, units, line));
+        }
+        // Texts of more than one part of `READ_PART` bytes.
+        texts.push(random_utf8(&mut random, 150_000, 60));
+        texts.push(random_utf16(&mut random, 150_000, 60));
+        texts
+    }
+
+    #[test]
+    fn reading_in_parts_gives_the_lines_of_a_read_of_all_of_the_text() {
+        let source = Source::StandardInput;
+        for text in corpus() {
+            let count = whole_count(&text);
+            // The second windows end before the last line, so jag only counts
+            // the lines after them.
+            let early = vec![
+                Window {
+                    source: source.clone(),
+                    start: 1,
+                    end: 1,
+                    matches: vec![1],
+                },
+                Window {
+                    source: source.clone(),
+                    start: 2,
+                    end: 4,
+                    matches: vec![3],
+                },
+            ];
+            for windows in [windows_for(&source, count), early] {
+                let expected = (whole_snippets(&windows, &text), count);
+                for part in [1, 2, 3, 4, 5, 7, 13, 64, 1201, 4096, READ_PART] {
+                    if part < 7 && text.len() > 200_000 {
+                        continue;
+                    }
+                    assert!(
+                        snippets_in_parts(&windows, &text, part) == expected,
+                        "part {part}, text {:?}",
+                        String::from_utf8_lossy(&text[..text.len().min(80)])
+                    );
+                }
+            }
+        }
+    }
+
+    #[test]
+    fn a_file_and_standard_input_give_the_lines_of_a_read_of_all_of_the_text() {
+        let dir = TempDir::new().expect("temporary folder");
+        let path = dir.path().join("a.txt");
+        let file = Source::File(path.clone());
+        for text in corpus() {
+            fs::write(&path, &text).expect("write file");
+            let count = whole_count(&text);
+            let windows = windows_for(&file, count);
+            let (snippets, warnings) = read_snippets(&windows, None);
+            assert!(warnings.is_empty());
+            assert!(snippets == whole_snippets(&windows, &text));
+            let windows = windows_for(&Source::StandardInput, count);
+            let (snippets, warnings) = read_snippets(&windows, Some(&text));
+            assert!(warnings.is_empty());
+            assert!(snippets == whole_snippets(&windows, &text));
+        }
+    }
+
+    #[test]
+    fn jag_keeps_only_the_lines_inside_a_window() {
+        let text: String = (1..=1000)
+            .map(|number| format!("line {number}\n"))
+            .collect();
+        let mut lines = LineSplitter::new(&[window(Path::new("a"), 500, 502, &[501])]);
+        for part in text.as_bytes().chunks(100) {
+            lines.push(part);
+        }
+        let lines = lines.finish();
+        assert_eq!(lines.count, 1000);
+        let kept: Vec<(u64, &[u8])> = lines
+            .lines
+            .iter()
+            .map(|line| (line.number, line.text.as_slice()))
+            .collect();
+        assert_eq!(
+            kept,
+            [
+                (500, &b"line 500"[..]),
+                (501, &b"line 501"[..]),
+                (502, &b"line 502"[..])
+            ]
+        );
+    }
+
+    /// The bytes that the splitter holds now.
+    fn held(lines: &LineSplitter) -> usize {
+        let line = lines.line.as_ref().map_or(0, |line| {
+            line.text.capacity() + line.rest.as_ref().map_or(0, |rest| rest.pending.capacity())
+        });
+        let kept: usize = lines.kept.iter().map(|line| line.text.capacity()).sum();
+        line + kept
+    }
+
+    #[test]
+    fn a_long_line_with_no_newline_uses_little_memory_and_gives_the_same_cut() {
+        let most = 4 * READ_PART;
+        // 16 MiB of one character.
+        let part = vec![b'x'; READ_PART];
+        let mut lines = LineSplitter::new(&[window(Path::new("a"), 1, 1, &[1])]);
+        for _ in 0..256 {
+            lines.push(&part);
+            assert!(held(&lines) <= most, "holds {} bytes", held(&lines));
+        }
+        let lines = lines.finish();
+        assert_eq!(lines.count, 1);
+        assert_eq!(lines.lines[0].text, vec![b'x'; 300]);
+        assert_eq!(lines.lines[0].cut, (256 * READ_PART - 300) as u64);
+
+        // Characters of 4 bytes and bad sequences, cut in parts that split
+        // them.
+        let text = "😀\u{e9}".repeat(400_000).into_bytes();
+        let text = [text.as_slice(), b"\xF0\x9F\xFF\xE2\x82"].concat();
+        let mut lines = LineSplitter::new(&[window(Path::new("a"), 1, 1, &[1])]);
+        for part in text.chunks(READ_PART + 1) {
+            lines.push(part);
+            assert!(held(&lines) <= most, "holds {} bytes", held(&lines));
+        }
+        let lines = lines.finish();
+        let whole = SnippetLine::new(1, &text, true);
+        assert_eq!(lines.lines[0].text, whole.text);
+        assert_eq!(lines.lines[0].cut, whole.cut);
+    }
+
+    #[cfg(unix)]
+    #[test]
+    fn a_device_gives_a_warning_and_no_result_and_jag_reads_no_byte() {
+        let dir = TempDir::new().expect("temporary folder");
+        let link = dir.path().join("swapped.txt");
+        std::os::unix::fs::symlink("/dev/zero", &link).expect("symbolic link");
+        for path in [PathBuf::from("/dev/zero"), link] {
+            for start in [1, 5] {
+                let (snippets, warnings) = read_snippets(&[window(&path, start, 8, &[5])], None);
+                assert!(snippets.is_empty());
+                assert_eq!(
+                    warnings,
+                    [WalkWarning {
+                        path: Some(path.clone()),
+                        kind: WarningKind::Read(io::ErrorKind::InvalidInput),
+                    }]
+                );
+            }
+        }
+    }
+
+    #[cfg(unix)]
+    #[test]
+    fn a_folder_gives_the_warning_of_a_read_of_a_folder() {
+        let dir = TempDir::new().expect("temporary folder");
+        let (snippets, warnings) = read_snippets(&[window(dir.path(), 1, 4, &[1])], None);
+        assert!(snippets.is_empty());
+        assert_eq!(
+            warnings,
+            [WalkWarning {
+                path: Some(dir.path().to_path_buf()),
+                kind: WarningKind::Read(io::ErrorKind::IsADirectory),
+            }]
+        );
+    }
+
+    /// A reader that gives an error at each read.
+    struct Broken;
+
+    impl Read for Broken {
+        fn read(&mut self, _: &mut [u8]) -> io::Result<usize> {
+            Err(io::ErrorKind::BrokenPipe.into())
+        }
+    }
+
+    /// A reader that is stopped by a signal one time, then gives no byte.
+    struct Interrupted(bool);
+
+    impl Read for Interrupted {
+        fn read(&mut self, _: &mut [u8]) -> io::Result<usize> {
+            if std::mem::replace(&mut self.0, false) {
+                Err(io::ErrorKind::Interrupted.into())
+            } else {
+                Ok(0)
+            }
+        }
+    }
+
+    #[test]
+    fn a_read_error_after_the_last_line_of_a_window_gives_the_error() {
+        let windows = [window(Path::new("a"), 1, 3, &[2])];
+        let text = &b"1\n2\n3\n4\n5\n"[..];
+        let mut buffer = [0; 4];
+        let lines = read_lines(text, &windows, &mut buffer).expect("no error");
+        assert_eq!(lines.count, 5);
+        let error = read_lines(text.chain(Broken), &windows, &mut buffer)
+            .err()
+            .expect("an error");
+        assert_eq!(error.kind(), io::ErrorKind::BrokenPipe);
+        let lines = read_lines(Interrupted(true).chain(text), &windows, &mut buffer)
+            .expect("jag reads again after a signal");
+        assert_eq!(lines.count, 5);
     }
 }
