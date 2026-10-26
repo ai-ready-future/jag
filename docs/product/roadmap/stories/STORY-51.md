@@ -10,9 +10,9 @@ github:
   number: 76
   node_id: I_kwDOVKMnL88AAAABXTMxNQ
   url: https://github.com/ai-ready-future/jag/issues/76
-  pushed_hash: d0860f
+  pushed_hash: e5b7dd
   synced:
-    state: ready
+    state: blocked
 spec: docs/superpowers/specs/2026-10-14-STORY-48-install-jag-from-github-releases-crates-io-or-npm-design.md
 parent: /features/FEATURE-18.md
 blocked_by:
