@@ -2,6 +2,9 @@
 
 ## 2026-10-26
 * **Plan**: [FEATURE-01](features/FEATURE-01.md) the user's own PRD session (2026-10-26, Clef server and private-pattern check) changed CONSTRAINT-03 to "A TypeSafe key or a Clef server is enough to start", and the user ordered the merge of that change (hitl card 3); the traces of FEATURE-01, FEATURE-21, and STORY-01 to CONSTRAINT-03 are accepted as human:404pilo, because the TypeSafe key path does not change and these done items stay true, by agent:planner, at 2026-10-26T18:35:21Z
+* **Sync**: [STORY-77](stories/STORY-77.md) pushed to GitHub, by system:github, at 2026-10-26T18:33:46Z
+* **Plan**: [STORY-51](stories/STORY-51.md) user answer (human:404pilo, hitl, 2026-10-26: STORY-45, the held-out evaluation, is done before the first `v*` tag; EPIC-06 can follow release 1): STORY-51 (one tag publishes each channel) is now blocked by STORY-45; STORY-45 stays backlog in EPIC-02 until its spec merges (rule 11); EPIC-06 does not block release 1, by agent:planner, at 2026-10-26T18:29:22Z
+* **State**: [STORY-51](stories/STORY-51.md) ready -> blocked, by system:regen, at 2026-10-26T18:29:19Z
 * **State**: [STORY-77](stories/STORY-77.md) backlog -> ready, by human:404pilo, at 2026-10-26T17:50:13Z
 * **Sync**: [STORY-77](stories/STORY-77.md) pushed to GitHub, by system:github, at 2026-10-26T17:21:12Z
 * **Sync**: [FEATURE-28](features/FEATURE-28.md) pushed to GitHub, by system:github, at 2026-10-26T17:21:12Z
