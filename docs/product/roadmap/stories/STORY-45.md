@@ -43,4 +43,5 @@ As an agent builder (PERSONA-01), I want the held-out evaluation run done before
 - traces: [SCOPE-10: The held-out score confirms the gain over grep](../../prd/scope/SCOPE-10.md)
 - traces: [METRIC-01: Answer quality](../../prd/metrics/METRIC-01.md)
 - criterion or run of: [CRITERION-73: The held-out score meets the target and beats grep](../criteria/CRITERION-73.md)
+- blocks: [STORY-51: Publish each channel from one tag](STORY-51.md)
 <!-- LINKS:END -->

@@ -42,7 +42,7 @@ Source of `blocked_by` FEATURE-23: the user, hitl answer of 2026-10-15 (FEATURE-
 | [STORY-48: Download a prebuilt binary from GitHub Releases](../stories/STORY-48.md) | ready | - | - | - | - |
 | [STORY-49: Install jag with cargo from crates.io](../stories/STORY-49.md) | ready | - | - | - | - |
 | [STORY-50: Install or run jag with npm](../stories/STORY-50.md) | ready | - | - | - | - |
-| [STORY-51: Publish each channel from one tag](../stories/STORY-51.md) | ready | - | - | - | - |
+| [STORY-51: Publish each channel from one tag](../stories/STORY-51.md) | blocked | - | - | STORY-45 | - |
 <!-- STATUS:END -->
 
 <!-- LINKS:START (generated, do not edit) -->

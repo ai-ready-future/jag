@@ -1,6 +1,8 @@
 # Log
 
 ## 2026-10-26
+* **Plan**: [STORY-51](stories/STORY-51.md) user answer (human:404pilo, hitl, 2026-10-26: STORY-45, the held-out evaluation, is done before the first `v*` tag; EPIC-06 can follow release 1): STORY-51 (one tag publishes each channel) is now blocked by STORY-45; STORY-45 stays backlog in EPIC-02 until its spec merges (rule 11); EPIC-06 does not block release 1, by agent:planner, at 2026-10-26T18:29:22Z
+* **State**: [STORY-51](stories/STORY-51.md) ready -> blocked, by system:regen, at 2026-10-26T18:29:19Z
 * **Sync**: [STORY-77](stories/STORY-77.md) pushed to GitHub, by system:github, at 2026-10-26T17:21:12Z
 * **Sync**: [FEATURE-28](features/FEATURE-28.md) pushed to GitHub, by system:github, at 2026-10-26T17:21:12Z
 * **Plan**: [FEATURE-28](features/FEATURE-28.md) planned in EPIC-05 from the user's own words (2026-10-26: "the forks pull requests cannot run or see the results of this specific check .. this is only required for merges to main and it is something that an approve needs to do before merging to main"): DECISION-57 (revisits STORY-47 spec decision 12), FEATURE-28 (traces CONSTRAINT-01 and DECISION-57), STORY-77, CRITERION-136 to CRITERION-139; EPIC-05 because the check of FEATURE-17 keeps private data out of the public release; CRITERION-136 to CRITERION-138 replace the fork test of issue #99; STORY-77 stays backlog until its spec merges (rule 11), by agent:planner, at 2026-10-26T17:20:00Z
