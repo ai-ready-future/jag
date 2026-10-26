@@ -38,7 +38,7 @@ Source: the user, 2026-10-26: "the forks pull requests cannot run or see the res
 
 | Item | State | Progress | Owner | Blocked by | Drift |
 | --- | --- | --- | --- | --- | --- |
-| [STORY-77: Approve the private-data check of a fork pull request before it runs](../stories/STORY-77.md) | backlog | - | - | - | - |
+| [STORY-77: Approve the private-data check of a fork pull request before it runs](../stories/STORY-77.md) | ready | - | - | - | - |
 <!-- STATUS:END -->
 
 <!-- LINKS:START (generated, do not edit) -->

@@ -5,7 +5,7 @@ description: As an agent builder (PERSONA-01), I want a maintainer to approve ea
   private-data run of a fork pull request, so that the public result cannot confirm
   guesses.
 status: draft
-state: backlog
+state: ready
 github:
   number: 246
   node_id: I_kwDOVKMnL88AAAABaEsC2Q
@@ -13,6 +13,7 @@ github:
   pushed_hash: e25fe8
   synced:
     state: backlog
+spec: docs/superpowers/specs/2026-10-26-STORY-77-approve-fork-private-data-runs-design.md
 parent: /features/FEATURE-28.md
 milestone: /milestones/MILESTONE-02.md
 ---
