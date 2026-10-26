@@ -2,7 +2,7 @@
 
 ## 2026-10-26
 
-* **Save**: [product](product.md) capabilities and scope (Clef server and private-pattern check): CAPABILITY-13, CAPABILITY-14, DECISION-57 to DECISION-68, QUESTION-04 to QUESTION-07, SCOPE-04, CONSTRAINT-03, QUESTION-01, DECISION-02 (deprecated), by human:404pilo, at 2026-10-26T12:47:03Z
+* **Save**: [product](product.md) capabilities and scope (Clef server and private-pattern check): CAPABILITY-13, CAPABILITY-14, DECISION-58 to DECISION-69, QUESTION-04 to QUESTION-07, SCOPE-04, CONSTRAINT-03, QUESTION-01, DECISION-02 (deprecated), by human:404pilo, at 2026-10-26T12:47:03Z
 
 ## 2026-10-20
 

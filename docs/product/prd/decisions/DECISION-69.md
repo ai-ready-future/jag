@@ -15,7 +15,7 @@ about:
 supersedes: /decisions/DECISION-02.md
 ---
 
-# DECISION-57: The release after release 1 serves users whose text must stay on the machine
+# DECISION-69: The release after release 1 serves users whose text must stay on the machine
 
 The local model option ships in the release after release 1, before release 2 and release 3. Users whose text must not leave the machine use jag with a Clef server that they run. This decision replaces DECISION-02.
 
