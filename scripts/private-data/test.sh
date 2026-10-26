@@ -907,6 +907,8 @@ workflow_cases() {
   assert_true "the gate step reads the variable" grep -qF -- 'GATE: ${{ vars.PRIVATE_DATA_FORK_GATE }}' <<<"$first_step"
   assert_true "the gate step tests for on" grep -qF -- '[[ "$GATE" != on ]]' <<<"$first_step"
   assert_true "the gate step exits 1" grep -qx -- '            exit 1' <<<"$first_step"
+  assert_true "the gate step has no continue-on-error" test "$(grep -c 'continue-on-error' <<<"$first_step")" = 0
+  assert_true "the gate step has one exit line" test "$(grep -c 'exit ' <<<"$first_step")" = 1
 
   CUR="wf-e: the first checkout has no ref"
   OUT=$(awk '/uses: actions\/checkout/ {found = 1; next} found && /^      [-#]|^      $/ {exit} found {print}' "$wf" | grep -c 'ref:' || true)
