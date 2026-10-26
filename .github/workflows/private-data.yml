@@ -4,6 +4,8 @@ name: private-data
 # It holds a secret. No step may run, source, or read as config a file of
 # the folder "pr" (spec decision 15). Do not add a "ref:" to the first
 # checkout, and do not rename the job: the ruleset of main names it.
+# Do not remove the environment or the gate step: a fork run must wait for a
+# maintainer approval (FEATURE-28).
 
 on:
   pull_request_target:
@@ -18,7 +20,22 @@ jobs:
   private-data:
     name: private-data
     runs-on: ubuntu-latest
+    # A fork pull request waits for a maintainer approval (FEATURE-28).
+    # Only the environment private-data-fork has a required reviewer.
+    environment:
+      name: ${{ (github.event_name == 'pull_request_target' && github.event.pull_request.head.repo.id != github.repository_id) && 'private-data-fork' || 'private-data-auto' }}
     steps:
+      # A fork run stops here when its environment is not private-data-fork.
+      - name: Check the approval gate
+        if: github.event_name == 'pull_request_target' && github.event.pull_request.head.repo.id != github.repository_id
+        env:
+          GATE: ${{ vars.PRIVATE_DATA_FORK_GATE }}
+        run: |
+          if [[ "$GATE" != on ]]; then
+            echo "private-data: the approval gate of fork pull requests is not set" >&2
+            exit 1
+          fi
+
       # The code of main (on push: the pushed commit). check.sh comes from here only.
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
