@@ -3,6 +3,7 @@
 ## 2026-10-26
 
 * **Save**: [product](product.md) user decision on the private-data check of fork pull requests (security finding F1): DECISION-57 (revisits STORY-47 spec decision 12), by agent:planner, at 2026-10-26T17:20:00Z
+* **Save**: [product](product.md) capabilities and scope (Clef server and private-pattern check): CAPABILITY-13, CAPABILITY-14, DECISION-58 to DECISION-69, QUESTION-04 to QUESTION-07, SCOPE-04, CONSTRAINT-03, QUESTION-01, DECISION-02 (deprecated), by human:404pilo, at 2026-10-26T12:47:03Z
 
 ## 2026-10-20
 

@@ -42,6 +42,8 @@ The user gives a folder, a term, and a question in plain language. jag finds the
 - depended on by: [CAPABILITY-10: Question without a term](CAPABILITY-10.md)
 - depended on by: [CAPABILITY-11: Agent instructions to install or copy](CAPABILITY-11.md)
 - depended on by: [CAPABILITY-12: Measure jag on your own questions](CAPABILITY-12.md)
+- depended on by: [CAPABILITY-13: Score with a Clef server that the user runs](CAPABILITY-13.md)
+- depended on by: [CAPABILITY-14: Hold private text back from the model](CAPABILITY-14.md)
 - constrained by: [CONSTRAINT-07: jag fails within 2 × timeout + retry wait when the model service is down](../constraints/CONSTRAINT-07.md)
 - constrained by: [CONSTRAINT-09: The README shows people how to use jag with examples](../constraints/CONSTRAINT-09.md)
 - subject of: [DECISION-10: A result is a matching line with the lines around it](../decisions/DECISION-10.md)

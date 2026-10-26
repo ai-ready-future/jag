@@ -18,7 +18,7 @@ parent: /features/FEATURE-01.md
 milestone: /milestones/MILESTONE-01.md
 traces:
 - to: prd:/constraints/CONSTRAINT-03.md
-  hash: 7636cf
+  hash: a42483
 ---
 
 # STORY-01: Store a key with setup
@@ -42,7 +42,7 @@ As an agent builder (PERSONA-01), I want to store my TypeSafe key with one setup
 
 - parent: [FEATURE-01: Store a key one time](../features/FEATURE-01.md)
 - milestone: [MILESTONE-01: Make it work](../milestones/MILESTONE-01.md)
-- traces: [CONSTRAINT-03: A TypeSafe key is enough to start](../../prd/constraints/CONSTRAINT-03.md)
+- traces: [CONSTRAINT-03: A TypeSafe key or a Clef server is enough to start](../../prd/constraints/CONSTRAINT-03.md)
 - criterion or run of: [CRITERION-01: Setup stores the key for later searches](../criteria/CRITERION-01.md)
 - criterion or run of: [CRITERION-08: A TypeSafe key is enough to start](../criteria/CRITERION-08.md)
 - criterion or run of: [CRITERION-72: Setup with no terminal fails clearly](../criteria/CRITERION-72.md)

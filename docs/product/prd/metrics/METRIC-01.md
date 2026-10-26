@@ -25,6 +25,7 @@ On the private development set, jag scores about 0.72 and blind grep scores abou
 - measures: [PROBLEM-01: Keyword search returns too many matches to judge by hand](../problems/PROBLEM-01.md)
 - measures: [CAPABILITY-02: Term and question search](../capabilities/CAPABILITY-02.md)
 - measures: [JOURNEY-02: A person asks a question at the shell](../journeys/JOURNEY-02.md)
+- subject of: [DECISION-62: jag makes no quality claim for a Clef server](../decisions/DECISION-62.md)
 - guarded by: [METRIC-05: Cost per search](METRIC-05.md)
 - guarded by: [METRIC-07: False confidence](METRIC-07.md)
 - traced by: [STORY-45: Run the held-out evaluation before release](../../roadmap/stories/STORY-45.md)

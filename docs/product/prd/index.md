@@ -9,9 +9,9 @@ okf_version: '0.2'
 * [personas/](personas/index.md) - 4 pages
 * [needs/](needs/index.md) - 14 pages
 * [journeys/](journeys/index.md) - 2 pages
-* [capabilities/](capabilities/index.md) - 12 pages
+* [capabilities/](capabilities/index.md) - 14 pages
 * [scope/](scope/index.md) - 10 pages
 * [metrics/](metrics/index.md) - 8 pages
 * [constraints/](constraints/index.md) - 9 pages
-* [decisions/](decisions/index.md) - 57 pages
-* [questions/](questions/index.md) - 3 pages
+* [decisions/](decisions/index.md) - 69 pages
+* [questions/](questions/index.md) - 7 pages
