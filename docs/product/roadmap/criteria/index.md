@@ -362,3 +362,10 @@
 
 * [CRITERION-134: The README has worked examples for people](CRITERION-134.md) - The README has a section of worked examples for a person at the shell; each example gives a command to copy and the output that jag shows.
 * [CRITERION-135: Each README example gives the output that it shows](CRITERION-135.md) - A test runs each README example on a fixed test folder and checks that jag gives the output that the README shows; an example that needs the model service uses a fake service.
+
+## STORY-77: Approve the private-data check of a fork pull request before it runs
+
+* [CRITERION-136: A fork pull request shows no private-data result before a maintainer approves the run](CRITERION-136.md) - A test fork pull request to ai-ready-future/jag gets no private-data scan and shows no result of the scan until a maintainer approves the run.
+* [CRITERION-137: After the approval, the scan runs and the required check stops the merge until it passes](CRITERION-137.md) - After a maintainer approves the run of a test fork pull request, the private-data scan runs, and the pull request cannot merge to main until an approved run passes.
+* [CRITERION-138: Each new push or edit of a fork pull request needs a new approval](CRITERION-138.md) - After an approved run, a new push to the test fork pull request, or an edit of its title or body, starts no scan until a maintainer approves the new run.
+* [CRITERION-139: Pull requests of this repository and pushes to main keep the automatic scan](CRITERION-139.md) - A pull request from a branch of ai-ready-future/jag and a push to main run the private-data scan with no approval, and the job id stays private-data.

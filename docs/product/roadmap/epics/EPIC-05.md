@@ -35,4 +35,5 @@ The repository and the packages hold no private data, and the user installs jag 
 - child: [FEATURE-18: Install jag from GitHub Releases, crates.io, or npm](../features/FEATURE-18.md)
 - child: [FEATURE-19: Go public with a clean history](../features/FEATURE-19.md)
 - child: [FEATURE-22: Check that jag is ready before the first publish](../features/FEATURE-22.md)
+- child: [FEATURE-28: A maintainer approves the private-data check of a fork pull request](../features/FEATURE-28.md)
 <!-- LINKS:END -->

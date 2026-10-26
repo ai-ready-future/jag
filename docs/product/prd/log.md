@@ -1,5 +1,9 @@
 # Log
 
+## 2026-10-26
+
+* **Save**: [product](product.md) user decision on the private-data check of fork pull requests (security finding F1): DECISION-57 (revisits STORY-47 spec decision 12), by agent:planner, at 2026-10-26T17:20:00Z
+
 ## 2026-10-20
 
 * **Save**: [product](product.md) user answer on the card "Does the skill tell the agent to always ask a question?" (option 1): DECISION-56; CAPABILITY-11 behaviors 1 and 2, by agent:planner, at 2026-10-20T11:24:18Z
