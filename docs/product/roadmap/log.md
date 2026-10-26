@@ -2,6 +2,8 @@
 
 ## 2026-10-26
 * **Sync**: [STORY-77](stories/STORY-77.md) pushed to GitHub, by system:github, at 2026-10-26T18:33:46Z
+* **Plan**: [STORY-51](stories/STORY-51.md) user answer (human:404pilo, hitl, 2026-10-26: STORY-45, the held-out evaluation, is done before the first `v*` tag; EPIC-06 can follow release 1): STORY-51 (one tag publishes each channel) is now blocked by STORY-45; STORY-45 stays backlog in EPIC-02 until its spec merges (rule 11); EPIC-06 does not block release 1, by agent:planner, at 2026-10-26T18:29:22Z
+* **State**: [STORY-51](stories/STORY-51.md) ready -> blocked, by system:regen, at 2026-10-26T18:29:19Z
 * **State**: [STORY-77](stories/STORY-77.md) backlog -> ready, by human:404pilo, at 2026-10-26T17:50:13Z
 * **Sync**: [STORY-77](stories/STORY-77.md) pushed to GitHub, by system:github, at 2026-10-26T17:21:12Z
 * **Sync**: [FEATURE-28](features/FEATURE-28.md) pushed to GitHub, by system:github, at 2026-10-26T17:21:12Z
