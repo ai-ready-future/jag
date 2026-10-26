@@ -871,6 +871,58 @@ else
   echo "test.sh: FILTER_REPO is not set. The clean cases are skipped."
 fi
 
+# ---- FEATURE-28: the workflow file of the check (CRITERION-136 to CRITERION-139) ----
+# The cases read .github/workflows/private-data.yml as text. They use no secret.
+# The workflow runs the file of main, so a pull request cannot test its own
+# change on GitHub. These cases do.
+
+workflow_cases() {
+  local wf="$HERE/../../.github/workflows/private-data.yml"
+  local fork_test="github.event_name == 'pull_request_target' && github.event.pull_request.head.repo.id != github.repository_id"
+  # shellcheck disable=SC2016 # the text of the workflow holds ${{ }}
+  local env_line='      name: ${{ ('"$fork_test"') && '"'private-data-fork' || 'private-data-auto'"' }}'
+  local steps_head first_step
+
+  CUR="wf-a: the job id and the job name stay private-data"
+  OUT=$(grep -c '^  private-data:$' "$wf")
+  assert_true "one job id line" test "$OUT" = 1
+  OUT=$(grep -c '^    name: private-data$' "$wf")
+  assert_true "one job name line" test "$OUT" = 1
+
+  CUR="wf-b: the trigger does not change"
+  assert_true "pull_request_target types" test "$(awk '/^  pull_request_target:$/ {getline; print}' "$wf")" = "    types: [opened, synchronize, reopened, edited]"
+  assert_true "push branches" test "$(awk '/^  push:$/ {getline; print}' "$wf")" = "    branches: [main]"
+
+  CUR="wf-c: the environment name is private-data-fork for a fork run"
+  OUT=$(grep -cxF -- "$env_line" "$wf")
+  assert_true "the environment line is as designed" test "$OUT" = 1
+  assert_true "the environment key has no other name line" test "$(grep -c '^    environment:$' "$wf")" = 1
+
+  CUR="wf-d: the first step is the gate step"
+  steps_head=$(awk '/^    steps:$/ {found = 1; next} found {print}' "$wf")
+  first_step=$(awk '/^      - / && n++ {exit} {print}' <<<"$steps_head")
+  assert_true "the first step is the gate step" test "$(grep -m 1 '^      - ' <<<"$steps_head" | sed 's/^ *//')" = "- name: Check the approval gate"
+  assert_true "the gate step has the fork test" grep -qxF -- "        if: $fork_test" <<<"$first_step"
+  assert_true "the FORK_PR variable has the same fork test" grep -qF -- "FORK_PR: \${{ $fork_test }}" "$wf"
+  assert_true "the gate step reads the variable" grep -qF -- 'GATE: ${{ vars.PRIVATE_DATA_FORK_GATE }}' <<<"$first_step"
+  assert_true "the gate step tests for on" grep -qF -- '[[ "$GATE" != on ]]' <<<"$first_step"
+  assert_true "the gate step exits 1" grep -qx -- '            exit 1' <<<"$first_step"
+  assert_true "the gate step has no continue-on-error" test "$(grep -c 'continue-on-error' <<<"$first_step")" = 0
+  assert_true "the gate step has one exit line" test "$(grep -c 'exit ' <<<"$first_step")" = 1
+
+  CUR="wf-e: the first checkout has no ref"
+  OUT=$(awk '/uses: actions\/checkout/ {found = 1; next} found && /^      [-#]|^      $/ {exit} found {print}' "$wf" | grep -c 'ref:' || true)
+  assert_true "no ref line in the first checkout" test "$OUT" = 0
+  assert_true "the first checkout is after the gate step" test "$(grep -n 'uses: actions/checkout' "$wf" | head -n 1 | cut -d: -f1)" -gt "$(grep -n 'name: Check the approval gate' "$wf" | cut -d: -f1)"
+
+  CUR="wf-f: one job and no job-level if"
+  OUT=$(awk '/^jobs:$/ {found = 1; next} found && /^  [A-Za-z0-9_-]+:$/ {n++} END {print n + 0}' "$wf")
+  assert_true "one job" test "$OUT" = 1
+  assert_true "no job-level if" test "$(grep -c '^    if:' "$wf")" = 0
+}
+
+workflow_cases
+
 echo
 echo "private-data tests: $PASS checks passed, $FAIL failed"
 ((FAIL == 0))
