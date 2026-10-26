@@ -18,9 +18,7 @@ parent: /features/FEATURE-01.md
 milestone: /milestones/MILESTONE-01.md
 traces:
 - to: prd:/constraints/CONSTRAINT-03.md
-  hash: 7636cf
-drifted:
-- prd:/constraints/CONSTRAINT-03.md
+  hash: a42483
 ---
 
 # STORY-01: Store a key with setup

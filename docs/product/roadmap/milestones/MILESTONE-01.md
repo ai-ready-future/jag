@@ -21,10 +21,10 @@ This milestone holds the bare minimum to see jag work. The grep habits, the read
 
 | Item | State | Progress | Owner | Blocked by | Drift |
 | --- | --- | --- | --- | --- | --- |
-| [EPIC-01: Setup and readiness](../epics/EPIC-01.md) | done | 4/4 (100%) | - | - | yes |
+| [EPIC-01: Setup and readiness](../epics/EPIC-01.md) | done | 4/4 (100%) | - | - | - |
 | [EPIC-02: Ranked search with file and line](../epics/EPIC-02.md) | ready | 5/6 (83%) | - | - | - |
 | [EPIC-03: Output that fits an agent](../epics/EPIC-03.md) | done | 3/3 (100%) | - | - | - |
-| [FEATURE-01: Store a key one time](../features/FEATURE-01.md) | done | 5/5 (100%) | - | FEATURE-17 | yes |
+| [FEATURE-01: Store a key one time](../features/FEATURE-01.md) | done | 5/5 (100%) | - | FEATURE-17 | - |
 | [FEATURE-04: Rank matching lines by a question](../features/FEATURE-04.md) | done | 3/3 (100%) | - | FEATURE-01, FEATURE-05 | - |
 | [FEATURE-05: Search a folder as rg does](../features/FEATURE-05.md) | done | 2/2 (100%) | - | - | - |
 | [FEATURE-06: Cost limit on scoring](../features/FEATURE-06.md) | done | 3/3 (100%) | - | FEATURE-04 | - |

@@ -116,7 +116,7 @@ Facts on 2026-10-14 (`main` at `daca59a`):
 | 9 | Output of the clean step | A `git bundle` of the clean `main`: the artifact `clean-history` of the run, kept for 1 day. `actions/upload-artifact` v7.0.2 (the latest release on 2026-10-14), pinned by its commit `cf430e030ddbb5b0abf93d22962f4752f3646cd9`. The job has `permissions: contents: read`, so it cannot push. Chores pushes the bundle to the new repository (step B5) | CRITERION-102; this spec |
 | 10 | A key in the history | The clean step has no rule for a key that the default gitleaks rules find, because no pattern line names it. When scan 1 lists a key, the user revokes the key and adds a pattern line that matches it to `PRIVATE_PATTERNS` (step A3). Until then, scan 2 finds the key, and the clean step stops | This spec, from CONSTRAINT-01 |
 | 11 | Name of the new repository | The new public repository is `ai-ready-future/jag`. Before step B3 creates it, the private repository gets the name `ai-ready-future/jag-private` (step B2). Before the rename, each copy of the private history changes its remote to `ai-ready-future/jag-private` (step B1). From step B10, the team works in new clones of the new repository. A copy of the old history never pushes to `ai-ready-future/jag` | ANSWER human:404pilo, 2026-10-14, hitl (the name `jag`; the private repository gets a new name first); `docs/adr/0019-give-the-new-public-repository-the-name-ai-ready-future-jag.md`. The name `jag-private`: ANSWER human:404pilo, 2026-10-14, hitl (the recommended option) |
-| 12 | Guard against guesses | No guard. The user: "Do not check on this. Not a concern atm." The check of a fork pull request runs on each event, as FEATURE-17 builds it. `private-data.yml` does not change. STORY-59 (CRITERION-98) held only this guard. It is removed from the roadmap | ANSWER human:404pilo, 2026-10-14, hitl (neither option of the card); STORY-59: ANSWER human:404pilo, 2026-10-14, hitl |
+| 12 | Guard against guesses | No guard. The user: "Do not check on this. Not a concern atm." The check of a fork pull request runs on each event, as FEATURE-17 builds it. `private-data.yml` does not change. STORY-59 (CRITERION-98) held only this guard. It is removed from the roadmap. Revisited by DECISION-57 (2026-10-26): a maintainer approves each private-data run of a fork pull request. The FEATURE-28 spec builds it (`docs/superpowers/specs/2026-10-26-STORY-77-approve-fork-private-data-runs-design.md`) | ANSWER human:404pilo, 2026-10-14, hitl (neither option of the card); STORY-59: ANSWER human:404pilo, 2026-10-14, hitl; revisited: DECISION-57 (human:404pilo, 2026-10-26) |
 | 13 | Addresses in the public history | One address for all commits. The user writes one mailmap line into the secret `CLEAN_MAILMAP` of the private repository (step A6). The clean step gives it to git-filter-repo with `--mailmap`. The mailmap is never a file of the repository. The repository, this spec, and the pull request hold no address. The result (2026-10-15): each commit of the clean history (step B5) has the author address of this decision. Two later commits on `main` of the public repository have an address that is not the address of this decision. `9634a17` (the squash merge of PR #87, step B10) has another author address: the clone of the new repository made the commit with the git address of the user, because the clean step changed the addresses only in the old commits. `3ead9ae` (the rebase merge of PR #90) has another committer address: a rebase merge writes the address of the account that merges as the committer (decision 31). The user chose to fix forward: `main` is not rewritten, and both commits stay. The user also turned on the GitHub email privacy setting ("Keep my email addresses private"). After this: each clone of the new repository commits with its local git config, which has the address of this decision. Before a push, the session that pushes checks that the author address and the committer address of each new commit are the author address of `78aa3f5`. Each line of `git log --format='%ae%n%ce' origin/main..HEAD \| sort -u` must give the same `sha256sum` as `git log -1 --format=%ae 78aa3f5`. The check prints only "match" or "no match", and never shows an address or a hash. After each merge, the session that merges checks the new commit on `main` by hash: its author address must be the author address of `78aa3f5`, and its committer address must be the committer address of `78aa3f5`, because the check before a push does not see the merge commit that GitHub makes. Pull requests merge with squash only (decision 31) | ANSWER human:404pilo, 2026-10-14, hitl (the recommended option). The result: human:404pilo, 2026-10-15 (user decision: fix forward with no rewrite of `main`, for `9634a17` and for `3ead9ae`; the user turned on the GitHub email privacy setting); the author and committer addresses of `78aa3f5`, `9634a17`, and `3ead9ae`, compared by hash on 2026-10-15 |
 | 14 | Text mode of `check.sh` | The new inputs `TEXT_FILE` and `TEXT_INDEX` turn it on. The check scans the file. For each finding, it prints the place on line `StartLine` of the index, then the rule id | This spec |
 | 15 | One mode at a time | `HISTORY`, `TEXT_FILE`, and `BASE_SHA` select the mode. When more than one is set, the check exits 2 | This spec |
@@ -152,6 +152,7 @@ scripts/private-data/README.md             changed: the new modes
 ```
 
 `.github/workflows/private-data.yml` does not change (decision 12).
+FEATURE-28 changes it later (DECISION-57).
 
 The implementer can move the shared steps of `check.sh` (steps 1 to 4, step
 7, and the hidden-path rule of step 8) into `scripts/private-data/lib.sh`.
@@ -860,6 +861,10 @@ orchestrator sends the task on or after 2026-11-02.
   does not start, does not pass, or waits for an approval, open a bug issue
   in `ai-ready-future/jag`.
 
+Replaced on 2026-10-26: from DECISION-57, a fork run waits for a maintainer
+approval, so a wait is the expected result, not a bug. Steps L3 to L5 of the
+FEATURE-28 spec replace this item. Issue #99 is closed.
+
 ### Other features
 
 - FEATURE-17 (done): this spec adds two modes to its check. Its pull request
@@ -1066,7 +1071,8 @@ One implementer pull request can hold steps 1 to 3.
   the read of the policy in B7 is the proof of the policy. The follow-up
   test fork pull request on or after 2026-11-02 tests the policy (see
   "Follow-up"). When the check does not start, does not pass, or waits for
-  an approval, chores opens a bug issue.
+  an approval, chores opens a bug issue. From 2026-10-26, a wait for an
+  approval is expected (DECISION-57, FEATURE-28 spec).
 - The event policy blocks an event that a later workflow needs, for example
   the release workflow of FEATURE-18. Signal: the workflow does not start.
   Mitigation: add the event to policy 7541.
@@ -1135,6 +1141,8 @@ One implementer pull request can hold steps 1 to 3.
 - A guard against guesses through the result of the check on fork pull
   requests (decision 12). The user answered "Do not check on this. Not a
   concern atm." STORY-59 (CRITERION-98) is removed from the roadmap.
+  Revisited by DECISION-57 (2026-10-26): FEATURE-28 builds a maintainer
+  approval.
 - The changes of "After the switch": separate pull requests of their owners.
 - The install from GitHub Releases, crates.io, and npm: FEATURE-18.
 - A check of the text that people write in issues and comments after the

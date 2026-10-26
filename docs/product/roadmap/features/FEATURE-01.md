@@ -29,9 +29,7 @@ traces:
 - to: prd:/constraints/CONSTRAINT-02.md
   hash: fd39da
 - to: prd:/constraints/CONSTRAINT-03.md
-  hash: 7636cf
-drifted:
-- prd:/constraints/CONSTRAINT-03.md
+  hash: a42483
 ---
 
 # FEATURE-01: Store a key one time
@@ -44,7 +42,7 @@ The user stores a TypeSafe key one time; jag finds it on each search, never show
 
 | Item | State | Progress | Owner | Blocked by | Drift |
 | --- | --- | --- | --- | --- | --- |
-| [STORY-01: Store a key with setup](../stories/STORY-01.md) | done | - | - | - | yes |
+| [STORY-01: Store a key with setup](../stories/STORY-01.md) | done | - | - | - | - |
 | [STORY-02: Find the key in a fixed order](../stories/STORY-02.md) | done | - | - | - | - |
 | [STORY-03: Replace or remove the stored key](../stories/STORY-03.md) | done | - | - | - | - |
 | [STORY-04: Keep the key private](../stories/STORY-04.md) | done | - | - | - | - |

@@ -19,9 +19,7 @@ blocked_by:
 milestone: /milestones/MILESTONE-02.md
 traces:
 - to: prd:/constraints/CONSTRAINT-03.md
-  hash: 7636cf
-drifted:
-- prd:/constraints/CONSTRAINT-03.md
+  hash: a42483
 ---
 
 # FEATURE-21: Send the model calls through an AI gateway
