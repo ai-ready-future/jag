@@ -15,6 +15,7 @@ Before release 1 goes public, the held-out evaluation run must be done. It must 
 
 ## Links
 
+- subject of: [DECISION-70: The maintainer runs the held-out evaluation once, on their own machine, with the Rust jag](../decisions/DECISION-70.md)
 - traced by: [MILESTONE-02: Make it good](../../roadmap/milestones/MILESTONE-02.md)
 - traced by: [STORY-45: Run the held-out evaluation before release](../../roadmap/stories/STORY-45.md)
 <!-- LINKS:END -->

@@ -208,7 +208,7 @@
 
 ## STORY-45: Run the held-out evaluation before release
 
-* [CRITERION-73: The held-out score meets the target and beats grep](CRITERION-73.md) - The held-out run gives jag an ndcg@10 of 0.70 or more, which is higher than blind grep. The public summary shows only the numbers and no case content.
+* [CRITERION-73: The held-out score meets the target and beats grep](CRITERION-73.md) - One local run of the Rust jag on the held-out split gives an ndcg@10 of 0.70 or more, higher than blind grep. Only the numbers go public. A lower score means no release tag.
 
 ## STORY-46: Fail a pull request that adds private data
 
@@ -369,3 +369,8 @@
 * [CRITERION-137: After the approval, the scan runs and the required check stops the merge until it passes](CRITERION-137.md) - After a maintainer approves the run of a test fork pull request, the private-data scan runs, and the pull request cannot merge to main until an approved run passes.
 * [CRITERION-138: Each new push or edit of a fork pull request needs a new approval](CRITERION-138.md) - After an approved run, a new push to the test fork pull request, or an edit of its title or body, starts no scan until a maintainer approves the new run.
 * [CRITERION-139: Pull requests of this repository and pushes to main keep the automatic scan](CRITERION-139.md) - A pull request from a branch of ai-ready-future/jag and a push to main run the private-data scan with no approval, and the job id stays private-data.
+
+## STORY-78: Score jag and grep on a labeled set from a local path
+
+* [CRITERION-140: The run reports ndcg@10 for jag and grep and no case text](CRITERION-140.md) - Given a labeled set at a local path, the run scores jag and blind grep and prints the ndcg@10 of each and the number of cases. The output shows no question, no case text, and no per-case result.
+* [CRITERION-141: The repository holds only invented test cases for the run](CRITERION-141.md) - The tests of the run use only invented cases. The data path and the key come from the maintainer's machine, never from the repository, and the per-case results stay on that machine.

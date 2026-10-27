@@ -16,6 +16,7 @@ The public repository, its history, and the published package must contain no pr
 
 - subject of: [DECISION-51: jag goes public as a new repository with a clean history](../decisions/DECISION-51.md)
 - subject of: [DECISION-57: A maintainer approves the private-data run of a fork pull request before the merge](../decisions/DECISION-57.md)
+- subject of: [DECISION-70: The maintainer runs the held-out evaluation once, on their own machine, with the Rust jag](../decisions/DECISION-70.md)
 - traced by: [EPIC-05: Safe public release](../../roadmap/epics/EPIC-05.md)
 - traced by: [FEATURE-17: Block private data in the repository](../../roadmap/features/FEATURE-17.md)
 - traced by: [FEATURE-19: Go public with a clean history](../../roadmap/features/FEATURE-19.md)
