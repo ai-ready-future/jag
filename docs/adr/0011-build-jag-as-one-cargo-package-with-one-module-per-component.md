@@ -5,6 +5,7 @@ description: Open this when you add a component, a crate, a binary, or a build c
 area: building-blocks
 status: accepted
 date: 2026-10-13
+amended: 2026-10-27
 supersedes: null
 superseded_by: 0026-name-the-crates-io-package-jag-cli.md  # partial: the crates.io name only
 amends: null
@@ -25,19 +26,19 @@ jag is one Rust program with the commands `jag` and `jag-bench` (0005-build-jag-
 
 ## Decision
 
-- jag is one Cargo package with the name `jag-grep` on crates.io. The package has one library and the binary `jag` (`[[bin]] name = "jag"`). A second binary, `jag-bench`, comes later in the same package.
+- jag is one Cargo package with the name `jag-cli` on crates.io (0026-name-the-crates-io-package-jag-cli.md). The package has one library and the binary `jag` (`[[bin]] name = "jag"`). A second binary, `jag-bench`, comes later in the same package.
 - The library has one module for each C- component of building-blocks-2 (for example `cli`, `config`, `search`, `prerank`, `scorer`, `output`, `check`). The binaries are thin and call the library.
 - The package uses the Rust 2024 edition. `rust-toolchain.toml` pins the toolchain version.
 - Each pull request must pass `cargo fmt --check`, `cargo clippy -- -D warnings` and `cargo test`. CI runs these checks on Ubuntu and on macOS.
 
 ## Why
 
-One package gives one version and one crate to publish. The name `jag-grep` is free and says what the tool is. The command stays `jag`. Modules keep the component borders that building-blocks-2 sets, and each module has its own tests. A pinned toolchain gives the same lint and format results on each machine and in CI. CI on Ubuntu and macOS finds platform errors before a release.
+One package gives one version and one crate to publish. 0026-name-the-crates-io-package-jag-cli.md gives the reason for the name. The command stays `jag`. Modules keep the component borders that building-blocks-2 sets, and each module has its own tests. A pinned toolchain gives the same lint and format results on each machine and in CI. CI on Ubuntu and macOS finds platform errors before a release.
 
 ## Alternatives considered
 
 - A Cargo workspace with one crate for each component: the borders are stronger, but there are many crates to version and to publish.
-- The package names `jag-cli` and `jagrep`: both are free, but `jag-cli` says nothing about grep, and `jagrep` looks like a different command.
+- The package name `jagrep`: it is free, but it looks like a different command.
 
 ## Consequences
 
