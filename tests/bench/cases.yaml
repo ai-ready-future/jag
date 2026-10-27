@@ -1,0 +1,26 @@
+# Invented cases for the tests of jag-bench. Nothing here is real data.
+cases:
+  - folder: garden
+    term: tomato
+    question: How often do I water the tomato plants?
+    answers:
+      - {file: b_water.txt, line: 1, grade: 3}
+      - {file: c_sun.txt, line: 1, grade: 2}
+  - folder: pantry
+    term: rice
+    ignore_case: true
+    question: Which rice keeps the longest?
+    answers:
+      - {file: b.txt, line: 1, grade: 2}
+      - {file: c.txt, line: 1}
+  - folder: notes
+    term: a.b
+    fixed_strings: true
+    question: Where is the a.b detail?
+    answers:
+      - {file: b_x.txt, line: 2, grade: 2}
+      - {file: b_x.txt, line: 3}
+  - folder: garden
+    term: tomato
+    question: Who sells the tomato plants?
+    answers: []

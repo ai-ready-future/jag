@@ -40,7 +40,8 @@ use crate::search::snippet::{
 use crate::search::{
     FileFilter, ScanOptions, ScanReport, WalkWarning, scan, scan_current_folder, scan_input,
 };
-use grep::{ColorWhen, MatchOptions, build_matcher};
+use grep::ColorWhen;
+pub use grep::{MatchOptions, build_matcher};
 use stop::{Emitted, Stop};
 
 /// The longest question, in UTF-8 bytes (decision 30).

@@ -1,5 +1,7 @@
 //! jag: grep with a model that ranks the matches.
 
+#[cfg(feature = "bench")]
+pub mod bench;
 pub mod check;
 pub mod cli;
 pub mod config;

@@ -42,7 +42,7 @@ jobs:
           restore-keys: cargo-${{ runner.os }}-
 
       - run: cargo fmt --check
-      - run: cargo clippy --locked -- -D warnings
+      - run: cargo clippy --locked --all-features -- -D warnings
       # The pinned rg for the rg parity test (ADR-0021). GitHub sets CI, so the
       # test fails when JAG_PARITY_RG is not set.
       - name: Install the pinned rg
@@ -50,7 +50,7 @@ jobs:
           set -euo pipefail
           rg=$(scripts/parity/install-rg.sh "$RUNNER_TEMP/rg")
           echo "JAG_PARITY_RG=$rg" >> "$GITHUB_ENV"
-      - run: cargo test --locked
+      - run: cargo test --locked --all-features
       - run: cargo test --locked --release --test speed
 
   # The install test of the agent skill (FEATURE-24). Not a required check.
