@@ -37,26 +37,24 @@ higher than blind grep.
 
 ## Decisions
 
-Row 2 is open. A rule card about it went to the orchestrator on
-2026-10-27. Rows 9 to 13 hold the recommended option of that card. They
-have the source "pending row 2", and they change if the user picks the
-other option. STORY-78 stays `backlog` until the answer (rule 11).
+Row 2 holds the answer of the user to a rule card of 2026-10-27. Rows 9
+to 13 follow that answer.
 
 | # | Decision | Choice | Source |
 |---|---|---|---|
 | 1 | The rule | The maintainer runs the held-out split one time, on their own machine, with a guiding session. No CI job runs it. The prompt, the threshold and the 0.70 bar are frozen. The held-out split chooses nothing. Only a summary of the numbers goes public. The data path, the key and the per-case results stay local. The run tool and its invented test cases are public | DECISION-70; CONSTRAINT-01; CRITERION-140; CRITERION-141 |
-| 2 | The case format and the score rule | **Open.** Recommended: a new documented case file and a standard ndcg@10 formula (rows 9 to 13). The guiding session of STORY-45 converts the held-out set to this file on the maintainer's machine. The other option: copy the case format and the formula of the earlier bench harness | Rule card "The case format and the score rule of the held-out run", sent 2026-10-27. DECISION-70 names no case format and no formula. This session cannot read the earlier harness |
+| 2 | The case format and the score rule | A new documented case file and a standard ndcg@10 formula (rows 9 to 13). Before the run, the guiding session of STORY-45 converts the held-out set to this file on the maintainer's machine. The rules are public and tested with invented cases. The score can differ a little from the result of the earlier bench harness | The user, in the hitl card "The case format and the score rule of the held-out run", 2026-10-27: option 1, "New documented format" |
 | 3 | The form of the tool | A second binary, `jag-bench`, in the package `jag-cli`. The code is the module `bench` (`src/bench.rs`). The binary is `src/bench_main.rs` | 0005-build-jag-as-one-rust-binary.md ("two commands, `jag` and `jag-bench`"); 0011-build-jag-as-one-cargo-package-with-one-module-per-component.md ("A second binary, `jag-bench`, comes later in the same package"); system design C-bench |
 | 4 | Not shipped | `Cargo.toml` gets the feature `bench`, with no dependency, and `[[bin]] name = "jag-bench"` with `required-features = ["bench"]`. So `cargo install jag-cli`, the release archives and the npm packages do not hold `jag-bench`. The maintainer builds it with `cargo build --release --features bench --bin jag-bench` | Inferred: FEATURE-18 spec, decision 27 ("Not in the archives and not in the npm packages. The feature that builds it decides"); `.github/workflows/release.yml` line 209 builds with no feature. A shipped command would be a public option |
 | 5 | CI | `ci.yml` gets `--all-features` on clippy (line 45) and on the tests (line 53), so CI builds and tests `jag-bench`. `release.yml` does not change | Inferred: `.github/workflows/ci.yml` lines 45 and 53; `scripts/release/release.py` `check_crate_list` allows each path under `src/` |
 | 6 | The run path | In-process. `jag-bench` calls the library functions of a search in the order of `cli::search` (`src/cli.rs` lines 688 to 805): the matcher of the term, `search::walk::scan` of the case folder as `jag` scans its current folder when it gets no path, `plan_windows` with `ContextLines::DEFAULT`, `prerank::best` only when the count is more than `DEFAULT_COST_LIMIT`, `read_snippets`, `score_with_usage`, then `rank`. The matcher builder (`build_matcher`, now `pub(super)` in `src/cli/grep.rs`) becomes reachable from the library, with no change of behavior | 0014-call-the-model-service-with-ureq-and-serde-json-on-std.md ("C-scorer, C-check and C-bench use one shared `ureq` agent"); system design C-bench (depends on C-search, C-prerank and C-scorer); `src/cli.rs` |
 | 7 | The guard against drift | A parity test: on the invented cases, with the fake model service, the top 10 results of `jag-bench` (file and line, in order) equal the `results` of `jag --json --ask`, run in the case folder with no path, for the same term and question. The output of each invented case stays under the default size limit, so `jag --json` cuts no result | Inferred: `tests/common/fake_server.rs`; row 6. The held-out run must measure the ranking that ships |
 | 8 | The key and the settings | As in jag: `find_key` and `model_settings` of C-config, from the variables and `~/.config/jag/config.yml`. A gateway route works. `jag-bench` never prints the key | CV-6; 0015-read-the-base-url-and-the-model-name-from-config-base-url.md; 0017-use-a-separate-key-for-an-ai-gateway.md |
-| 9 | The case file | One YAML file, read with serde-saphyr. Format in "The case file". The path is the one argument of `jag-bench` | Pending row 2. 0012-use-clap-serde-saphyr-and-rpassword-as-the-outside-crates.md; `tests/parity/cases.yaml` (cases in a YAML file) |
-| 10 | The score | ndcg@10 for each case, with gain = grade and the discount log2(rank + 1). The ideal list holds all labeled lines of the case, by grade, cut at 10. The jag list is the ranked list as `jag --json --ask` writes it, also when its top score is below `THRESHOLD`. The score of a tool is the mean over the cases that have answers | Pending row 2. Inferred: the standard ndcg@k (trec_eval form, gain = grade) |
-| 11 | The credit of a result | A result gets the highest grade of the labeled lines that are match lines of the result (`is_match`), and that no earlier result got. Context lines get no credit. Each labeled line gives credit one time | Pending row 2. Inferred: `src/search/snippet.rs` (`SnippetLine.is_match`). Without this rule, the context lines of jag get credit that grep cannot get |
-| 12 | Blind grep | The matching lines of the same scan, ordered by the bytes of the path, then by the line number. Each line is one result. The top 10 count. This is the order of `rg --sort path` | Pending row 2. Inferred: METRIC-01 ("blind grep"); rg 15.1.0 (the default order of rg across files is not fixed, so the order must be sorted) |
-| 13 | A case with no answer | Not in the mean. The summary gives the count of such cases | Pending row 2. METRIC-07 (decoy questions) is out of scope |
+| 9 | The case file | One YAML file, read with serde-saphyr. Format in "The case file". The path is the one argument of `jag-bench` | Row 2. 0012-use-clap-serde-saphyr-and-rpassword-as-the-outside-crates.md; `tests/parity/cases.yaml` (cases in a YAML file) |
+| 10 | The score | ndcg@10 for each case, with gain = grade and the discount log2(rank + 1). The ideal list holds all labeled lines of the case, by grade, cut at 10. The jag list is the ranked list as `jag --json --ask` writes it, also when its top score is below `THRESHOLD`. The score of a tool is the mean over the cases that have answers | Row 2. Inferred: the standard ndcg@k (trec_eval form, gain = grade) |
+| 11 | The credit of a result | A result gets the highest grade of the labeled lines that are match lines of the result (`is_match`), and that no earlier result got. Context lines get no credit. Each labeled line gives credit one time | Row 2. Inferred: `src/search/snippet.rs` (`SnippetLine.is_match`). Without this rule, the context lines of jag get credit that grep cannot get |
+| 12 | Blind grep | The matching lines of the same scan, ordered by the bytes of the path, then by the line number. Each line is one result. The top 10 count. This is the order of `rg --sort path` | Row 2. Inferred: METRIC-01 ("blind grep"); rg 15.1.0 (the default order of rg across files is not fixed, so the order must be sorted) |
+| 13 | A case with no answer | Not in the mean. The summary gives the count of such cases | Row 2. METRIC-07 (decoy questions) is out of scope |
 | 14 | Frozen values | `jag-bench` has no option for the prompt, the threshold, the model, the cost limit, the context lines or the bar. It uses `PROMPT_VERSION` and `THRESHOLD` (`src/scorer.rs`), `DEFAULT_COST_LIMIT`, `ContextLines::DEFAULT`, and the constant `BAR = 0.70`. It reads no limit variable. `THRESHOLD` changes no score (row 10). The summary prints it, because it is part of the frozen release. The model name comes from the settings (row 8), and the summary prints it | DECISION-70; 0003-decide-no-good-answer-with-a-fixed-threshold-on-the-top.md; 0004-ship-one-scoring-prompt-with-a-version-id-in-each-release.md |
 | 15 | The bar | `pass` when the jag score is 0.70 or more and higher than the grep score. Else `fail`. The test uses the values before rounding | DECISION-70; CRITERION-73 |
 | 16 | Standard output | Only the 4 summary lines of "The output". No question, no term, no case text, no file name, no path and no per-case result | CRITERION-140; CV-3 |
@@ -68,7 +66,7 @@ other option. STORY-78 stays `backlog` until the answer (rule 11).
 | 22 | Tests | Unit tests of the score in `src/bench.rs`. Integration tests in `tests/bench.rs`, with `#![cfg(feature = "bench")]`, the invented cases of `tests/bench/`, and the fake model service. Each test copies the cases to a temp folder | 0021-check-rg-parity-with-a-cargo-test-that-runs-a-pinned-rg-and.md (the e2e tests are cargo integration tests); `tests/readme_examples.rs` (it copies the sample to a temp folder); CRITERION-141 |
 | 23 | Documentation | `docs/bench.md`: how to build and run `jag-bench`, the case file with an invented example, the score rule, and the output. `jag-bench --help` names the options. The README does not change, because users do not get `jag-bench` (row 4) | Inferred: row 4; STORY-45 needs a written run path for the guiding session |
 | 24 | Spec group | One spec for STORY-78. STORY-45 gets its own spec. It is `blocked_by` STORY-78 | Orchestrator TASK of 2026-10-27; STORY-45 page |
-| 25 | The state of STORY-78 | `backlog`, because the card of row 2 is open | docs/adlc.md, rule 11 |
+| 25 | The state of STORY-78 | `ready`, because no card is open | docs/adlc.md, rule 11; row 2 |
 
 ## Design
 
@@ -88,7 +86,7 @@ jag-bench [--detail FILE] CASES
 
 ### The case file
 
-Pending row 2. An invented example:
+Row 9. An invented example:
 
 ```yaml
 cases:
@@ -238,8 +236,8 @@ itself is STORY-45.
   `Cargo.toml`).
 - Row 6: the order of the library calls in `cli::search` is the ranking
   that ships. The test of row 7 shows a change of that order.
-- Rows 10 to 12: the formula, the credit rule and the grep order are the
-  recommended option of the open card (row 2).
+- Rows 10 to 12: the user chose a standard formula (row 2). The gain, the
+  credit rule and the grep order are the details of this spec.
 - Row 12: the sort of the matching lines by path bytes gives the order of
   `rg --sort path` (rg 15.1.0).
 - Row 19: `env!("CARGO_MANIFEST_DIR")` is the folder of the clone that
@@ -247,24 +245,22 @@ itself is STORY-45.
 
 ## Risks
 
-1. The user picks the other option of row 2. Signal: the `ANSWER` of the
-   card. Mitigation: rows 9 to 13 change, and the rest of the spec stays.
-2. The ndcg@10 of the new formula differs from the number of the earlier
+1. The ndcg@10 of the new formula differs from the number of the earlier
    harness on the same split. Signal: a run of `jag-bench` on the
    development split, on the maintainer's machine, gives a score far from
-   the about 0.72 of METRIC-01. Mitigation: the card of row 2 names this
-   cost. STORY-45 can run the development split first, because that split
+   the about 0.72 of METRIC-01. Mitigation: the user accepted this cost
+   (row 2). STORY-45 can run the development split first, because that split
    is for tuning and DECISION-70 does not limit it.
-3. `jag-bench` and `jag` rank in different ways. Signal: `bench_matches_jag`
+2. `jag-bench` and `jag` rank in different ways. Signal: `bench_matches_jag`
    fails. Mitigation: fix `jag-bench`, not the test.
-4. A held-out case file goes into a commit. Signal: the `private-data`
+3. A held-out case file goes into a commit. Signal: the `private-data`
    check fails, or a reviewer sees case text. Mitigation: row 19; the
    case file never has a place in the repository.
-5. The held-out split has many cases, and the run costs more than
+4. The held-out split has many cases, and the run costs more than
    expected. Signal: the cost of the model service after the run.
    Mitigation: the development set costs about $0.014 for each question
    (METRIC-05). STORY-45 states the expected cost before the run.
-6. A model failure stops the run near the end. Signal: exit 3 to 6 with no
+5. A model failure stops the run near the end. Signal: exit 3 to 6 with no
    summary. Mitigation: row 21; run again.
 
 ## Out of scope
