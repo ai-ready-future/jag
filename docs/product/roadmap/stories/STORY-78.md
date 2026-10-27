@@ -17,7 +17,7 @@ traces:
 
 As an agent builder (PERSONA-01), I want the Rust jag to score jag and blind grep on a labeled set that stays on the maintainer's machine, so that the held-out evaluation can run with no private data in the repository.
 
-The Rust jag has no run tool for the held-out evaluation. This story adds one, as a port of the earlier bench harness or as an equal run path (DECISION-70). The code of the run and its invented test cases can be public. The data path, the key, and the per-case results stay on the maintainer's machine. STORY-45 uses this run tool.
+The Rust jag has no run tool for the held-out evaluation. This story adds one, as part of the Rust jag (DECISION-70). The code of the run and its invented test cases can be public. The data path, the key, and the per-case results stay on the maintainer's machine. STORY-45 uses this run tool.
 
 <!-- STATUS:START (generated, do not edit) -->
 

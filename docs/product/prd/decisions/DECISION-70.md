@@ -25,7 +25,7 @@ Principle: Run Rust jag once, privately.
 
 The held-out set is private case material that is not jag's. It stays on the maintainer's machine and never goes into this repository (CONSTRAINT-01).
 
-Before the first release tag, the maintainer runs the Rust jag one time on the held-out split, on their own machine. A session guides the maintainer through the run. No CI job runs it, so the rule that CI runs only for the main repository does not apply to this run.
+Before the first release tag, the maintainer runs the Rust jag one time on the held-out split, on their own machine. A session guides the maintainer through the run. No CI job runs it.
 
 These rules apply to the run:
 
