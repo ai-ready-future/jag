@@ -12,7 +12,7 @@ github:
   url: https://github.com/ai-ready-future/jag/issues/258
   pushed_hash: 04bbcc
   synced:
-    state: backlog
+    state: ready
 spec: docs/superpowers/specs/2026-10-27-STORY-78-score-jag-and-grep-on-a-local-labeled-set-design.md
 parent: /epics/EPIC-02.md
 milestone: /milestones/MILESTONE-02.md
