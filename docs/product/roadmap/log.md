@@ -1,6 +1,7 @@
 # Log
 
 ## 2026-10-27
+* **State**: [STORY-78](stories/STORY-78.md) backlog -> ready, by human:404pilo, at 2026-10-27T18:55:48Z
 * **Sync**: [STORY-78](stories/STORY-78.md) pushed to GitHub, by system:github, at 2026-10-27T15:47:37Z
 * **Sync**: [STORY-45](stories/STORY-45.md) pushed to GitHub, by system:github, at 2026-10-27T15:47:37Z
 * **Plan**: [STORY-45](stories/STORY-45.md) user answer (hitl card "Held-out run", 2026-10-27, DECISION-70): the maintainer runs the Rust jag once on the private held-out split, summary only, frozen prompt and threshold, no tag below 0.70 or not above grep; STORY-45 and CRITERION-73 updated; new STORY-78 (the Rust run tool, backlog) in EPIC-02 with CRITERION-140 and CRITERION-141; STORY-45 is now blocked by STORY-78 and stays backlog until its spec merges, by agent:planner, at 2026-10-27T15:32:16Z

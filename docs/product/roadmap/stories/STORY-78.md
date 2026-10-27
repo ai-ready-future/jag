@@ -5,7 +5,7 @@ description: As an agent builder (PERSONA-01), I want the Rust jag to score jag 
   grep on a local labeled set, so that the held-out run needs no private data in the
   repository.
 status: draft
-state: backlog
+state: ready
 github:
   number: 258
   node_id: I_kwDOVKMnL88AAAABaV0L_g
@@ -13,6 +13,7 @@ github:
   pushed_hash: 04bbcc
   synced:
     state: backlog
+spec: docs/superpowers/specs/2026-10-27-STORY-78-score-jag-and-grep-on-a-local-labeled-set-design.md
 parent: /epics/EPIC-02.md
 milestone: /milestones/MILESTONE-02.md
 traces:
