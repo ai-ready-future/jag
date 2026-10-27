@@ -175,11 +175,97 @@ fn bench_summary() {
     assert_eq!(server.requests().len(), 3);
 }
 
+/// Run `jag --json --ask` in a folder of `temp/bench/`, then run `jag-bench`
+/// on a case that labels each of the first 10 results of jag, in its order.
+/// The ranks of jag-bench must be 1, 2, 3, and so on. Gives the count of
+/// results that jag found.
+fn check_parity(
+    temp: &tempfile::TempDir,
+    server: &FakeServer,
+    (folder, term, question, ignore_case): (&str, &str, &str, bool),
+) -> u64 {
+    let folder_path = temp.path().join("bench").join(folder);
+    let mut command = common::jag_std(temp.path(), &server.base_url());
+    // A null device as standard input: jag then searches the current folder.
+    command
+        .current_dir(&folder_path)
+        .stdin(std::process::Stdio::null())
+        .arg("--json");
+    if ignore_case {
+        command.arg("-i");
+    }
+    command.args(["--ask", question, term]);
+    let output = command.output().expect("run jag");
+    let jag = Run {
+        code: output.status.code().expect("an exit code"),
+        stdout: String::from_utf8(output.stdout).expect("UTF-8"),
+        stderr: String::from_utf8(output.stderr).expect("UTF-8"),
+    };
+    // Exit 7 is the cost limit: jag scored fewer results than it found.
+    assert!(
+        [0, 7].contains(&jag.code),
+        "jag exit {}: {}",
+        jag.code,
+        jag.stderr
+    );
+    let document: Value = serde_json::from_str(&jag.stdout).expect("a JSON document");
+    let results: Vec<(String, u64)> = document["results"]
+        .as_array()
+        .expect("results")
+        .iter()
+        .take(10)
+        .map(|result| {
+            (
+                result["path"].as_str().expect("path").to_owned(),
+                result["first_line"].as_u64().expect("line"),
+            )
+        })
+        .collect();
+    assert!(results.len() >= 3);
+    let found = document["results_found"].as_u64().expect("results_found");
+
+    // A case that labels each result of jag, in its order.
+    let answers: Vec<Value> = results
+        .iter()
+        .map(|(file, line)| json!({"file": file, "line": line}))
+        .collect();
+    let cases = json!({"cases": [{
+        "folder": folder,
+        "term": term,
+        "ignore_case": ignore_case,
+        "question": question,
+        "answers": answers,
+    }]});
+    let cases_file = temp.path().join("bench/parity.yaml");
+    fs::write(&cases_file, cases.to_string()).expect("write cases");
+    let detail = temp.path().join("detail.jsonl");
+    let result = run({
+        let mut command = bench(temp.path(), &server.base_url());
+        command.arg("--detail").arg(&detail).arg(&cases_file);
+        command
+    });
+    // The exit code is 0 or 1, by the bar. This test checks the ranks.
+    assert!([0, 1].contains(&result.code), "stderr: {}", result.stderr);
+
+    // jag-bench ranks the results as jag does: rank 1, 2, 3, and so on.
+    let text = fs::read_to_string(&detail).expect("detail file");
+    let line: Value = serde_json::from_str(text.trim()).expect("a JSON line");
+    let ranks: Vec<u64> = line["answers"]
+        .as_array()
+        .expect("answers")
+        .iter()
+        .map(|answer| answer["jag_rank"].as_u64().expect("a rank"))
+        .collect();
+    let expected: Vec<u64> = (1..=results.len() as u64).collect();
+    assert_eq!(ranks, expected, "folder {folder}");
+    found
+}
+
 // CRITERION-140
 #[test]
 fn bench_matches_jag() {
     let server = model();
-    for (folder, term, question, ignore_case) in [
+    for case in [
         (
             "garden",
             "tomato",
@@ -188,75 +274,49 @@ fn bench_matches_jag() {
         ),
         ("pantry", "rice", "Which rice keeps the longest?", true),
     ] {
-        let temp = fixtures();
-        let folder_path = temp.path().join("bench").join(folder);
-        let mut command = common::jag_std(temp.path(), &server.base_url());
-        // A null device as standard input: jag then searches the current folder.
-        command
-            .current_dir(&folder_path)
-            .stdin(std::process::Stdio::null())
-            .arg("--json");
-        if ignore_case {
-            command.arg("-i");
-        }
-        command.args(["--ask", question, term]);
-        let output = command.output().expect("run jag");
-        let jag = Run {
-            code: output.status.code().expect("an exit code"),
-            stdout: String::from_utf8(output.stdout).expect("UTF-8"),
-            stderr: String::from_utf8(output.stderr).expect("UTF-8"),
-        };
-        assert_eq!(jag.code, 0, "stdout: {}", jag.stdout);
-        let document: Value = serde_json::from_str(&jag.stdout).expect("a JSON document");
-        let results: Vec<(String, u64)> = document["results"]
-            .as_array()
-            .expect("results")
-            .iter()
-            .take(10)
-            .map(|result| {
-                (
-                    result["path"].as_str().expect("path").to_owned(),
-                    result["first_line"].as_u64().expect("line"),
-                )
-            })
-            .collect();
-        assert!(results.len() >= 3);
-
-        // A case that labels each result of jag, in its order.
-        let answers: Vec<Value> = results
-            .iter()
-            .map(|(file, line)| json!({"file": file, "line": line}))
-            .collect();
-        let cases = json!({"cases": [{
-            "folder": folder,
-            "term": term,
-            "ignore_case": ignore_case,
-            "question": question,
-            "answers": answers,
-        }]});
-        let cases_file = temp.path().join("bench/parity.yaml");
-        fs::write(&cases_file, cases.to_string()).expect("write cases");
-        let detail = temp.path().join("detail.jsonl");
-        let result = run({
-            let mut command = bench(temp.path(), &server.base_url());
-            command.arg("--detail").arg(&detail).arg(&cases_file);
-            command
-        });
-        // The exit code is 0 or 1, by the bar. This test checks the ranks.
-        assert!([0, 1].contains(&result.code), "stderr: {}", result.stderr);
-
-        // jag-bench ranks the results as jag does: rank 1, 2, 3, and so on.
-        let text = fs::read_to_string(&detail).expect("detail file");
-        let line: Value = serde_json::from_str(text.trim()).expect("a JSON line");
-        let ranks: Vec<u64> = line["answers"]
-            .as_array()
-            .expect("answers")
-            .iter()
-            .map(|answer| answer["jag_rank"].as_u64().expect("a rank"))
-            .collect();
-        let expected: Vec<u64> = (1..=results.len() as u64).collect();
-        assert_eq!(ranks, expected, "folder {folder}");
+        check_parity(&fixtures(), &server, case);
     }
+}
+
+// CRITERION-140
+#[test]
+fn bench_matches_jag_after_the_pre_rank() {
+    // 250 results are more than the cost limit of 200, so jag pre-ranks them
+    // and scores 200. The model gives a different score to each result.
+    let server = FakeServer::start(|request| {
+        Reply::scores(request, |text| {
+            let number: u64 = text
+                .split("item ")
+                .nth(1)
+                .and_then(|rest| rest.split_whitespace().next())
+                .and_then(|word| word.parse().ok())
+                .expect("a number after item");
+            0.05 + (number * 37 % 251) as f64 / 300.0
+        })
+    });
+    let temp = fixtures();
+    let big = temp.path().join("bench/big");
+    for number in 0..250 {
+        let line = if number % 3 == 0 {
+            format!("needle item {number} needs watering every day\n")
+        } else {
+            format!("needle item {number} is plain\n")
+        };
+        common::write(&big, &format!("f{number:03}.txt"), line.as_bytes());
+    }
+    let found = check_parity(
+        &temp,
+        &server,
+        ("big", "needle", "Which item needs watering?", false),
+    );
+    assert_eq!(found, 250);
+    // The pre-rank kept 200 results: the model got 200 snippets.
+    let sent: usize = server
+        .requests()
+        .iter()
+        .map(|request| request.snippet_texts().len())
+        .sum();
+    assert_eq!(sent, 400, "jag and jag-bench each score 200 results");
 }
 
 // CRITERION-141
@@ -293,6 +353,29 @@ fn bench_detail_local() {
     for word in CASE_WORDS {
         assert!(!text.contains(word), "detail holds {word}");
     }
+
+    // A labeled line that is only a context line of a result gets no credit
+    // (row 11): the match is line 2 of `b_x.txt`, the label is line 3.
+    let context = temp.path().join("bench/context.yaml");
+    fs::write(
+        &context,
+        "cases:\n  - folder: notes\n    term: a.b\n    fixed_strings: true\n    question: Where is the a.b detail?\n    answers:\n      - {file: b_x.txt, line: 3}\n",
+    )
+    .expect("write cases");
+    let result = run({
+        let mut command = bench(temp.path(), &server.base_url());
+        command.arg("--detail").arg(&detail).arg(&context);
+        command
+    });
+    // Both scores are 0, so the bar fails.
+    assert_eq!(result.code, 1, "stderr: {}", result.stderr);
+    let text = fs::read_to_string(&detail).expect("detail file");
+    let line: Value = serde_json::from_str(text.trim()).expect("a JSON line");
+    assert_eq!(
+        line,
+        json!({"case": 1, "jag": 0.0, "grep": 0.0, "answers": [
+            {"jag_rank": null, "grep_rank": null}]})
+    );
 
     // With no --detail, no per-case result is written anywhere.
     let other = fixtures();
@@ -333,6 +416,8 @@ fn bench_guard() {
 
     // A detail file in the source folder.
     let inside = source.join("tests/bench/guard-detail.jsonl");
+    // An old file from a failed run must not hide a write of the tool.
+    let _ = fs::remove_file(&inside);
     let result = run({
         let mut command = bench(temp.path(), &server.base_url());
         command.arg("--detail").arg(&inside).arg(cases_path(&temp));
