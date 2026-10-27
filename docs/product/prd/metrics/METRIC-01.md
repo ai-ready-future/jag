@@ -26,7 +26,9 @@ On the private development set, jag scores about 0.72 and blind grep scores abou
 - measures: [CAPABILITY-02: Term and question search](../capabilities/CAPABILITY-02.md)
 - measures: [JOURNEY-02: A person asks a question at the shell](../journeys/JOURNEY-02.md)
 - subject of: [DECISION-62: jag makes no quality claim for a Clef server](../decisions/DECISION-62.md)
+- subject of: [DECISION-70: The maintainer runs the held-out evaluation once, on their own machine, with the Rust jag](../decisions/DECISION-70.md)
 - guarded by: [METRIC-05: Cost per search](METRIC-05.md)
 - guarded by: [METRIC-07: False confidence](METRIC-07.md)
 - traced by: [STORY-45: Run the held-out evaluation before release](../../roadmap/stories/STORY-45.md)
+- traced by: [STORY-78: Score jag and grep on a labeled set from a local path](../../roadmap/stories/STORY-78.md)
 <!-- LINKS:END -->

@@ -1,5 +1,8 @@
 # Log
 
+## 2026-10-27
+* **Plan**: [STORY-45](stories/STORY-45.md) user answer (hitl card "Held-out run", 2026-10-27, DECISION-70): the maintainer runs the Rust jag once on the private held-out split, summary only, frozen prompt and threshold, no tag below 0.70 or not above grep; STORY-45 and CRITERION-73 updated; new STORY-78 (the Rust run tool, backlog) in EPIC-02 with CRITERION-140 and CRITERION-141; STORY-45 is now blocked by STORY-78 and stays backlog until its spec merges, by agent:planner, at 2026-10-27T15:32:16Z
+
 ## 2026-10-26
 * **Sync**: [STORY-51](stories/STORY-51.md) pushed to GitHub, by system:github, at 2026-10-26T19:01:04Z
 * **Plan**: [FEATURE-01](features/FEATURE-01.md) the user's own PRD session (2026-10-26, Clef server and private-pattern check) changed CONSTRAINT-03 to "A TypeSafe key or a Clef server is enough to start", and the user ordered the merge of that change (hitl card 3); the traces of FEATURE-01, FEATURE-21, and STORY-01 to CONSTRAINT-03 are accepted as human:404pilo, because the TypeSafe key path does not change and these done items stay true, by agent:planner, at 2026-10-26T18:35:21Z

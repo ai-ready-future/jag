@@ -13,5 +13,5 @@ okf_version: '0.2'
 * [scope/](scope/index.md) - 10 pages
 * [metrics/](metrics/index.md) - 8 pages
 * [constraints/](constraints/index.md) - 9 pages
-* [decisions/](decisions/index.md) - 69 pages
+* [decisions/](decisions/index.md) - 70 pages
 * [questions/](questions/index.md) - 7 pages
