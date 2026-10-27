@@ -61,7 +61,7 @@ pub(super) fn words(cli: &Cli) -> Vec<&OsStr> {
 
 /// The options that change the matcher (decisions 7 to 9).
 #[derive(Clone, Copy, Debug, Default)]
-pub(super) struct MatchOptions {
+pub struct MatchOptions {
     pub ignore_case: bool,
     pub word: bool,
     pub fixed: bool,
@@ -80,7 +80,7 @@ impl MatchOptions {
 /// The matcher of the terms, with -i, -w, and -F. The settings are the
 /// settings of `matcher_rust` in rg 15.2.0 (FEATURE-23, decision 2). A term
 /// that is two times in the list counts one time, as in rg.
-pub(super) fn build_matcher(
+pub fn build_matcher(
     terms: &[&str],
     options: MatchOptions,
 ) -> Result<RegexMatcher, grep_regex::Error> {

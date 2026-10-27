@@ -19,6 +19,15 @@ path = "src/lib.rs"
 name = "jag"
 path = "src/main.rs"
 
+# The run tool of the held-out evaluation (STORY-78). Releases do not build it.
+[[bin]]
+name = "jag-bench"
+path = "src/bench_main.rs"
+required-features = ["bench"]
+
+[features]
+bench = []
+
 [lints.clippy]
 all = "warn"
 
