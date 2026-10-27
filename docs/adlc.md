@@ -34,7 +34,7 @@ Repository rules:
 1. Files on `main` are the source of truth. The board is only a copy of `main`.
 2. Do not change `main` directly. Use a worktree, a branch and a pull request. Only the retro has a fast path (see section 6).
 3. Send all messages to the orchestrator with `SendMessage`. Do not send messages to other roles directly.
-4. Do not ask the user questions. Send the question to the orchestrator. The hitl session asks the user. Exceptions: hitl, retro, and chores (only to guide the user through a manual step).
+4. Each question or decision for the user goes to hitl as an `ASK` card. Send it to the orchestrator, and the orchestrator sends it to hitl. This rule is also for the orchestrator. Exceptions: chores and retro ask the user directly in their own session. While chores or retro wait for the user, they send `BLOCKED` with the tag `user step` to the orchestrator.
 5. Use the message format in section 5.
 6. When the orchestrator tells you that `docs/adlc.md` changed, read it again and rebase your worktree on `main`.
 7. Never read, print or commit secrets or key files.
@@ -52,7 +52,7 @@ Repository rules:
 12. Merge PRs with squash only. After each merge, the session that merges checks the new commit on `main`. The `sha256sum` of its author address must be the `sha256sum` of the author address of `78aa3f5`. Its committer must be the committer of `78aa3f5` (GitHub). The check never prints an address (FEATURE-19 spec decisions 13 and 31). A rebase merge wrote the account address as committer in `3ead9ae`.
 13. Turn exit rule. Each role except the orchestrator, hitl and retro ends each turn with 1 message to the orchestrator: `DONE`, `REVIEW`, `ASK`, `TASK`, `BLOCKED` or `STATUS`. If the role already sent this message for the same item and nothing changed, it does not send it again.
     - A "needs input:" line, a question in the session, or a status line in the job list does not tell the orchestrator. Send the message.
-    - Never wait for the user, because the user does not see your session. Of the roles of this rule, only chores waits for the user, and only while it guides the user through a step.
+    - Never wait for the user, because the user does not see your session. Only chores and retro wait for the user (rule 4).
 14. When a role cannot continue, it sends `BLOCKED` to the orchestrator at once. It does not try to work around the cause. The message gives the cause, the work that is done, where the work is (branch, commit, worktree), and 1 tag:
     - `user step`: the user must do an action, for example a login, a token scope or a payment. Give the exact command if you know it.
     - `decision`: the user must choose. Give the facts for the card, as for an `ASK`.
@@ -98,7 +98,7 @@ Model and Effort: use the exact values in the table.
 - Keep a short status table in the orchestrator session. Do not write it to the repo.
 - If the orchestrator session name changes, the retro updates section 1 and the orchestrator sends `RELOAD`.
 - Send each `BLOCKED` (rule 14) on, by its tag:
-  - `user step`: send it to chores. Chores guides the user through the step.
+  - `user step`: send it to chores. Chores guides the user through the step. If the `BLOCKED` comes from chores or retro, the user is already in that session: record it in the status table and do not send it on.
   - `decision`: send it to hitl as an `ASK` with the priority `blocks code now`.
   - `team`: send it to the role that must act.
 
@@ -111,7 +111,7 @@ Model and Effort: use the exact values in the table.
   The state of a session is in `ListAgents` and in its job folder in `~/.claude/jobs/`: the `state.json` that has the session name, and the last line of `timeline.jsonl`. The check sends no other messages, changes no files and restarts no sessions, because each message and each restart interrupts the work of a session.
 
 **hitl**
-- The only session that asks the user for decisions.
+- Asks the user each question and decision of the team, as cards. Only chores and retro ask the user directly (rule 4).
 - Use the card in section 7 for each question. Use the same card format each time.
 - Ask the cards in priority order. First ask the cards that block code now, then the cards that block later.
 - Ask the cards of 1 feature together, up to 4 cards at a time. Use `AskUserQuestion` when the options are fixed (it takes up to 4 questions).
@@ -151,7 +151,7 @@ Model and Effort: use the exact values in the table.
 - Uses effort `xhigh`. The goal is a specifier that needs the user as little as possible.
 - Infers each decision from the ADRs, the system design (`docs/product/system-design.md`), the PRD and the merged specs first. Records the source of each inferred decision in the spec.
 - Does not ask the user to confirm a decision that an ADR or the system design states, or that is clearly inferred from them.
-- Asks the user with the method "Ask the Rule" (section 4). It asks for the rule, not for the value. It infers each detail from the rule and records the source of each detail.
+- Asks the user through hitl (rule 4) with the method "Ask the Rule" (section 4). It asks for the rule, not for the value. It infers each detail from the rule and records the source of each detail.
 
 **implementer**
 - One spec gives one PR.
@@ -194,7 +194,7 @@ Model and Effort: use the exact values in the table.
 **chores**
 - Does manual setup steps that do not need the user (for example: labels, checks, config).
 - If the user must do a step (login, token scope, payment), guides the user directly through the step. Gives the exact commands, 1 step at a time, and checks the result after each step.
-- Sends decisions (a choice between options) to the orchestrator as `ASK`. The hitl session asks the user.
+- Asks the user its questions and decisions directly in its own session (rule 4).
 
 ## 4. Feature flow
 
@@ -218,7 +218,7 @@ Side flows:
 - ADR finding from a reviewer → architect → hitl (section 4, "ADR finding flow").
 - Rule question from the specifier → hitl. A `revisit:` → planner or architect (section 4, "Ask the Rule").
 - Gap in PRD or roadmap → planner → PR → projecter `SYNC`.
-- User decision → hitl.
+- Question or decision for the user → hitl (rule 4). Chores and retro ask the user directly.
 - Manual step → chores.
 - User changes a role → retro.
 - Blocker from any role → orchestrator → chores (`user step`), hitl (`decision`) or the role that must act (`team`) (rule 14).
@@ -376,3 +376,4 @@ Send a DONE message to the orchestrator when you are ready. Then wait for TASK m
 | 2026-10-15 | Reviewer: for a release readiness check, a reviewer session does the security review and writes `docs/release-readiness.md` in a docs PR. A different reviewer session reviews that PR | FEATURE-22 spec decision 18 (PR #112). Reviewer comment on PR #112: the reviewer role did not open PRs |
 | 2026-10-15 | Added the method "Ask the Rule" to section 4: the specifier asks for the rule, not for the value; at most 2 rule cards, then at most 2 more, at most 4 cards in a batch; each rule card has a `This answer decides:` block; the specifier infers each detail from the rule with the recommended option and a source that a reviewer can open; a change to a PRD decision or an ADR goes as a `revisit:` line to the planner or the architect. The planner writes 1 PRD decision page for each rule. The architect accepts the ADR of a rule with the `ANSWER`. The reviewer opens the source of each inferred row. Section 7 gets the decides block | The user asked for this change. The FEATURE-23 spec sent 7 cards in 2 rounds, and the 5 detail cards all followed from the first rule answer. With this method, FEATURE-23 sends 2 cards in 1 batch |
 | 2026-10-15 | Added rule 13 (each turn ends with 1 message to the orchestrator, and no role waits for the user) and rule 14 (`BLOCKED` with the tag `user step`, `decision` or `team`). The orchestrator sends each `BLOCKED` on by its tag: a user step to chores, a decision to hitl. Added a status check every 10 minutes to the orchestrator. It reads the job state of each session and sends `STATUS` only to a session that looks stuck. Added the `STATUS` message type and a side flow | The user asked for this change. Roles had no rule to send `BLOCKED`, and a blocker that needs the user had no path to the user. A session can end with a "needs input:" line that only the job list shows, and wait for a user who never sees it |
+| 2026-10-27 | Rule 4: each question or decision for the user goes to hitl as an `ASK` card, through the orchestrator. The rule is also for the orchestrator. Only chores and retro ask the user directly, and while they wait they send `BLOCKED` with the tag `user step`. The orchestrator records such a `BLOCKED` and does not send it on. Changed rule 13, the hitl, specifier and chores details, and the side flow to agree | The user asked for this change (2026-10-27, in the orchestrator session): "all questions should go through hitl (except for chores and retro questions which are answered directly there)" |
