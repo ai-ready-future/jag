@@ -84,6 +84,7 @@ generated:
 * [STORY-73: The snippet and the skill share one source](STORY-73.md) - As an agent builder (PERSONA-01), I want the snippet and the skill to come from one source, so that they always teach the same behavior.
 * [STORY-74: Run one repeatable agent test](STORY-74.md) - As an agent builder (PERSONA-01), I want to run one repeatable test that gives an agent with the jag skill a set of tasks, so that I can check the skill at any time.
 * [STORY-75: The test records what the agent did](STORY-75.md) - As an agent builder (PERSONA-01), I want the test to record the choices of the agent for each task, so that I can see if the agent uses jag well.
+* [STORY-78: Score jag and grep on a labeled set from a local path](STORY-78.md) - As an agent builder (PERSONA-01), I want the Rust jag to score jag and grep on a local labeled set, so that the held-out run needs no private data in the repository.
 
 ## MILESTONE-03: Make it fast
 
