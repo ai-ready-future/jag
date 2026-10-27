@@ -5,7 +5,7 @@ description: As an agent builder (PERSONA-01), I want the maintainer to run the 
   jag once on the private held-out split before release 1, so that I can trust that
   jag answers better than grep.
 status: draft
-state: backlog
+state: ready
 github:
   number: 70
   node_id: I_kwDOVKMnL88AAAABXTMnlA
@@ -13,6 +13,7 @@ github:
   synced:
     state: backlog
   pushed_hash: 3b1192
+spec: docs/superpowers/specs/2026-10-27-STORY-45-run-the-held-out-evaluation-before-release-design.md
 parent: /epics/EPIC-02.md
 blocked_by:
 - /stories/STORY-78.md
