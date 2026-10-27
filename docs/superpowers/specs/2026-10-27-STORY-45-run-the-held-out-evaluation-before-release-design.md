@@ -164,7 +164,7 @@ that the generated notes follow it, and then approves `github-publish`.
    merged.
 2. Chores guides the run steps 1 to 7.
 3. On `bar pass`: chores opens the docs PR of row 13. A reviewer reviews
-   it. After the approval, chores merges it with squash. STORY-45 is then
+   it. After the approval, the orchestrator merges it with squash. STORY-45 is then
    `done`. The notes step of row 15 is a step of U6, which STORY-51 runs,
    because STORY-51 waits for STORY-45.
 4. Chores does the list "Before the first tag" on the new commit, as
