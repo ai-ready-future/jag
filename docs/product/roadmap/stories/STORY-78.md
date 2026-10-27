@@ -6,6 +6,13 @@ description: As an agent builder (PERSONA-01), I want the Rust jag to score jag 
   repository.
 status: draft
 state: backlog
+github:
+  number: 258
+  node_id: I_kwDOVKMnL88AAAABaV0L_g
+  url: https://github.com/ai-ready-future/jag/issues/258
+  pushed_hash: 04bbcc
+  synced:
+    state: backlog
 parent: /epics/EPIC-02.md
 milestone: /milestones/MILESTONE-02.md
 traces:

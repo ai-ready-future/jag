@@ -10,7 +10,6 @@ github:
   number: 70
   node_id: I_kwDOVKMnL88AAAABXTMnlA
   url: https://github.com/ai-ready-future/jag/issues/70
-  pushed_hash: 860eb9
   synced:
     state: backlog
 parent: /epics/EPIC-02.md
