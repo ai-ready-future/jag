@@ -31,6 +31,8 @@ Source of the change from grep to rg: the user, hitl answer of 2026-10-15 (FEATU
 - subject of: [DECISION-26: Leaving out results has its own exit code](DECISION-26.md)
 - subject of: [DECISION-34: Release 1 keeps the rg options that people use most](DECISION-34.md)
 - subject of: [DECISION-48: The readiness check exits 0 or with the code of the first cause](DECISION-48.md)
+- subject of: [DECISION-71: jag calls a server with no key when the user sets none](DECISION-71.md)
+- subject of: [DECISION-73: An error or an answer that jag cannot read gives the service-down failure](DECISION-73.md)
 - traced by: [FEATURE-03: Clear failure when the model is not available](../../roadmap/features/FEATURE-03.md)
 - traced by: [FEATURE-13: Common rg options and exit codes](../../roadmap/features/FEATURE-13.md)
 - traced by: [STORY-10: Tell each model failure by its exit code](../../roadmap/stories/STORY-10.md)

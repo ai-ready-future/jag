@@ -6,7 +6,7 @@ area: contracts
 status: accepted
 date: 2026-10-14
 supersedes: null
-superseded_by: null
+superseded_by: 0028-call-a-base-url-with-no-key-when-the-user-sets-no-gateway-key.md # partial
 amends: null
 refines: null
 deviates_from: null

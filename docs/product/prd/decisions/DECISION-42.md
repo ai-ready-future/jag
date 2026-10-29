@@ -1,12 +1,13 @@
 ---
 type: Decision
 title: The report counts results scored and results skipped
-description: jag shows the results it scored and the results that the cost limit skipped;
-  together they are all results found.
+description: jag shows the results it scored and one count for each reason that it
+  did not score a result; together they are all results found.
 status: stable
-decided_at: '2026-10-07'
+decided_at: '2026-10-29'
 alternatives:
 - Show only the count of results scored
+- One count of all results not scored
 about:
 - /capabilities/CAPABILITY-07.md
 - /decisions/DECISION-12.md
@@ -15,7 +16,9 @@ about:
 
 # DECISION-42: The report counts results scored and results skipped
 
-The report counts results. It shows the results that jag scored and the results that the cost limit skipped. The two counts add up to all the results that the term found.
+The report counts results. It shows the results that jag scored, and one count for each reason that jag did not score a result. The reasons are the cost limit, a private pattern, and a snippet that is too long for the server. All the counts add up to all the results that the term found.
+
+Changed on 2026-10-29 (the first form, of 2026-10-07, had only two counts: scored and skipped by the cost limit). Source: the user, answer G5 of the simulation of CAPABILITY-13 and CAPABILITY-14.
 
 <!-- LINKS:START (generated, do not edit) -->
 
