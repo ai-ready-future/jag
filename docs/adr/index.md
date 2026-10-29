@@ -8,7 +8,7 @@ okf_version: "0.2"
 
 * [building-blocks](#building-blocks) - 5 decisions: 5 accepted
 * [context](#context) - 1 decision: 1 accepted
-* [contracts](#contracts) - 11 decisions: 10 accepted, 1 proposed
+* [contracts](#contracts) - 11 decisions: 11 accepted
 * [conventions](#conventions) - 1 decision: 1 accepted
 * [deployment](#deployment) - 5 decisions: 5 accepted
 * [quality](#quality) - 2 decisions: 2 accepted
@@ -44,10 +44,7 @@ okf_version: "0.2"
 * [0017: Use a separate key for an AI gateway](./0017-use-a-separate-key-for-an-ai-gateway.md) - accepted. Open this when you change which key jag sends to a base URL, add a key source, or change how --setup, --forget-key, and --check handle keys. Partly replaced by: [0028-call-a-base-url-with-no-key-when-the-user-sets-no-gateway-key.md](./0028-call-a-base-url-with-no-key-when-the-user-sets-no-gateway-key.md).
 * [0018: Take the question only from the --ask option](./0018-take-the-question-only-from-the-ask-option.md) - accepted. Open this when you change how jag gets the question on the command line, or when a script depends on the command form.
 * [0022: Use rg as the reference for the output of jag with no question](./0022-use-rg-as-the-reference-for-the-output-of-jag-with-no.md) - accepted. Open this when you change what jag writes with no --ask (stdout, stderr, color, exit code, match rules), or when you change the rg version that jag follows.
-
-### proposed
-
-* [0028: Call a base URL with no key when the user sets no gateway key](./0028-call-a-base-url-with-no-key-when-the-user-sets-no-gateway-key.md) - proposed. Open this when you change what jag does on the gateway route with no gateway key, or how it reports a server that refuses a call for a key.
+* [0028: Call a base URL with no key when the user sets no gateway key](./0028-call-a-base-url-with-no-key-when-the-user-sets-no-gateway-key.md) - accepted. Open this when you change what jag does on the gateway route with no gateway key, or how it reports a server that refuses a call for a key.
 
 ## conventions
 

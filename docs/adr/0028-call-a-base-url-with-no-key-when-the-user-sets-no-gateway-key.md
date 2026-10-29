@@ -3,7 +3,7 @@ type: adr
 title: Call a base URL with no key when the user sets no gateway key
 description: Open this when you change what jag does on the gateway route with no gateway key, or how it reports a server that refuses a call for a key.
 area: contracts
-status: proposed
+status: accepted
 date: 2026-10-29
 supersedes: 0017-use-a-separate-key-for-an-ai-gateway.md # partial
 superseded_by: null
