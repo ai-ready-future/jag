@@ -20,4 +20,5 @@ A Clef server reads a limited length of text in one call. When a call is too lon
 ## Links
 
 - about: [CAPABILITY-13: Score with a Clef server that the user runs](../capabilities/CAPABILITY-13.md)
+- subject of: [DECISION-76: jag skips a snippet that is too long for the server by itself](DECISION-76.md)
 <!-- LINKS:END -->

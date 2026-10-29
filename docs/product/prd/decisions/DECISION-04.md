@@ -32,6 +32,7 @@ The check makes one live call that costs nothing or almost nothing.
 - about: [CAPABILITY-01: Guided key setup and health check](../capabilities/CAPABILITY-01.md)
 - about: [CONSTRAINT-02: jag protects the API key of the user](../constraints/CONSTRAINT-02.md)
 - subject of: [DECISION-48: The readiness check exits 0 or with the code of the first cause](DECISION-48.md)
+- subject of: [DECISION-75: The readiness check of a server with no key reports the server items](DECISION-75.md)
 - subject of: [QUESTION-04: What does the readiness check report for a server with no key?](../questions/QUESTION-04.md)
 - traced by: [FEATURE-02: Readiness check](../../roadmap/features/FEATURE-02.md)
 - traced by: [STORY-06: Check the five items of readiness](../../roadmap/stories/STORY-06.md)

@@ -24,4 +24,5 @@ On a base URL that is not TypeSafe, a key is optional. jag sends a key only when
 
 - about: [CAPABILITY-13: Score with a Clef server that the user runs](../capabilities/CAPABILITY-13.md)
 - about: [CONSTRAINT-03: A TypeSafe key or a Clef server is enough to start](../constraints/CONSTRAINT-03.md)
+- subject of: [DECISION-71: jag calls a server with no key when the user sets none](DECISION-71.md)
 <!-- LINKS:END -->

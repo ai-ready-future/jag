@@ -1,5 +1,9 @@
 # Log
 
+## 2026-10-29
+
+* **Save**: [product](product.md) capabilities (simulation answers of CAPABILITY-13 and CAPABILITY-14): DECISION-71 to DECISION-81, CONSTRAINT-10, DECISION-42 (changed: one count for each reason), QUESTION-04 to QUESTION-07 (answered), by human:404pilo, at 2026-10-29T11:23:11Z
+
 ## 2026-10-27
 
 * **Save**: [product](product.md) user answer on the hitl card "Held-out run" (option 1, "Run Rust jag once, privately"; the earlier answer "All of it in this repo" is withdrawn): DECISION-70, by agent:planner, at 2026-10-27T15:32:16Z

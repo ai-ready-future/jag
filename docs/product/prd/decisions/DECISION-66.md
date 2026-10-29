@@ -22,4 +22,5 @@ The private-pattern check is on by default for each model service. jag does not 
 ## Links
 
 - about: [CAPABILITY-14: Hold private text back from the model](../capabilities/CAPABILITY-14.md)
+- subject of: [DECISION-80: One setting turns off the built-in list and the list of the user](DECISION-80.md)
 <!-- LINKS:END -->

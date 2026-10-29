@@ -33,6 +33,8 @@ traces:
   hash: 50c0de
 - to: prd:/decisions/DECISION-45.md
   hash: 5c6b1f
+drifted:
+- prd:/decisions/DECISION-42.md
 ---
 
 # FEATURE-20: Show the cost of a search

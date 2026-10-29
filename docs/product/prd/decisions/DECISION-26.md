@@ -23,6 +23,7 @@ When jag leaves out results to stay in the limit, it exits with its own exit cod
 - about: [CAPABILITY-04: Limit on the text that jag returns](../capabilities/CAPABILITY-04.md)
 - about: [DECISION-05: jag keeps rg exit codes and adds one code for each model failure](DECISION-05.md)
 - subject of: [DECISION-47: The cost-limit exit code wins over the left-out exit code](DECISION-47.md)
+- subject of: [DECISION-79: Held-back lines add no exit code](DECISION-79.md)
 - traced by: [FEATURE-09: Size limit on the text that jag returns](../../roadmap/features/FEATURE-09.md)
 - traced by: [STORY-26: Leave out the lowest-ranked results](../../roadmap/stories/STORY-26.md)
 <!-- LINKS:END -->

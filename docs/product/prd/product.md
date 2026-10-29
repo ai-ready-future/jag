@@ -5,7 +5,7 @@ description: A command-line search tool for coding agents that returns only the 
   lines that answer a question, within a size limit.
 status: draft
 created: '2026-10-05'
-updated: '2026-10-26'
+updated: '2026-10-29'
 lenses:
   problem:
     status: complete
@@ -18,7 +18,7 @@ lenses:
     updated: '2026-10-05'
   capabilities:
     status: complete
-    updated: '2026-10-26'
+    updated: '2026-10-29'
   scope:
     status: complete
     updated: '2026-10-26'
@@ -45,7 +45,7 @@ jag is a general tool, like grep, and agents are the primary use case. The prima
 
 ## Capabilities
 
-jag has 14 capabilities: eight must-be, three performance, and three delighters. See [CAPABILITY-01](capabilities/CAPABILITY-01.md) to [CAPABILITY-14](capabilities/CAPABILITY-14.md). [DECISION-01](decisions/DECISION-01.md) records that jag fails clearly when the model is not available. Simulations of CAPABILITY-01 to CAPABILITY-08 added [DECISION-03](decisions/DECISION-03.md) to [DECISION-46](decisions/DECISION-46.md), [QUESTION-03](questions/QUESTION-03.md), and [CONSTRAINT-04](constraints/CONSTRAINT-04.md) to [CONSTRAINT-06](constraints/CONSTRAINT-06.md). [CAPABILITY-11](capabilities/CAPABILITY-11.md) gives the agent instructions in two forms: a skill that the agent builder installs with one README command ([CONSTRAINT-08](constraints/CONSTRAINT-08.md)), and a snippet to copy. [DECISION-53](decisions/DECISION-53.md) records that the skill is not an editor plugin. [CAPABILITY-13](capabilities/CAPABILITY-13.md) lets the user score with a Clef or Clef-Flash server that the user runs, through the base URL setting and with no key. jag makes no quality claim and has no speed target for Clef. [CAPABILITY-14](capabilities/CAPABILITY-14.md) holds back each snippet that matches a private pattern, on each model service, unless the user turns the check off. [DECISION-58](decisions/DECISION-58.md) to [DECISION-68](decisions/DECISION-68.md) and [QUESTION-04](questions/QUESTION-04.md) to [QUESTION-07](questions/QUESTION-07.md) hold the details.
+jag has 14 capabilities: eight must-be, three performance, and three delighters. See [CAPABILITY-01](capabilities/CAPABILITY-01.md) to [CAPABILITY-14](capabilities/CAPABILITY-14.md). [DECISION-01](decisions/DECISION-01.md) records that jag fails clearly when the model is not available. Simulations of CAPABILITY-01 to CAPABILITY-08 added [DECISION-03](decisions/DECISION-03.md) to [DECISION-46](decisions/DECISION-46.md), [QUESTION-03](questions/QUESTION-03.md), and [CONSTRAINT-04](constraints/CONSTRAINT-04.md) to [CONSTRAINT-06](constraints/CONSTRAINT-06.md). [CAPABILITY-11](capabilities/CAPABILITY-11.md) gives the agent instructions in two forms: a skill that the agent builder installs with one README command ([CONSTRAINT-08](constraints/CONSTRAINT-08.md)), and a snippet to copy. [DECISION-53](decisions/DECISION-53.md) records that the skill is not an editor plugin. [CAPABILITY-13](capabilities/CAPABILITY-13.md) lets the user score with a Clef or Clef-Flash server that the user runs, through the base URL setting and with no key. jag makes no quality claim and has no speed target for Clef. [CAPABILITY-14](capabilities/CAPABILITY-14.md) holds back each snippet that matches a private pattern, on each model service, unless the user turns the check off. [DECISION-58](decisions/DECISION-58.md) to [DECISION-68](decisions/DECISION-68.md) hold the details. A simulation of these two capabilities added [DECISION-71](decisions/DECISION-71.md) to [DECISION-81](decisions/DECISION-81.md) and [CONSTRAINT-10](constraints/CONSTRAINT-10.md), and answered [QUESTION-04](questions/QUESTION-04.md) to [QUESTION-07](questions/QUESTION-07.md).
 
 ## Scope
 

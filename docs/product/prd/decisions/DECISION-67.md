@@ -21,4 +21,5 @@ jag does not send a snippet that matches a private pattern, and it does not scor
 ## Links
 
 - about: [CAPABILITY-14: Hold private text back from the model](../capabilities/CAPABILITY-14.md)
+- subject of: [DECISION-77: The private-pattern check examines all text that jag sends](DECISION-77.md)
 <!-- LINKS:END -->

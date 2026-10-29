@@ -30,6 +30,7 @@ Source of the change from grep to rg: the user, hitl answer of 2026-10-15 (FEATU
 - about: [CAPABILITY-02: Term and question search](../capabilities/CAPABILITY-02.md)
 - subject of: [DECISION-43: A search with no model call reports a cost of zero and the reason](DECISION-43.md)
 - subject of: [DECISION-49: Plain rg mode needs no key](DECISION-49.md)
+- subject of: [DECISION-81: The preview of the text that leaves the machine lists the held-back lines](DECISION-81.md)
 - traced by: [FEATURE-12: Plain rg with no question](../../roadmap/features/FEATURE-12.md)
 - traced by: [STORY-33: Search with a term and no question](../../roadmap/stories/STORY-33.md)
 <!-- LINKS:END -->

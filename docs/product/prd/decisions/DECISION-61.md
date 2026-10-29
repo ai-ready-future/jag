@@ -21,4 +21,5 @@ jag works with a Clef server or a Clef-Flash server in the same way. The user do
 ## Links
 
 - about: [CAPABILITY-13: Score with a Clef server that the user runs](../capabilities/CAPABILITY-13.md)
+- subject of: [DECISION-72: jag sends the model name that the user set, or its default](DECISION-72.md)
 <!-- LINKS:END -->

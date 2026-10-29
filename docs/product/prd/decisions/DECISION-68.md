@@ -21,4 +21,6 @@ jag has a built-in list of patterns for keys, tokens, and passwords. The user ca
 ## Links
 
 - about: [CAPABILITY-14: Hold private text back from the model](../capabilities/CAPABILITY-14.md)
+- subject of: [DECISION-78: A pattern of the user that is not valid stops jag with exit 2](DECISION-78.md)
+- subject of: [DECISION-80: One setting turns off the built-in list and the list of the user](DECISION-80.md)
 <!-- LINKS:END -->
