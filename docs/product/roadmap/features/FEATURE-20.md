@@ -26,15 +26,13 @@ traces:
 - to: prd:/decisions/DECISION-41.md
   hash: 5bd88c
 - to: prd:/decisions/DECISION-42.md
-  hash: 2b7875
+  hash: 99ca19
 - to: prd:/decisions/DECISION-43.md
   hash: cbbb4f
 - to: prd:/decisions/DECISION-44.md
   hash: 50c0de
 - to: prd:/decisions/DECISION-45.md
   hash: 5c6b1f
-drifted:
-- prd:/decisions/DECISION-42.md
 ---
 
 # FEATURE-20: Show the cost of a search
