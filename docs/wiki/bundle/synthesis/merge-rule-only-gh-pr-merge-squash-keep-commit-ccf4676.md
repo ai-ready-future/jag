@@ -54,7 +54,7 @@ Card from decision-judge: level middle, confidence medium, hard to reverse, hidd
 
 Question: which address goes on the commits of the user? (card "Which email address goes on your commits")
 
-Answer (human `404pilo`, through hitl, 2026-11-03, veracity 90): "Your chosen address for all new work".
+Answer (human `404pilo`, through hitl, 2026-11-03, veracity 90): "Your chosen address for all new work". Decision: D-007.
 
 - The chosen address goes on all new commits and merges.
 - It is kept in the repository-local git config of the main folder (`user.email`). It is never printed and never in a repository file.
