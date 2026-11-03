@@ -32,7 +32,7 @@ Keep the commit and fix the merge rule.
 - The author check after each merge stays.
 - The user checks later that the GitHub setting "Keep my email addresses private" is on. The user thinks about the setting "Block command line pushes that expose my email".
 
-## Update 2026-11-03: the merge command still wrote the wrong author
+## Update 2026-11-03 (D-006): the merge command still wrote the wrong author
 
 Facts:
 
