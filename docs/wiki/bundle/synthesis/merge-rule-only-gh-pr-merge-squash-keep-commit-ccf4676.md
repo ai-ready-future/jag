@@ -32,7 +32,7 @@ Keep the commit and fix the merge rule.
 - The author check after each merge stays.
 - The user checks later that the GitHub setting "Keep my email addresses private" is on. The user thinks about the setting "Block command line pushes that expose my email".
 
-## Update 2026-11-03 (D-006): the merge command still wrote the wrong author
+## Update 2026-11-03 (D-009): the merge command still wrote the wrong author
 
 Facts:
 
@@ -40,7 +40,7 @@ Facts:
 - All commits of the PR had the noreply address.
 - So the merge method is not the cause. GitHub takes the squash author address from an account setting that changed on 2026-11-03.
 
-Answer (human `404pilo`, through hitl, 2026-11-03, veracity 90): set the author address in the merge command. Decision: D-006. It extends D-002.
+Answer (human `404pilo`, through hitl, 2026-11-03, veracity 90): set the author address in the merge command. Decision: D-009. It extends D-002.
 
 - The merger runs `gh pr merge <n> --squash --author-email "$(git log -1 --format=%ae 78aa3f5)"`. It reads the address from git and never prints it.
 - If such a merge fails, the merger stops and asks. It never merges without the flag.
@@ -54,13 +54,13 @@ Card from decision-judge: level middle, confidence medium, hard to reverse, hidd
 
 Question: which address goes on the commits of the user? (card "Which email address goes on your commits")
 
-Answer (human `404pilo`, through hitl, 2026-11-03, veracity 90): "Your chosen address for all new work". Decision: D-007.
+Answer (human `404pilo`, through hitl, 2026-11-03, veracity 90): "Your chosen address for all new work". Decision: D-007. D-007 replaces the address source of D-009.
 
 - The chosen address goes on all new commits and merges.
 - It is kept in the repository-local git config of the main folder (`user.email`). It is never printed and never in a repository file.
 - The checks before each push and after each merge compare with it.
 - Earlier commits keep their addresses.
-- It replaces the address source of D-006 (the read from `78aa3f5`). The rest of D-006 stays: the `--author-email` flag, the stop when a merge fails, and the author check.
+- It replaces the address source of D-009 (the read from `78aa3f5`). The rest of D-009 stays: the `--author-email` flag, the stop when a merge fails, and the author check.
 
 This page holds no email address.
 
