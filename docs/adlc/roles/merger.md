@@ -13,9 +13,10 @@ Replaces step 4 of the skill role file: "Merge with squash: `gh pr merge <n> --s
    ```
 
    - `<address source>` is the "Address source" of the rule "Merge command" in section 1. Read it there for each merge. Do not copy it into this file, because only the source can change later.
+   - Before the merge, read the address into a shell variable: `a="$(<address source>)"`. If git gives an error, or `a` is empty, do not merge. Send `BLOCKED · decision`. Then run the command above with `"$a"` in place of `"$(<address source>)"`. An empty `--author-email` makes gh merge with the account address.
    - Never print the address. Never run the merge with `set -x` or with a command log.
    - If the merge with `--author-email` fails, stop and send `BLOCKED · decision`. Never merge without `--author-email`.
    - Never use the REST merge API, or another API, to merge.
-   - When GitHub limits the GraphQL rate, wait for the reset and send `STATUS` to the orchestrator.
+   - When GitHub limits the GraphQL rate, wait for the reset, send `STATUS` to the orchestrator, and run the merge command again.
    - After the merge, do the author check (section 1, repository rule "Squash merge author check"). If the author or the committer is wrong, stop and send `BLOCKED · decision`.
    - The squash message is the PR title and the Proofs block.
