@@ -6,7 +6,7 @@ This file changes only 1 step of the skill role file `<skill folder>/references/
 
 Replaces step 4 of the skill role file: "Merge with squash: `gh pr merge <n> --squash --delete-branch`. The squash message is the PR title and the Proofs block."
 
-4. Merge with squash and the author address (section 1, repository rule "Merge command", decisions D-002, D-006 and D-007):
+4. Merge with squash and the author address (section 1, repository rule "Merge command", decisions D-002, D-009 and D-007):
 
    ```
    gh pr merge <n> --squash --delete-branch --author-email "$(<address source>)"
