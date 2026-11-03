@@ -69,3 +69,10 @@ This page holds no email address.
 - Decided by: human `404pilo`, through hitl, on 2026-11-03 (veracity 90).
 - Card from decision-judge: level middle, confidence medium, hard to reverse, hidden, band strict.
 - This page holds no email address.
+
+<!-- LINKS:START (generated, do not edit) -->
+
+## Links
+
+- fed: [D-010: report the merge and decision id faults to the shared sofa plugin](d-010-report-the-merge-and-decision-id-faults-to-the-shared-sofa-plugin.md)
+<!-- LINKS:END -->

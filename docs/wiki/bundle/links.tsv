@@ -1,5 +1,7 @@
 source	relation	target
 /entities/pilo.md	sources	/sources/the-human-team-of-jag.md
+/synthesis/d-010-report-the-merge-and-decision-id-faults-to-the-shared-sofa-plugin.md	sources	/synthesis/merge-rule-only-gh-pr-merge-squash-keep-commit-ccf4676.md
+/synthesis/d-010-report-the-merge-and-decision-id-faults-to-the-shared-sofa-plugin.md	sources	prd:/constraints/CONSTRAINT-01.md
 /synthesis/story-45-practice-gate-and-conversion-rule.md	sources	/concepts/evaluation-method-of-the-earlier-search-tool.md
 /synthesis/story-45-practice-gate-and-conversion-rule.md	sources	prd:/decisions/DECISION-70.md
 /synthesis/story-45-practice-gate-and-conversion-rule.md	sources	roadmap:/stories/STORY-45.md
