@@ -44,7 +44,7 @@ the README and the release notes. It adds no code.
 | 6 | The place of the data | The held-out set, the development set, the converter, each case file and each copy stay outside the clone of jag. Nothing of them goes into a commit, a PR, an issue, a message to another session, or a log | DECISION-70; STORY-78 spec, row 19 (exit 2 for a case file in the source folder) |
 | 7 | The run commit | A commit of `main` whose `Cargo.toml` has the release version. The checkout is clean (`git status --porcelain` is empty). Between the run commit and the tag commit, only `README.md` and files under `docs/` change. From the run to the tag, the orchestrator merges no PR that changes another file | Inferred: `scripts/release/README.md`, "The version" and "Before the first tag"; `docs/bench.md` (the 4th line names the jag version); DECISION-70 (frozen prompt and threshold) |
 | 8 | The settings check | Before chores opens the held-out set, the user runs `jag-bench` on a temp copy of the invented cases of `tests/bench/`. Its 4th line must name `PROMPT_VERSION` and `THRESHOLD` of `src/scorer.rs`, `DEFAULT_MODEL` of `src/config/model.rs`, and the release version. If the model is different, the user removes the model setting and runs the check again | Inferred: DECISION-70 ("no setting change"); `docs/bench.md`, "Output"; `tests/bench/cases.yaml` |
-| 9 | The cost | Before the run, chores counts the cases with an answer on the machine, and tells the user the expected cost: about $0.014 for each case. The upper limit: each case scores at most `DEFAULT_COST_LIMIT` (200) results. The user says yes before the run. The spec gives no count. The development run of row 21 also costs money (83 cases, about $1.20). The user says yes before that run too | METRIC-05 ($1.13 for 83 questions); `src/config/limit.rs`; README, "The cost of a search" |
+| 9 | The cost | Before the run, chores counts the cases with an answer on the machine, and tells the user the expected cost: about $0.014 for each case. The upper limit: each case scores at most `DEFAULT_COST_LIMIT` (200) results. The user says yes before the run. The spec gives no count. The development run of row 21 also costs money. A case with no answer makes no model call, so it costs about 74 × $0.014 ≈ $1.05. The user says yes before that run too | METRIC-05 ($1.13 for 83 questions); `src/config/limit.rs`; README, "The cost of a search" |
 | 10 | Per-case results | The run uses no `--detail` file. Nobody reads a per-case result | Inferred: DECISION-70 ("nothing is tuned on the result"). A per-case result has no other use |
 | 11 | One time | The run with exit 0 or 1 is the one run. Exit 2 (before the first model call), 3 to 6, or 130 prints no score, so a new run after the fix of the cause is still the one run. A run on the development set (row 21) is not the one run | STORY-78 spec, row 21; `docs/bench.md`, "Exit codes" |
 | 12 | The bar | `bar pass` (exit 0): the work goes on to row 13. `bar fail` (exit 1): row 17 | DECISION-70; CRITERION-73; `docs/bench.md` (the bar of `jag-bench` is the bar of CRITERION-73) |
@@ -58,7 +58,7 @@ the README and the release notes. It adds no code.
 | 20 | The state of STORY-45 | `ready`: its spec is on `main`, STORY-78 is `done`, and no card is open. The card of row 23 has its ANSWER (D-008) | `docs/adlc.md`, section 2, rule 1 |
 | 21 | Test the rule first | Before chores opens the held-out set, the user converts the development set (83 cases) with the converter of row 22 and runs `jag-bench` on it. The result goes to the gate of row 23. Before the development run, chores freezes the rule and the converter: it records the rule hash and the SHA-256 of the converter, and prints only the first 12 characters of each. After a pass of both checks, the user converts the held-out set with the same converter, chores checks that the hashes are the same, and the one run follows. The rule and the converter do not change after the development scores are seen | human:404pilo, 2026-11-03 (D-001, hitl: "test the rule on the development set, then freeze it, then convert the private set"); knowledge page `synthesis/story-45-test-the-labeling-rule-on-the-development-set-first` (the first test recorded a rule hash of 12 characters) |
 | 22 | The conversion rule | The method of the earlier evaluation tool, mapped to the labeled lines of `jag-bench`. The steps are in "The conversion rule" (Design). This rule replaces the rule of the first development test: the rule under test of D-001 (the term is the first `checks.mustContain` entry, and each answer line has grade 1), D-003 and D-004. D-005 rejected that rule after its development test. The order of D-001 stays (row 21) | Planner decision of 2026-11-03, path (a) "convert with the old method" (state store D-006, story STORY-45). It follows D-001, D-003, D-004 and D-005. No PRD or bar change. STORY-78 spec, row 2 ("The score can differ a little from the result of the earlier bench harness"); knowledge page `concepts/evaluation-method-of-the-earlier-search-tool` (PR #284, open; a researcher study of 2026-11-03, veracity 60) |
-| 23 | The development gate | The practice test runs `jag-bench` once on the converted development case file (74 cases with answers, 9 no-answer cases). `jag-bench` computes both scores: the score of a tool is the mean of its ndcg@10 over the cases with an answer (`docs/bench.md`, "How the tool scores a case"). The pass rule is written here before the run, and nothing is tuned on the result. 1. Label check (blind grep): the blind grep score must be 0.10 or less. The old score was 0.06. Blind grep uses no model, so the prompt cannot move this score. It tests the labels and the metric. 2. Bar check (jag): the jag score must be 0.70 or more, which is the release bar of DECISION-70 and CRITERION-73. It uses the fixed prompt (`jag-p1`) and threshold of `jag-bench`. A jag score above the old score (0.73) is not a failure. Outcome: if check 1 fails, the labels are wrong: stop, there is no private run, and the planner chooses the next path. If check 1 passes and check 2 fails, there is no private run, and a fix story comes first (the planner writes it). If both pass, freeze the rule and the converter (row 21), convert the private set, and do the one private run. The 2 checks and the conversion rule are frozen before the practice scores are seen, and they do not change after the scores | human:404pilo, 2026-11-03 (D-008, hitl card "How close the practice scores must be", option "Two checks, written before the run", no condition); planner decision of 2026-11-03 (state store D-006, story STORY-45); D-001 and D-005 (frozen before the scores). The old scores: `prd:/metrics/METRIC-01.md` on `main` (jag about 0.72, blind grep about 0.06); the PR #284 page (open: jag 0.73, blind 0.06) |
+| 23 | The development gate | The practice test runs `jag-bench` once on the converted development case file (74 cases with answers, 9 no-answer cases). `jag-bench` computes both scores: the score of a tool is the mean of its ndcg@10 over the cases with an answer (`docs/bench.md`, "How the tool scores a case"). The pass rule is written here before the run, and nothing is tuned on the result. 1. Label check (blind grep): the blind grep score must be 0.10 or less. The old score was 0.06. Blind grep uses no model, so the prompt cannot move this score. It tests the labels and the metric. 2. Bar check (jag): the jag score must be 0.70 or more, which is the release bar of DECISION-70 and CRITERION-73. It uses the fixed prompt (`jag-p1`) and threshold of `jag-bench`. A jag score above the old score (0.73) is not a failure. Because check 1 passed, a jag score of 0.70 or more is also higher than blind grep, so the `bar` line of `jag-bench` says `bar pass`. Outcome: if check 1 fails, the labels are wrong: stop, there is no private run, and the planner chooses the next path. If check 1 passes and check 2 fails, there is no private run, and a fix story comes first (the planner writes it). If both pass, freeze the rule and the converter (the rule hash and the converter hash as chores recorded them, row 21), convert the private set, and do the one private run. The 2 checks and the conversion rule are frozen before the practice scores are seen, and they do not change after the scores | human:404pilo, 2026-11-03 (D-008, hitl card "How close the practice scores must be", option "Two checks, written before the run", no condition); planner decision of 2026-11-03 (state store D-006, story STORY-45); D-001 and D-005 (frozen before the scores). The old scores: `prd:/metrics/METRIC-01.md` on `main` (jag about 0.72, blind grep about 0.06); the PR #284 page (open: jag 0.73, blind 0.06) |
 | 24 | The fixed values of the old run | Before the development run, chores checks the fixed values of `jag-bench` against the old run: the prompt, the threshold 0.4, and no per-file cap. Chores reports each difference to the orchestrator before the run. Row 25 lists the differences that are known on 2026-11-03 | Planner decision of 2026-11-03 (state store D-006, story STORY-45); `src/scorer.rs` (`PROMPT_VERSION`, `THRESHOLD`) |
 | 25 | The differences from the old run | 1. The prompt: `jag-bench` uses `jag-p1`. The old run used `noul-b-v1`. 2. The threshold 0.4 and no per-file cap: the same in both. 3. The pre-rank: jag pre-ranks to 200 results when a search has more (`DEFAULT_COST_LIMIT`). The old run scored all results. 4. The credit: `jag-bench` gives credit to a labeled matching line, computes the ideal score from all labeled lines cut at 10, and counts each blind grep line as 1 result. The old tool gave credit to merged windows (snippets) and computed the ideal score over the snippets that grep found. The 2 checks of row 23 allow for these differences: check 1 uses no model, and check 2 is the release bar | Chores, the check of 2026-11-03, and the planner (orchestrator TASK of 2026-11-03); `src/scorer.rs`; `src/config/limit.rs` (`DEFAULT_COST_LIMIT`); `docs/bench.md`, "How the tool scores a case"; the PR #284 page |
 | 26 | A failed development gate | No held-out set is converted and no run occurs. Chores sends `BLOCKED` with the tag `decision` to the orchestrator, with the name of the failed check and no number. If check 1 fails, the planner chooses the next path, for example a `jag-bench` story that scores snippets, through a card. If only check 2 fails, the planner writes a fix story | D-008 (the outcome rules of row 23); planner decision of 2026-11-03 (state store D-006, story STORY-45: "if the dev gate fails again, a snippet-score story with a card"); row 17 (no number in the message) |
@@ -84,18 +84,22 @@ format. So no path of either set goes into the context of chores (row 5).
    Chores reads the 4th line. The ndcg@10 values of this check have no
    meaning, because the invented cases are small.
 4. **The development test (rows 21 to 26).**
-   1. The fixed values (row 24). Chores compares the 4th line of step 3
-      with the old run: the prompt, the threshold 0.4, and no per-file cap.
-      It reports each difference to the orchestrator before the next step,
-      also the known differences of row 25.
+   1. The fixed values (row 24). Chores compares the prompt and the
+      threshold 0.4 in the 4th line of step 3 with the old run. The 4th
+      line does not show a per-file cap: `jag-bench` has none
+      (`src/bench.rs`). Chores reports each difference to the orchestrator
+      before the next step, also the known differences of row 25.
    2. The converter. Chores writes a converter in `<work>` that does "The
       conversion rule". To learn the old format, it prints only the field
       names and the type of each field, never a value.
    3. The conversion. The user gives `<dev set>` and `<work>/<dev file>` to
       the converter as arguments. The converter prints only the counts of
-      "The counts of the converter". The development set gives about 74
-      cases with an answer of 83. A large gap shows an error in the
-      converter: fix it, and convert again.
+      "The counts of the converter". The development set must give 74 cases
+      with an answer and 9 cases with no answer. If it gives other counts,
+      find the cause before step 4.4. If the cause is an error in the
+      converter, fix it and convert again. Else stop and send `BLOCKED`
+      with the tag `decision` and the 2 counts. No score is seen yet, so
+      this is not tuning.
    4. The freeze (row 21). Chores records the rule hash and the SHA-256 of
       the converter, and prints only the first 12 characters of each.
    5. The cost (row 9). The user says yes, or stops.
@@ -162,6 +166,8 @@ The converter makes 1 case of the case file for each case of the old set
    Line numbers start at 1.
 4. **No answer.** A case with no label after step 3 gets `answers: []`. It
    stays in the case file and is not in the mean.
+5. **An empty term.** A case whose term is empty after step 1 gets
+   `answers: []` and the term `no-term` (see "The counts of the converter").
 
 ### The counts of the converter
 
@@ -170,14 +176,18 @@ The converter prints only these counts:
 - the cases in the old set, and the cases in the case file (they must be
   equal)
 - the cases with an answer, and the cases with no answer (the development
-  set: about 74 with an answer)
+  set: 74 with an answer and 9 with no answer, step 4.3)
 - the labeled lines of grade 2, and of grade 1
 - the needles that it kept, and the needles that it removed because they
   were short, matched more than 5 lines of a document, or held a line break
 - the cases whose term is empty after step 1 of "The conversion rule"
 
-The last count must be 0, because `jag-bench` needs a term for each case.
-If it is not 0, chores stops and sends `BLOCKED` with the tag `decision`.
+A case whose term is empty after step 1 of "The conversion rule" has no
+matching line, so it is a case with no answer. The converter writes
+`answers: []` and the fixed term `no-term`, because `jag-bench` needs a term
+that is not empty for each case (`docs/bench.md`, "The case file").
+`jag-bench` does not search for the term of a case with no answer. This
+count is only for information.
 
 ### The public text
 
@@ -284,7 +294,7 @@ that the generated notes follow it, and then approves `github-publish`.
 
 1. The conversion is wrong, and the score is wrong. Signal: the case counts
    of "The counts of the converter" are not equal, the development set does
-   not give about 74 cases with an answer, a case has an empty term, or
+   not give 74 cases with an answer and 9 with no answer, or
    `jag-bench` exits with 2. Mitigation: fix the converter before the
    development run. Then the development gate (row 23) checks the
    converter before the held-out set is converted. No held-out score is
