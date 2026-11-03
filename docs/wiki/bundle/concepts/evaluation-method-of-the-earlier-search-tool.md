@@ -86,5 +86,6 @@ So the rule did not score as the earlier tool did, and it failed its development
 
 ## Links
 
+- fed: [STORY-45 practice gate and conversion rule](../synthesis/story-45-practice-gate-and-conversion-rule.md)
 - fed: [STORY-45: test the labeling rule on the development set first](../synthesis/story-45-test-the-labeling-rule-on-the-development-set-first.md)
 <!-- LINKS:END -->
