@@ -5,10 +5,11 @@ description: 'Human answer of 2026-11-03: test the rule on the development set, 
 status: draft
 generated:
   by: claude-code/opus-5.5
-  at: '2026-11-03T13:28:43Z'
+  at: '2026-11-03T13:31:35Z'
 sources:
 - resource: prd:/decisions/DECISION-70.md
 - resource: roadmap:/stories/STORY-45.md
+- resource: prd:/metrics/METRIC-01.md
 ---
 
 # STORY-45: test the labeling rule on the development set first
@@ -51,4 +52,5 @@ The rule under test:
 
 - sources: [prd:/decisions/DECISION-70.md](../../../product/prd/decisions/DECISION-70.md)
 - sources: [roadmap:/stories/STORY-45.md](../../../product/roadmap/stories/STORY-45.md)
+- sources: [prd:/metrics/METRIC-01.md](../../../product/prd/metrics/METRIC-01.md)
 <!-- LINKS:END -->
