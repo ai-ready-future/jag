@@ -78,7 +78,7 @@ The development test of the labeling rule did not meet the D-001 check, so the p
 - The scores are not near the earlier scores, so the rule is not accepted. The rule stays frozen and no private set was converted.
 - Root cause: step 4 of the STORY-45 spec expected labeled lines in the old set. The old set has none.
 
-Answer (human `404pilo`, through hitl, 2026-11-03, veracity 90): find how the old test scored.
+Answer (human `404pilo`, through hitl, 2026-11-03, veracity 90): find how the old test scored. Decision: D-005.
 
 1. The human tells whether the old tool scored whole documents or single lines. The human gives its code or its answer lines if possible.
 2. Then the planner chooses 1 path: convert with the old method, make labels by hand, or write a new story that scores whole documents.

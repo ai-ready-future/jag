@@ -40,7 +40,7 @@ Facts:
 - All commits of the PR had the noreply address.
 - So the merge method is not the cause. GitHub takes the squash author address from an account setting that changed on 2026-11-03.
 
-Answer (human `404pilo`, through hitl, 2026-11-03, veracity 90): set the author address in the merge command.
+Answer (human `404pilo`, through hitl, 2026-11-03, veracity 90): set the author address in the merge command. Decision: D-006. It extends D-002.
 
 - The merger runs `gh pr merge <n> --squash --author-email "$(git log -1 --format=%ae 78aa3f5)"`. It reads the address from git and never prints it.
 - If such a merge fails, the merger stops and asks. It never merges without the flag.
