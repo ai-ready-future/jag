@@ -62,16 +62,25 @@ Evidence lines are the lines of the gold documents that hold a needle.
 - Keep a needle only if it has a digit or at least 5 characters.
 - A needle that matches more than 5 lines in a document marks nothing in that document.
 
-## Published development numbers
+## Development numbers
 
-These numbers are already public in the summary of `prd:/metrics/METRIC-01.md`.
+`prd:/metrics/METRIC-01.md` gives the public summary: jag about 0.72, blind grep about 0.06.
+
+The researcher study (2026-11-03) gives more detail for the same development run. These are totals only:
 
 - 83 cases, 74 defined (the other cases have IDCG 0).
 - nDCG@10: blind 0.06, lexical 0.38, jag 0.73.
 
 ## Why it matters for STORY-45
 
-The earlier scores are scores of snippets with graded gain. The line-based labeling rule of STORY-45 scored whole labeled lines, from terms taken from `mustContain` and expected values. So the two methods differ, and this is the reason that the rule failed its development test (jag 0.870 and grep 0.455, against about 0.73 and 0.06). See [the STORY-45 page](/synthesis/story-45-test-the-labeling-rule-on-the-development-set-first.md).
+The labeling rule of STORY-45 is different from this method in 4 ways:
+
+- Term: the first `mustContain` entry, or the first expected value if there is no entry. The method uses the terms of the question text.
+- Unit: a single labeled line, not a snippet.
+- Gain: 1 for each labeled line, not 0, 1, or 2.
+- IDCG: over all labels, not only over the snippets that grep found.
+
+So the rule did not score as the earlier tool did, and it failed its development test (jag 0.870 and grep 0.455, against about 0.72 and 0.06). The planner found that the term is the main cause (2026-11-03). See [the STORY-45 page](/synthesis/story-45-test-the-labeling-rule-on-the-development-set-first.md).
 
 <!-- LINKS:START (generated, do not edit) -->
 
