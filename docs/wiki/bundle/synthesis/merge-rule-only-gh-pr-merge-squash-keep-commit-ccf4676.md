@@ -50,6 +50,20 @@ Answer (human `404pilo`, through hitl, 2026-11-03, veracity 90): set the author 
 
 Card from decision-judge: level middle, confidence medium, hard to reverse, hidden, band strict. This page holds no email address.
 
+## Update 2026-11-03: the address source
+
+Question: which address goes on the commits of the user? (card "Which email address goes on your commits")
+
+Answer (human `404pilo`, through hitl, 2026-11-03, veracity 90): "Your chosen address for all new work".
+
+- The chosen address goes on all new commits and merges.
+- It is kept in the repository-local git config of the main folder (`user.email`). It is never printed and never in a repository file.
+- The checks before each push and after each merge compare with it.
+- Earlier commits keep their addresses.
+- It replaces the address source of D-006 (the read from `78aa3f5`). The rest of D-006 stays: the `--author-email` flag, the stop when a merge fails, and the author check.
+
+This page holds no email address.
+
 ## Provenance
 
 - Decided by: human `404pilo`, through hitl, on 2026-11-03 (veracity 90).
