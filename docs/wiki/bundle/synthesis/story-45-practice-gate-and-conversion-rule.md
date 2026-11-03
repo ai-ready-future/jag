@@ -45,8 +45,8 @@ Before the development run, the rule hash and the SHA-256 of the converter are r
 
 For each case of the old set:
 
-1. Term: use the term rule of the earlier tool on the question text. Join the escaped terms with `|` into 1 pattern, with `ignore_case: true` and `fixed_strings: false`.
-2. Evidence lines: the gold documents are the expected documents whose form is not `absent`. The needles are the expected values of each subject (split at `;`, searched only in the documents of that subject), and the `mustContain` entries (a list gives each string, searched in all gold documents). Keep a needle only with a digit or 5 characters or more. A needle that matches more than 5 lines of a document marks no line of that document. A needle with a line break marks no line.
+1. Term: use the term rule of the earlier tool on the question text (keep the first 12 unique terms). Join the escaped terms with `|` into 1 pattern, with `ignore_case: true` and `fixed_strings: false`.
+2. Evidence lines: the gold documents are the expected documents of each subject whose form is not `absent`. The needles are the expected values of each subject (split at `;`, searched only in the documents of that subject), and the `mustContain` entries (a list gives each string, searched in all gold documents). Keep a needle only with a digit or 5 characters or more. A needle that matches more than 5 lines of a document marks no line of that document. A needle with a line break marks no line.
 3. Labels: grade 2 for each line of a gold document that matches the term and is at most 3 lines from an evidence line of the same document. Grade 1 for each other matching line of a gold document. A line gets 1 label only, the higher grade. An evidence line that does not match the term gets no label.
 4. No answer: a case with no label gets `answers: []`. It stays in the case file and is not in the mean.
 5. Empty term: a case whose term is empty after step 1 gets `answers: []` and the fixed term `no-term`, because `jag-bench` needs a term that is not empty. `jag-bench` does not search for the term of a case with no answer.
@@ -58,8 +58,6 @@ The converter prints only counts. At the development conversion (step 4.3 of the
 ## A failed gate
 
 No private set is converted and no run occurs. The failed check is named in a `BLOCKED · decision` message with no number.
-
-The 2 checks of the development practice run (D-008), the conversion rule of path (a) (D-006), and the empty-term rule.
 
 <!-- LINKS:START (generated, do not edit) -->
 
