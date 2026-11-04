@@ -38,7 +38,7 @@ This milestone holds the capabilities that make jag better to use and easier to 
 | [FEATURE-13: Common rg options and exit codes](../features/FEATURE-13.md) | done | 4/4 (100%) | - | FEATURE-12 | - |
 | [FEATURE-14: Files, folders, and piped text](../features/FEATURE-14.md) | done | 3/3 (100%) | - | FEATURE-05 | - |
 | [FEATURE-15: Good behavior in a terminal and in a pipe](../features/FEATURE-15.md) | done | 3/3 (100%) | - | FEATURE-04 | - |
-| [FEATURE-18: Install jag from GitHub Releases, crates.io, or npm](../features/FEATURE-18.md) | ready | 0/4 (0%) | - | FEATURE-01, FEATURE-17, FEATURE-19, FEATURE-22, FEATURE-23 | - |
+| [FEATURE-18: Install jag from GitHub Releases, crates.io, or npm](../features/FEATURE-18.md) | ready | 0/4 (0%) | human:404pilo | FEATURE-01, FEATURE-17, FEATURE-19, FEATURE-22, FEATURE-23 | - |
 | [FEATURE-19: Go public with a clean history](../features/FEATURE-19.md) | done | 4/4 (100%) | - | FEATURE-17 | - |
 | [FEATURE-20: Show the cost of a search](../features/FEATURE-20.md) | done | 4/4 (100%) | - | FEATURE-04, FEATURE-11 | - |
 | [FEATURE-21: Send the model calls through an AI gateway](../features/FEATURE-21.md) | done | 2/2 (100%) | - | FEATURE-04 | - |
@@ -47,7 +47,7 @@ This milestone holds the capabilities that make jag better to use and easier to 
 | [FEATURE-24: Install the jag skill with one README command](../features/FEATURE-24.md) | done | 4/4 (100%) | - | - | - |
 | [FEATURE-25: Copy the same teaching as a snippet](../features/FEATURE-25.md) | done | 2/2 (100%) | - | FEATURE-24 | - |
 | [FEATURE-26: Prove that an agent with the skill uses jag well](../features/FEATURE-26.md) | done | 2/2 (100%) | - | FEATURE-24 | - |
-| [FEATURE-28: A maintainer approves the private-data check of a fork pull request](../features/FEATURE-28.md) | ready | 1/1 (100%) | - | - | - |
+| [FEATURE-28: A maintainer approves the private-data check of a fork pull request](../features/FEATURE-28.md) | ready | 1/1 (100%) | human:404pilo | - | - |
 <!-- STATUS:END -->
 
 <!-- LINKS:START (generated, do not edit) -->

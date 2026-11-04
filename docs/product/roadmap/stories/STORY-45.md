@@ -15,6 +15,7 @@ github:
   url: https://github.com/ai-ready-future/jag/issues/70
   synced:
     state: ready
+    owner: human:404pilo
   pushed_hash: 3b1192
 spec: docs/superpowers/specs/2026-10-27-STORY-45-run-the-held-out-evaluation-before-release-design.md
 parent: /epics/EPIC-02.md
@@ -22,6 +23,7 @@ blocked_by:
 - /stories/STORY-78.md
 - /stories/STORY-79.md
 milestone: /milestones/MILESTONE-02.md
+owner: human:404pilo
 traces:
 - to: prd:/scope/SCOPE-10.md
   hash: 1a7d4e
