@@ -13,9 +13,9 @@ github:
   number: 311
   node_id: I_kwDOVKMnL88AAAABcc6mMg
   url: https://github.com/ai-ready-future/jag/issues/311
-  pushed_hash: 049b21
+  pushed_hash: 088ec7
   synced:
-    state: backlog
+    state: ready
     owner: human:404pilo
 spec: docs/superpowers/specs/2026-11-04-STORY-80-name-the-merge-conflict-when-private-data-cannot-check-out-a-pr-design.md
 parent: /epics/EPIC-05.md
