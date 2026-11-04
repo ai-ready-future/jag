@@ -38,7 +38,7 @@ The repository of the sofa plugin is private (checked with `gh repo view` on 202
 
 ## Open
 
-The link to the issue is not known yet. A later change adds it after the issue opens.
+Issue opened on 2026-11-04. The user approved the text first. This page has no link, no issue number, and no repository name, because the graph is public and the plugin repository is private.
 
 <!-- LINKS:START (generated, do not edit) -->
 
