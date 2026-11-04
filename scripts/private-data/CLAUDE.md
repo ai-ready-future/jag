@@ -5,7 +5,8 @@ This folder holds the check that finds keys and private words. Read `README.md` 
 - `check.sh`: scans files, commits, and pull request text with gitleaks.
 - `clean-history.sh`: makes one clean history from main.
 - `issues.sh`: scans the issues of a repository with `check.sh`.
-- `test.sh`: tests of `check.sh` with invented values.
+- `merge-ref.sh`: finds out if GitHub has the merge ref of a pull request. It runs before the checkout of the pull request, and names a merge conflict.
+- `test.sh`: tests of `check.sh` and `merge-ref.sh` with invented values.
 
 Test: `GITLEAKS=/path/to/gitleaks scripts/private-data/test.sh`
 
