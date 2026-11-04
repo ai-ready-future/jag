@@ -9,6 +9,13 @@ generated:
   by: prd/6.2.0
   at: '2026-11-04T14:10:26Z'
 state: backlog
+github:
+  number: 316
+  node_id: I_kwDOVKMnL88AAAABcdSeRA
+  url: https://github.com/ai-ready-future/jag/issues/316
+  pushed_hash: 4774bc
+  synced:
+    state: backlog
 parent: /epics/EPIC-02.md
 milestone: /milestones/MILESTONE-02.md
 discovered_from: /stories/STORY-79.md

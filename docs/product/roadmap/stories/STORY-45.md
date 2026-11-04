@@ -16,7 +16,7 @@ github:
   synced:
     state: blocked
     owner: human:404pilo
-  pushed_hash: c64d96
+  pushed_hash: c35e1b
 spec: docs/superpowers/specs/2026-10-27-STORY-45-run-the-held-out-evaluation-before-release-design.md
 parent: /epics/EPIC-02.md
 blocked_by:
