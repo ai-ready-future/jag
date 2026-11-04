@@ -62,4 +62,5 @@ No page of the knowledge graphs names this failure. ADR 0027 lists the other kno
 - criterion or run of: [CRITERION-144: A conflicting pull request fails with a clear message](../criteria/CRITERION-144.md)
 - criterion or run of: [CRITERION-145: A pull request with no conflict runs as before](../criteria/CRITERION-145.md)
 - criterion or run of: [CRITERION-148: A late merge ref runs as before](../criteria/CRITERION-148.md)
+- discovered: [STORY-82: Limit the keys of the merge ref step in the private-data test](STORY-82.md)
 <!-- LINKS:END -->
