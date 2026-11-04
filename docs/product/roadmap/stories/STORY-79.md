@@ -55,8 +55,9 @@ On 2026-11-04 the researcher and the maintainer ran `jag-bench --best-order` one
 
 - The best possible score of the jag-bench windows is above the release bar of D-008 (jag 0.70 or more).
 - The best order comes after the pre-rank (D-011, condition a). So the cost of the pre-rank is already in the best score, and the best score is still above the bar. The window and credit rules (STORY-78 spec, rows 10 and 11) and the pre-rank do not by themselves keep jag below the bar. The gap is in the order that jag gives to the windows.
+- The best possible score is clearly above the bar, not near it (D-015), so the fix story changes jag: the old prompt first.
 
-The next path, from D-011 (condition d): a fix story for the order of jag. It brings back the prompt of the old tool first (STORY-81). The story that scores more than 200 results comes only after it, because of METRIC-05. STORY-45 waits for STORY-81.
+The next path, from D-011 (condition d) and D-015: a fix story for the order of jag that brings back the prompt of the old tool (STORY-81). STORY-45 waits for STORY-81. A change of the pre-rank limit is not an automatic second fix (D-015): it can only be an option on a `revisit:` card of STORY-45 spec rows 23 and 25.
 
 <!-- STATUS:START (generated, do not edit) -->
 

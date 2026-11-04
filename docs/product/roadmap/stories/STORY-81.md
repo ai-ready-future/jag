@@ -21,7 +21,7 @@ traces:
 
 As the maintainer, I want jag to score with the prompt of the old tool as a new prompt version, tuned and tested on the development set, so that jag can reach the release bar before the one held-out run.
 
-STORY-79 showed that the best possible score of the jag-bench windows is above the release bar of D-008, also after the pre-rank. So the gap is in the order that jag gives to the windows. The prompt is the largest known difference that jag controls: the development run of STORY-45 used `jag-p1`, and the old tool used the prompt `noul-b-v1`. D-011 (condition d) puts this story first. A story that scores more than 200 results comes only after it, because METRIC-05 says that jag must not raise answer quality by scoring many more snippets.
+STORY-79 showed that the best possible score of the jag-bench windows is above the release bar of D-008, also after the pre-rank. So the gap is in the order that jag gives to the windows. The prompt is the largest known difference that jag controls: the development run of STORY-45 used `jag-p1`, and the old tool used the prompt `noul-b-v1`. D-011 (condition d) and D-015 choose this story: the best possible score is clearly above the bar, not near it.
 
 The scope:
 
@@ -32,7 +32,12 @@ The scope:
 
 A step before the work: the text of the old prompt is not in this repository and not on this machine. It is in the old prototype folder of the "Extra context files" row of `docs/adlc.md`. The user gets the text out with `git show` or `git archive`, as that row says, and does not edit files in that folder. Chores guides this step.
 
-If the jag check of the development test fails again, the next path is the story that scores more than 200 results (with the limits of METRIC-05), or a `revisit:` of STORY-45 spec rows 23 and 25 through a card.
+The stop rule (D-015). The specifier writes it into the STORY-81 spec before the development run:
+
+- The old prompt, as a new prompt version, gets 1 development run under the frozen check 2. There is no third prompt, and the prompt does not change between runs.
+- If check 2 fails, STORY-45 spec rows 23 and 25 go back to the human as a `revisit:`.
+- A change of the pre-rank limit (more than 200 results) is not an automatic second fix. It conflicts with METRIC-05 and needs a change of ADR-0002 and DECISION-12, so it can only be an option on that `revisit:` card.
+- STORY-45 spec row 23 says that the practice test runs one time, with `jag-p1`. The STORY-81 spec changes that row for this second development run.
 
 <!-- STATUS:START (generated, do not edit) -->
 
