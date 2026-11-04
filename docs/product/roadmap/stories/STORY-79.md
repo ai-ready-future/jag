@@ -5,11 +5,20 @@ description: As the maintainer, I want jag-bench to print the best score that a 
   order of its own windows can get, so that I know if a fix to jag can reach the bar.
 status: draft
 generated:
-  by: prd/6.2.0
-  at: '2026-11-04T11:06:42Z'
+  by: process:github
+  at: '2026-11-04T12:13:07Z'
 state: backlog
+github:
+  number: 298
+  node_id: I_kwDOVKMnL88AAAABcaqQHA
+  url: https://github.com/ai-ready-future/jag/issues/298
+  pushed_hash: ade8ff
+  synced:
+    state: backlog
+    owner: human:404pilo
 parent: /epics/EPIC-02.md
 milestone: /milestones/MILESTONE-02.md
+owner: human:404pilo
 discovered_from: /stories/STORY-45.md
 traces:
 - to: prd:/metrics/METRIC-01.md

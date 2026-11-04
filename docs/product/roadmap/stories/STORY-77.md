@@ -13,7 +13,7 @@ github:
   url: https://github.com/ai-ready-future/jag/issues/246
   pushed_hash: e25fe8
   synced:
-    state: ready
+    state: done
     owner: human:404pilo
 spec: docs/superpowers/specs/2026-10-26-STORY-77-approve-fork-private-data-runs-design.md
 parent: /features/FEATURE-28.md
