@@ -64,6 +64,21 @@ Answer (human `404pilo`, through hitl, 2026-11-03, veracity 90): "Your chosen ad
 
 This page holds no email address.
 
+## Decision D-012 (2026-11-04): a retry after a 5xx error
+
+Question: a guarded merge (D-009) failed with 502 Bad Gateway during a likely GitHub outage. May the merger retry?
+
+Decision D-012 was made by decision-judge on 2026-11-04 (level middle, confidence high, reversible, hidden). Veracity 70. No human made this decision.
+
+Answer: yes, 1 time, for PR #294.
+
+- First check the merged state, because a 5xx can hide a success.
+- Then run the same guarded command after GitHub recovers.
+- Run an API author check only through `--jq ... | sha256sum`, and only if `git fetch` stays broken.
+- Stop on any failure that is not a 5xx.
+
+This is not a rule change. A general retry rule for 5xx errors changes D-009 and needs the human.
+
 ## Provenance
 
 - Decided by: human `404pilo`, through hitl, on 2026-11-03 (veracity 90).
