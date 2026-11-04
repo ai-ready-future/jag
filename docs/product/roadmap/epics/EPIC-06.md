@@ -4,7 +4,8 @@ title: An agent uses jag well
 description: The agent builder gives jag to an agent with one install or one copy,
   and the agent then uses jag well with no instructions from the builder.
 status: draft
-state: ready
+state: done
+actual_end_date: '2026-11-04'
 github:
   number: 177
   node_id: I_kwDOVKMnL88AAAABYgDHSw
