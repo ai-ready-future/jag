@@ -47,7 +47,7 @@ This milestone holds the capabilities that make jag better to use and easier to 
 | [FEATURE-24: Install the jag skill with one README command](../features/FEATURE-24.md) | done | 4/4 (100%) | - | - | - |
 | [FEATURE-25: Copy the same teaching as a snippet](../features/FEATURE-25.md) | done | 2/2 (100%) | - | FEATURE-24 | - |
 | [FEATURE-26: Prove that an agent with the skill uses jag well](../features/FEATURE-26.md) | done | 2/2 (100%) | - | FEATURE-24 | - |
-| [FEATURE-28: A maintainer approves the private-data check of a fork pull request](../features/FEATURE-28.md) | ready | 0/1 (0%) | - | - | - |
+| [FEATURE-28: A maintainer approves the private-data check of a fork pull request](../features/FEATURE-28.md) | ready | 1/1 (100%) | - | - | - |
 <!-- STATUS:END -->
 
 <!-- LINKS:START (generated, do not edit) -->

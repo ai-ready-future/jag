@@ -5,7 +5,8 @@ description: As an agent builder (PERSONA-01), I want a maintainer to approve ea
   private-data run of a fork pull request, so that the public result cannot confirm
   guesses.
 status: draft
-state: ready
+state: done
+actual_end_date: '2026-11-04'
 github:
   number: 246
   node_id: I_kwDOVKMnL88AAAABaEsC2Q
