@@ -57,12 +57,13 @@ The converter prints only counts. At the development conversion (step 4.3 of the
 
 ## Result of the practice run and decision D-011 (2026-11-04)
 
-Result: blind grep 0.063 (check 1 passes). jag 0.592 (check 2 fails; the bar is 0.70). By D-008, there is no private run, and a fix story comes first.
+Result: blind grep passes check 1 (0.10 or less). jag fails check 2 (less than 0.70). By D-008, there is no private run, and a fix story comes first.
 
 Decision D-011 was made by decision-judge on 2026-11-04 (level middle, confidence high, reversible, hidden). Veracity 70. No human made this decision.
 
 - The fix story first measures the best possible score under the frozen `jag-bench` metric.
 - A bench-only flag behind `--features bench` ranks the own windows of `jag-bench` in the best order, with no model call. It prints 3 totals only: the ceiling, the cases with more than 200 results, and the labeled lines that the pre-rank removes.
+- Each window gets the credit of the STORY-78 spec, row 11: the highest grade of its labeled match lines that no earlier window got. Context lines get no credit.
 - If the ceiling is clearly 0.70 or more, the next fix is the old prompt, then the pre-rank.
 - If the ceiling is near or below 0.70, the gate (rows 23 and 25 of the spec) goes back to the human.
 - The rule hash and the converter hash stay. A changed prompt or threshold is frozen again before the held-out run.
