@@ -55,6 +55,18 @@ For each case of the old set:
 
 The converter prints only counts. At the development conversion (step 4.3 of the spec), the set must give 74 cases with an answer and 9 with no answer. If the counts differ, find the cause before the freeze. If the cause is an error in the converter, fix it and convert again. Otherwise stop and send `BLOCKED · decision` with the 2 counts. No score is seen yet, so this is not tuning. The spec gives no expected count for the private set.
 
+## Result of the practice run and decision D-011 (2026-11-04)
+
+Result: blind grep 0.063 (check 1 passes). jag 0.592 (check 2 fails; the bar is 0.70). By D-008, there is no private run, and a fix story comes first.
+
+Decision D-011 was made by decision-judge on 2026-11-04 (level middle, confidence high, reversible, hidden). Veracity 70. No human made this decision.
+
+- The fix story first measures the best possible score under the frozen `jag-bench` metric.
+- A bench-only flag behind `--features bench` ranks the own windows of `jag-bench` in the best order, with no model call. It prints 3 totals only: the ceiling, the cases with more than 200 results, and the labeled lines that the pre-rank removes.
+- If the ceiling is clearly 0.70 or more, the next fix is the old prompt, then the pre-rank.
+- If the ceiling is near or below 0.70, the gate (rows 23 and 25 of the spec) goes back to the human.
+- The rule hash and the converter hash stay. A changed prompt or threshold is frozen again before the held-out run.
+
 ## A failed gate
 
 No private set is converted and no run occurs. The failed check is named in a `BLOCKED · decision` message with no number.
