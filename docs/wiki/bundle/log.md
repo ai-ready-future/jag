@@ -2,6 +2,7 @@
 
 ## 2026-11-04
 * **Report**: Fixed the STORY-77 page after review: test step dates, the line on the secret removed, D-014 named on the D-013 page, sources added., by knowledge/1.1.3, at 2026-11-04T12:21:38Z
+* **Report**: Wrote the body of the D-015 page: the STORY-79 conclusion in words, decision D-015, and the stop rule., by knowledge/1.1.3, at 2026-11-04T14:26:49Z
 
 ## 2026-11-03
 * **Report**: set failed: the save code has no operation that writes the body of a page. I edited entities/pilo.md directly: I added the GitHub account, role, decisions owned, escalation and Slack lines to the body. Reason: the description field holds one line only., by knowledge/1.1.3, at 2026-11-03T11:14:39Z
