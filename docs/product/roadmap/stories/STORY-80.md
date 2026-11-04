@@ -8,7 +8,8 @@ status: draft
 generated:
   by: prd/6.2.0
   at: '2026-11-04T13:46:59Z'
-state: ready
+state: done
+actual_end_date: '2026-11-04'
 github:
   number: 311
   node_id: I_kwDOVKMnL88AAAABcc6mMg
@@ -40,6 +41,14 @@ The scope:
 - A pull request with no conflict runs as before.
 
 No page of the knowledge graphs names this failure. ADR 0027 lists the other known failures of the check.
+
+## Result
+
+PR #320 added the step "Check the merge ref". On 2026-11-04 the tester ran the 2 live steps of the spec with throwaway pull requests. Each pull request was closed with no merge.
+
+- CRITERION-144 (L2): PR #324 conflicted with main. [Run 41862280050](https://github.com/ai-ready-future/jag/actions/runs/41862280050) failed at "Check the merge ref" with the message "private-data: PR #324 conflicts with main: merge main into the branch".
+- CRITERION-145 (L1): PR #325 had no conflict. [Run 41871250627](https://github.com/ai-ready-future/jag/actions/runs/41871250627) passed, and the log says "private-data: the merge ref of PR #325 exists".
+- CRITERION-148 and spec row 7 pass in the local checks.
 
 <!-- STATUS:START (generated, do not edit) -->
 
