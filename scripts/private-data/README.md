@@ -118,6 +118,11 @@ gives one public yes-or-no answer about the text of the pull request. The
 approval does not hide that answer. It lets the maintainer decide which text
 gets an answer, and how many answers a person gets.
 
+## A pull request that conflicts with its base branch
+
+Invented test text. This section exists only to make a conflict on purpose.
+Do not merge this pull request.
+
 ## Run the tests
 
 ```
