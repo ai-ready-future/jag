@@ -14,9 +14,9 @@ github:
   node_id: I_kwDOVKMnL88AAAABXTMnlA
   url: https://github.com/ai-ready-future/jag/issues/70
   synced:
-    state: ready
+    state: blocked
     owner: human:404pilo
-  pushed_hash: 3b1192
+  pushed_hash: c64d96
 spec: docs/superpowers/specs/2026-10-27-STORY-45-run-the-held-out-evaluation-before-release-design.md
 parent: /epics/EPIC-02.md
 blocked_by:
