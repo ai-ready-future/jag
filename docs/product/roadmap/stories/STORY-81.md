@@ -16,8 +16,10 @@ github:
   pushed_hash: 4774bc
   synced:
     state: backlog
+    owner: human:404pilo
 parent: /epics/EPIC-02.md
 milestone: /milestones/MILESTONE-02.md
+owner: human:404pilo
 discovered_from: /stories/STORY-79.md
 traces:
 - to: prd:/metrics/METRIC-01.md
