@@ -379,3 +379,8 @@
 
 * [CRITERION-142: jag-bench prints the best score of its own windows and no case text](CRITERION-142.md) - The new bench-only flag orders the windows of each case perfectly, calls no model, and prints only 3 totals and no case text.
 * [CRITERION-143: The default jag-bench output does not change](CRITERION-143.md) - Without the new flag, the output and the score of jag-bench are the same as before, and the parity test of STORY-78 passes. The new flag exists only in the bench feature.
+
+## STORY-80: Name the merge conflict when private-data cannot check out a PR
+
+* [CRITERION-144: A conflicting pull request fails with a clear message](CRITERION-144.md) - When a pull request conflicts with main and has no merge ref, the private-data check fails before the checkout and says to merge main into the branch.
+* [CRITERION-145: A pull request with no conflict runs as before](CRITERION-145.md) - When the merge ref exists, the private-data check checks out and scans the pull request as before. The new step runs, sources and reads no file of the pull request.
