@@ -17,9 +17,9 @@ github:
   number: 321
   node_id: I_kwDOVKMnL88AAAABceH68w
   url: https://github.com/ai-ready-future/jag/issues/321
-  pushed_hash: 35dad1
+  pushed_hash: 9d9c4c
   synced:
-    state: ready
+    state: done
     owner: human:404pilo
 spec: docs/superpowers/specs/2026-11-04-STORY-82-limit-the-keys-of-the-merge-ref-step-in-the-private-data-test-design.md
 parent: /epics/EPIC-05.md
