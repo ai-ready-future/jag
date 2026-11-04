@@ -9,8 +9,17 @@ generated:
   by: prd/6.2.0
   at: '2026-11-04T13:46:59Z'
 state: backlog
+github:
+  number: 311
+  node_id: I_kwDOVKMnL88AAAABcc6mMg
+  url: https://github.com/ai-ready-future/jag/issues/311
+  pushed_hash: 049b21
+  synced:
+    state: backlog
+    owner: human:404pilo
 parent: /epics/EPIC-05.md
 milestone: /milestones/MILESTONE-02.md
+owner: human:404pilo
 traces:
 - to: prd:/constraints/CONSTRAINT-01.md
   hash: 1970e3
