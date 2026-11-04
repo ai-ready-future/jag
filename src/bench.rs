@@ -18,8 +18,10 @@ use crate::failure::Failure;
 use crate::prerank;
 use crate::scorer::cost::Usage;
 use crate::scorer::{ScoreSettings, rank, score_with_usage};
-use crate::search::snippet::{ContextLines, SnippetLine, match_texts, plan_windows, read_snippets};
-use crate::search::{ScanOptions, Source, scan};
+use crate::search::snippet::{
+    ContextLines, SnippetLine, Window, match_texts, plan_windows, read_snippets,
+};
+use crate::search::{ScanOptions, ScanReport, Source, scan};
 
 /// The score that jag needs, and the value that grep must stay under.
 pub const BAR: f64 = 0.70;
@@ -423,13 +425,26 @@ fn match_lines(lines: &[SnippetLine]) -> Vec<u64> {
         .collect()
 }
 
-/// Run one case with an answer: the search of jag (with the model) and the
-/// blind grep, on the same scan.
-pub fn run_case(
-    case: &Case,
-    setup: &Setup,
-    on_call_end: &(dyn Fn(usize) + Sync),
-) -> Result<CaseScore, Failure> {
+/// The path of a source, relative to the folder of the case.
+fn relative(case: &Case, source: &Source) -> Option<PathBuf> {
+    let path = source.path()?;
+    path.strip_prefix(&case.folder).ok().map(Path::to_path_buf)
+}
+
+/// The steps of a case up to the model call: the scan, the windows, and the
+/// pre-rank when the windows are more than the cost limit.
+struct Planned {
+    report: ScanReport,
+    /// The windows that go to the model, in the order of the search flow.
+    kept: Vec<Window>,
+    /// The windows that the pre-rank dropped. Empty with no pre-rank.
+    removed: Vec<Window>,
+    /// The count of windows before the pre-rank.
+    total: usize,
+}
+
+/// Make the windows of one case, with the values of the default search.
+fn plan_case(case: &Case) -> Result<Planned, Failure> {
     let matcher = build_matcher(&[case.term.as_str()], case.matching()).map_err(|_| {
         file_failure(
             "a term is not a valid regular expression.",
@@ -441,15 +456,41 @@ pub fn run_case(
         &matcher,
         &ScanOptions::default(),
     );
-    let relative = |source: &Source| -> Option<PathBuf> {
-        let path = source.path()?;
-        path.strip_prefix(&case.folder).ok().map(Path::to_path_buf)
+    let windows = plan_windows(&report.files, ContextLines::DEFAULT);
+    let total = windows.len();
+    let (kept, removed) = if total > DEFAULT_COST_LIMIT {
+        let texts = match_texts(&report.files, &windows);
+        let best = prerank::best(&texts, &case.question, DEFAULT_COST_LIMIT);
+        let mut slots: Vec<Option<Window>> = windows.into_iter().map(Some).collect();
+        let kept = best
+            .into_iter()
+            .filter_map(|index| slots[index].take())
+            .collect();
+        (kept, slots.into_iter().flatten().collect())
+    } else {
+        (windows, Vec::new())
     };
+    Ok(Planned {
+        report,
+        kept,
+        removed,
+        total,
+    })
+}
+
+/// Run one case with an answer: the search of jag (with the model) and the
+/// blind grep, on the same scan.
+pub fn run_case(
+    case: &Case,
+    setup: &Setup,
+    on_call_end: &(dyn Fn(usize) + Sync),
+) -> Result<CaseScore, Failure> {
+    let planned = plan_case(case)?;
 
     // The blind grep: each matching line is one result, by path and by line.
     let mut lines: Vec<(PathBuf, u64)> = Vec::new();
-    for file in &report.files {
-        if let Some(path) = relative(&file.source) {
+    for file in &planned.report.files {
+        if let Some(path) = relative(case, &file.source) {
             lines.extend(
                 file.lines
                     .iter()
@@ -473,19 +514,7 @@ pub fn run_case(
         .collect();
 
     // The search of jag, in the order of the search flow.
-    let windows = plan_windows(&report.files, ContextLines::DEFAULT);
-    let total = windows.len();
-    let kept: Vec<_> = if total > DEFAULT_COST_LIMIT {
-        let texts = match_texts(&report.files, &windows);
-        let best = prerank::best(&texts, &case.question, DEFAULT_COST_LIMIT);
-        let mut windows: Vec<Option<_>> = windows.into_iter().map(Some).collect();
-        best.into_iter()
-            .filter_map(|index| windows[index].take())
-            .collect()
-    } else {
-        windows
-    };
-    let (snippets, _warnings) = read_snippets(&kept, None);
+    let (snippets, _warnings) = read_snippets(&planned.kept, None);
     let jag: Vec<Hit> = if snippets.is_empty() {
         Vec::new()
     } else {
@@ -504,13 +533,78 @@ pub fn run_case(
             .take(TOP)
             .filter_map(|(snippet, _)| {
                 Some(Hit {
-                    file: relative(&snippet.source)?,
+                    file: relative(case, &snippet.source)?,
                     match_lines: match_lines(&snippet.lines),
                 })
             })
             .collect()
     };
     Ok(score_case(&jag, &grep, &case.answers))
+}
+
+/// The best score of one case, with no model call (`--best-order`).
+#[derive(Clone, Debug, PartialEq)]
+pub struct BestScore {
+    /// ndcg@10 of the best order of the kept windows.
+    pub ndcg: f64,
+    /// The count of windows is more than `DEFAULT_COST_LIMIT`: the pre-rank ran.
+    pub over_limit: bool,
+    /// The labeled lines that are a match line of a window that the pre-rank
+    /// dropped.
+    pub removed: usize,
+}
+
+/// The labeled lines that are match lines of a window.
+fn labeled<'a>(window: &'a Hit, answers: &'a [Answer]) -> impl Iterator<Item = &'a Answer> {
+    answers
+        .iter()
+        .filter(|answer| answer.file == window.file && window.match_lines.contains(&answer.line))
+}
+
+/// The gain of a window: the highest grade of its labeled lines, or 0.
+fn gain(window: &Hit, answers: &[Answer]) -> u8 {
+    labeled(window, answers)
+        .map(|answer| answer.grade)
+        .max()
+        .unwrap_or(0)
+}
+
+/// The best ndcg@10 that an order of the kept windows can get, and the count
+/// of labeled lines in the removed windows. Each matching line is in one
+/// window, so the windows do not compete for a labeled line. So the best
+/// order is by gain, highest first, and the sort is stable (the scan order
+/// breaks a tie).
+fn best_of(kept: &[Hit], removed: &[Hit], answers: &[Answer]) -> (f64, usize) {
+    let mut order = kept.to_vec();
+    order.sort_by_key(|window| std::cmp::Reverse(gain(window, answers)));
+    let lost = removed
+        .iter()
+        .map(|window| labeled(window, answers).count())
+        .sum();
+    (ndcg(&credit(&order, answers), answers), lost)
+}
+
+/// The best score of one case: the scan and the windows of the default
+/// search, then the best order (`--best-order`).
+pub fn best_case(case: &Case) -> Result<BestScore, Failure> {
+    let planned = plan_case(case)?;
+    let hits = |windows: &[Window]| -> Vec<Hit> {
+        windows
+            .iter()
+            .filter_map(|window| {
+                Some(Hit {
+                    file: relative(case, &window.source)?,
+                    match_lines: window.matches.clone(),
+                })
+            })
+            .collect()
+    };
+    let (ndcg, removed) = best_of(&hits(&planned.kept), &hits(&planned.removed), &case.answers);
+    Ok(BestScore {
+        ndcg,
+        over_limit: planned.total > DEFAULT_COST_LIMIT,
+        removed,
+    })
 }
 
 #[cfg(test)]
@@ -594,6 +688,67 @@ mod tests {
         assert!(!bar_passes(0.6999, 0.1));
         assert!(!bar_passes(0.9, 0.9));
         assert_eq!(round3(0.12345), 0.123);
+    }
+
+    #[test]
+    fn best_order_known_value() {
+        // Grades 1, 3 and 2 in 3 windows, and a window with no labeled line:
+        // the best order is 3, 2, 1, so the score is 1.
+        let answers = [answer("a", 1, 1), answer("b", 1, 3), answer("c", 1, 2)];
+        let kept = [
+            hit("a", &[1]),
+            hit("z", &[1]),
+            hit("b", &[1]),
+            hit("c", &[1]),
+        ];
+        let (score, lost) = best_of(&kept, &[], &answers);
+        assert!(close(score, 1.0));
+        assert_eq!(lost, 0);
+        // Window c removed by the pre-rank: DCG = 3/log2(2) + 1/log2(3). The
+        // ideal list is 3, 2, 1.
+        let kept = [hit("a", &[1]), hit("b", &[1])];
+        let (score, lost) = best_of(&kept, &[hit("c", &[1])], &answers);
+        let dcg = 3.0 + 1.0 / 3f64.log2();
+        let ideal = 3.0 + 2.0 / 3f64.log2() + 1.0 / 4f64.log2();
+        assert!(close(score, dcg / ideal));
+        assert_eq!(lost, 1);
+    }
+
+    #[test]
+    fn best_order_one_gain_per_window() {
+        // One window holds a grade 3 and a grade 2 labeled match line: it
+        // gives the gain 3 only.
+        let answers = [answer("a", 1, 3), answer("a", 2, 2)];
+        let (score, _) = best_of(&[hit("a", &[1, 2])], &[], &answers);
+        assert!(close(score, 3.0 / (3.0 + 2.0 / 3f64.log2())));
+    }
+
+    #[test]
+    fn best_order_context_line() {
+        // The labeled line is a context line of the window, not a match line.
+        let answers = [answer("a", 5, 3)];
+        let (score, lost) = best_of(&[hit("a", &[4])], &[], &answers);
+        assert!(close(score, 0.0));
+        assert_eq!(lost, 0);
+    }
+
+    #[test]
+    fn best_order_removed_count() {
+        // A labeled line in a removed window counts 1. A labeled line in a
+        // kept window, and a labeled line in no window, count 0.
+        let answers = [answer("a", 1, 1), answer("b", 1, 1), answer("c", 1, 1)];
+        let (_, lost) = best_of(&[hit("a", &[1])], &[hit("b", &[1])], &answers);
+        assert_eq!(lost, 1);
+    }
+
+    #[test]
+    fn best_order_keeps_the_scan_order_on_a_tie() {
+        // Equal gains keep the order of the scan: window b has the grade 2
+        // line, and windows x and y have none.
+        let answers = [answer("b", 1, 2)];
+        let kept = [hit("x", &[1]), hit("b", &[1]), hit("y", &[1])];
+        let (score, _) = best_of(&kept, &[], &answers);
+        assert!(close(score, 1.0));
     }
 
     fn parse(text: &str) -> Result<Vec<Case>, Failure> {
