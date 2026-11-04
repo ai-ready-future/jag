@@ -60,7 +60,7 @@ STORY-78 spec. No row is open, so this spec sends no card.
 | 13 | Exit codes | 0: each case ended. The mode has no bar, so it never exits with 1. 2: a usage error, a bad case file, or the guard of STORY-78 spec row 19. 130: a Ctrl-C stopped the run, and standard output is empty. 3 to 6 do not occur, because the mode reads no key and calls no model | Derived from row 1 ("not a development run of the gate"). STORY-78 spec, rows 15 and 20; 0007-number-the-exit-codes-above-2-from-3-to-8.md |
 | 14 | The guard | The guard of STORY-78 spec row 19 applies to the case file in the mode too | STORY-78 spec, row 19; `src/bench_main.rs` (`guard`) |
 | 15 | The default path | Without `--best-order`, the output, the scores, the detail file and the exit codes do not change. The tests `bench_summary`, `bench_matches_jag` and `bench_matches_jag_after_the_pre_rank` pass with no change to the test or its values | CRITERION-143; STORY-78 spec, row 7 |
-| 16 | The run after the merge | The researcher and the maintainer run `jag-bench --best-order <work>/<dev file>` one time on the converted development case file, with a `jag-bench` built from a commit of `main` that holds this code (`cargo build --release --features bench --bin jag-bench`). The file is not converted again, so the rule hash and the converter hash of STORY-45 stay the same. The session follows STORY-45 spec rows 5 and 6: it writes `<work>` and `<dev file>` as placeholders, and it sees only the exit code, the progress lines and the 3 totals. The run costs nothing (row 4). It is not the one run of STORY-45 spec row 11, and it is not the development run of rows 21 and 23 | `roadmap:/stories/STORY-79.md` ("The researcher runs the mode with the maintainer and reads the totals"). Derived from row 1. STORY-45 spec, rows 5, 6, 11, 21 and 23 |
+| 16 | The run after the merge | The researcher and the maintainer run `jag-bench --best-order <work>/<dev file>` one time on the converted development case file, with a `jag-bench` built from a commit of `main` that holds this code (`cargo build --release --features bench --bin jag-bench`). The file is not converted again, so the rule hash and the converter hash of STORY-45 stay the same. The session follows STORY-45 spec rows 5 and 6: it writes `<work>` and `<dev file>` as placeholders, and it sees only the exit code, the progress lines and the 3 totals. The run costs nothing (row 4). It is not the one run of STORY-45 spec row 11, and it is not the development run of rows 21 and 23. After the code merge, the orchestrator sends a `TASK` with this row to the researcher. The `DONE` of the researcher gives only the exit code and the 3 totals to the orchestrator. The orchestrator sends them to the planner, who chooses the next path of the STORY-79 page. STORY-79 is `done` when that `DONE` is in, not at the code merge, because STORY-79 is the only open item of the `blocked_by` list of STORY-45 (STORY-78 is `done`), and `prd.py regen` sets STORY-45 to `ready` when STORY-79 is `done` | `roadmap:/stories/STORY-79.md` ("The researcher runs the mode with the maintainer and reads the totals"). Derived from row 1. STORY-45 spec, rows 5, 6, 11, 18, 21 and 23; `docs/adlc.md`, section 2, rule 2 |
 | 17 | Tests | Unit tests in `src/bench.rs`. Integration tests in `tests/bench.rs`, with the invented cases of `tests/bench/`. The tests of the mode run with no key and no model service | STORY-78 spec, row 22; row 4 |
 | 18 | Documentation | `docs/bench.md` gets the section "The best order": the command, the 3 lines, the exit codes, and the note that the mode is not a gate run | STORY-78 spec, row 23 |
 | 19 | Spec group and ADR | One spec for STORY-79. No ADR: `jag-bench` is not shipped, so the flag adds no public interface | STORY-78 spec, row 4 and "For the architect" |
@@ -199,9 +199,13 @@ CRITERION-143 also needs that the flag exists only in the `bench` feature:
    branch with no `settings()`, and the 3 lines.
 4. `tests/bench.rs`: the 4 integration tests.
 5. `docs/bench.md`: the section "The best order".
+6. After the merge: the run of row 16. The orchestrator sends a `TASK` to
+   the researcher. The researcher and the maintainer run the mode, and the
+   `DONE` of the researcher gives the 3 totals to the orchestrator. Then
+   STORY-79 is `done`.
 
-One code pull request. Its merge finishes STORY-79. The run of row 16 comes
-after the merge, as a researcher task.
+One code pull request for steps 1 to 5. The code merge does not finish
+STORY-79: step 6 does (row 16).
 
 ## Assumptions
 
@@ -237,6 +241,10 @@ after the merge, as a researcher task.
    steps of the STORY-79 page apply. A score near 0.70 or less sends the
    gate rows 23 and 25 of the STORY-45 spec back to the human as a
    `revisit:`.
+5. STORY-45 gets `ready` before anyone reads the totals. Signal: STORY-79
+   is `done` at the code merge, and `prd.py regen` sets STORY-45 to
+   `ready`. Mitigation: row 16 and step 6 of the build order: STORY-79 is
+   `done` only after the `DONE` of the researcher.
 
 ## Out of scope
 
