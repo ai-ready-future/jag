@@ -8,7 +8,7 @@ status: draft
 generated:
   by: prd/6.2.0
   at: '2026-11-04T13:46:59Z'
-state: backlog
+state: ready
 github:
   number: 311
   node_id: I_kwDOVKMnL88AAAABcc6mMg
@@ -17,6 +17,7 @@ github:
   synced:
     state: backlog
     owner: human:404pilo
+spec: docs/superpowers/specs/2026-11-04-STORY-80-name-the-merge-conflict-when-private-data-cannot-check-out-a-pr-design.md
 parent: /epics/EPIC-05.md
 milestone: /milestones/MILESTONE-02.md
 owner: human:404pilo
@@ -48,6 +49,7 @@ No page of the knowledge graphs names this failure. ADR 0027 lists the other kno
 | --- | --- | --- | --- | --- | --- |
 | [CRITERION-144: A conflicting pull request fails with a clear message](../criteria/CRITERION-144.md) | - | - | - | - | - |
 | [CRITERION-145: A pull request with no conflict runs as before](../criteria/CRITERION-145.md) | - | - | - | - | - |
+| [CRITERION-148: A late merge ref runs as before](../criteria/CRITERION-148.md) | - | - | - | - | - |
 <!-- STATUS:END -->
 
 <!-- LINKS:START (generated, do not edit) -->
@@ -59,4 +61,5 @@ No page of the knowledge graphs names this failure. ADR 0027 lists the other kno
 - traces: [CONSTRAINT-01: The public release holds no private data](../../prd/constraints/CONSTRAINT-01.md)
 - criterion or run of: [CRITERION-144: A conflicting pull request fails with a clear message](../criteria/CRITERION-144.md)
 - criterion or run of: [CRITERION-145: A pull request with no conflict runs as before](../criteria/CRITERION-145.md)
+- criterion or run of: [CRITERION-148: A late merge ref runs as before](../criteria/CRITERION-148.md)
 <!-- LINKS:END -->
