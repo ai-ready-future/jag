@@ -30,7 +30,7 @@ This milestone holds the capabilities that make jag better to use and easier to 
 | Item | State | Progress | Owner | Blocked by | Drift |
 | --- | --- | --- | --- | --- | --- |
 | [EPIC-04: A shell user keeps their habits](../epics/EPIC-04.md) | done | 6/6 (100%) | - | - | - |
-| [EPIC-05: Safe public release](../epics/EPIC-05.md) | ready | 4/7 (57%) | - | - | - |
+| [EPIC-05: Safe public release](../epics/EPIC-05.md) | ready | 5/7 (71%) | - | - | - |
 | [EPIC-06: An agent uses jag well](../epics/EPIC-06.md) | done | 3/3 (100%) | - | - | - |
 | [FEATURE-02: Readiness check](../features/FEATURE-02.md) | done | 3/3 (100%) | - | FEATURE-01 | - |
 | [FEATURE-03: Clear failure when the model is not available](../features/FEATURE-03.md) | done | 4/4 (100%) | - | FEATURE-01 | - |
