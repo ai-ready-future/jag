@@ -374,3 +374,8 @@
 
 * [CRITERION-140: The run reports ndcg@10 for jag and grep and no case text](CRITERION-140.md) - Given a labeled set at a local path, the run scores jag and blind grep and prints the ndcg@10 of each and the number of cases. The output shows no question, no case text, and no per-case result.
 * [CRITERION-141: The repository holds only invented test cases for the run](CRITERION-141.md) - The tests of the run use only invented cases. The data path and the key come from the maintainer's machine, never from the repository, and the per-case results stay on that machine.
+
+## STORY-79: Measure the best possible jag-bench score on the development set
+
+* [CRITERION-142: jag-bench prints the best score of its own windows and no case text](CRITERION-142.md) - The new bench-only flag orders the windows of each case perfectly, calls no model, and prints only 3 totals and no case text.
+* [CRITERION-143: The default jag-bench output does not change](CRITERION-143.md) - Without the new flag, the output and the score of jag-bench are the same as before, and the parity test of STORY-78 passes. The new flag exists only in the bench feature.

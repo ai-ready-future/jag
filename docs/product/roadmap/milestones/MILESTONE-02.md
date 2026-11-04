@@ -129,4 +129,5 @@ This milestone holds the capabilities that make jag better to use and easier to 
 - item of: [STORY-75: The test records what the agent did](../stories/STORY-75.md)
 - item of: [STORY-77: Approve the private-data check of a fork pull request before it runs](../stories/STORY-77.md)
 - item of: [STORY-78: Score jag and grep on a labeled set from a local path](../stories/STORY-78.md)
+- item of: [STORY-79: Measure the best possible jag-bench score on the development set](../stories/STORY-79.md)
 <!-- LINKS:END -->

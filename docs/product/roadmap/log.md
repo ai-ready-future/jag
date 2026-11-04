@@ -1,5 +1,9 @@
 # Log
 
+## 2026-11-04
+* **Learn**: STORY-79 (measure the best possible jag-bench score) comes from D-011 after the STORY-45 development gate failed check 2. STORY-45 is blocked by STORY-79., by agent:jag-planner, at 2026-11-04T11:06:42Z
+* **State**: [STORY-45](stories/STORY-45.md) ready -> blocked, by process:regen, at 2026-11-04T11:06:12Z
+
 ## 2026-10-27
 * **Sync**: [STORY-45](stories/STORY-45.md) pushed to GitHub, by system:github, at 2026-10-27T20:47:55Z
 * **Sync**: [STORY-78](stories/STORY-78.md) pushed to GitHub, by system:github, at 2026-10-27T20:18:40Z
