@@ -5,10 +5,13 @@ description: As a maintainer, I want the private-data test to fail when the merg
   ref step gets a key other than name, if, env or run, so that the step cannot change
   without a test failure.
 status: draft
+tags:
+- security
+- type:story
 generated:
   by: process:github
   at: '2026-11-04T15:27:02Z'
-state: backlog
+state: ready
 github:
   number: 321
   node_id: I_kwDOVKMnL88AAAABceH68w
@@ -17,6 +20,7 @@ github:
   synced:
     state: backlog
     owner: human:404pilo
+spec: docs/superpowers/specs/2026-11-04-STORY-82-limit-the-keys-of-the-merge-ref-step-in-the-private-data-test-design.md
 parent: /epics/EPIC-05.md
 milestone: /milestones/MILESTONE-02.md
 owner: human:404pilo
