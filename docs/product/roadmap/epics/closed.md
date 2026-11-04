@@ -18,3 +18,4 @@ generated:
 ## MILESTONE-02: Make it good
 
 * [EPIC-04: A shell user keeps their habits](EPIC-04.md) - jag works in a pipe, uses grep-like options and exit codes, and is fast enough to replace grep.
+* [EPIC-06: An agent uses jag well](EPIC-06.md) - The agent builder gives jag to an agent with one install or one copy, and the agent then uses jag well with no instructions from the builder.

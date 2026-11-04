@@ -5,7 +5,8 @@ description: The private-data check of a fork pull request runs only after a mai
   approves each run, and the required check stops the merge until an approved run
   passes.
 status: draft
-state: ready
+state: done
+actual_end_date: '2026-11-04'
 github:
   number: 245
   node_id: I_kwDOVKMnL88AAAABaEr8kg
