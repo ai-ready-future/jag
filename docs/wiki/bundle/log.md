@@ -1,5 +1,8 @@
 # Log
 
+## 2026-11-04
+* **Report**: Fixed the STORY-77 page after review: test step dates, the line on the secret removed, D-014 named on the D-013 page, sources added., by knowledge/1.1.3, at 2026-11-04T12:21:38Z
+
 ## 2026-11-03
 * **Report**: set failed: the save code has no operation that writes the body of a page. I edited entities/pilo.md directly: I added the GitHub account, role, decisions owned, escalation and Slack lines to the body. Reason: the description field holds one line only., by knowledge/1.1.3, at 2026-11-03T11:14:39Z
 * **Report**: new failed: the save code has no People type and no people/ folder. I wrote people/index.md directly: one line that links to entities/pilo.md. Reason: sofa:readiness (people-page) checks for a people/ folder or a people.md in the knowledge bundle, and the sofa setup skill asks for pages people/<name>., by knowledge/1.1.3, at 2026-11-03T11:14:39Z
