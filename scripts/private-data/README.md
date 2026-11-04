@@ -118,6 +118,35 @@ gives one public yes-or-no answer about the text of the pull request. The
 approval does not hide that answer. It lets the maintainer decide which text
 gets an answer, and how many answers a person gets.
 
+## A pull request that conflicts with its base branch
+
+When a pull request conflicts with its base branch, GitHub makes no merge ref
+(`refs/pull/<n>/merge`), and the check cannot check out the pull request. The
+step `Check the merge ref` finds this before the checkout. It fails with this
+line on the checks page of the pull request:
+
+```
+private-data: PR #<n> conflicts with main: merge main into the branch
+```
+
+The fix: merge the base branch (`main`) into the branch of the pull request,
+and push. The new push starts a new run.
+
+The step asks GitHub for the ref with `git ls-remote`. It sends no token and
+reads no file of the pull request. GitHub can make the merge ref some seconds
+after a push, so the step waits: up to 6 checks, 10 seconds apart (50 seconds
+at most). A check that finds the ref at once, or during the wait, lets the
+run go on as before.
+
+When git cannot read the refs of the repository at all (for example, no
+network), the step fails with `private-data: cannot read the refs of the
+repository (git exit <code>). Run the job again.` This is not a conflict:
+run the job again.
+
+The script is `merge-ref.sh`. `MERGE_REF_TRIES` (default 6) and
+`MERGE_REF_PAUSE` (default 10, in seconds) change the wait. The workflow sets
+neither. The tests set them.
+
 ## Run the tests
 
 ```
