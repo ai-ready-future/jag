@@ -38,6 +38,7 @@ generated:
 * [FEATURE-24: Install the jag skill with one README command](FEATURE-24.md) - The agent builder runs one command from the README, and the jag skill teaches the agent the four behaviors and what to tell the user when jag fails.
 * [FEATURE-25: Copy the same teaching as a snippet](FEATURE-25.md) - For an agent that can't install a skill, the agent builder copies a snippet that holds the same teaching as the jag skill.
 * [FEATURE-26: Prove that an agent with the skill uses jag well](FEATURE-26.md) - A repeatable test runs an agent with the jag skill and shows that it uses jag in place of rg, sets the limit, reads the results, and gives the user the cause and the fix when jag fails.
+* [FEATURE-28: A maintainer approves the private-data check of a fork pull request](FEATURE-28.md) - The private-data check of a fork pull request runs only after a maintainer approves each run, and the required check stops the merge until an approved run passes.
 
 ## MILESTONE-03: Make it fast
 

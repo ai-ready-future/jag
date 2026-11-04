@@ -30,7 +30,7 @@ This milestone holds the capabilities that make jag better to use and easier to 
 | Item | State | Progress | Owner | Blocked by | Drift |
 | --- | --- | --- | --- | --- | --- |
 | [EPIC-04: A shell user keeps their habits](../epics/EPIC-04.md) | done | 6/6 (100%) | - | - | - |
-| [EPIC-05: Safe public release](../epics/EPIC-05.md) | ready | 3/5 (60%) | - | - | - |
+| [EPIC-05: Safe public release](../epics/EPIC-05.md) | ready | 4/5 (80%) | - | - | - |
 | [EPIC-06: An agent uses jag well](../epics/EPIC-06.md) | ready | 3/3 (100%) | - | - | - |
 | [FEATURE-02: Readiness check](../features/FEATURE-02.md) | done | 3/3 (100%) | - | FEATURE-01 | - |
 | [FEATURE-03: Clear failure when the model is not available](../features/FEATURE-03.md) | done | 4/4 (100%) | - | FEATURE-01 | - |
@@ -47,7 +47,7 @@ This milestone holds the capabilities that make jag better to use and easier to 
 | [FEATURE-24: Install the jag skill with one README command](../features/FEATURE-24.md) | done | 4/4 (100%) | - | - | - |
 | [FEATURE-25: Copy the same teaching as a snippet](../features/FEATURE-25.md) | done | 2/2 (100%) | - | FEATURE-24 | - |
 | [FEATURE-26: Prove that an agent with the skill uses jag well](../features/FEATURE-26.md) | done | 2/2 (100%) | - | FEATURE-24 | - |
-| [FEATURE-28: A maintainer approves the private-data check of a fork pull request](../features/FEATURE-28.md) | ready | 1/1 (100%) | human:404pilo | - | - |
+| [FEATURE-28: A maintainer approves the private-data check of a fork pull request](../features/FEATURE-28.md) | done | 1/1 (100%) | human:404pilo | - | - |
 <!-- STATUS:END -->
 
 <!-- LINKS:START (generated, do not edit) -->
