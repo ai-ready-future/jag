@@ -622,3 +622,120 @@ fn bench_best_order_guard() {
     );
     assert!(result.stdout.is_empty());
 }
+
+/// Run `--best-order` on the case text `yaml`, in a new folder with the 250
+/// files of the pre-rank cases, and give the result.
+fn best_order_of(yaml: &str) -> Run {
+    let temp = fixtures();
+    let big = temp.path().join("bench/big");
+    for number in 0..250 {
+        let line = if number % 3 == 0 {
+            format!("needle item {number} needs watering every day\n")
+        } else {
+            format!("needle item {number} is plain\n")
+        };
+        common::write(&big, &format!("f{number:03}.txt"), line.as_bytes());
+    }
+    let cases = temp.path().join("bench/best.yaml");
+    fs::write(&cases, yaml).expect("write cases");
+    run({
+        let mut command = bench_bare(temp.path());
+        command.arg("--best-order").arg(&cases);
+        command
+    })
+}
+
+// CRITERION-142: several labels, one of them removed by the pre-rank
+#[test]
+fn bench_best_order_several_labels() {
+    let result = best_order_of(
+        "cases:\n  - folder: big\n    term: needle\n    question: Which item needs watering?\n    answers:\n      - {file: f249.txt, line: 1, grade: 3}\n      - {file: f000.txt, line: 1, grade: 1}\n      - {file: f001.txt, line: 1, grade: 2}\n      - {file: f247.txt, line: 1, grade: 1}\n      - {file: f249.txt, line: 2, grade: 3}\n",
+    );
+    assert_eq!(result.code, 0, "stderr: {}", result.stderr);
+    assert_eq!(result.stdout, best_lines("0.710", 1, 1));
+}
+
+// CRITERION-142: a case with an answer and no match line scores 0
+#[test]
+fn bench_best_order_no_match_line() {
+    let temp = fixtures();
+    let cases = temp.path().join("bench/none.yaml");
+    fs::write(
+        &cases,
+        "cases:\n  - folder: pantry\n    term: nothingmatchesthis\n    question: Which jar is it?\n    answers:\n      - {file: b.txt, line: 1, grade: 2}\n  - folder: garden\n    term: tomato\n    question: Which note is wet?\n    answers:\n      - {file: b_water.txt, line: 1, grade: 3}\n",
+    )
+    .expect("write cases");
+    let result = run({
+        let mut command = bench_bare(temp.path());
+        command.arg("--best-order").arg(&cases);
+        command
+    });
+    assert_eq!(result.code, 0, "stderr: {}", result.stderr);
+    assert_eq!(result.stdout, best_lines("0.500", 0, 0));
+}
+
+// Row 11: a bad term gives exit 2, and no case word is in the output
+#[test]
+fn bench_best_order_bad_term() {
+    let result = best_order_of(
+        "cases:\n  - folder: big\n    term: 'tomato('\n    question: Which MARKERWORD item is it?\n    answers:\n      - {file: f000.txt, line: 1, grade: 3}\n",
+    );
+    assert_eq!(result.code, 2, "stderr: {}", result.stderr);
+    assert!(result.stdout.is_empty());
+    assert!(
+        result.stderr.contains("case 1, term:"),
+        "stderr: {}",
+        result.stderr
+    );
+    for text in [&result.stdout, &result.stderr] {
+        assert!(!text.contains("MARKERWORD"));
+    }
+}
+
+// Row 13: Ctrl-C during a slow run gives exit 130 and no stdout
+#[test]
+fn bench_best_order_ctrl_c() {
+    use std::process::Stdio;
+    use std::time::{Duration, Instant};
+
+    let temp = fixtures();
+    let slow = temp.path().join("bench/slow");
+    let line = "needle line of a slow case\n".repeat(200);
+    for number in 0..3000 {
+        common::write(&slow, &format!("s{number:04}.txt"), line.as_bytes());
+    }
+    let mut yaml = String::from("cases:\n");
+    for _ in 0..40 {
+        yaml.push_str("  - folder: slow\n    term: needle\n    question: Which line is it?\n    answers:\n      - {file: s0000.txt, line: 1, grade: 3}\n");
+    }
+    let cases = temp.path().join("bench/slow.yaml");
+    fs::write(&cases, yaml).expect("write cases");
+    let mut command = std::process::Command::new(assert_cmd::cargo::cargo_bin!("jag-bench"));
+    command
+        .env("HOME", temp.path())
+        .env_remove("JAG_GATEWAY_API_KEY")
+        .arg("--best-order")
+        .arg(&cases)
+        .stdout(Stdio::piped())
+        .stderr(Stdio::piped());
+    let child = command.spawn().expect("start jag-bench");
+    std::thread::sleep(Duration::from_millis(1500));
+    let id = child.id().to_string();
+    let output = std::thread::spawn(move || child.wait_with_output().expect("wait"));
+    let status = std::process::Command::new("kill")
+        .args(["-INT", &id])
+        .status()
+        .expect("run kill");
+    assert!(
+        status.success(),
+        "the run ended before the signal: too fast"
+    );
+    let started = Instant::now();
+    while !output.is_finished() {
+        assert!(started.elapsed() < Duration::from_secs(30), "no stop");
+        std::thread::sleep(Duration::from_millis(20));
+    }
+    let output = output.join().expect("join");
+    assert_eq!(output.status.code(), Some(130));
+    assert!(output.stdout.is_empty());
+}
