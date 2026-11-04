@@ -160,3 +160,40 @@ got credit for the labeled line. They are `null` when no result in the first
 | 130 | A Ctrl-C stopped the run. |
 
 When a failure stops the run, the tool prints no score.
+
+## The best order
+
+Use this option to find the best score that jag can get on a case file. It
+does not run jag. It makes the same windows as jag does, puts them in the best
+possible order, and scores that order. A change to jag cannot get a higher
+score, except by a change to the windows.
+
+```
+jag-bench --best-order CASES
+```
+
+The option calls no model and needs no key. It does not work with `--detail`:
+the two together give exit 2.
+
+The tool prints 3 lines, and no text of a case:
+
+```
+jag-bench: best ndcg@10 <B>
+jag-bench: cases with more than 200 results: <K>
+jag-bench: labeled lines that the pre-rank removed: <L>
+```
+
+- `<B>`: the mean best ndcg@10 over the cases with an answer.
+- `<K>`: the number of cases that the pre-rank cuts to 200 windows.
+- `<L>`: the number of labeled lines in a window that the pre-rank removes.
+
+The tool puts each window in order of its gain: the highest grade of the
+labeled lines that are match lines of the window. A window gets credit for one
+labeled line only, as in the normal score.
+
+Exit codes: 0 when each case ended. The option has no bar, so it never gives
+1. 2 for a usage error, a bad case file, or a file inside the source folder.
+130 when a Ctrl-C stopped the run. Codes 3 to 6 do not occur.
+
+This is not a run of the gate. Use it to learn if a fix to jag can reach the
+bar.

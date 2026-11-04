@@ -518,3 +518,107 @@ fn bench_failures() {
     assert!(result.stdout.is_empty());
     assert!(server.requests().is_empty());
 }
+
+/// The 3 lines of the best-order mode.
+fn best_lines(best: &str, over: u64, removed: u64) -> String {
+    format!(
+        "jag-bench: best ndcg@10 {best}\n\
+         jag-bench: cases with more than 200 results: {over}\n\
+         jag-bench: labeled lines that the pre-rank removed: {removed}\n"
+    )
+}
+
+// CRITERION-142
+#[test]
+fn bench_best_order_summary() {
+    // No key and no model service: a key read or a model call gives exit 3.
+    let temp = fixtures();
+    let result = run({
+        let mut command = bench_bare(temp.path());
+        command.arg("--best-order").arg(cases_path(&temp));
+        command
+    });
+    assert_eq!(result.code, 0, "stderr: {}", result.stderr);
+    assert_eq!(result.stdout, best_lines("0.920", 0, 0));
+    assert_eq!(
+        result.stderr,
+        "jag-bench: case 1 of 4\njag-bench: case 2 of 4\njag-bench: case 3 of 4\njag-bench: case 4 of 4\n"
+    );
+    let temp_name = temp.path().to_string_lossy().into_owned();
+    for text in [&result.stdout, &result.stderr] {
+        for word in CASE_WORDS {
+            assert!(!text.contains(word), "output holds {word}");
+        }
+        assert!(!text.contains(&temp_name));
+    }
+}
+
+// CRITERION-142
+#[test]
+fn bench_best_order_after_the_pre_rank() {
+    let temp = fixtures();
+    let big = temp.path().join("bench/big");
+    for number in 0..250 {
+        let line = if number % 3 == 0 {
+            format!("needle item {number} needs watering every day\n")
+        } else {
+            format!("needle item {number} is plain\n")
+        };
+        common::write(&big, &format!("f{number:03}.txt"), line.as_bytes());
+    }
+    // f249 is a watering line (kept). f248 is a plain line: the plain lines
+    // tie, and the pre-rank keeps the first of them in the scan order.
+    let cases = temp.path().join("bench/best.yaml");
+    fs::write(
+        &cases,
+        "cases:\n  - folder: big\n    term: needle\n    question: Which item needs watering?\n    answers:\n      - {file: f249.txt, line: 1, grade: 3}\n      - {file: f248.txt, line: 1, grade: 2}\n",
+    )
+    .expect("write cases");
+    let result = run({
+        let mut command = bench_bare(temp.path());
+        command.arg("--best-order").arg(&cases);
+        command
+    });
+    assert_eq!(result.code, 0, "stderr: {}", result.stderr);
+    assert_eq!(result.stdout, best_lines("0.704", 1, 1));
+}
+
+// CRITERION-142
+#[test]
+fn bench_best_order_rejects_detail() {
+    let temp = fixtures();
+    let detail = temp.path().join("detail.jsonl");
+    let result = run({
+        let mut command = bench_bare(temp.path());
+        command
+            .arg("--best-order")
+            .arg("--detail")
+            .arg(&detail)
+            .arg(cases_path(&temp));
+        command
+    });
+    assert_eq!(result.code, 2, "stderr: {}", result.stderr);
+    assert!(result.stdout.is_empty());
+    assert!(!detail.exists());
+}
+
+// Row 14
+#[test]
+fn bench_best_order_guard() {
+    let temp = fixtures();
+    let source = Path::new(env!("CARGO_MANIFEST_DIR"));
+    let result = run({
+        let mut command = bench_bare(temp.path());
+        command
+            .arg("--best-order")
+            .arg(source.join("tests/bench/cases.yaml"));
+        command
+    });
+    assert_eq!(result.code, 2);
+    assert!(
+        result
+            .stderr
+            .contains("case file is in the folder of the source")
+    );
+    assert!(result.stdout.is_empty());
+}

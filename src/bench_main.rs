@@ -6,12 +6,16 @@ use std::fs;
 use std::io::Write;
 use std::path::{Path, PathBuf};
 use std::process::ExitCode;
-use std::sync::atomic::AtomicBool;
+use std::sync::atomic::{AtomicBool, Ordering};
 use std::sync::{Arc, Mutex};
 
 use clap::Parser;
-use jag::bench::{BAR, Case, CaseScore, Setup, bar_passes, mean, parse_cases, round3, run_case};
-use jag::config::{ConfigFile, Env, RealFs, SettingOptions, find_key, model_settings};
+use jag::bench::{
+    BAR, Case, CaseScore, Setup, bar_passes, best_case, mean, parse_cases, round3, run_case,
+};
+use jag::config::{
+    ConfigFile, DEFAULT_COST_LIMIT, Env, RealFs, SettingOptions, find_key, model_settings,
+};
 use jag::failure::Failure;
 use jag::scorer::cost::Usage;
 use jag::scorer::{PROMPT_VERSION, ScoreSettings, THRESHOLD};
@@ -26,6 +30,10 @@ struct Args {
     /// of a case and no path.
     #[arg(long, value_name = "FILE")]
     detail: Option<PathBuf>,
+    /// Print the best score that an order of the jag-bench windows can get,
+    /// with no model call. Not a gate run.
+    #[arg(long, conflicts_with = "detail")]
+    best_order: bool,
     /// The case file (YAML). See docs/bench.md.
     cases: PathBuf,
 }
@@ -114,6 +122,39 @@ fn settings() -> Result<(jag::config::ApiKey, ScoreSettings), Failure> {
     Ok((key, ScoreSettings::new(settings)))
 }
 
+/// `--best-order`: the best score of each case with an answer, with no model
+/// call and no key. Gives the 3 summary lines, or the failure that stopped the
+/// run. A Ctrl-C before a case gives exit 130 and no line.
+fn best_order(cases: &[Case], stop: &AtomicBool) -> Result<String, Failure> {
+    let total = cases.len();
+    let mut scores = Vec::new();
+    let mut over_limit = 0;
+    let mut removed = 0;
+    for (index, case) in cases.iter().enumerate() {
+        if stop.load(Ordering::Relaxed) {
+            return Err(Failure {
+                cause: String::new(),
+                fix: String::new(),
+                exit_code: 130,
+            });
+        }
+        eprintln!("jag-bench: case {} of {total}", index + 1);
+        if case.answers.is_empty() {
+            continue;
+        }
+        let best = best_case(case)?;
+        scores.push(best.ndcg);
+        over_limit += usize::from(best.over_limit);
+        removed += best.removed;
+    }
+    Ok(format!(
+        "jag-bench: best ndcg@10 {:.3}\n\
+         jag-bench: cases with more than {DEFAULT_COST_LIMIT} results: {over_limit}\n\
+         jag-bench: labeled lines that the pre-rank removed: {removed}\n",
+        mean(&scores),
+    ))
+}
+
 /// Run all cases. Gives the summary lines and the detail lines, or the
 /// failure that stopped the run.
 fn run(args: &Args) -> Result<(bool, String, String), Failure> {
@@ -122,10 +163,13 @@ fn run(args: &Args) -> Result<(bool, String, String), Failure> {
         guard(detail, "detail file")?;
     }
     let cases = read_cases(&args.cases)?;
-    let (key, score_settings) = settings()?;
-
     let stop = Arc::new(AtomicBool::new(false));
     let _ = signal_hook::flag::register(SIGINT, Arc::clone(&stop));
+    if args.best_order {
+        return Ok((true, best_order(&cases, &stop)?, String::new()));
+    }
+    let (key, score_settings) = settings()?;
+
     let usage = Mutex::new(Usage::default());
     let setup = Setup {
         key: &key,
