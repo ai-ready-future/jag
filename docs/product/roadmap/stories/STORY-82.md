@@ -11,7 +11,8 @@ tags:
 generated:
   by: process:github
   at: '2026-11-04T15:27:02Z'
-state: ready
+state: done
+actual_end_date: '2026-11-04'
 github:
   number: 321
   node_id: I_kwDOVKMnL88AAAABceH68w
@@ -43,6 +44,10 @@ The scope:
 - The workflow does not change.
 
 The GitHub issue of this story is #321. The tracker links it, and does not open a second issue.
+
+## Result
+
+PR #330 changed only `scripts/private-data/test.sh`. Case `wf-h` now checks that the step `Check the merge ref` has only the keys `name`, `if`, `env` and `run`. The reviewer and security approved the PR. The merge (`e345192`) closed issue #321. On 2026-11-04 the Linux job of [run 41880594575](https://github.com/ai-ready-future/jag/actions/runs/41880594575) (`private-data-tests`) passed, with 338 passed and 0 failed.
 
 <!-- STATUS:START (generated, do not edit) -->
 

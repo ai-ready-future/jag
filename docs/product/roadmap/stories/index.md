@@ -8,4 +8,3 @@
 * [STORY-50: Install or run jag with npm](STORY-50.md) - As an agent builder (PERSONA-01), I want to install jag with npm or run it with npx, so that my agent setup gets jag with the tools it already uses.
 * [STORY-51: Publish each channel from one tag](STORY-51.md) - As an agent builder (PERSONA-01), I want one version tag to publish jag on each channel with the same version and no private data, so that each channel gives the same jag.
 * [STORY-81: Score with the old prompt as a new prompt version](STORY-81.md) - As the maintainer, I want jag to score with the prompt of the old tool as a new prompt version, so that jag can reach the release bar before the held-out run.
-* [STORY-82: Limit the keys of the merge ref step in the private-data test](STORY-82.md) - As a maintainer, I want the private-data test to fail when the merge ref step gets a key other than name, if, env or run, so that the step cannot change without a test failure.
