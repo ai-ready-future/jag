@@ -7,7 +7,8 @@ status: draft
 generated:
   by: process:github
   at: '2026-11-04T12:13:07Z'
-state: ready
+state: done
+actual_end_date: '2026-11-04'
 github:
   number: 298
   node_id: I_kwDOVKMnL88AAAABcaqQHA
@@ -48,6 +49,16 @@ What comes next depends on the 3 totals. The researcher runs the mode with the m
 
 The rule hash and the converter hash of STORY-45 stay the same. A changed prompt or threshold is frozen again before the held-out run, and the held-out run uses a new run commit after the fix (STORY-45 spec, row 7).
 
+## Result
+
+On 2026-11-04 the researcher and the maintainer ran `jag-bench --best-order` one time on the converted development case file (STORY-79 spec, row 16). The run made no model call, and the file was not converted again. The 3 totals stay on the maintainer's machine. Only this conclusion goes into the repository:
+
+- The best possible score of the jag-bench windows is above the release bar of D-008 (jag 0.70 or more).
+- The best order comes after the pre-rank (D-011, condition a). So the cost of the pre-rank is already in the best score, and the best score is still above the bar. The window and credit rules (STORY-78 spec, rows 10 and 11) and the pre-rank do not by themselves keep jag below the bar. The gap is in the order that jag gives to the windows.
+- The best possible score is clearly above the bar, not near it (D-015), so the fix story changes jag: the old prompt first.
+
+The next path, from D-011 (condition d) and D-015: a fix story for the order of jag that brings back the prompt of the old tool (STORY-81). STORY-45 waits for STORY-81. A change of the pre-rank limit is not an automatic second fix (D-015): it can only be an option on a `revisit:` card of STORY-45 spec rows 23 and 25.
+
 <!-- STATUS:START (generated, do not edit) -->
 
 ## Status
@@ -69,4 +80,5 @@ The rule hash and the converter hash of STORY-45 stay the same. A changed prompt
 - criterion or run of: [CRITERION-142: jag-bench prints the best score of its own windows and no case text](../criteria/CRITERION-142.md)
 - criterion or run of: [CRITERION-143: The default jag-bench output does not change](../criteria/CRITERION-143.md)
 - blocks: [STORY-45: Run the held-out evaluation before release](STORY-45.md)
+- discovered: [STORY-81: Score with the old prompt as a new prompt version](STORY-81.md)
 <!-- LINKS:END -->

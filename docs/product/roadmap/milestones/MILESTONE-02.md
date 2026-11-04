@@ -131,4 +131,5 @@ This milestone holds the capabilities that make jag better to use and easier to 
 - item of: [STORY-78: Score jag and grep on a labeled set from a local path](../stories/STORY-78.md)
 - item of: [STORY-79: Measure the best possible jag-bench score on the development set](../stories/STORY-79.md)
 - item of: [STORY-80: Name the merge conflict when private-data cannot check out a PR](../stories/STORY-80.md)
+- item of: [STORY-81: Score with the old prompt as a new prompt version](../stories/STORY-81.md)
 <!-- LINKS:END -->

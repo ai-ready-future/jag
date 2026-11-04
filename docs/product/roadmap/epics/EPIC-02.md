@@ -39,4 +39,5 @@ The user gives a folder, a term, and a question, and gets ranked lines that show
 - child: [STORY-45: Run the held-out evaluation before release](../stories/STORY-45.md)
 - child: [STORY-78: Score jag and grep on a labeled set from a local path](../stories/STORY-78.md)
 - child: [STORY-79: Measure the best possible jag-bench score on the development set](../stories/STORY-79.md)
+- child: [STORY-81: Score with the old prompt as a new prompt version](../stories/STORY-81.md)
 <!-- LINKS:END -->
