@@ -57,7 +57,7 @@ reviewer can open.
 | 10 | What does not change | The first checkout (no `ref:`), the job id and the job name `private-data`, the environment expression, the gate step as the first step, the trigger, `permissions: contents: read`, the secret, the checkout of `pr`, and `check.sh` | ADR 0027-approve-each-fork-run-of-the-private-data-check-through-a.md ("The job id, the job name, the trigger, the secret, and the ruleset do not change"); `prd:/decisions/DECISION-57.md` (rules 1 to 5: the gate, the required check, the job id); the header of `private-data.yml`; STORY-46 spec, decision 15; CRITERION-145 |
 | 11 | An old merge ref | `check.sh` step 0 stays the guard for a merge ref that exists but is old (its second parent is not `HEAD_SHA`: "the merge commit of the pull request is not ready; run the job again", exit 2). The new step covers only a merge ref that does not exist | STORY-46 spec, design step 0; `scripts/private-data/check.sh` |
 | 12 | A fork pull request | The same step and the same check. The merge ref of a fork pull request is in the base repository. The gate step and the environment stay before it | ADR 0027; `prd:/decisions/DECISION-57.md`; row 2 |
-| 13 | Tests in CI | New cases in `scripts/private-data/test.sh`: `mr-a` to `mr-d` run `merge-ref.sh` against a local bare repository, and `wf-g` and `wf-h` read the workflow as text. The cases `wf-a` to `wf-f` pass with no change | STORY-77 spec, rows 18 and 19 (a pull request cannot run its own change of a `pull_request_target` workflow, so text cases prove it in CI); `.github/workflows/private-data-tests.yml` |
+| 13 | Tests in CI | New cases in `scripts/private-data/test.sh`: `mr-a` to `mr-e` run `merge-ref.sh` against a local bare repository, and `wf-g` and `wf-h` read the workflow as text. The cases `wf-a` to `wf-f` pass with no change | STORY-77 spec, rows 18 and 19 (a pull request cannot run its own change of a `pull_request_target` workflow, so text cases prove it in CI); `.github/workflows/private-data-tests.yml` |
 | 14 | Tests on GitHub | Steps L1 and L2 of "Test plan", after the merge | STORY-77 spec, rows 19 and 21 |
 | 15 | Documentation | `scripts/private-data/README.md` gets the section "A pull request that conflicts with its base branch": the message, the cause, the fix, and the wait | `scripts/private-data/README.md` (each failure of the check has its section, for example "Fork pull requests") |
 | 16 | The reviews of the code PR | Reviewer, verifier, code-quality, and security. Security reviews it because the workflow holds the secret `PRIVATE_PATTERNS` and runs on `pull_request_target` | Orchestrator TASK of 2026-11-04 ("The workflow holds a secret, so the code PR goes to security too"); `docs/adlc.md`, section 3 (security: "A code PR is open") |
@@ -94,7 +94,9 @@ After the first checkout and before the checkout of `pr`:
    names the variable, and exit 2.
 3. Up to `MERGE_REF_TRIES` times: run
    `git ls-remote --exit-code "$REPO_URL" "refs/pull/$PR_NUMBER/merge"`,
-   with its standard output sent to `/dev/null`.
+   with its standard output sent to `/dev/null`. Keep the exit code with
+   `rc=0; git ls-remote ... || rc=$?`, so that `set -e` does not stop the
+   script.
    - Exit 0: print `private-data: the merge ref of PR #<n> exists`, and
      exit 0.
    - Exit 2: when a check is left, print
