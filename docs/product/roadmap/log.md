@@ -1,6 +1,7 @@
 # Log
 
 ## 2026-11-04
+* **Learn**: STORY-82 (limit the keys of the merge ref step in the private-data test) comes from the low security finding on PR #320, issue #321., by agent:jag-planner, at 2026-11-04T15:20:24Z
 * **Sync**: [STORY-80](stories/STORY-80.md) pushed to GitHub, by process:github, at 2026-11-04T15:07:34Z
 * **State**: [STORY-80](stories/STORY-80.md) backlog -> ready, by human:404pilo, at 2026-11-04T14:38:11Z
 * **Sync**: [STORY-45](stories/STORY-45.md) pushed to GitHub, by process:github, at 2026-11-04T14:28:00Z

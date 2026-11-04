@@ -62,6 +62,7 @@ source	relation	target
 /criteria/CRITERION-146.md	item	/stories/STORY-81.md
 /criteria/CRITERION-147.md	item	/stories/STORY-81.md
 /criteria/CRITERION-148.md	item	/stories/STORY-80.md
+/criteria/CRITERION-149.md	item	/stories/STORY-82.md
 /criteria/CRITERION-15.md	item	/stories/STORY-09.md
 /criteria/CRITERION-16.md	item	/stories/STORY-11.md
 /criteria/CRITERION-17.md	item	/stories/STORY-12.md
@@ -564,3 +565,7 @@ source	relation	target
 /stories/STORY-81.md	milestone	/milestones/MILESTONE-02.md
 /stories/STORY-81.md	parent	/epics/EPIC-02.md
 /stories/STORY-81.md	traces	prd:/metrics/METRIC-01.md
+/stories/STORY-82.md	discovered_from	/stories/STORY-80.md
+/stories/STORY-82.md	milestone	/milestones/MILESTONE-02.md
+/stories/STORY-82.md	parent	/epics/EPIC-05.md
+/stories/STORY-82.md	traces	prd:/constraints/CONSTRAINT-01.md
