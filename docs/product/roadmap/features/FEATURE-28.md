@@ -13,8 +13,10 @@ github:
   pushed_hash: 9f1969
   synced:
     state: ready
+    owner: human:404pilo
 parent: /epics/EPIC-05.md
 milestone: /milestones/MILESTONE-02.md
+owner: human:404pilo
 traces:
 - to: prd:/constraints/CONSTRAINT-01.md
   hash: 1970e3
@@ -38,7 +40,7 @@ Source: the user, 2026-10-26: "the forks pull requests cannot run or see the res
 
 | Item | State | Progress | Owner | Blocked by | Drift |
 | --- | --- | --- | --- | --- | --- |
-| [STORY-77: Approve the private-data check of a fork pull request before it runs](../stories/STORY-77.md) | ready | - | - | - | - |
+| [STORY-77: Approve the private-data check of a fork pull request before it runs](../stories/STORY-77.md) | ready | - | human:404pilo | - | - |
 <!-- STATUS:END -->
 
 <!-- LINKS:START (generated, do not edit) -->

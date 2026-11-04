@@ -12,9 +12,11 @@ github:
   pushed_hash: 4b9544
   synced:
     state: ready
+    owner: human:404pilo
 spec: docs/superpowers/specs/2026-10-14-STORY-48-install-jag-from-github-releases-crates-io-or-npm-design.md
 parent: /features/FEATURE-18.md
 milestone: /milestones/MILESTONE-02.md
+owner: human:404pilo
 ---
 
 # STORY-50: Install or run jag with npm

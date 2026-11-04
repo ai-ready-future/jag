@@ -13,11 +13,13 @@ github:
   pushed_hash: e5b7dd
   synced:
     state: blocked
+    owner: human:404pilo
 spec: docs/superpowers/specs/2026-10-14-STORY-48-install-jag-from-github-releases-crates-io-or-npm-design.md
 parent: /features/FEATURE-18.md
 blocked_by:
 - /stories/STORY-45.md
 milestone: /milestones/MILESTONE-02.md
+owner: human:404pilo
 traces:
 - to: prd:/constraints/CONSTRAINT-01.md
   hash: 1970e3

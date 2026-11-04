@@ -11,6 +11,7 @@ github:
   url: https://github.com/ai-ready-future/jag/issues/22
   synced:
     state: ready
+    owner: human:404pilo
   pushed_hash: e1ed45
 parent: /epics/EPIC-05.md
 blocked_by:
@@ -20,6 +21,7 @@ blocked_by:
 - /features/FEATURE-22.md
 - /features/FEATURE-23.md
 milestone: /milestones/MILESTONE-02.md
+owner: human:404pilo
 traces:
 - to: prd:/metrics/METRIC-04.md
   hash: a03fc4
@@ -39,10 +41,10 @@ Source of `blocked_by` FEATURE-23: the user, hitl answer of 2026-10-15 (FEATURE-
 
 | Item | State | Progress | Owner | Blocked by | Drift |
 | --- | --- | --- | --- | --- | --- |
-| [STORY-48: Download a prebuilt binary from GitHub Releases](../stories/STORY-48.md) | ready | - | - | - | - |
-| [STORY-49: Install jag with cargo from crates.io](../stories/STORY-49.md) | ready | - | - | - | - |
-| [STORY-50: Install or run jag with npm](../stories/STORY-50.md) | ready | - | - | - | - |
-| [STORY-51: Publish each channel from one tag](../stories/STORY-51.md) | blocked | - | - | STORY-45 | - |
+| [STORY-48: Download a prebuilt binary from GitHub Releases](../stories/STORY-48.md) | ready | - | human:404pilo | - | - |
+| [STORY-49: Install jag with cargo from crates.io](../stories/STORY-49.md) | ready | - | human:404pilo | - | - |
+| [STORY-50: Install or run jag with npm](../stories/STORY-50.md) | ready | - | human:404pilo | - | - |
+| [STORY-51: Publish each channel from one tag](../stories/STORY-51.md) | blocked | - | human:404pilo | STORY-45 | - |
 <!-- STATUS:END -->
 
 <!-- LINKS:START (generated, do not edit) -->
