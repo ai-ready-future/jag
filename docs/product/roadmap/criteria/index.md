@@ -384,6 +384,7 @@
 
 * [CRITERION-144: A conflicting pull request fails with a clear message](CRITERION-144.md) - When a pull request conflicts with main and has no merge ref, the private-data check fails before the checkout and says to merge main into the branch.
 * [CRITERION-145: A pull request with no conflict runs as before](CRITERION-145.md) - When the merge ref exists, the private-data check checks out and scans the pull request as before. The new step runs, sources and reads no file of the pull request.
+* [CRITERION-148: A late merge ref runs as before](CRITERION-148.md) - When GitHub makes the merge ref during the wait of the new step, the private-data check checks out and scans the pull request as before.
 
 ## STORY-81: Score with the old prompt as a new prompt version
 
