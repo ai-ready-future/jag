@@ -31,4 +31,5 @@ On the private development set, jag scores about 0.72 and blind grep scores abou
 - guarded by: [METRIC-07: False confidence](METRIC-07.md)
 - traced by: [STORY-45: Run the held-out evaluation before release](../../roadmap/stories/STORY-45.md)
 - traced by: [STORY-78: Score jag and grep on a labeled set from a local path](../../roadmap/stories/STORY-78.md)
+- traced by: [STORY-79: Measure the best possible jag-bench score on the development set](../../roadmap/stories/STORY-79.md)
 <!-- LINKS:END -->

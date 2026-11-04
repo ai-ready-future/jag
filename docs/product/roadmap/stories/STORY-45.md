@@ -5,7 +5,10 @@ description: As an agent builder (PERSONA-01), I want the maintainer to run the 
   jag once on the private held-out split before release 1, so that I can trust that
   jag answers better than grep.
 status: draft
-state: ready
+generated:
+  by: prd/6.2.0
+  at: '2026-11-04T11:06:12Z'
+state: blocked
 github:
   number: 70
   node_id: I_kwDOVKMnL88AAAABXTMnlA
@@ -17,6 +20,7 @@ spec: docs/superpowers/specs/2026-10-27-STORY-45-run-the-held-out-evaluation-bef
 parent: /epics/EPIC-02.md
 blocked_by:
 - /stories/STORY-78.md
+- /stories/STORY-79.md
 milestone: /milestones/MILESTONE-02.md
 traces:
 - to: prd:/scope/SCOPE-10.md
@@ -52,9 +56,11 @@ The run follows DECISION-70:
 
 - parent: [EPIC-02: Ranked search with file and line](../epics/EPIC-02.md)
 - blocked by: [STORY-78: Score jag and grep on a labeled set from a local path](STORY-78.md)
+- blocked by: [STORY-79: Measure the best possible jag-bench score on the development set](STORY-79.md)
 - milestone: [MILESTONE-02: Make it good](../milestones/MILESTONE-02.md)
 - traces: [SCOPE-10: The held-out score confirms the gain over grep](../../prd/scope/SCOPE-10.md)
 - traces: [METRIC-01: Answer quality](../../prd/metrics/METRIC-01.md)
 - criterion or run of: [CRITERION-73: The held-out score meets the target and beats grep](../criteria/CRITERION-73.md)
 - blocks: [STORY-51: Publish each channel from one tag](STORY-51.md)
+- discovered: [STORY-79: Measure the best possible jag-bench score on the development set](STORY-79.md)
 <!-- LINKS:END -->

@@ -4,7 +4,8 @@ title: Closed features
 description: The features that are done or cancelled.
 status: stable
 generated:
-  by: prd.py regen
+  by: process:prd-regen
+  at: '1970-01-01T00:00:00Z'
 ---
 
 # Closed features

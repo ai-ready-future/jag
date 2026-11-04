@@ -8,3 +8,4 @@
 * [STORY-50: Install or run jag with npm](STORY-50.md) - As an agent builder (PERSONA-01), I want to install jag with npm or run it with npx, so that my agent setup gets jag with the tools it already uses.
 * [STORY-51: Publish each channel from one tag](STORY-51.md) - As an agent builder (PERSONA-01), I want one version tag to publish jag on each channel with the same version and no private data, so that each channel gives the same jag.
 * [STORY-77: Approve the private-data check of a fork pull request before it runs](STORY-77.md) - As an agent builder (PERSONA-01), I want a maintainer to approve each private-data run of a fork pull request, so that the public result cannot confirm guesses.
+* [STORY-79: Measure the best possible jag-bench score on the development set](STORY-79.md) - As the maintainer, I want jag-bench to print the best score that a perfect order of its own windows can get, so that I know if a fix to jag can reach the bar.
