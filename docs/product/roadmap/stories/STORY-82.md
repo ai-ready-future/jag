@@ -6,11 +6,20 @@ description: As a maintainer, I want the private-data test to fail when the merg
   without a test failure.
 status: draft
 generated:
-  by: prd/6.2.0
-  at: '2026-11-04T15:20:24Z'
+  by: process:github
+  at: '2026-11-04T15:27:02Z'
 state: backlog
+github:
+  number: 321
+  node_id: I_kwDOVKMnL88AAAABceH68w
+  url: https://github.com/ai-ready-future/jag/issues/321
+  pushed_hash: 2cb948
+  synced:
+    state: backlog
+    owner: human:404pilo
 parent: /epics/EPIC-05.md
 milestone: /milestones/MILESTONE-02.md
+owner: human:404pilo
 discovered_from: /stories/STORY-80.md
 traces:
 - to: prd:/constraints/CONSTRAINT-01.md
