@@ -23,4 +23,5 @@ The public repository, its history, and the published package must contain no pr
 - traced by: [FEATURE-22: Check that jag is ready before the first publish](../../roadmap/features/FEATURE-22.md)
 - traced by: [FEATURE-28: A maintainer approves the private-data check of a fork pull request](../../roadmap/features/FEATURE-28.md)
 - traced by: [STORY-51: Publish each channel from one tag](../../roadmap/stories/STORY-51.md)
+- traced by: [STORY-80: Name the merge conflict when private-data cannot check out a PR](../../roadmap/stories/STORY-80.md)
 <!-- LINKS:END -->
