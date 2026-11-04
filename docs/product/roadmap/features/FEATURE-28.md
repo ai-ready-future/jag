@@ -13,7 +13,7 @@ github:
   url: https://github.com/ai-ready-future/jag/issues/245
   pushed_hash: 9f1969
   synced:
-    state: ready
+    state: done
     owner: human:404pilo
 parent: /epics/EPIC-05.md
 milestone: /milestones/MILESTONE-02.md
