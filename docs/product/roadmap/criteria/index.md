@@ -384,3 +384,8 @@
 
 * [CRITERION-144: A conflicting pull request fails with a clear message](CRITERION-144.md) - When a pull request conflicts with main and has no merge ref, the private-data check fails before the checkout and says to merge main into the branch.
 * [CRITERION-145: A pull request with no conflict runs as before](CRITERION-145.md) - When the merge ref exists, the private-data check checks out and scans the pull request as before. The new step runs, sources and reads no file of the pull request.
+
+## STORY-81: Score with the old prompt as a new prompt version
+
+* [CRITERION-146: jag uses the new prompt version and a tuned threshold](CRITERION-146.md) - jag scores with the prompt of the old tool under a new prompt version id, with a threshold tuned on the development set, and the decoy AUC stays at the bar of METRIC-07.
+* [CRITERION-147: The development test runs again with the frozen checks](CRITERION-147.md) - The development test of STORY-45 runs one more time with the new prompt, the same conversion rule, the same converter and the frozen 2 checks.

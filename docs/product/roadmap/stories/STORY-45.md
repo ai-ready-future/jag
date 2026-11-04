@@ -7,7 +7,7 @@ description: As an agent builder (PERSONA-01), I want the maintainer to run the 
 status: draft
 generated:
   by: prd/6.2.0
-  at: '2026-11-04T11:06:12Z'
+  at: '2026-11-04T14:10:27Z'
 state: blocked
 github:
   number: 70
@@ -22,6 +22,7 @@ parent: /epics/EPIC-02.md
 blocked_by:
 - /stories/STORY-78.md
 - /stories/STORY-79.md
+- /stories/STORY-81.md
 milestone: /milestones/MILESTONE-02.md
 owner: human:404pilo
 traces:
@@ -59,6 +60,7 @@ The run follows DECISION-70:
 - parent: [EPIC-02: Ranked search with file and line](../epics/EPIC-02.md)
 - blocked by: [STORY-78: Score jag and grep on a labeled set from a local path](STORY-78.md)
 - blocked by: [STORY-79: Measure the best possible jag-bench score on the development set](STORY-79.md)
+- blocked by: [STORY-81: Score with the old prompt as a new prompt version](STORY-81.md)
 - milestone: [MILESTONE-02: Make it good](../milestones/MILESTONE-02.md)
 - traces: [SCOPE-10: The held-out score confirms the gain over grep](../../prd/scope/SCOPE-10.md)
 - traces: [METRIC-01: Answer quality](../../prd/metrics/METRIC-01.md)
