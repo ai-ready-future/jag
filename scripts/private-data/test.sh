@@ -949,6 +949,40 @@ merge_ref_cases
 # The workflow runs the file of main, so a pull request cannot test its own
 # change on GitHub. These cases do.
 
+# The keys of the step "Check the merge ref" of a workflow file, 1 on each line.
+# The step starts at its "- name:" line. A blank line or a comment line does not
+# end it. It ends at the first other line with 6 spaces or fewer. A line with 7,
+# 8 or 9 spaces is a key line. A line with 10 spaces or more is a value.
+merge_ref_step_keys() { # file
+  awk '
+    $0 == "      - name: Check the merge ref" { found = 1; print "name"; next }
+    !found { next }
+    /^ *$/ || /^ *#/ { next }
+    !/^       / { exit }
+    /^       [^ ]/ || /^        [^ ]/ || /^         [^ ]/ {
+      key = $0; sub(/^ +/, "", key); sub(/:.*/, "", key); print key
+    }
+  ' "$1"
+}
+merge_ref_step_keys_ok() { # file
+  [[ "$(merge_ref_step_keys "$1" | sort | tr '\n' ' ')" == "env if name run " ]]
+}
+merge_ref_step_keys_bad() { # file
+  ! merge_ref_step_keys_ok "$1"
+}
+# Copies a workflow file and adds lines after the run line of the merge ref step.
+wf_copy_with() { # from to line...
+  local from=$1 to=$2 line
+  shift 2
+  : >"$to"
+  while IFS= read -r line; do
+    printf '%s\n' "$line" >>"$to"
+    if [[ $line == '        run: base/scripts/private-data/merge-ref.sh' && $# -gt 0 ]]; then
+      printf '%s\n' "$@" >>"$to"
+    fi
+  done <"$from"
+}
+
 workflow_cases() {
   local wf="$HERE/../../.github/workflows/private-data.yml"
   local fork_test="github.event_name == 'pull_request_target' && github.event.pull_request.head.repo.id != github.repository_id"
@@ -1007,7 +1041,19 @@ workflow_cases() {
   assert_true "the step has the pull_request_target condition" grep -qxF -- "        if: github.event_name == 'pull_request_target'" <<<"$step_block"
   assert_true "the step runs merge-ref.sh from base" grep -qxF -- '        run: base/scripts/private-data/merge-ref.sh' <<<"$step_block"
 
-  CUR="wf-h: the merge ref step has 3 inputs, no secret, and no token"
+  CUR="wf-h: the merge ref step has only the keys name, if, env and run, 3 inputs, no secret, and no token"
+  assert_true "the step has only the keys name, if, env and run" merge_ref_step_keys_ok "$wf"
+  # Copies with 1 extra key. The check must fail on each copy. The copies are
+  # the public workflow with 1 invented line. They hold no secret.
+  local run_line='        run: base/scripts/private-data/merge-ref.sh' copy
+  copy="$T/wf-h-copy.yml"
+  wf_copy_with "$wf" "$copy" '        shell: bash'
+  assert_true "an extra key fails the check" merge_ref_step_keys_bad "$copy"
+  wf_copy_with "$wf" "$copy" '' '        working-directory: pr'
+  assert_true "a blank line does not hide a key" merge_ref_step_keys_bad "$copy"
+  wf_copy_with "$wf" "$copy" '      # note' '        continue-on-error: true'
+  assert_true "a comment line does not hide a key" merge_ref_step_keys_bad "$copy"
+  assert_true "the run line is in the workflow" grep -qxF -- "$run_line" "$wf"
   assert_true "the env has 3 keys" test "$(grep -cE '^          [A-Z_]+:' <<<"$step_block")" = 3
   assert_true "PR_NUMBER is an input" grep -qE '^          PR_NUMBER: ' <<<"$step_block"
   assert_true "REPO_URL is an input" grep -qE '^          REPO_URL: ' <<<"$step_block"
