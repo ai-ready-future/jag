@@ -30,7 +30,7 @@ This milestone holds the capabilities that make jag better to use and easier to 
 | Item | State | Progress | Owner | Blocked by | Drift |
 | --- | --- | --- | --- | --- | --- |
 | [EPIC-04: A shell user keeps their habits](../epics/EPIC-04.md) | done | 6/6 (100%) | - | - | - |
-| [EPIC-05: Safe public release](../epics/EPIC-05.md) | ready | 4/5 (80%) | - | - | - |
+| [EPIC-05: Safe public release](../epics/EPIC-05.md) | ready | 4/6 (66%) | - | - | - |
 | [EPIC-06: An agent uses jag well](../epics/EPIC-06.md) | done | 3/3 (100%) | - | - | - |
 | [FEATURE-02: Readiness check](../features/FEATURE-02.md) | done | 3/3 (100%) | - | FEATURE-01 | - |
 | [FEATURE-03: Clear failure when the model is not available](../features/FEATURE-03.md) | done | 4/4 (100%) | - | FEATURE-01 | - |
@@ -130,4 +130,5 @@ This milestone holds the capabilities that make jag better to use and easier to 
 - item of: [STORY-77: Approve the private-data check of a fork pull request before it runs](../stories/STORY-77.md)
 - item of: [STORY-78: Score jag and grep on a labeled set from a local path](../stories/STORY-78.md)
 - item of: [STORY-79: Measure the best possible jag-bench score on the development set](../stories/STORY-79.md)
+- item of: [STORY-80: Name the merge conflict when private-data cannot check out a PR](../stories/STORY-80.md)
 <!-- LINKS:END -->

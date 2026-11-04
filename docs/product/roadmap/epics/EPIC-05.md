@@ -36,4 +36,5 @@ The repository and the packages hold no private data, and the user installs jag 
 - child: [FEATURE-19: Go public with a clean history](../features/FEATURE-19.md)
 - child: [FEATURE-22: Check that jag is ready before the first publish](../features/FEATURE-22.md)
 - child: [FEATURE-28: A maintainer approves the private-data check of a fork pull request](../features/FEATURE-28.md)
+- child: [STORY-80: Name the merge conflict when private-data cannot check out a PR](../stories/STORY-80.md)
 <!-- LINKS:END -->
