@@ -24,7 +24,7 @@ The development test of STORY-45 failed only the jag check: blind grep passed, a
 
 The rules of D-011:
 
-- The perfect order uses the result windows that jag-bench makes itself: the matcher, the scan, the window plan, and the pre-rank only when a case has more than 200 results. The pipeline stops before the model call. Each window gets the highest labeled grade that it holds (STORY-78 spec, row 11). The frozen score formula (STORY-78 spec, row 10) gives the score.
+- The perfect order uses the result windows that jag-bench makes itself: the matcher, the scan, the window plan, and the pre-rank only when a case has more than 200 results. The pipeline stops before the model call. Each window gets the credit of the STORY-78 spec, row 11: the highest grade of its labeled match lines that no earlier window got. Context lines get no credit. The frozen score formula (STORY-78 spec, row 10) gives the score.
 - The mode is a new flag of jag-bench, only in the `bench` feature. The default output and the default score path do not change, so the parity test (STORY-78 spec, row 7) stays true.
 - The run uses the development case file that is already converted. There is no new conversion. The mode makes no model call, so it costs nothing.
 - The mode prints only 3 totals: the mean best ndcg@10 over the cases with an answer, the number of cases with more than 200 results, and the number of labeled lines that the pre-rank removes. It prints no question, no case text and no per-case result (STORY-45 spec, row 5).
