@@ -13,9 +13,9 @@ github:
   number: 298
   node_id: I_kwDOVKMnL88AAAABcaqQHA
   url: https://github.com/ai-ready-future/jag/issues/298
-  pushed_hash: ade8ff
+  pushed_hash: 99503a
   synced:
-    state: ready
+    state: done
     owner: human:404pilo
 spec: docs/superpowers/specs/2026-11-04-STORY-79-measure-the-best-possible-jag-bench-score-on-the-development-set-design.md
 parent: /epics/EPIC-02.md
