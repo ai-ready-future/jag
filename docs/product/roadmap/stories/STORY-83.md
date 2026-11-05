@@ -95,29 +95,38 @@ Before step 1, ask the human for the path of the clone. In the commands below, `
    $ cargo install --locked --path .
    ```
 
-   Result: the last line of cargo starts with `Installed package` and names the executable `jag`. The build takes some minutes. Cargo does not build `jag-bench`, because it needs the feature `bench`. If cargo shows that `jag` is already installed from another source, run the command again with `--force`.
+   Result: the last line of cargo starts with `Installed package` and names the executable `jag`. The build takes some minutes. Cargo does not build `jag-bench`, because it needs the feature `bench`. If cargo shows that `jag` is already installed from another source, run the command again with `--force`. Before that, tell the human that `--force` replaces the jag that cargo installed from crates.io (`cargo install jag-cli`) with the jag of the clone.
 
 7. Make sure that `~/.cargo/bin` is in `PATH`.
 
    ```
+   $ hash -r
    $ command -v jag
    ```
 
+   `hash -r` clears the command paths that the shell keeps, so that the shell finds the new jag.
+
    - If this shows `<home>/.cargo/bin/jag`, go to step 8.
-   - If it shows nothing, `~/.cargo/bin` is not in `PATH`. Load it into this shell, and add it to the shell start file so that each new shell has it:
+   - If it shows nothing, `~/.cargo/bin` is not in `PATH`. Load it into this shell:
 
      ```
      $ . "$HOME/.cargo/env"
-     $ echo '. "$HOME/.cargo/env"' >> ~/.zshrc     # zsh, the default shell of macOS
-     $ echo '. "$HOME/.cargo/env"' >> ~/.bashrc    # bash
      ```
 
-     The human runs only the line of their shell. Do not add the line if the file already has it.
+     Then add it to the start file of the shell of the human, so that each new shell has it. Check the file first, and add the line only if the file does not have it:
+
+     ```
+     $ grep -F '.cargo/env' ~/.zshrc || echo '. "$HOME/.cargo/env"' >> ~/.zshrc     # zsh, the default shell of macOS
+     $ grep -F '.cargo/env' ~/.bashrc || echo '. "$HOME/.cargo/env"' >> ~/.bashrc   # bash
+     ```
+
+     The human runs only the line of their shell. Then run `hash -r` and `command -v jag` again.
    - If it shows a different path (for example an npm, Homebrew or `~/.local/bin` jag), an older jag comes first in `PATH`. Show all of them with `which -a jag`. Ask the human to remove the older jag, or to put `~/.cargo/bin` first in `PATH`.
 
 8. Check the result (the done check).
 
    ```
+   $ hash -r
    $ command -v jag
    $ jag --version
    $ grep '^version' <clone>/Cargo.toml
