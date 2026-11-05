@@ -6,7 +6,7 @@ area: contracts
 status: accepted
 date: 2026-10-13
 supersedes: null
-superseded_by: null
+superseded_by: 0029-read-each-setting-from-the-config-file-and-let-setup-write.md # partial
 amends: null
 refines: null
 deviates_from: null

@@ -10,6 +10,7 @@ okf_version: "0.2"
 * [context](#context) - 1 decision: 1 accepted
 * [contracts](#contracts) - 11 decisions: 11 accepted
 * [conventions](#conventions) - 1 decision: 1 accepted
+* [data](#data) - 1 decision: 1 accepted
 * [deployment](#deployment) - 5 decisions: 5 accepted
 * [quality](#quality) - 2 decisions: 2 accepted
 * [strategy](#strategy) - 3 decisions: 3 accepted
@@ -39,7 +40,7 @@ okf_version: "0.2"
 * [0008: Write structured output as one JSON document](./0008-write-structured-output-as-one-json-document.md) - accepted. Open this when you change the form of structured output, or when agent code that reads jag output breaks.
 * [0009: Pin the Jev model version in each release](./0009-pin-the-jev-model-version-in-each-release.md) - accepted. Open this when you change the Jev model that jag calls, or when scores change with no jag release.
 * [0013: Exit 2 when setup runs with no terminal](./0013-exit-2-when-setup-runs-with-no-terminal.md) - accepted. Open this when you change what jag --setup does with no terminal, or when a script acts on the exit code of setup.
-* [0015: Read the base URL and the model name from config.base-url and config.model](./0015-read-the-base-url-and-the-model-name-from-config-base-url.md) - accepted. Open this when you add a setting to the config file, change its keys, or change what --setup and --forget-key keep.
+* [0015: Read the base URL and the model name from config.base-url and config.model](./0015-read-the-base-url-and-the-model-name-from-config-base-url.md) - accepted. Open this when you add a setting to the config file, change its keys, or change what --setup and --forget-key keep. Partly replaced by: [0029-read-each-setting-from-the-config-file-and-let-setup-write.md](./0029-read-each-setting-from-the-config-file-and-let-setup-write.md).
 * [0016: Add /v1 to a base URL whose path does not end with /v1](./0016-add-v1-to-a-base-url-whose-path-does-not-end-with-v1.md) - accepted. Open this when you change how jag builds the call address from a base URL, or when a gateway needs another path.
 * [0017: Use a separate key for an AI gateway](./0017-use-a-separate-key-for-an-ai-gateway.md) - accepted. Open this when you change which key jag sends to a base URL, add a key source, or change how --setup, --forget-key, and --check handle keys. Partly replaced by: [0028-call-a-base-url-with-no-key-when-the-user-sets-no-gateway-key.md](./0028-call-a-base-url-with-no-key-when-the-user-sets-no-gateway-key.md).
 * [0018: Take the question only from the --ask option](./0018-take-the-question-only-from-the-ask-option.md) - accepted. Open this when you change how jag gets the question on the command line, or when a script depends on the command form.
@@ -51,6 +52,12 @@ okf_version: "0.2"
 ### accepted
 
 * [0025: Use the body of the jag skill file as the one source of the agent instructions](./0025-use-the-body-of-the-jag-skill-file-as-the-one-source-of-the.md) - accepted. Open this when you change the text of the jag skill or of the README agent snippet, or how the two stay the same.
+
+## data
+
+### accepted
+
+* [0029: Read each setting from the config file, and let setup write each default as a comment line](./0029-read-each-setting-from-the-config-file-and-let-setup-write.md) - accepted. Open this when you add a setting, change the keys of the config file, or change what --setup and --forget-key write or keep in it.
 
 ## deployment
 

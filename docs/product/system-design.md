@@ -259,10 +259,10 @@ components:
   - id: C-config
     name: Key and settings
     kind: library
-    summary: Finds the key for the route of each call and the settings, reads the config file at most one time in each run, checks the mode of the file at each read, and stores or removes the key with no loss of the other keys of the file. The one component that reads the key.
+    summary: Finds the key for the route of each call and the settings, reads the config file at most one time in each run, checks the mode of the file at each read, and stores or removes the key with no loss of the other keys and the comment lines of the file. The one component that reads the key.
     owns_entities: [ApiKey, Settings]
     depends_on: []
-    governed_by: [0012-use-clap-serde-saphyr-and-rpassword-as-the-outside-crates.md, 0015-read-the-base-url-and-the-model-name-from-config-base-url.md, 0016-add-v1-to-a-base-url-whose-path-does-not-end-with-v1.md, 0017-use-a-separate-key-for-an-ai-gateway.md, CV-6, CV-7]
+    governed_by: [0012-use-clap-serde-saphyr-and-rpassword-as-the-outside-crates.md, 0015-read-the-base-url-and-the-model-name-from-config-base-url.md, 0016-add-v1-to-a-base-url-whose-path-does-not-end-with-v1.md, 0017-use-a-separate-key-for-an-ai-gateway.md, 0029-read-each-setting-from-the-config-file-and-let-setup-write.md, CV-6, CV-7]
     realizes: [CAPABILITY-01, QS-5]
     areas: [building-blocks, data, conventions]
   - id: C-search
@@ -392,12 +392,12 @@ flowchart LR
 
 jag keeps no data between searches (data-2, DECISION-46) and builds no index
 (SCOPE-06). The only stored data is the config file: the TypeSafe key, the
-gateway key, the base URL, and the model name.
+gateway key, and the settings (data-3).
 
 | Entity | Owner | Store |
 |---|---|---|
 | ApiKey | C-config | The direct route to the TypeSafe API: the first of `JAG_TYPESAFE_API_KEY`, `TYPESAFE_API_KEY`, and `config.api-key` in `~/.config/jag/config.yml` (data-1, DECISION-03). The gateway route: the first of `JAG_GATEWAY_API_KEY` and `config.gateway-api-key` in the same file (0017-use-a-separate-key-for-an-ai-gateway.md). The file has mode 600 or stricter (CV-6). |
-| Settings | C-config | The base URL and the model name: an option, a variable, or `config.base-url` and `config.model` in `~/.config/jag/config.yml`, in the order of CV-7 (0015-read-the-base-url-and-the-model-name-from-config-base-url.md). `--setup` and `--forget-key` keep these two keys. The gateway key is a key, not a setting (ApiKey). The other settings: options and variables only (DF-1). |
+| Settings | C-config | The base URL and the model name: an option, a variable, or `config.base-url` and `config.model` in `~/.config/jag/config.yml`, in the order of CV-7 (0015-read-the-base-url-and-the-model-name-from-config-base-url.md). `--setup` and `--forget-key` keep these two keys. The gateway key is a key, not a setting (ApiKey). The times and the limits: an option, a variable, or `config.timeout`, `config.retry-wait`, `config.max-scored`, and `config.max-chars`, in the order of CV-7. `--setup` writes each setting that has no value as a comment line with its default, and `--setup` and `--forget-key` keep each value and each comment line (0029-read-each-setting-from-the-config-file-and-let-setup-write.md; data-3). |
 | Result | C-search | Memory, for one search. |
 | Score, Cost | C-scorer | Memory, for one search. |
 
@@ -442,10 +442,12 @@ gateway key, the base URL, and the model name.
   message (conventions-4, DECISION-39).
 - CV-5: Each Jev call times out after 4 seconds. After a timeout, a failed
   connection, HTTP 429, or HTTP 5xx, jag waits 1 second and tries one more
-  time. Then it fails with code 6. The `--timeout` option and the
-  `JAG_TIMEOUT` variable change the time of one call. The `--retry-wait`
-  option and the `JAG_RETRY_WAIT` variable change the wait before the
-  retry. Both take whole seconds from 1 to 60. One deadline covers all
+  time. Then it fails with code 6. The `--timeout` option, the
+  `JAG_TIMEOUT` variable, and the file key `config.timeout` change the time
+  of one call. The `--retry-wait` option, the `JAG_RETRY_WAIT` variable, and
+  the file key `config.retry-wait` change the wait before the retry, in the
+  order of CV-7 (0029-read-each-setting-from-the-config-file-and-let-setup-write.md).
+  Both take whole seconds from 1 to 60. One deadline covers all
   calls of a search: 2 × the timeout + the retry wait from the first call.
   No call and no retry starts after it. The deadline is 9 seconds with the
   defaults, and for example 180 seconds for 60 and 60 (conventions-5, QS-4,
@@ -455,8 +457,8 @@ gateway key, the base URL, and the model name.
   key, so it never shows in the process list. `--setup` reads it from the
   terminal with no echo. jag refuses a config file that the group or other
   users can read, and exits with code 3 and the fix. This check applies to
-  each read of the file, also a read for the base URL or the model name
-  only, when the key comes from a variable. jag sends a key only on its own
+  each read of the file, also a read for a setting only, when the key
+  comes from a variable or when jag needs no key. jag sends a key only on its own
   route: a key from `JAG_TYPESAFE_API_KEY`, `TYPESAFE_API_KEY`, or
   `config.api-key` goes only to the TypeSafe API, and only a key from
   `JAG_GATEWAY_API_KEY` or `config.gateway-api-key` goes to a gateway.
@@ -531,6 +533,7 @@ gateway key, the base URL, and the model name.
 | building-blocks-6 | 0026-name-the-crates-io-package-jag-cli.md | accepted | building-blocks | The crates.io name of the one package: `jag-cli` (`cargo install --locked jag-cli`); the command stays `jag` | adr |
 | data-1 | |  | data | The store of the API key | human:404pilo, 2026-10-12 |
 | data-2 | |  | data | Nothing is kept between searches | human:404pilo, 2026-10-12 |
+| data-3 | 0029-read-each-setting-from-the-config-file-and-let-setup-write.md | accepted | data | Each setting that is not a key has a key in the config file, and setup writes each missing default as a comment line (closes DF-1) | adr |
 | contracts-1 | 0018-take-the-question-only-from-the-ask-option.md | accepted | contracts | The command form of a search: `jag [OPTIONS] TERM [PATH...]`, with the question only in `--ask QUESTION` | adr |
 | contracts-2 | 0006-run-setup-the-readiness-check-and-key-removal-as-options.md | accepted | contracts | The form of the setup, readiness, and key-removal commands | adr |
 | contracts-3 | 0007-number-the-exit-codes-above-2-from-3-to-8.md | accepted | contracts | The numbers of the exit codes above 2 | adr |
@@ -592,13 +595,15 @@ program and not a release asset. The `skills` tool installs it
 
 ## Deferred
 
-- DF-1: Settings other than the keys, the base URL, and the model name in
-  the config file (data-3). Reason: options and variables cover the other
-  settings of release 1, such as the times and the limits. The base URL
-  and the model name are in the file because a gateway route needs a saved
-  default
-  (0015-read-the-base-url-and-the-model-name-from-config-base-url.md).
-  Trigger: a user asks for another default that they can save.
+- DF-1: Closed on 2026-11-05. The trigger fired: request
+  REQ-config-timeout (STORY-84) asks for `config.timeout`, and the user
+  asked for a file key for each setting (hitl `ANSWER`, 2026-11-05). Each
+  setting that is not a key now has a key in the config file, and
+  `--setup` writes each missing default as a comment line (data-3,
+  0029-read-each-setting-from-the-config-file-and-let-setup-write.md).
+  Earlier text: settings other than the keys, the base URL, and the model
+  name stay out of the config file, because options and variables cover
+  them (0015-read-the-base-url-and-the-model-name-from-config-base-url.md).
 - DF-2: A debug log (conventions-8). Reason: jag has no telemetry and no log
   file, and the error message gives the cause and the fix. Trigger: the first
   setup-failure issue that the message does not explain.

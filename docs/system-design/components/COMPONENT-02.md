@@ -1,7 +1,7 @@
 ---
 type: Component
 title: Key and settings
-description: Finds the key for the route of each call and the settings, reads the config file at most one time in each run, checks the mode of the file at each read, and stores or removes the key with no loss of the other keys of the file. The one component that reads the key.
+description: Finds the key for the route of each call and the settings, reads the config file at most one time in each run, checks the mode of the file at each read, and stores or removes the key with no loss of the other keys and the comment lines of the file. The one component that reads the key.
 status: draft
 slug: config
 kind: library
@@ -16,18 +16,19 @@ governed_by:
 - adr:/0017-use-a-separate-key-for-an-ai-gateway.md
 - /conventions/CONVENTION-06.md
 - /conventions/CONVENTION-07.md
+- adr:/0029-read-each-setting-from-the-config-file-and-let-setup-write.md
 realizes:
 - prd:/capabilities/CAPABILITY-01.md
 aliases:
 - C-config
 generated:
   by: claude-code/opus-5.5
-  at: '2026-11-03T11:37:50Z'
+  at: '2026-11-05T20:57:59Z'
 ---
 
 # COMPONENT-02: Key and settings
 
-Finds the key for the route of each call and the settings, reads the config file at most one time in each run, checks the mode of the file at each read, and stores or removes the key with no loss of the other keys of the file. The one component that reads the key.
+Finds the key for the route of each call and the settings, reads the config file at most one time in each run, checks the mode of the file at each read, and stores or removes the key with no loss of the other keys and the comment lines of the file. The one component that reads the key.
 
 <!-- LINKS:START (generated, do not edit) -->
 
@@ -39,6 +40,7 @@ Finds the key for the route of each call and the settings, reads the config file
 - governed by: [adr:/0017-use-a-separate-key-for-an-ai-gateway.md](../../adr/0017-use-a-separate-key-for-an-ai-gateway.md)
 - governed by: [CONVENTION-06: Only C-config reads the key. The key lives](../conventions/CONVENTION-06.md)
 - governed by: [CONVENTION-07: A setting takes its value from the first](../conventions/CONVENTION-07.md)
+- governed by: [adr:/0029-read-each-setting-from-the-config-file-and-let-setup-write.md](../../adr/0029-read-each-setting-from-the-config-file-and-let-setup-write.md)
 - realizes: [prd:/capabilities/CAPABILITY-01.md](../../product/prd/capabilities/CAPABILITY-01.md)
 - area: [building-blocks: Building blocks](../areas/building-blocks.md)
 - area: [data: Data and ownership](../areas/data.md)
