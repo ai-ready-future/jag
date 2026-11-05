@@ -408,3 +408,9 @@
 
 * [CRITERION-152: jag --setup adds a comment line with the default for each missing setting](CRITERION-152.md) - After jag --setup on a new or older file, each non-secret setting is in the file, as a value or as a comment line with its default; values and keys stay as they are.
 * [CRITERION-153: A second jag --setup does not change the file](CRITERION-153.md) - A second jag --setup with the same answers leaves the bytes of the file the same.
+
+## STORY-86: Call the gateway base URL with no key when the user sets no gateway key
+
+* [CRITERION-155: A search calls the gateway base URL with no key when no gateway key is set](CRITERION-155.md) - With a base URL that is not TypeSafe and no gateway key, a search calls the base URL with no Authorization header, and no TypeSafe key goes to it.
+* [CRITERION-156: A server that refuses the call for a key gives the key-not-accepted failure](CRITERION-156.md) - With no gateway key, HTTP 401 or 403 from the server gives the key-not-accepted exit code, and the message names JAG_GATEWAY_API_KEY.
+* [CRITERION-157: The readiness check of a server with no key reports the server items](CRITERION-157.md) - jag --check with no gateway key reports the 2 server items; the key items say not needed, the credit item says not available.

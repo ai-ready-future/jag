@@ -1,6 +1,8 @@
 # Log
 
 ## 2026-11-05
+* **Learn**: STORY-86 from a reviewer finding: the code does not follow ADR-0028 and DECISION-71 (call with no key on the gateway route) and DECISION-75 (readiness check of a server with no key)., by agent:jag-planner, at 2026-11-05T21:35:50Z
+* **State**: [FEATURE-21](features/FEATURE-21.md) done -> ready, by human:404pilo, at 2026-11-05T21:35:50Z
 * **Sync**: [STORY-85](stories/STORY-85.md) pushed to GitHub, by process:github, at 2026-11-05T20:41:05Z
 * **Sync**: [STORY-84](stories/STORY-84.md) pushed to GitHub, by process:github, at 2026-11-05T20:41:05Z
 * **Sync**: [FEATURE-29](features/FEATURE-29.md) pushed to GitHub, by process:github, at 2026-11-05T20:41:05Z

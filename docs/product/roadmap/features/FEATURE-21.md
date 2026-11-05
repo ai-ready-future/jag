@@ -4,8 +4,7 @@ title: Send the model calls through an AI gateway
 description: The user can set a base URL and a model name, so that jag sends the same
   model calls through an AI gateway. With no setting, jag calls TypeSafe directly.
 status: draft
-state: done
-actual_end_date: '2026-10-14'
+state: ready
 github:
   number: 25
   node_id: I_kwDOVKMnL88AAAABXTLgqA
@@ -34,6 +33,7 @@ The user can set a base URL and a model name, so that jag sends the same model c
 | --- | --- | --- | --- | --- | --- |
 | [STORY-57: Send the model calls through an AI gateway](../stories/STORY-57.md) | done | - | - | - | - |
 | [STORY-58: Set the gateway as an option, a variable, or in the config file](../stories/STORY-58.md) | done | - | - | - | - |
+| [STORY-86: Call the gateway base URL with no key when the user sets no gateway key](../stories/STORY-86.md) | backlog | - | - | - | - |
 <!-- STATUS:END -->
 
 <!-- LINKS:START (generated, do not edit) -->
@@ -46,4 +46,5 @@ The user can set a base URL and a model name, so that jag sends the same model c
 - traces: [CONSTRAINT-03: A TypeSafe key or a Clef server is enough to start](../../prd/constraints/CONSTRAINT-03.md)
 - child: [STORY-57: Send the model calls through an AI gateway](../stories/STORY-57.md)
 - child: [STORY-58: Set the gateway as an option, a variable, or in the config file](../stories/STORY-58.md)
+- child: [STORY-86: Call the gateway base URL with no key when the user sets no gateway key](../stories/STORY-86.md)
 <!-- LINKS:END -->

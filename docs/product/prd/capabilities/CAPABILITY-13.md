@@ -51,4 +51,5 @@ When one call is too long for the server, the search still works. When the serve
 - subject of: [QUESTION-04: What does the readiness check report for a server with no key?](../questions/QUESTION-04.md)
 - subject of: [QUESTION-05: What happens when one snippet alone is too long for the server?](../questions/QUESTION-05.md)
 - included by: [SCOPE-04: After release 1: local model option](../scope/SCOPE-04.md) (must)
+- traced by: [STORY-86: Call the gateway base URL with no key when the user sets no gateway key](../../roadmap/stories/STORY-86.md)
 <!-- LINKS:END -->

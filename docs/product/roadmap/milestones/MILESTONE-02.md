@@ -41,7 +41,7 @@ This milestone holds the capabilities that make jag better to use and easier to 
 | [FEATURE-18: Install jag from GitHub Releases, crates.io, or npm](../features/FEATURE-18.md) | ready | 0/4 (0%) | human:404pilo | FEATURE-01, FEATURE-17, FEATURE-19, FEATURE-22, FEATURE-23 | - |
 | [FEATURE-19: Go public with a clean history](../features/FEATURE-19.md) | done | 4/4 (100%) | - | FEATURE-17 | - |
 | [FEATURE-20: Show the cost of a search](../features/FEATURE-20.md) | done | 4/4 (100%) | - | FEATURE-04, FEATURE-11 | - |
-| [FEATURE-21: Send the model calls through an AI gateway](../features/FEATURE-21.md) | done | 2/2 (100%) | - | FEATURE-04 | - |
+| [FEATURE-21: Send the model calls through an AI gateway](../features/FEATURE-21.md) | ready | 2/3 (66%) | - | FEATURE-04 | - |
 | [FEATURE-22: Check that jag is ready before the first publish](../features/FEATURE-22.md) | done | 3/3 (100%) | - | - | - |
 | [FEATURE-23: Give the same output as rg for the same arguments](../features/FEATURE-23.md) | done | 3/3 (100%) | - | - | - |
 | [FEATURE-24: Install the jag skill with one README command](../features/FEATURE-24.md) | done | 4/4 (100%) | - | - | - |
@@ -138,4 +138,5 @@ This milestone holds the capabilities that make jag better to use and easier to 
 - item of: [STORY-83: Install jag from a local clone with cargo, guided by chores](../stories/STORY-83.md)
 - item of: [STORY-84: Set each non-secret setting in the config file](../stories/STORY-84.md)
 - item of: [STORY-85: jag --setup shows each missing setting as a comment line with its default](../stories/STORY-85.md)
+- item of: [STORY-86: Call the gateway base URL with no key when the user sets no gateway key](../stories/STORY-86.md)
 <!-- LINKS:END -->
