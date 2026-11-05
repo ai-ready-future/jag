@@ -45,4 +45,6 @@ When the key is missing or out of credit, or the model service is down, jag fail
 - traced by: [FEATURE-01: Store a key one time](../../roadmap/features/FEATURE-01.md)
 - traced by: [FEATURE-02: Readiness check](../../roadmap/features/FEATURE-02.md)
 - traced by: [FEATURE-03: Clear failure when the model is not available](../../roadmap/features/FEATURE-03.md)
+- traced by: [FEATURE-29: The config file holds the call timeout, and setup writes each setting](../../roadmap/features/FEATURE-29.md)
+- traced by: [STORY-84: Set the call timeout in the config file, and let setup write each setting with its default](../../roadmap/stories/STORY-84.md)
 <!-- LINKS:END -->

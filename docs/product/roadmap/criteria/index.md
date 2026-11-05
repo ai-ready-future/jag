@@ -398,3 +398,9 @@
 ## STORY-83: Install jag from a local clone with cargo, guided by chores
 
 * [CRITERION-150: jag from the clone runs on the machine of the human](CRITERION-150.md) - After the chore guide, command -v jag shows ~/.cargo/bin/jag, and jag --version shows the version in Cargo.toml of the clone.
+
+## STORY-84: Set the call timeout in the config file, and let setup write each setting with its default
+
+* [CRITERION-151: config.timeout sets the time of one model call](CRITERION-151.md) - With config.timeout in the file and no --timeout and no JAG_TIMEOUT, one model call uses that time; a bad value gives exit 2 with the words of a bad JAG_TIMEOUT.
+* [CRITERION-152: jag --setup writes each non-secret setting with its default](CRITERION-152.md) - After jag --setup on a new or older file, each non-secret setting is in the file with its default; values and keys that the user wrote stay as they are.
+* [CRITERION-153: A second jag --setup does not change the file](CRITERION-153.md) - A second jag --setup with the same answers leaves the bytes of the file the same.

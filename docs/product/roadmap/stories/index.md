@@ -8,3 +8,4 @@
 * [STORY-50: Install or run jag with npm](STORY-50.md) - As an agent builder (PERSONA-01), I want to install jag with npm or run it with npx, so that my agent setup gets jag with the tools it already uses.
 * [STORY-51: Publish each channel from one tag](STORY-51.md) - As an agent builder (PERSONA-01), I want one version tag to publish jag on each channel with the same version and no private data, so that each channel gives the same jag.
 * [STORY-81: Score with the old prompt as a new prompt version](STORY-81.md) - As the maintainer, I want jag to score with the prompt of the old tool as a new prompt version, so that jag can reach the release bar before the held-out run.
+* [STORY-84: Set the call timeout in the config file, and let setup write each setting with its default](STORY-84.md) - As an agent builder, I want config.timeout in the config file, and jag --setup to write each setting with its default, so that I set the timeout one time.
