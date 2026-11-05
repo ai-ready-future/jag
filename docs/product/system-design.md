@@ -397,7 +397,7 @@ gateway key, the base URL, and the model name.
 | Entity | Owner | Store |
 |---|---|---|
 | ApiKey | C-config | The direct route to the TypeSafe API: the first of `JAG_TYPESAFE_API_KEY`, `TYPESAFE_API_KEY`, and `config.api-key` in `~/.config/jag/config.yml` (data-1, DECISION-03). The gateway route: the first of `JAG_GATEWAY_API_KEY` and `config.gateway-api-key` in the same file (0017-use-a-separate-key-for-an-ai-gateway.md). The file has mode 600 or stricter (CV-6). |
-| Settings | C-config | The base URL and the model name: an option, a variable, or `config.base-url` and `config.model` in `~/.config/jag/config.yml`, in the order of CV-7 (0015-read-the-base-url-and-the-model-name-from-config-base-url.md). `--setup` and `--forget-key` keep these two keys. The gateway key is a key, not a setting (ApiKey). The other settings: options and variables only (DF-1). |
+| Settings | C-config | The base URL and the model name: an option, a variable, or `config.base-url` and `config.model` in `~/.config/jag/config.yml`, in the order of CV-7 (0015-read-the-base-url-and-the-model-name-from-config-base-url.md). `--setup` and `--forget-key` keep these two keys. The gateway key is a key, not a setting (ApiKey). The times and the limits: an option, a variable, or `config.timeout`, `config.retry-wait`, `config.max-scored`, and `config.max-chars`, in the order of CV-7. `--setup` writes each setting that has no value as a comment line with its default, and `--setup` and `--forget-key` keep each value and each comment line (0029-read-each-setting-from-the-config-file-and-let-setup-write.md, proposed; data-3). |
 | Result | C-search | Memory, for one search. |
 | Score, Cost | C-scorer | Memory, for one search. |
 
@@ -531,6 +531,7 @@ gateway key, the base URL, and the model name.
 | building-blocks-6 | 0026-name-the-crates-io-package-jag-cli.md | accepted | building-blocks | The crates.io name of the one package: `jag-cli` (`cargo install --locked jag-cli`); the command stays `jag` | adr |
 | data-1 | |  | data | The store of the API key | human:404pilo, 2026-10-12 |
 | data-2 | |  | data | Nothing is kept between searches | human:404pilo, 2026-10-12 |
+| data-3 | 0029-read-each-setting-from-the-config-file-and-let-setup-write.md | proposed | data | Each setting that is not a key has a key in the config file, and setup writes each missing default as a comment line (closes DF-1) | adr |
 | contracts-1 | 0018-take-the-question-only-from-the-ask-option.md | accepted | contracts | The command form of a search: `jag [OPTIONS] TERM [PATH...]`, with the question only in `--ask QUESTION` | adr |
 | contracts-2 | 0006-run-setup-the-readiness-check-and-key-removal-as-options.md | accepted | contracts | The form of the setup, readiness, and key-removal commands | adr |
 | contracts-3 | 0007-number-the-exit-codes-above-2-from-3-to-8.md | accepted | contracts | The numbers of the exit codes above 2 | adr |
@@ -592,13 +593,15 @@ program and not a release asset. The `skills` tool installs it
 
 ## Deferred
 
-- DF-1: Settings other than the keys, the base URL, and the model name in
-  the config file (data-3). Reason: options and variables cover the other
-  settings of release 1, such as the times and the limits. The base URL
-  and the model name are in the file because a gateway route needs a saved
-  default
-  (0015-read-the-base-url-and-the-model-name-from-config-base-url.md).
-  Trigger: a user asks for another default that they can save.
+- DF-1: Closed on 2026-11-05. The trigger fired: request
+  REQ-config-timeout (STORY-84) asks for `config.timeout`, and the user
+  asked for a file key for each setting (hitl `ANSWER`, 2026-11-05). Each
+  setting that is not a key now has a key in the config file, and
+  `--setup` writes each missing default as a comment line (data-3,
+  0029-read-each-setting-from-the-config-file-and-let-setup-write.md).
+  Earlier text: settings other than the keys, the base URL, and the model
+  name stay out of the config file, because options and variables cover
+  them (0015-read-the-base-url-and-the-model-name-from-config-base-url.md).
 - DF-2: A debug log (conventions-8). Reason: jag has no telemetry and no log
   file, and the error message gives the cause and the fix. Trigger: the first
   setup-failure issue that the message does not explain.

@@ -95,6 +95,7 @@ Destination: not stated
 | building-blocks-6 | [adr:/0026-name-the-crates-io-package-jag-cli.md](../adr/0026-name-the-crates-io-package-jag-cli.md) | building-blocks | The crates.io name of the one package: `jag-cli` (`cargo install --locked jag-cli`); the command stays `jag` | adr |
 | data-1 |  | data | The store of the API key | human:404pilo, 2026-10-12 |
 | data-2 |  | data | Nothing is kept between searches | human:404pilo, 2026-10-12 |
+| data-3 | [adr:/0029-read-each-setting-from-the-config-file-and-let-setup-write.md](../adr/0029-read-each-setting-from-the-config-file-and-let-setup-write.md) | data | Each setting that is not a key has a key in the config file, and setup writes each missing default as a comment line (closes DF-1) | adr |
 | contracts-1 | [adr:/0018-take-the-question-only-from-the-ask-option.md](../adr/0018-take-the-question-only-from-the-ask-option.md) | contracts | The command form of a search: `jag [OPTIONS] TERM [PATH...]`, with the question only in `--ask QUESTION` | adr |
 | contracts-2 | [adr:/0006-run-setup-the-readiness-check-and-key-removal-as-options.md](../adr/0006-run-setup-the-readiness-check-and-key-removal-as-options.md) | contracts | The form of the setup, readiness, and key-removal commands | adr |
 | contracts-3 | [adr:/0007-number-the-exit-codes-above-2-from-3-to-8.md](../adr/0007-number-the-exit-codes-above-2-from-3-to-8.md) | contracts | The numbers of the exit codes above 2 | adr |

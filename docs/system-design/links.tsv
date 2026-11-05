@@ -16,6 +16,7 @@ source	relation	target
 /areas/contracts.md	decisions.adr	adr:/0018-take-the-question-only-from-the-ask-option.md
 /areas/contracts.md	decisions.adr	adr:/0022-use-rg-as-the-reference-for-the-output-of-jag-with-no.md
 /areas/conventions.md	decisions.adr	adr:/0025-use-the-body-of-the-jag-skill-file-as-the-one-source-of-the.md
+/areas/data.md	decisions.adr	adr:/0029-read-each-setting-from-the-config-file-and-let-setup-write.md
 /areas/deployment.md	decisions.adr	adr:/0010-ship-jag-on-github-releases-crates-io-and-npm.md
 /areas/deployment.md	decisions.adr	adr:/0019-give-the-new-public-repository-the-name-ai-ready-future-jag.md
 /areas/deployment.md	decisions.adr	adr:/0020-name-the-release-archives-and-the-npm-platform-packages-by.md

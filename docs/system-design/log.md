@@ -1,5 +1,8 @@
 # Log
 
+## 2026-11-05
+* **Learn**: data: DF-1 closed by ADR-0029 (proposed, hitl ANSWER 2026-11-05, REQ-config-timeout): new decision row data-3, open row 'not migrated: DF-1' removed., by claude-code/opus-5.5, at 2026-11-05T20:35:34Z
+
 ## 2026-11-03
 * **Setup**: made the bundle docs/system-design, by system-design/0.2.3, at 2026-11-03T11:37:02Z
 * **Migrate**: migrated docs/product/system-design.md (27 items, 6 not migrated); the old file stays, by claude-code/opus-5.5, at 2026-11-03T11:37:50Z
