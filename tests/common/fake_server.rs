@@ -37,28 +37,32 @@ impl Request {
         serde_json::from_slice(&self.body).unwrap_or(serde_json::Value::Null)
     }
 
-    /// The `path` of each snippet of the request, in order.
+    /// The `file` of each snippet of the request, in the order of the ids.
     pub fn snippet_paths(&self) -> Vec<String> {
-        self.json()["state"]["snippets"]
-            .as_array()
-            .map(|list| {
-                list.iter()
-                    .map(|item| item["path"].as_str().unwrap_or_default().to_owned())
-                    .collect()
-            })
-            .unwrap_or_default()
+        self.snippet_field("file")
     }
 
-    /// The `lines` text of each snippet of the request, in order.
+    /// The `text` of each snippet of the request, in the order of the ids.
     pub fn snippet_texts(&self) -> Vec<String> {
-        self.json()["state"]["snippets"]
-            .as_array()
-            .map(|list| {
-                list.iter()
-                    .map(|item| item["lines"].as_str().unwrap_or_default().to_owned())
-                    .collect()
+        self.snippet_field("text")
+    }
+
+    /// `state.snippets` is an object with the keys `s0`, `s1`, ... The map of
+    /// `serde_json` sorts its keys as text, so this sorts them by number.
+    fn snippet_field(&self, field: &str) -> Vec<String> {
+        let json = self.json();
+        let Some(map) = json["state"]["snippets"].as_object() else {
+            return Vec::new();
+        };
+        let mut items: Vec<(usize, String)> = map
+            .iter()
+            .map(|(id, item)| {
+                let number = id.trim_start_matches('s').parse().unwrap_or(usize::MAX);
+                (number, item[field].as_str().unwrap_or_default().to_owned())
             })
-            .unwrap_or_default()
+            .collect();
+        items.sort_by_key(|(number, _)| *number);
+        items.into_iter().map(|(_, value)| value).collect()
     }
 }
 
@@ -90,7 +94,7 @@ impl Reply {
     }
 
     /// HTTP 200 with a score for each snippet of the request. `score` gets
-    /// the `lines` text of the snippet.
+    /// the `text` of the snippet.
     pub fn scores(request: &Request, score: impl Fn(&str) -> f64) -> Reply {
         let usage = serde_json::json!({ "input_tokens": 1, "output_tokens": 1 });
         Reply::scores_with_usage(request, score, Some(usage))
@@ -106,7 +110,7 @@ impl Reply {
         let mut answers = serde_json::Map::new();
         for (index, text) in request.snippet_texts().iter().enumerate() {
             answers.insert(
-                format!("s{}", index + 1),
+                format!("s{index}"),
                 serde_json::json!({ "type": "noul", "noul": score(text) }),
             );
         }

@@ -888,7 +888,7 @@ mod tests {
         let text = json(&Summary::default(), &[]);
         assert_eq!(
             text,
-            "{\"version\":1,\"prompt_version\":\"jag-p1\",\"exit_code\":0,\"error\":null,\
+            "{\"version\":1,\"prompt_version\":\"jag-p2\",\"exit_code\":0,\"error\":null,\
              \"no_good_answer\":false,\"results_found\":0,\"results_scored\":0,\
              \"results_skipped\":0,\"left_out\":0,\"top_result_cut\":0,\"size_limit_fix\":\"\",\
              \"files_skipped\":{\"total\":0,\"binary\":0,\"hidden\":0,\"ignored\":0},\

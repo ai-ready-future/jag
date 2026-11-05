@@ -70,7 +70,7 @@ fn criterion_18_the_command_takes_a_term_a_question_and_a_path() {
     assert_eq!(output.status.code(), Some(0));
     assert!(stdout(&output).contains("a.txt:1:needle"));
     assert_eq!(server.requests().len(), 1);
-    assert_eq!(server.requests()[0].json()["state"]["question"], QUESTION);
+    assert_eq!(server.requests()[0].json()["state"]["query"], QUESTION);
 }
 
 // CRITERION-19: the best answer comes first.
@@ -408,10 +408,10 @@ fn the_request_has_the_model_from_the_variable() {
     );
     let body = server.requests()[0].json();
     assert_eq!(body["model"], "jev-latest");
-    assert_eq!(body["questions"]["s1"]["type"], "noul");
+    assert_eq!(body["questions"]["s0"]["type"], "noul");
     assert_eq!(
-        body["questions"]["s1"]["instructions"],
-        "Does snippet 1 answer the question?"
+        body["questions"]["s0"]["instructions"],
+        "Does `snippets.s0` contain information that answers or directly helps answer `query`?"
     );
 }
 
@@ -515,7 +515,7 @@ fn a_body_that_jag_cannot_read_gives_exit_6() {
     let bodies = [
         "SECRET-BODY-TEXT",
         r#"{"answers":{}}"#,
-        r#"{"answers":{"s1":{"type":"noul","noul":1.5}}}"#,
+        r#"{"answers":{"s0":{"type":"noul","noul":1.5}}}"#,
     ];
     for body in bodies {
         let server = FakeServer::start(move |_| Reply::status(200).body(body));
