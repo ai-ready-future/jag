@@ -30,7 +30,7 @@ This milestone holds the capabilities that make jag better to use and easier to 
 | Item | State | Progress | Owner | Blocked by | Drift |
 | --- | --- | --- | --- | --- | --- |
 | [EPIC-04: A shell user keeps their habits](../epics/EPIC-04.md) | done | 6/6 (100%) | - | - | - |
-| [EPIC-05: Safe public release](../epics/EPIC-05.md) | ready | 6/7 (85%) | - | - | - |
+| [EPIC-05: Safe public release](../epics/EPIC-05.md) | ready | 6/8 (75%) | - | - | - |
 | [EPIC-06: An agent uses jag well](../epics/EPIC-06.md) | done | 3/3 (100%) | - | - | - |
 | [FEATURE-02: Readiness check](../features/FEATURE-02.md) | done | 3/3 (100%) | - | FEATURE-01 | - |
 | [FEATURE-03: Clear failure when the model is not available](../features/FEATURE-03.md) | done | 4/4 (100%) | - | FEATURE-01 | - |
@@ -133,4 +133,5 @@ This milestone holds the capabilities that make jag better to use and easier to 
 - item of: [STORY-80: Name the merge conflict when private-data cannot check out a PR](../stories/STORY-80.md)
 - item of: [STORY-81: Score with the old prompt as a new prompt version](../stories/STORY-81.md)
 - item of: [STORY-82: Limit the keys of the merge ref step in the private-data test](../stories/STORY-82.md)
+- item of: [STORY-83: Install jag from a local clone with cargo, guided by chores](../stories/STORY-83.md)
 <!-- LINKS:END -->
