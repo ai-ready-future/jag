@@ -8,7 +8,8 @@ status: draft
 generated:
   by: prd/6.2.1
   at: '2026-11-05T14:44:11Z'
-state: backlog
+state: done
+actual_end_date: '2026-11-05'
 parent: /epics/EPIC-05.md
 milestone: /milestones/MILESTONE-02.md
 owner: human:404pilo
@@ -135,6 +136,18 @@ Before step 1, ask the human for the path of the clone. In the commands below, `
    Result: `command -v jag` shows `<home>/.cargo/bin/jag`, and the version of `jag --version` is the version in `Cargo.toml` of the clone. Both are necessary: the version alone does not show which binary runs, because the crates.io and npm packages can have the same version.
 
 9. Tell the human how to update later: in the clone, run `git pull --ff-only`, then step 6 again.
+
+## Result
+
+On 2026-11-05 chores ran the guide with the human on a Mac, in the main clone at `main` `463bde2`. CRITERION-150 passes, and no step failed:
+
+- Step 0: not necessary. The clone was on `main` and had no local changes.
+- Steps 1, 2, 4 and 5: no problem. rustup 1.27.1 was installed. `rust-toolchain.toml` gave `rustc` 1.99.0. The Command Line Tools were installed.
+- Step 6: `cargo install --locked --path .` installed `jag`. `--force` was not necessary.
+- Step 7: `~/.cargo/bin` was already in `PATH`.
+- Step 8: `command -v jag` shows `~/.cargo/bin/jag`. `jag --version` shows 0.1.0, the version in `Cargo.toml`. `cargo install --list` shows the path of the clone.
+
+Not tested on this machine, because they were not necessary: step 3 (the install of rustup) and the change of the shell start file in step 7.
 
 <!-- STATUS:START (generated, do not edit) -->
 
