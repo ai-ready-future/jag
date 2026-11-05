@@ -19,5 +19,5 @@ With `config.timeout` in `~/.config/jag/config.yml`, and with no `--timeout` and
 
 ## Links
 
-- item: [STORY-84: Set the call timeout in the config file, and let setup write each setting with its default](../stories/STORY-84.md)
+- item: [STORY-84: Set each non-secret setting in the config file](../stories/STORY-84.md)
 <!-- LINKS:END -->
