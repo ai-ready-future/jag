@@ -3,7 +3,7 @@ type: system-design
 title: jag system design
 status: accepted
 version: 2
-updated: 2026-10-20
+updated: 2026-11-05
 prd_tree: 104339a44fa1f15943107f1ef69c72b169083dfe
 session: 2d045b37-ac91-451e-b37b-928ac1645df2
 areas:
@@ -42,6 +42,9 @@ adrs:
   - 0024-install-the-jag-agent-skill-from-the-repository-with-the.md
   - 0025-use-the-body-of-the-jag-skill-file-as-the-one-source-of-the.md
   - 0026-name-the-crates-io-package-jag-cli.md
+  - 0027-approve-each-fork-run-of-the-private-data-check-through-a.md
+  - 0028-call-a-base-url-with-no-key-when-the-user-sets-no-gateway-key.md
+  - 0029-read-each-setting-from-the-config-file-and-let-setup-write.md
 ---
 
 # jag system design

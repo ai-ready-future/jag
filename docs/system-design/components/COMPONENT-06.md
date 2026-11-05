@@ -34,8 +34,8 @@ Writes the ranked results as text or as structured output, applies the size limi
 ## Links
 
 - governed by: [adr:/0008-write-structured-output-as-one-json-document.md](../../adr/0008-write-structured-output-as-one-json-document.md)
-- governed by: [CONVENTION-01: Each failure gives its cause, its fix, and](../conventions/CONVENTION-01.md)
-- governed by: [CONVENTION-03: In text mode, results go to standard output,](../conventions/CONVENTION-03.md)
+- governed by: [CONVENTION-01: Each failure gives its cause, its fix, and its exit code](../conventions/CONVENTION-01.md)
+- governed by: [CONVENTION-03: In text mode, results go to standard output and notices go to the error stream](../conventions/CONVENTION-03.md)
 - realizes: [prd:/capabilities/CAPABILITY-03.md](../../product/prd/capabilities/CAPABILITY-03.md)
 - realizes: [prd:/capabilities/CAPABILITY-04.md](../../product/prd/capabilities/CAPABILITY-04.md)
 - realizes: [prd:/capabilities/CAPABILITY-05.md](../../product/prd/capabilities/CAPABILITY-05.md)

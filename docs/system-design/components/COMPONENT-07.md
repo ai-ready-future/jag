@@ -35,8 +35,8 @@ Runs the five checks of DECISION-04 with one free call, and gives the exit code 
 
 - uses to: [COMPONENT-02: Key and settings](COMPONENT-02.md)
 - uses to: [COMPONENT-05: Jev scorer](COMPONENT-05.md)
-- governed by: [CONVENTION-01: Each failure gives its cause, its fix, and](../conventions/CONVENTION-01.md)
-- governed by: [CONVENTION-05: Each Jev call times out after 4 seconds.](../conventions/CONVENTION-05.md)
+- governed by: [CONVENTION-01: Each failure gives its cause, its fix, and its exit code](../conventions/CONVENTION-01.md)
+- governed by: [CONVENTION-05: Each Jev call has a timeout and 1 retry, and 1 deadline covers the search](../conventions/CONVENTION-05.md)
 - realizes: [prd:/capabilities/CAPABILITY-01.md](../../product/prd/capabilities/CAPABILITY-01.md)
 - area: [building-blocks: Building blocks](../areas/building-blocks.md)
 - area: [conventions: Crosscutting conventions](../areas/conventions.md)
