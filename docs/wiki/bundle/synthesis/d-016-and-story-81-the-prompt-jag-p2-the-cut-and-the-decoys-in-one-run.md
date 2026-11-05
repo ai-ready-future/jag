@@ -1,14 +1,14 @@
 ---
 type: Synthesis
 title: 'D-016 and STORY-81: the prompt jag-p2, the cut, and the decoys in one run'
-description: 'D-016 (2026-11-04): STORY-81 measures the cut and the decoys in the 1 development run. The user chose a generic variant of the old prompt (2026-11-05), named jag-p2, and accepts that the score can differ.'
+description: 'D-016 (2026-11-04): STORY-81 measures the cut and the decoys in the 1 development run. The user chose a generic variant of the old prompt (2026-11-05), as jag-p2, and accepts that the score can differ.'
 status: draft
 sources:
 - resource: roadmap:/stories/STORY-81.md
 - resource: /synthesis/d-015-bring-back-the-old-prompt-first-story-79-conclusion.md
 generated:
   by: claude-code/sonnet-5.5
-  at: '2026-11-05T15:09:04Z'
+  at: '2026-11-05T15:33:01Z'
 ---
 
 # D-016 and STORY-81: the prompt jag-p2, the cut, and the decoys in one run
@@ -33,13 +33,12 @@ Why: only this meets ADR-0003 and CRITERION-146 with 1 run (D-015) and no change
 
 Made by the human `404pilo` through chores. Veracity 90.
 
-- STORY-81 uses a generic variant of the old prompt `noul-b-v1`, not the exact text. The variant has generic words in some words of the 2 criteria lines.
-- The new prompt version is named `jag-p2`, so the name shows that it is a variant.
+- STORY-81 uses a generic variant of the old prompt `noul-b-v1`, not the exact text. The variant has generic words in place of some words of the 2 criteria lines.
 - The user accepts that the score can differ from the old score.
 
 ## Next
 
-The implementer builds the code, then chores guides the 1 development run. See the earlier decision on [the old prompt first](d-015-bring-back-the-old-prompt-first-story-79-conclusion.md).
+The implementer builds the code, then chores guides the 1 development run. The spec (row 2, inferred) names the new prompt version `jag-p2`, not `noul-b-v1`, because the text is a variant and the threshold is part of the version (ADR-0003, ADR-0004). See the earlier decision on [the old prompt first](d-015-bring-back-the-old-prompt-first-story-79-conclusion.md).
 
 <!-- LINKS:START (generated, do not edit) -->
 

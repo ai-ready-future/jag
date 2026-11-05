@@ -4,6 +4,7 @@
 * **Report**: Wrote the body of the FEATURE-28 healthy window page., by knowledge/1.1.3, at 2026-11-05T13:54:17Z
 * **Report**: Fixed the FEATURE-28 page after review: test steps L1 to L5 named, description says evidence from production., by knowledge/1.1.3, at 2026-11-05T13:56:44Z
 * **Report**: Wrote the body of the D-016 and STORY-81 page: the cut and decoy rule, and the user decision on the prompt variant jag-p2., by knowledge/1.1.3, at 2026-11-05T15:09:15Z
+* **Report**: Fixed the D-016 and STORY-81 page after review: the name jag-p2 is an inferred row of the spec, not a user decision; wording of the criteria lines., by knowledge/1.1.3, at 2026-11-05T15:33:06Z
 
 ## 2026-11-04
 * **Report**: Fixed the STORY-77 page after review: test step dates, the line on the secret removed, D-014 named on the D-013 page, sources added., by knowledge/1.1.3, at 2026-11-04T12:21:38Z
