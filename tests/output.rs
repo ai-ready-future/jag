@@ -600,6 +600,6 @@ fn criterion_52_the_document_of_a_search_has_the_version_and_the_prompt_version(
     let root = two_results();
     let document = run(&server, root.path(), &["--json"], &[], &["dir"]).document();
     assert_eq!(document["version"], 1);
-    assert_eq!(document["prompt_version"], "jag-p1");
+    assert_eq!(document["prompt_version"], "jag-p2");
     assert_top_level(&document);
 }

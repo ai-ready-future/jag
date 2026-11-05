@@ -1,6 +1,7 @@
 # Log
 
 ## 2026-11-05
+* **Sync**: [STORY-81](stories/STORY-81.md) pushed to GitHub, by process:github, at 2026-11-05T15:09:27Z
 * **Learn**: STORY-83 (install jag from a local clone with cargo, guided by chores) comes from request REQ-install-from-source of 2026-11-05. It needs no build and no spec: its body is the chore guide that chores runs., by agent:jag-planner, at 2026-11-05T14:44:20Z
 * **State**: [STORY-81](stories/STORY-81.md) backlog -> ready, by human:404pilo, at 2026-11-05T14:28:18Z
 

@@ -158,11 +158,11 @@ fn read_input_tokens(bytes: &[u8]) -> Option<u64> {
     value.get("usage")?.get("input_tokens")?.as_u64()
 }
 
-/// The scores of `s1` to `s<count>`, in order. `None` when an answer is
+/// The scores of `s0` to `s<count - 1>`, in order. `None` when an answer is
 /// missing or its `noul` is not a number from 0 to 1.
 fn parse_scores(bytes: &[u8], count: usize) -> Option<Vec<f64>> {
     let response: Response = serde_json::from_slice(bytes).ok()?;
-    (1..=count)
+    (0..count)
         .map(|n| {
             let noul = response.answers.get(&format!("s{n}"))?.noul;
             (noul.is_finite() && (0.0..=1.0).contains(&noul)).then_some(noul)
@@ -176,7 +176,7 @@ mod tests {
 
     #[test]
     fn the_scores_come_in_the_order_of_the_questions() {
-        let body = br#"{"answers":{"s2":{"type":"noul","noul":0.25},"s1":{"noul":0.75}},"usage":{"input_tokens":3}}"#;
+        let body = br#"{"answers":{"s1":{"type":"noul","noul":0.25},"s0":{"noul":0.75}},"usage":{"input_tokens":3}}"#;
         assert_eq!(parse_scores(body, 2), Some(vec![0.75, 0.25]));
     }
 
@@ -184,14 +184,20 @@ mod tests {
     fn a_body_that_jag_cannot_read_gives_none() {
         assert_eq!(parse_scores(b"not json", 1), None);
         assert_eq!(parse_scores(br#"{"answers":{}}"#, 1), None);
-        assert_eq!(parse_scores(br#"{"answers":{"s1":{"noul":1.5}}}"#, 1), None);
+        assert_eq!(parse_scores(br#"{"answers":{"s0":{"noul":1.5}}}"#, 1), None);
         assert_eq!(
-            parse_scores(br#"{"answers":{"s1":{"noul":-0.1}}}"#, 1),
+            parse_scores(br#"{"answers":{"s0":{"noul":-0.1}}}"#, 1),
             None
         );
-        assert_eq!(parse_scores(br#"{"answers":{"s1":{"noul":"x"}}}"#, 1), None);
-        assert_eq!(parse_scores(br#"{"answers":{"s1":{}}}"#, 1), None);
-        assert_eq!(parse_scores(br#"{"answers":{"s1":{"noul":0.5}}}"#, 2), None);
+        assert_eq!(parse_scores(br#"{"answers":{"s0":{"noul":"x"}}}"#, 1), None);
+        assert_eq!(parse_scores(br#"{"answers":{"s0":{}}}"#, 1), None);
+        assert_eq!(parse_scores(br#"{"answers":{"s0":{"noul":0.5}}}"#, 2), None);
+    }
+
+    #[test]
+    fn an_answer_with_the_id_s_count_alone_is_not_enough() {
+        // The ids start at `s0`: `s1` alone does not answer a call of 1.
+        assert_eq!(parse_scores(br#"{"answers":{"s1":{"noul":0.5}}}"#, 1), None);
     }
 
     #[test]
@@ -210,7 +216,7 @@ mod tests {
 
     #[test]
     fn the_edge_values_are_scores() {
-        let body = br#"{"answers":{"s1":{"noul":0},"s2":{"noul":1}}}"#;
+        let body = br#"{"answers":{"s0":{"noul":0},"s1":{"noul":1}}}"#;
         assert_eq!(parse_scores(body, 2), Some(vec![0.0, 1.0]));
     }
 

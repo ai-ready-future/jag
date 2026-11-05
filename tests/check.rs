@@ -331,7 +331,8 @@ fn criterion_12_the_check_makes_one_small_call() {
     let request = &requests[0];
     assert_eq!(request.method, "POST");
     assert_eq!(request.path, "/v1/systemone");
-    assert!(request.body.len() < 400, "{} bytes", request.body.len());
+    // The guidance and the 2 criteria of `jag-p2` are about 450 bytes.
+    assert!(request.body.len() < 1000, "{} bytes", request.body.len());
     let json = request.json();
     assert_eq!(json["questions"].as_object().map(|map| map.len()), Some(1));
     assert!(
