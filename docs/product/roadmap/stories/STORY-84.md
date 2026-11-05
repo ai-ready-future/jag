@@ -27,7 +27,7 @@ A setting is a parameter that has an option and a `JAG_` variable. These are the
 
 | File key | Option | Variable | Default | Valid values |
 |---|---|---|---|---|
-| `config.base-url` | `--base-url` | `JAG_BASE_URL` | `https://api.typesafe.ai/v1` | an https address (already a file key, ADR-0015) |
+| `config.base-url` | `--base-url` | `JAG_BASE_URL` | `https://api.typesafe.ai/v1` | an https address, or an http address for a host on this machine (already a file key, ADR-0015) |
 | `config.model` | `--model` | `JAG_MODEL` | `jev-1.13.0` | a model name (already a file key, ADR-0015) |
 | `config.timeout` | `--timeout` | `JAG_TIMEOUT` | 4 | whole seconds from 1 to 60 |
 | `config.retry-wait` | `--retry-wait` | `JAG_RETRY_WAIT` | 1 | whole seconds from 1 to 60 |
@@ -40,6 +40,8 @@ A setting is a parameter that has an option and a `JAG_` variable. These are the
 4. `--setup` and `--forget-key` keep each of these keys when they write the file again, and they accept a file that has them.
 
 Not settings, so not in scope: the keys (`config.api-key`, `config.gateway-api-key`, `JAG_TYPESAFE_API_KEY`, `TYPESAFE_API_KEY`, `JAG_GATEWAY_API_KEY`), the private patterns of DECISION-68 (a list of the user, not a parameter), and the options of one search that have no `JAG_` variable (the options of `rg` such as `-i` and `--sort`, and `--json`, `--color`, `--ask`, `--check`, `--setup`, `--forget-key`). `NO_COLOR` is a standard variable of many programs, not a setting of jag.
+
+A setting that a later story adds with an option and a `JAG_` variable (for example the setting of DECISION-80 that turns off the private-pattern check) also gets a file key and a comment line, by the rule of the user.
 
 The spec decides the file form of "no limit" for `config.max-chars`.
 
