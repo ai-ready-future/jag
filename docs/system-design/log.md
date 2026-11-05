@@ -2,6 +2,7 @@
 
 ## 2026-11-05
 * **Learn**: data: DF-1 closed by ADR-0029 (proposed, hitl ANSWER 2026-11-05, REQ-config-timeout): new decision row data-3, open row 'not migrated: DF-1' removed., by claude-code/opus-5.5, at 2026-11-05T20:35:34Z
+* **Report**: set of the body failed: set changes only the frontmatter. I edited components/COMPONENT-02.md: the body sentence now says 'with no loss of the other keys and the comment lines of the file', the same as the description. Reason: designer review of PR #352, item 5 (ADR-0029)., by claude-code/opus-5.5, at 2026-11-05T20:58:06Z
 
 ## 2026-11-03
 * **Setup**: made the bundle docs/system-design, by system-design/0.2.3, at 2026-11-03T11:37:02Z

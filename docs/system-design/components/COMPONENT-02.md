@@ -1,7 +1,7 @@
 ---
 type: Component
 title: Key and settings
-description: Finds the key for the route of each call and the settings, reads the config file at most one time in each run, checks the mode of the file at each read, and stores or removes the key with no loss of the other keys of the file. The one component that reads the key.
+description: Finds the key for the route of each call and the settings, reads the config file at most one time in each run, checks the mode of the file at each read, and stores or removes the key with no loss of the other keys and the comment lines of the file. The one component that reads the key.
 status: draft
 slug: config
 kind: library
@@ -23,12 +23,12 @@ aliases:
 - C-config
 generated:
   by: claude-code/opus-5.5
-  at: '2026-11-05T20:43:16Z'
+  at: '2026-11-05T20:57:59Z'
 ---
 
 # COMPONENT-02: Key and settings
 
-Finds the key for the route of each call and the settings, reads the config file at most one time in each run, checks the mode of the file at each read, and stores or removes the key with no loss of the other keys of the file. The one component that reads the key.
+Finds the key for the route of each call and the settings, reads the config file at most one time in each run, checks the mode of the file at each read, and stores or removes the key with no loss of the other keys and the comment lines of the file. The one component that reads the key.
 
 <!-- LINKS:START (generated, do not edit) -->
 

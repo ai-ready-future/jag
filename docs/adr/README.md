@@ -28,7 +28,6 @@
 - [0018 — Take the question only from the --ask option](./0018-take-the-question-only-from-the-ask-option.md) — accepted — <!-- TODO: summary -->
 - [0022 — Use rg as the reference for the output of jag with no question](./0022-use-rg-as-the-reference-for-the-output-of-jag-with-no.md) — accepted — <!-- TODO: summary -->
 - [0028 — Call a base URL with no key when the user sets no gateway key](./0028-call-a-base-url-with-no-key-when-the-user-sets-no-gateway-key.md) — accepted — <!-- TODO: summary -->
-- [0029 — Read each setting from the config file, and let setup write each default as a comment line](./0029-read-each-setting-from-the-config-file-and-let-setup-write.md) — proposed — <!-- TODO: summary -->
 
 ### deployment — <!-- TODO: describe this area -->
 - [0010 — Ship jag on GitHub Releases, crates.io, and npm](./0010-ship-jag-on-github-releases-crates-io-and-npm.md) — accepted — <!-- TODO: summary -->
@@ -48,6 +47,9 @@
 
 ### conventions — <!-- TODO: describe this area -->
 - [0025 — Use the body of the jag skill file as the one source of the agent instructions](./0025-use-the-body-of-the-jag-skill-file-as-the-one-source-of-the.md) — accepted — <!-- TODO: summary -->
+
+### data — <!-- TODO: describe this area -->
+- [0029 — Read each setting from the config file, and let setup write each default as a comment line](./0029-read-each-setting-from-the-config-file-and-let-setup-write.md) — proposed — <!-- TODO: summary -->
 
 <!-- ADR-INDEX:END -->
 

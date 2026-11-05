@@ -8,8 +8,9 @@ okf_version: "0.2"
 
 * [building-blocks](#building-blocks) - 5 decisions: 5 accepted
 * [context](#context) - 1 decision: 1 accepted
-* [contracts](#contracts) - 12 decisions: 11 accepted, 1 proposed
+* [contracts](#contracts) - 11 decisions: 11 accepted
 * [conventions](#conventions) - 1 decision: 1 accepted
+* [data](#data) - 1 decision: 1 proposed
 * [deployment](#deployment) - 5 decisions: 5 accepted
 * [quality](#quality) - 2 decisions: 2 accepted
 * [strategy](#strategy) - 3 decisions: 3 accepted
@@ -46,15 +47,17 @@ okf_version: "0.2"
 * [0022: Use rg as the reference for the output of jag with no question](./0022-use-rg-as-the-reference-for-the-output-of-jag-with-no.md) - accepted. Open this when you change what jag writes with no --ask (stdout, stderr, color, exit code, match rules), or when you change the rg version that jag follows.
 * [0028: Call a base URL with no key when the user sets no gateway key](./0028-call-a-base-url-with-no-key-when-the-user-sets-no-gateway-key.md) - accepted. Open this when you change what jag does on the gateway route with no gateway key, or how it reports a server that refuses a call for a key.
 
-### proposed
-
-* [0029: Read each setting from the config file, and let setup write each default as a comment line](./0029-read-each-setting-from-the-config-file-and-let-setup-write.md) - proposed. Open this when you add a setting, change the keys of the config file, or change what --setup and --forget-key write or keep in it.
-
 ## conventions
 
 ### accepted
 
 * [0025: Use the body of the jag skill file as the one source of the agent instructions](./0025-use-the-body-of-the-jag-skill-file-as-the-one-source-of-the.md) - accepted. Open this when you change the text of the jag skill or of the README agent snippet, or how the two stay the same.
+
+## data
+
+### proposed
+
+* [0029: Read each setting from the config file, and let setup write each default as a comment line](./0029-read-each-setting-from-the-config-file-and-let-setup-write.md) - proposed. Open this when you add a setting, change the keys of the config file, or change what --setup and --forget-key write or keep in it.
 
 ## deployment
 
