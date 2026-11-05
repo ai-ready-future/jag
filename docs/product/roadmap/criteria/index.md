@@ -394,3 +394,7 @@
 ## STORY-82: Limit the keys of the merge ref step in the private-data test
 
 * [CRITERION-149: The test fails on an extra key of the merge ref step](CRITERION-149.md) - Case wf-h of the private-data test fails on a copy of the workflow whose merge ref step has a key other than name, if, env or run, and passes on the workflow of main.
+
+## STORY-83: Install jag from a local clone with cargo, guided by chores
+
+* [CRITERION-150: jag from the clone runs on the machine of the human](CRITERION-150.md) - After the chore guide, command -v jag shows ~/.cargo/bin/jag, and jag --version shows the version in Cargo.toml of the clone.

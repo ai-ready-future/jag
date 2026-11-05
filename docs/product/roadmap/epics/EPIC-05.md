@@ -38,4 +38,5 @@ The repository and the packages hold no private data, and the user installs jag 
 - child: [FEATURE-28: A maintainer approves the private-data check of a fork pull request](../features/FEATURE-28.md)
 - child: [STORY-80: Name the merge conflict when private-data cannot check out a PR](../stories/STORY-80.md)
 - child: [STORY-82: Limit the keys of the merge ref step in the private-data test](../stories/STORY-82.md)
+- child: [STORY-83: Install jag from a local clone with cargo, guided by chores](../stories/STORY-83.md)
 <!-- LINKS:END -->
