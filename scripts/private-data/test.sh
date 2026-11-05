@@ -871,10 +871,117 @@ else
   echo "test.sh: FILTER_REPO is not set. The clean cases are skipped."
 fi
 
+# ---- STORY-80: merge-ref.sh (CRITERION-144, CRITERION-145, CRITERION-148) ----
+# The cases run merge-ref.sh against a local bare repository. They need no
+# secret and no network.
+
+MERGE_REF="$HERE/merge-ref.sh"
+
+# run_merge_ref [VAR=value ...]: run merge-ref.sh with the number 7, the
+# base branch main, and the bare repository of the case as the repository.
+run_merge_ref() {
+  OUT=$(env PR_NUMBER=7 REPO_URL="$BARE" BASE_REF=main "$@" "$MERGE_REF" 2>&1)
+  RC=$?
+}
+
+merge_ref_cases() {
+  local sha
+  new_repo mr
+  BARE="$T/bare-mr.git"
+  git clone -q --bare "$REPO" "$BARE"
+  sha=$(git -C "$BARE" rev-parse HEAD)
+
+  CUR="mr-a: the merge ref exists"
+  git -C "$BARE" update-ref refs/pull/7/merge "$sha"
+  run_merge_ref
+  assert_rc 0
+  assert_has "private-data: the merge ref of PR #7 exists"
+  assert_lines 1
+  git -C "$BARE" update-ref -d refs/pull/7/merge
+
+  CUR="mr-b: no merge ref gives the conflict message"
+  run_merge_ref MERGE_REF_TRIES=2 MERGE_REF_PAUSE=0
+  assert_rc 1
+  assert_has "::error::private-data: PR #7 conflicts with main: merge main into the branch"
+  assert_has "no merge ref for PR #7 yet; next check in 0 s"
+  assert_lacks "$sha"
+
+  CUR="mr-c: a late merge ref runs as before"
+  (
+    sleep 2
+    git -C "$BARE" update-ref refs/pull/7/merge "$sha"
+  ) &
+  run_merge_ref MERGE_REF_TRIES=6 MERGE_REF_PAUSE=1
+  wait
+  assert_rc 0
+  assert_has "the merge ref of PR #7 exists"
+  assert_lacks "conflicts with"
+  git -C "$BARE" update-ref -d refs/pull/7/merge
+
+  CUR="mr-d: a git failure is not a conflict"
+  OUT=$(env PR_NUMBER=7 REPO_URL="$T/no-such-folder.git" BASE_REF=main MERGE_REF_TRIES=2 MERGE_REF_PAUSE=0 "$MERGE_REF" 2>&1)
+  RC=$?
+  assert_rc 2
+  assert_has "cannot read the refs of the repository"
+  assert_lacks "conflicts with"
+
+  CUR="mr-e: a bad input stops the script before any git call"
+  git -C "$BARE" update-ref refs/pull/7/merge "$sha"
+  run_merge_ref PR_NUMBER=7x
+  assert_rc 2
+  assert_has "PR_NUMBER"
+  assert_lacks "exists"
+  run_merge_ref BASE_REF=
+  assert_rc 2
+  assert_has "BASE_REF"
+  assert_lacks "exists"
+  run_merge_ref REPO_URL=
+  assert_rc 2
+  assert_has "REPO_URL"
+  assert_lacks "exists"
+  git -C "$BARE" update-ref -d refs/pull/7/merge
+}
+
+merge_ref_cases
+
 # ---- FEATURE-28: the workflow file of the check (CRITERION-136 to CRITERION-139) ----
 # The cases read .github/workflows/private-data.yml as text. They use no secret.
 # The workflow runs the file of main, so a pull request cannot test its own
 # change on GitHub. These cases do.
+
+# The keys of the step "Check the merge ref" of a workflow file, 1 on each line.
+# The step starts at its "- name:" line. A blank line or a comment line does not
+# end it. It ends at the first other line with 6 spaces or fewer. A line with 7,
+# 8 or 9 spaces is a key line. A line with 10 spaces or more is a value.
+merge_ref_step_keys() { # file
+  awk '
+    $0 == "      - name: Check the merge ref" { found = 1; print "name"; next }
+    !found { next }
+    /^ *$/ || /^ *#/ { next }
+    !/^       / { exit }
+    /^       [^ ]/ || /^        [^ ]/ || /^         [^ ]/ {
+      key = $0; sub(/^ +/, "", key); sub(/:.*/, "", key); print key
+    }
+  ' "$1"
+}
+merge_ref_step_keys_ok() { # file
+  [[ "$(merge_ref_step_keys "$1" | sort | tr '\n' ' ')" == "env if name run " ]]
+}
+merge_ref_step_keys_bad() { # file
+  ! merge_ref_step_keys_ok "$1"
+}
+# Copies a workflow file and adds lines after the run line of the merge ref step.
+wf_copy_with() { # from to line...
+  local from=$1 to=$2 line
+  shift 2
+  : >"$to"
+  while IFS= read -r line; do
+    printf '%s\n' "$line" >>"$to"
+    if [[ $line == '        run: base/scripts/private-data/merge-ref.sh' && $# -gt 0 ]]; then
+      printf '%s\n' "$@" >>"$to"
+    fi
+  done <"$from"
+}
 
 workflow_cases() {
   local wf="$HERE/../../.github/workflows/private-data.yml"
@@ -919,6 +1026,43 @@ workflow_cases() {
   OUT=$(awk '/^jobs:$/ {found = 1; next} found && /^  [A-Za-z0-9_-]+:$/ {n++} END {print n + 0}' "$wf")
   assert_true "one job" test "$OUT" = 1
   assert_true "no job-level if" test "$(grep -c '^    if:' "$wf")" = 0
+
+  # STORY-80: the step that finds the merge ref.
+  local step_line step_block first_checkout pr_checkout
+  step_line=$(grep -nxF -- '      - name: Check the merge ref' "$wf" | cut -d: -f1)
+  step_block=$(awk '$0 == "      - name: Check the merge ref" {found = 1; print; next} found && /^(      [-#]|$)/ {exit} found {print}' "$wf")
+  first_checkout=$(grep -n 'uses: actions/checkout' "$wf" | head -n 1 | cut -d: -f1)
+  pr_checkout=$(grep -nxF -- '          path: pr' "$wf" | cut -d: -f1)
+
+  CUR="wf-g: the merge ref step is after the first checkout and before the checkout of the pull request"
+  assert_true "one merge ref step" test "$(grep -cxF -- '      - name: Check the merge ref' "$wf")" = 1
+  assert_true "the step is after the first checkout" test "${step_line:-0}" -gt "${first_checkout:-999999}"
+  assert_true "the step is before the checkout of pr" test "${step_line:-999999}" -lt "${pr_checkout:-0}"
+  assert_true "the step has the pull_request_target condition" grep -qxF -- "        if: github.event_name == 'pull_request_target'" <<<"$step_block"
+  assert_true "the step runs merge-ref.sh from base" grep -qxF -- '        run: base/scripts/private-data/merge-ref.sh' <<<"$step_block"
+
+  CUR="wf-h: the merge ref step has only the keys name, if, env and run, 3 inputs, no secret, and no token"
+  assert_true "the step has only the keys name, if, env and run" merge_ref_step_keys_ok "$wf"
+  # Copies with 1 extra key. The check must fail on each copy. The copies are
+  # the public workflow with 1 invented line. They hold no secret.
+  local run_line='        run: base/scripts/private-data/merge-ref.sh' copy
+  copy="$T/wf-h-copy.yml"
+  wf_copy_with "$wf" "$copy" '        shell: bash'
+  assert_true "an extra key fails the check" merge_ref_step_keys_bad "$copy"
+  wf_copy_with "$wf" "$copy" '' '        working-directory: pr'
+  assert_true "a blank line does not hide a key" merge_ref_step_keys_bad "$copy"
+  wf_copy_with "$wf" "$copy" '      # note' '        continue-on-error: true'
+  assert_true "a comment line does not hide a key" merge_ref_step_keys_bad "$copy"
+  assert_true "the run line is in the workflow" grep -qxF -- "$run_line" "$wf"
+  assert_true "the env has 3 keys" test "$(grep -cE '^          [A-Z_]+:' <<<"$step_block")" = 3
+  assert_true "PR_NUMBER is an input" grep -qE '^          PR_NUMBER: ' <<<"$step_block"
+  assert_true "REPO_URL is an input" grep -qE '^          REPO_URL: ' <<<"$step_block"
+  assert_true "BASE_REF is an input" grep -qE '^          BASE_REF: ' <<<"$step_block"
+  assert_true "the step has no secret" test "$(grep -c 'secrets\.' <<<"$step_block")" = 0
+  assert_true "the step has no token" test "$(grep -ciE 'github\.token|GITHUB_TOKEN' <<<"$step_block")" = 0
+  # shellcheck disable=SC2016 # the text of the workflow holds ${{ }}
+  assert_true "the run line has no expression" test "$(grep -E '^        run: ' <<<"$step_block" | grep -cF '${{')" = 0
+  assert_true "the step has no uses line" test "$(grep -c 'uses:' <<<"$step_block")" = 0
 }
 
 workflow_cases

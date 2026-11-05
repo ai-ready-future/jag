@@ -5,7 +5,7 @@ description: The stories that are done or cancelled.
 status: stable
 generated:
   by: process:prd-regen
-  at: '2026-11-04T12:13:07Z'
+  at: '2026-11-04T15:27:02Z'
 ---
 
 # Closed stories
@@ -88,6 +88,8 @@ generated:
 * [STORY-77: Approve the private-data check of a fork pull request before it runs](STORY-77.md) - As an agent builder (PERSONA-01), I want a maintainer to approve each private-data run of a fork pull request, so that the public result cannot confirm guesses.
 * [STORY-78: Score jag and grep on a labeled set from a local path](STORY-78.md) - As an agent builder (PERSONA-01), I want the Rust jag to score jag and grep on a local labeled set, so that the held-out run needs no private data in the repository.
 * [STORY-79: Measure the best possible jag-bench score on the development set](STORY-79.md) - As the maintainer, I want jag-bench to print the best score that a perfect order of its own windows can get, so that I know if a fix to jag can reach the bar.
+* [STORY-80: Name the merge conflict when private-data cannot check out a PR](STORY-80.md) - As a maintainer, I want the private-data check to say that a pull request conflicts with main when it cannot check it out, so that I fix the conflict and not the check.
+* [STORY-82: Limit the keys of the merge ref step in the private-data test](STORY-82.md) - As a maintainer, I want the private-data test to fail when the merge ref step gets a key other than name, if, env or run, so that the step cannot change without a test failure.
 
 ## MILESTONE-03: Make it fast
 
