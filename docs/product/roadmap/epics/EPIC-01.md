@@ -4,8 +4,7 @@ title: Setup and readiness
 description: The user stores a TypeSafe key one time and runs one command that says
   jag is ready or what to fix.
 status: draft
-state: done
-actual_end_date: '2026-10-14'
+state: ready
 github:
   number: 2
   node_id: I_kwDOVKMnL88AAAABXTK4qQ
@@ -33,4 +32,5 @@ The user stores a TypeSafe key one time and runs one command that says jag is re
 - child: [FEATURE-02: Readiness check](../features/FEATURE-02.md)
 - child: [FEATURE-03: Clear failure when the model is not available](../features/FEATURE-03.md)
 - child: [FEATURE-21: Send the model calls through an AI gateway](../features/FEATURE-21.md)
+- child: [FEATURE-29: The config file holds each non-secret setting, and setup shows each default](../features/FEATURE-29.md)
 <!-- LINKS:END -->

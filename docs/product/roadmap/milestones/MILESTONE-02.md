@@ -48,6 +48,7 @@ This milestone holds the capabilities that make jag better to use and easier to 
 | [FEATURE-25: Copy the same teaching as a snippet](../features/FEATURE-25.md) | done | 2/2 (100%) | - | FEATURE-24 | - |
 | [FEATURE-26: Prove that an agent with the skill uses jag well](../features/FEATURE-26.md) | done | 2/2 (100%) | - | FEATURE-24 | - |
 | [FEATURE-28: A maintainer approves the private-data check of a fork pull request](../features/FEATURE-28.md) | done | 1/1 (100%) | human:404pilo | - | - |
+| [FEATURE-29: The config file holds each non-secret setting, and setup shows each default](../features/FEATURE-29.md) | backlog | 0/2 (0%) | - | - | - |
 <!-- STATUS:END -->
 
 <!-- LINKS:START (generated, do not edit) -->
@@ -78,6 +79,7 @@ This milestone holds the capabilities that make jag better to use and easier to 
 - item of: [FEATURE-25: Copy the same teaching as a snippet](../features/FEATURE-25.md)
 - item of: [FEATURE-26: Prove that an agent with the skill uses jag well](../features/FEATURE-26.md)
 - item of: [FEATURE-28: A maintainer approves the private-data check of a fork pull request](../features/FEATURE-28.md)
+- item of: [FEATURE-29: The config file holds each non-secret setting, and setup shows each default](../features/FEATURE-29.md)
 - item of: [STORY-06: Check the five items of readiness](../stories/STORY-06.md)
 - item of: [STORY-07: Use the check result as an exit code](../stories/STORY-07.md)
 - item of: [STORY-08: Run the check for almost no cost](../stories/STORY-08.md)
@@ -134,4 +136,6 @@ This milestone holds the capabilities that make jag better to use and easier to 
 - item of: [STORY-81: Score with the old prompt as a new prompt version](../stories/STORY-81.md)
 - item of: [STORY-82: Limit the keys of the merge ref step in the private-data test](../stories/STORY-82.md)
 - item of: [STORY-83: Install jag from a local clone with cargo, guided by chores](../stories/STORY-83.md)
+- item of: [STORY-84: Set each non-secret setting in the config file](../stories/STORY-84.md)
+- item of: [STORY-85: jag --setup shows each missing setting as a comment line with its default](../stories/STORY-85.md)
 <!-- LINKS:END -->

@@ -65,6 +65,10 @@ source	relation	target
 /criteria/CRITERION-149.md	item	/stories/STORY-82.md
 /criteria/CRITERION-15.md	item	/stories/STORY-09.md
 /criteria/CRITERION-150.md	item	/stories/STORY-83.md
+/criteria/CRITERION-151.md	item	/stories/STORY-84.md
+/criteria/CRITERION-152.md	item	/stories/STORY-85.md
+/criteria/CRITERION-153.md	item	/stories/STORY-85.md
+/criteria/CRITERION-154.md	item	/stories/STORY-84.md
 /criteria/CRITERION-16.md	item	/stories/STORY-11.md
 /criteria/CRITERION-17.md	item	/stories/STORY-12.md
 /criteria/CRITERION-18.md	item	/stories/STORY-13.md
@@ -333,6 +337,9 @@ source	relation	target
 /features/FEATURE-28.md	parent	/epics/EPIC-05.md
 /features/FEATURE-28.md	traces	prd:/constraints/CONSTRAINT-01.md
 /features/FEATURE-28.md	traces	prd:/decisions/DECISION-57.md
+/features/FEATURE-29.md	milestone	/milestones/MILESTONE-02.md
+/features/FEATURE-29.md	parent	/epics/EPIC-01.md
+/features/FEATURE-29.md	traces	prd:/capabilities/CAPABILITY-01.md
 /milestones/MILESTONE-01.md	traces	prd:/scope/SCOPE-01.md
 /milestones/MILESTONE-02.md	traces	prd:/capabilities/CAPABILITY-06.md
 /milestones/MILESTONE-02.md	traces	prd:/capabilities/CAPABILITY-11.md
@@ -573,3 +580,10 @@ source	relation	target
 /stories/STORY-83.md	milestone	/milestones/MILESTONE-02.md
 /stories/STORY-83.md	parent	/epics/EPIC-05.md
 /stories/STORY-83.md	traces	prd:/scope/SCOPE-01.md
+/stories/STORY-84.md	milestone	/milestones/MILESTONE-02.md
+/stories/STORY-84.md	parent	/features/FEATURE-29.md
+/stories/STORY-84.md	traces	prd:/capabilities/CAPABILITY-01.md
+/stories/STORY-85.md	blocked_by	/stories/STORY-84.md
+/stories/STORY-85.md	milestone	/milestones/MILESTONE-02.md
+/stories/STORY-85.md	parent	/features/FEATURE-29.md
+/stories/STORY-85.md	traces	prd:/capabilities/CAPABILITY-01.md
