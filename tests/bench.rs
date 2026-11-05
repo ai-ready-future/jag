@@ -852,3 +852,40 @@ fn bench_decoy_rejects_detail_and_best_order() {
     }
     assert!(!detail.exists());
 }
+
+/// The fake model of the cut test: each case with an answer has a snippet
+/// with a top score of 0.9, and the decoy (the question that names "sells")
+/// has a top score of 0.45.
+fn model_with_a_mid_decoy() -> FakeServer {
+    FakeServer::start(|request| {
+        let decoy = request.json()["state"]["query"]
+            .as_str()
+            .is_some_and(|query| query.contains("sells"));
+        Reply::scores(request, move |text| {
+            if decoy {
+                0.45
+            } else if text.contains("KEEP-") {
+                0.9
+            } else {
+                0.1
+            }
+        })
+    })
+}
+
+// STORY-81: the answered cases are at 0.9 and the decoy is at 0.45. No pair is
+// lost, so the AUC is 1.000. The cut 0.4 puts the decoy above the cut, and the
+// cut 0.5 is the nearest cut that separates the groups, with a gain of 0.06
+// or more, so the rule gives 0.50.
+#[test]
+fn bench_decoy_cut_moves_to_0_50_when_the_decoy_is_at_0_45() {
+    let server = model_with_a_mid_decoy();
+    let temp = fixtures();
+    let result = decoy_run(&temp, &server);
+    assert_eq!(result.code, 0, "stderr: {}", result.stderr);
+    let lines: Vec<&str> = result.stdout.lines().collect();
+    assert_eq!(lines.len(), 7, "stdout: {}", result.stdout);
+    assert_eq!(lines[4], "jag-bench: decoy auc 1.000");
+    assert_eq!(lines[5], "jag-bench: decoys with a model score: 1 of 1");
+    assert_eq!(lines[6], "jag-bench: cut 0.50");
+}

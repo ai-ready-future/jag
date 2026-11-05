@@ -8,6 +8,7 @@ This folder holds the integration tests of jag. Each `<name>.rs` file is one Car
 - `agent_skill/`, `agent_skill.rs`: tests of the agent skill.
 - `agent_use/`, `agent_use.rs`: the agent test and its record (FEATURE-26).
 - `bench/`, `bench.rs`: the cases and the tests of `jag-bench`.
+- `prompt_request.rs`: the request of the prompt `jag-p2` (STORY-81), read from the real binary.
 - `readme/`, `readme_examples.rs`: the README examples.
 - `speed.rs`: only a release build runs it.
 
