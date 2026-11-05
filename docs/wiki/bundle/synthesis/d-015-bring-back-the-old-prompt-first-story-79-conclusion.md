@@ -38,4 +38,5 @@ STORY-45 waits for STORY-81. Earlier decisions: [the practice gate and conversio
 
 - sources: [roadmap:/stories/STORY-79.md](../../../product/roadmap/stories/STORY-79.md)
 - sources: [roadmap:/stories/STORY-81.md](../../../product/roadmap/stories/STORY-81.md)
+- fed: [D-016 and STORY-81: the prompt jag-p2, the cut, and the decoys in one run](d-016-and-story-81-the-prompt-jag-p2-the-cut-and-the-decoys-in-one-run.md)
 <!-- LINKS:END -->
