@@ -96,6 +96,11 @@ source	relation	target
 /components/COMPONENT-11.md	governed_by	adr:/0024-install-the-jag-agent-skill-from-the-repository-with-the.md
 /components/COMPONENT-11.md	governed_by	adr:/0025-use-the-body-of-the-jag-skill-file-as-the-one-source-of-the.md
 /components/COMPONENT-11.md	realizes	prd:/capabilities/CAPABILITY-11.md
+/conventions/CONVENTION-05.md	governed_by	adr:/0029-read-each-setting-from-the-config-file-and-let-setup-write.md
+/conventions/CONVENTION-06.md	governed_by	adr:/0015-read-the-base-url-and-the-model-name-from-config-base-url.md
+/conventions/CONVENTION-06.md	governed_by	adr:/0017-use-a-separate-key-for-an-ai-gateway.md
+/conventions/CONVENTION-06.md	governed_by	adr:/0028-call-a-base-url-with-no-key-when-the-user-sets-no-gateway-key.md
+/conventions/CONVENTION-07.md	governed_by	adr:/0017-use-a-separate-key-for-an-ai-gateway.md
 /interfaces/INTERFACE-01.md	consumed_by	/components/COMPONENT-05.md
 /interfaces/INTERFACE-01.md	provided_by	/components/COMPONENT-09.md
 /interfaces/INTERFACE-02.md	consumed_by	/components/COMPONENT-05.md
