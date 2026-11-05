@@ -14,9 +14,9 @@ github:
   number: 343
   node_id: I_kwDOVKMnL88AAAABczRgCA
   url: https://github.com/ai-ready-future/jag/issues/343
-  pushed_hash: '430881'
+  pushed_hash: 197cc6
   synced:
-    state: backlog
+    state: done
     owner: human:404pilo
 parent: /epics/EPIC-05.md
 milestone: /milestones/MILESTONE-02.md
