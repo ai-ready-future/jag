@@ -6,9 +6,6 @@ status: draft
 area: deployment
 area_state: decided
 anchor: deployment
-generated:
-  by: claude-code/opus-5.5
-  at: '2026-11-03T11:37:50Z'
 decisions:
 - key: deployment-1
   binds: How users install jag
@@ -32,6 +29,13 @@ decisions:
   binds: 'npm is the main channel of the program, and the `skills` tool is the channel of the skill: after `npm install -g @airf/jag`, `npx skills add ai-ready-future/jag` reads `skills/jag/SKILL.md` from the repository. cargo and the release downloads stay in the README under "Other ways to install"'
   adr: adr:/0024-install-the-jag-agent-skill-from-the-repository-with-the.md
   source: adr
+- adr: adr:/0027-approve-each-fork-run-of-the-private-data-check-through-a.md
+  key: deployment-7
+  binds: Each fork run of the private-data check waits for 1 approval of the user, through the protected environment private-data-fork
+  source: adr
+generated:
+  by: claude-code/opus-5.5
+  at: '2026-11-05T21:33:24Z'
 ---
 
 # Deployment
@@ -44,6 +48,7 @@ decisions:
 - decisions adr: [adr:/0019-give-the-new-public-repository-the-name-ai-ready-future-jag.md](../../adr/0019-give-the-new-public-repository-the-name-ai-ready-future-jag.md)
 - decisions adr: [adr:/0020-name-the-release-archives-and-the-npm-platform-packages-by.md](../../adr/0020-name-the-release-archives-and-the-npm-platform-packages-by.md)
 - decisions adr: [adr:/0024-install-the-jag-agent-skill-from-the-repository-with-the.md](../../adr/0024-install-the-jag-agent-skill-from-the-repository-with-the.md)
+- decisions adr: [adr:/0027-approve-each-fork-run-of-the-private-data-check-through-a.md](../../adr/0027-approve-each-fork-run-of-the-private-data-check-through-a.md)
 - area: [deployment: Deployment](deployment.md)
 - named by: [COMPONENT-08: jag-bench](../components/COMPONENT-08.md)
 - named by: [COMPONENT-11: Agent skill](../components/COMPONENT-11.md)

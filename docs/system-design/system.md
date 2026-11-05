@@ -107,6 +107,7 @@ Destination: not stated
 | contracts-9 | [adr:/0016-add-v1-to-a-base-url-whose-path-does-not-end-with-v1.md](../adr/0016-add-v1-to-a-base-url-whose-path-does-not-end-with-v1.md) | contracts | How jag makes the call address from a base URL | adr |
 | contracts-10 | [adr:/0017-use-a-separate-key-for-an-ai-gateway.md](../adr/0017-use-a-separate-key-for-an-ai-gateway.md) | contracts | The key that jag sends to an AI gateway, and its sources | adr |
 | contracts-11 | [adr:/0022-use-rg-as-the-reference-for-the-output-of-jag-with-no.md](../adr/0022-use-rg-as-the-reference-for-the-output-of-jag-with-no.md) | contracts | The output of a search with no `--ask`: rg at the pinned version is the reference | adr |
+| contracts-12 | [adr:/0028-call-a-base-url-with-no-key-when-the-user-sets-no-gateway-key.md](../adr/0028-call-a-base-url-with-no-key-when-the-user-sets-no-gateway-key.md) | contracts | With no gateway key, jag calls the base URL with no key, and HTTP 401 or 403 gives the key-not-accepted exit code | adr |
 | conventions-1 |  | conventions | The error shape in each output mode | human:404pilo, 2026-10-12 |
 | conventions-2 |  | conventions | A model failure fails the full search | human:404pilo, 2026-10-12 |
 | conventions-3 |  | conventions | Results go to standard output, and notices go to the error stream | human:404pilo, 2026-10-12 |
@@ -121,6 +122,7 @@ Destination: not stated
 | deployment-4 | [adr:/0019-give-the-new-public-repository-the-name-ai-ready-future-jag.md](../adr/0019-give-the-new-public-repository-the-name-ai-ready-future-jag.md) | deployment | The name of the public repository | adr |
 | deployment-5 | [adr:/0020-name-the-release-archives-and-the-npm-platform-packages-by.md](../adr/0020-name-the-release-archives-and-the-npm-platform-packages-by.md) | deployment | The names of the release archives, the checksum files, and the npm platform packages | adr |
 | deployment-6 | [adr:/0024-install-the-jag-agent-skill-from-the-repository-with-the.md](../adr/0024-install-the-jag-agent-skill-from-the-repository-with-the.md) | deployment | npm is the main channel of the program, and the `skills` tool is the channel of the skill: after `npm install -g @airf/jag`, `npx skills add ai-ready-future/jag` reads `skills/jag/SKILL.md` from the repository. cargo and the release downloads stay in the README under "Other ways to install" | adr |
+| deployment-7 | [adr:/0027-approve-each-fork-run-of-the-private-data-check-through-a.md](../adr/0027-approve-each-fork-run-of-the-private-data-check-through-a.md) | deployment | Each fork run of the private-data check waits for 1 approval of the user, through the protected environment private-data-fork | adr |
 
 <!-- SD:DECISION-INDEX:END -->
 

@@ -17,13 +17,14 @@ governed_by:
 - /conventions/CONVENTION-06.md
 - /conventions/CONVENTION-07.md
 - adr:/0029-read-each-setting-from-the-config-file-and-let-setup-write.md
+- adr:/0028-call-a-base-url-with-no-key-when-the-user-sets-no-gateway-key.md
 realizes:
 - prd:/capabilities/CAPABILITY-01.md
 aliases:
 - C-config
 generated:
   by: claude-code/opus-5.5
-  at: '2026-11-05T20:57:59Z'
+  at: '2026-11-05T21:33:25Z'
 ---
 
 # COMPONENT-02: Key and settings
@@ -41,6 +42,7 @@ Finds the key for the route of each call and the settings, reads the config file
 - governed by: [CONVENTION-06: Only C-config reads the key, and the key never shows](../conventions/CONVENTION-06.md)
 - governed by: [CONVENTION-07: A setting takes its value from the option, the variable, the file, or the default](../conventions/CONVENTION-07.md)
 - governed by: [adr:/0029-read-each-setting-from-the-config-file-and-let-setup-write.md](../../adr/0029-read-each-setting-from-the-config-file-and-let-setup-write.md)
+- governed by: [adr:/0028-call-a-base-url-with-no-key-when-the-user-sets-no-gateway-key.md](../../adr/0028-call-a-base-url-with-no-key-when-the-user-sets-no-gateway-key.md)
 - realizes: [prd:/capabilities/CAPABILITY-01.md](../../product/prd/capabilities/CAPABILITY-01.md)
 - area: [building-blocks: Building blocks](../areas/building-blocks.md)
 - area: [data: Data and ownership](../areas/data.md)

@@ -15,12 +15,14 @@ source	relation	target
 /areas/contracts.md	decisions.adr	adr:/0017-use-a-separate-key-for-an-ai-gateway.md
 /areas/contracts.md	decisions.adr	adr:/0018-take-the-question-only-from-the-ask-option.md
 /areas/contracts.md	decisions.adr	adr:/0022-use-rg-as-the-reference-for-the-output-of-jag-with-no.md
+/areas/contracts.md	decisions.adr	adr:/0028-call-a-base-url-with-no-key-when-the-user-sets-no-gateway-key.md
 /areas/conventions.md	decisions.adr	adr:/0025-use-the-body-of-the-jag-skill-file-as-the-one-source-of-the.md
 /areas/data.md	decisions.adr	adr:/0029-read-each-setting-from-the-config-file-and-let-setup-write.md
 /areas/deployment.md	decisions.adr	adr:/0010-ship-jag-on-github-releases-crates-io-and-npm.md
 /areas/deployment.md	decisions.adr	adr:/0019-give-the-new-public-repository-the-name-ai-ready-future-jag.md
 /areas/deployment.md	decisions.adr	adr:/0020-name-the-release-archives-and-the-npm-platform-packages-by.md
 /areas/deployment.md	decisions.adr	adr:/0024-install-the-jag-agent-skill-from-the-repository-with-the.md
+/areas/deployment.md	decisions.adr	adr:/0027-approve-each-fork-run-of-the-private-data-check-through-a.md
 /areas/quality.md	decisions.adr	adr:/0021-check-rg-parity-with-a-cargo-test-that-runs-a-pinned-rg-and.md
 /areas/quality.md	decisions.adr	adr:/0023-run-the-rg-parity-cases-that-git-cannot-store-as-rust-code.md
 /areas/strategy.md	decisions.adr	adr:/0002-score-the-top-200-results-in-calls-of-32-six-calls-in.md
@@ -53,6 +55,7 @@ source	relation	target
 /components/COMPONENT-02.md	governed_by	adr:/0015-read-the-base-url-and-the-model-name-from-config-base-url.md
 /components/COMPONENT-02.md	governed_by	adr:/0016-add-v1-to-a-base-url-whose-path-does-not-end-with-v1.md
 /components/COMPONENT-02.md	governed_by	adr:/0017-use-a-separate-key-for-an-ai-gateway.md
+/components/COMPONENT-02.md	governed_by	adr:/0028-call-a-base-url-with-no-key-when-the-user-sets-no-gateway-key.md
 /components/COMPONENT-02.md	governed_by	adr:/0029-read-each-setting-from-the-config-file-and-let-setup-write.md
 /components/COMPONENT-02.md	realizes	prd:/capabilities/CAPABILITY-01.md
 /components/COMPONENT-03.md	governed_by	adr:/0001-find-matches-with-the-ripgrep-libraries.md

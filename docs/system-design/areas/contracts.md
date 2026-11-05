@@ -50,13 +50,17 @@ decisions:
   binds: 'The output of a search with no `--ask`: rg at the pinned version is the reference'
   adr: adr:/0022-use-rg-as-the-reference-for-the-output-of-jag-with-no.md
   source: adr
+- adr: adr:/0028-call-a-base-url-with-no-key-when-the-user-sets-no-gateway-key.md
+  key: contracts-12
+  binds: With no gateway key, jag calls the base URL with no key, and HTTP 401 or 403 gives the key-not-accepted exit code
+  source: adr
 open_rows:
 - 'not migrated: IF-3 (the provider or a consumer is not a catalogue component)'
 - 'not migrated: IF-4 (the provider or a consumer is not a catalogue component)'
 - 'not migrated: IF-5 (the provider or a consumer is not a catalogue component)'
 generated:
   by: claude-code/opus-5.5
-  at: '2026-11-03T11:44:19Z'
+  at: '2026-11-05T21:33:22Z'
 ---
 
 # Contracts
@@ -75,6 +79,7 @@ generated:
 - decisions adr: [adr:/0016-add-v1-to-a-base-url-whose-path-does-not-end-with-v1.md](../../adr/0016-add-v1-to-a-base-url-whose-path-does-not-end-with-v1.md)
 - decisions adr: [adr:/0017-use-a-separate-key-for-an-ai-gateway.md](../../adr/0017-use-a-separate-key-for-an-ai-gateway.md)
 - decisions adr: [adr:/0022-use-rg-as-the-reference-for-the-output-of-jag-with-no.md](../../adr/0022-use-rg-as-the-reference-for-the-output-of-jag-with-no.md)
+- decisions adr: [adr:/0028-call-a-base-url-with-no-key-when-the-user-sets-no-gateway-key.md](../../adr/0028-call-a-base-url-with-no-key-when-the-user-sets-no-gateway-key.md)
 - area: [contracts: Contracts](contracts.md)
 - named by: [COMPONENT-01: Command line](../components/COMPONENT-01.md)
 - named by: [COMPONENT-03: Match search](../components/COMPONENT-03.md)
