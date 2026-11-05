@@ -72,4 +72,5 @@ The spec decides the file form of "no limit" for `config.max-chars`.
 - criterion or run of: [CRITERION-151: config.timeout sets the time of one model call](../criteria/CRITERION-151.md)
 - criterion or run of: [CRITERION-154: The other new file keys follow the rule of config.timeout](../criteria/CRITERION-154.md)
 - blocks: [STORY-85: jag --setup shows each missing setting as a comment line with its default](STORY-85.md)
+- blocks: [STORY-93: Turn the private-pattern check off with one setting](STORY-93.md)
 <!-- LINKS:END -->

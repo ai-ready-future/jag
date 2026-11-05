@@ -23,4 +23,6 @@ The release after release 1 ships before release 2 and release 3. It serves the 
 - includes: [CAPABILITY-13: Score with a Clef server that the user runs](../capabilities/CAPABILITY-13.md) (must)
 - includes: [CAPABILITY-14: Hold private text back from the model](../capabilities/CAPABILITY-14.md) (must)
 - subject of: [DECISION-69: The release after release 1 serves users whose text must stay on the machine](../decisions/DECISION-69.md)
+- traced by: [EPIC-07: Local model option](../../roadmap/epics/EPIC-07.md)
+- traced by: [MILESTONE-04: Local model option](../../roadmap/milestones/MILESTONE-04.md)
 <!-- LINKS:END -->

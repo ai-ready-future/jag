@@ -60,4 +60,5 @@ This story needs STORY-84, because the comment lines show the file keys of STORY
 - traces: [CAPABILITY-01: Guided key setup and health check](../../prd/capabilities/CAPABILITY-01.md)
 - criterion or run of: [CRITERION-152: jag --setup adds a comment line with the default for each missing setting](../criteria/CRITERION-152.md)
 - criterion or run of: [CRITERION-153: A second jag --setup does not change the file](../criteria/CRITERION-153.md)
+- blocks: [STORY-93: Turn the private-pattern check off with one setting](STORY-93.md)
 <!-- LINKS:END -->

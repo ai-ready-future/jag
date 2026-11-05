@@ -414,3 +414,39 @@
 * [CRITERION-155: A search calls the gateway base URL with no key when no gateway key is set](CRITERION-155.md) - With a base URL that is not TypeSafe and no gateway key, a search calls the base URL with no Authorization header, and no TypeSafe key goes to it.
 * [CRITERION-156: A server that refuses the call for a key gives the key-not-accepted failure](CRITERION-156.md) - With no gateway key, HTTP 401 or 403 from the server gives the key-not-accepted exit code, and the message names JAG_GATEWAY_API_KEY.
 * [CRITERION-157: The readiness check of a server with no key reports the server items](CRITERION-157.md) - jag --check with no gateway key reports the 2 server items; the key items say not needed, the credit item says not available.
+
+## STORY-87: A search works when a call is too long for the server
+
+* [CRITERION-158: A call that is too long goes again in smaller calls](CRITERION-158.md) - When the server refuses a call because it is too long, jag sends the same snippets in smaller calls, and the search gives its result.
+* [CRITERION-159: A snippet that is too long by itself is not scored](CRITERION-159.md) - A snippet that is too long for the server by itself is listed as not scored, with the reason too long for the server, and the search goes on.
+
+## STORY-88: Show the cost and the failure of a Clef server correctly
+
+* [CRITERION-160: The cost of a Clef search is not available](CRITERION-160.md) - A search on a Clef server shows the count of scored results, and the cost as not available.
+* [CRITERION-161: An answer that jag cannot read names the host and the status](CRITERION-161.md) - When the server gives an error or an answer that jag cannot read, jag exits 6, and the message names the host and the status, not the full base URL.
+
+## STORY-89: The report of the text that leaves the machine names the host
+
+* [CRITERION-162: The report names the host that gets the text](CRITERION-162.md) - The report of the text that leaves the machine names the host of the base URL, and not the full base URL.
+
+## STORY-90: The README tells how to use a Clef server
+
+* [CRITERION-163: The README has a section for a Clef server](CRITERION-163.md) - The README tells how to set the base URL to a Clef server, and says the limits of DECISION-60, DECISION-62 and DECISION-63.
+
+## STORY-91: Hold back each snippet that holds a key, a token or a password
+
+* [CRITERION-164: A result that matches a built-in pattern is not sent](CRITERION-164.md) - A result that matches a built-in pattern is not sent and not scored; its line is listed as not scored with the reason, and the exit code does not change.
+* [CRITERION-165: A question that matches stops before any model call](CRITERION-165.md) - When the question matches a private pattern, jag stops before any model call, with a clear message.
+
+## STORY-92: Add private patterns of the user in the config file
+
+* [CRITERION-166: A pattern of the user holds back a match](CRITERION-166.md) - A result that matches a pattern of the user in the config file is held back in the same way as a match of the built-in list.
+* [CRITERION-167: A pattern of the user that is not valid stops jag with exit 2](CRITERION-167.md) - A pattern of the user that is not valid stops jag before any model call with exit 2, and the message names the pattern.
+
+## STORY-93: Turn the private-pattern check off with one setting
+
+* [CRITERION-168: One setting turns off both lists, and the report says so](CRITERION-168.md) - With the check turned off, jag sends each result, with no built-in and no user pattern, and the report of each search says that the check is off.
+
+## STORY-94: The preview lists the lines that the check holds back
+
+* [CRITERION-169: The preview lists each held-back line with the reason](CRITERION-169.md) - The preview of the text that leaves the machine lists each line that the check holds back, with the reason.

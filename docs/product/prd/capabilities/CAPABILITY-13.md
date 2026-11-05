@@ -51,5 +51,10 @@ When one call is too long for the server, the search still works. When the serve
 - subject of: [QUESTION-04: What does the readiness check report for a server with no key?](../questions/QUESTION-04.md)
 - subject of: [QUESTION-05: What happens when one snippet alone is too long for the server?](../questions/QUESTION-05.md)
 - included by: [SCOPE-04: After release 1: local model option](../scope/SCOPE-04.md) (must)
+- traced by: [FEATURE-30: Score with a Clef server that the user runs](../../roadmap/features/FEATURE-30.md)
 - traced by: [STORY-86: Call the gateway base URL with no key when the user sets no gateway key](../../roadmap/stories/STORY-86.md)
+- traced by: [STORY-87: A search works when a call is too long for the server](../../roadmap/stories/STORY-87.md)
+- traced by: [STORY-88: Show the cost and the failure of a Clef server correctly](../../roadmap/stories/STORY-88.md)
+- traced by: [STORY-89: The report of the text that leaves the machine names the host](../../roadmap/stories/STORY-89.md)
+- traced by: [STORY-90: The README tells how to use a Clef server](../../roadmap/stories/STORY-90.md)
 <!-- LINKS:END -->

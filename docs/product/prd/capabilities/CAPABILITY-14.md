@@ -39,4 +39,9 @@ The check is on for each model service: TypeSafe, an AI gateway, and a Clef serv
 - subject of: [QUESTION-06: Which exit code applies when the private-pattern check skips lines?](../questions/QUESTION-06.md)
 - subject of: [QUESTION-07: Does turning the private-pattern check off also turn off the built-in list?](../questions/QUESTION-07.md)
 - included by: [SCOPE-04: After release 1: local model option](../scope/SCOPE-04.md) (must)
+- traced by: [FEATURE-31: Hold private text back from the model](../../roadmap/features/FEATURE-31.md)
+- traced by: [STORY-91: Hold back each snippet that holds a key, a token or a password](../../roadmap/stories/STORY-91.md)
+- traced by: [STORY-92: Add private patterns of the user in the config file](../../roadmap/stories/STORY-92.md)
+- traced by: [STORY-93: Turn the private-pattern check off with one setting](../../roadmap/stories/STORY-93.md)
+- traced by: [STORY-94: The preview lists the lines that the check holds back](../../roadmap/stories/STORY-94.md)
 <!-- LINKS:END -->
