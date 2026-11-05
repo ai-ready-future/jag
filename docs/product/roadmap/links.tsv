@@ -69,6 +69,9 @@ source	relation	target
 /criteria/CRITERION-152.md	item	/stories/STORY-85.md
 /criteria/CRITERION-153.md	item	/stories/STORY-85.md
 /criteria/CRITERION-154.md	item	/stories/STORY-84.md
+/criteria/CRITERION-155.md	item	/stories/STORY-86.md
+/criteria/CRITERION-156.md	item	/stories/STORY-86.md
+/criteria/CRITERION-157.md	item	/stories/STORY-86.md
 /criteria/CRITERION-16.md	item	/stories/STORY-11.md
 /criteria/CRITERION-17.md	item	/stories/STORY-12.md
 /criteria/CRITERION-18.md	item	/stories/STORY-13.md
@@ -587,3 +590,6 @@ source	relation	target
 /stories/STORY-85.md	milestone	/milestones/MILESTONE-02.md
 /stories/STORY-85.md	parent	/features/FEATURE-29.md
 /stories/STORY-85.md	traces	prd:/capabilities/CAPABILITY-01.md
+/stories/STORY-86.md	milestone	/milestones/MILESTONE-02.md
+/stories/STORY-86.md	parent	/features/FEATURE-21.md
+/stories/STORY-86.md	traces	prd:/capabilities/CAPABILITY-13.md

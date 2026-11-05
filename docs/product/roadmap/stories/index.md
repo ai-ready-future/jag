@@ -10,3 +10,4 @@
 * [STORY-81: Score with the old prompt as a new prompt version](STORY-81.md) - As the maintainer, I want jag to score with the prompt of the old tool as a new prompt version, so that jag can reach the release bar before the held-out run.
 * [STORY-84: Set each non-secret setting in the config file](STORY-84.md) - As an agent builder, I want each non-secret setting of jag as a key in the config file, so that I set it one time, and not in each shell or job.
 * [STORY-85: jag --setup shows each missing setting as a comment line with its default](STORY-85.md) - As an agent builder, I want jag --setup to show each non-secret setting in the config file as a comment line with its default, so that I see each setting.
+* [STORY-86: Call the gateway base URL with no key when the user sets no gateway key](STORY-86.md) - As an operator, I want jag to call my model server with no key when I set no gateway key, so that a server with no key check works with no extra setting.
