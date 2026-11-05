@@ -29,7 +29,7 @@ Source: DECISION-80 and DECISION-66 (stable). The planner plan of SCOPE-04, 2026
 
 1. One setting turns the check off. It turns off the built-in list and the list of the user (DECISION-80).
 2. The report of each search then says that the check is off (DECISION-80).
-3. The setting has an option and a `JAG_` variable. By the rule of the user in STORY-84, it is also a config file key, and `jag --setup` shows it as a comment line with its default (on, STORY-85).
+3. The setting has an option and a `JAG_` variable. By the rule of the user in STORY-84 and ADR-0029, it is also a config file key, and `jag --setup` shows it as a comment line with its default (on, STORY-85).
 
 <!-- STATUS:START (generated, do not edit) -->
 

@@ -30,7 +30,7 @@ Source: DECISION-68 and DECISION-78 (stable). The planner plan of SCOPE-04, 2026
 2. When a pattern of the user is not valid, jag stops before any model call with exit 2, and the message names the pattern. jag never runs a search with a check that is weaker than the user asked for (DECISION-78).
 3. `jag --setup` and `jag --forget-key` keep the list of the user.
 
-This story adds a list key to the config file, so it changes the contract of ADR-0015. The architect decides the key and its form, in the ADR change of STORY-84 or in a new ADR.
+This story adds a list to the config file. ADR-0029 names the private patterns of DECISION-68 as a list, not a setting, and says that the CAPABILITY-14 spec places them. So the spec of this story decides the list key and its form. If the spec needs a change of ADR-0029 or ADR-0015, it sends a `revisit:` to the architect.
 
 <!-- STATUS:START (generated, do not edit) -->
 
