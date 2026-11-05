@@ -15,7 +15,7 @@
 ## MILESTONE-04: Local model option
 
 * [STORY-87: A search works when a call is too long for the server](STORY-87.md) - As an operator, I want a search to work when a call is too long for my Clef server, so that a server that reads less text in one call still gives a result.
-* [STORY-88: Show the cost and the failure of a Clef server correctly](STORY-88.md) - As an operator, I want jag to mark the cost of a Clef search as not available, and to give the host and the status when the server fails, so that I see the truth.
+* [STORY-88: Show the cost and the failure of a Clef server correctly](STORY-88.md) - As an operator, I want jag to mark the cost of a Clef search as not available, and to give the base URL and the status when the server fails, so that I see the truth.
 * [STORY-89: The report of the text that leaves the machine names the host](STORY-89.md) - As a knowledge seeker, I want the report of the text that leaves the machine to name the host that gets it, so that I know where my text goes.
 * [STORY-90: The README tells how to use a Clef server](STORY-90.md) - As an operator, I want the README to tell how to use jag with a Clef server, and what jag does not promise for it, so that I set it up and know the limits.
 * [STORY-91: Hold back each snippet that holds a key, a token or a password](STORY-91.md) - As an operator, I want jag to hold back each snippet that holds a key, a token or a password, so that no secret goes to a model service.

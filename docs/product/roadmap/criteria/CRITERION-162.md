@@ -12,7 +12,7 @@ item: /stories/STORY-89.md
 
 # CRITERION-162: The report names the host that gets the text
 
-The report of the text that leaves the machine names the host of the base URL for TypeSafe, for an AI gateway, and for a Clef server (DECISION-74). It does not show the full base URL (CV-6).
+The report of the text that leaves the machine names the host of the base URL for TypeSafe, for an AI gateway, and for a Clef server (DECISION-74). It names the host only, not the full base URL (DECISION-74).
 
 <!-- LINKS:START (generated, do not edit) -->
 

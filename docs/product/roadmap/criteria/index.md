@@ -423,7 +423,7 @@
 ## STORY-88: Show the cost and the failure of a Clef server correctly
 
 * [CRITERION-160: The cost of a Clef search is not available](CRITERION-160.md) - A search on a Clef server shows the count of scored results, and the cost as not available.
-* [CRITERION-161: An answer that jag cannot read names the host and the status](CRITERION-161.md) - When the server gives an error or an answer that jag cannot read, jag exits 6, and the message names the host and the status, not the full base URL.
+* [CRITERION-161: An answer that jag cannot read names the base URL and the status](CRITERION-161.md) - When the server gives an error or an answer that jag cannot read, jag exits 6, and the message names the base URL and the status that the server sent.
 
 ## STORY-89: The report of the text that leaves the machine names the host
 

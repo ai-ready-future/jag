@@ -2,11 +2,11 @@
 type: Milestone
 title: Local model option
 description: The user scores with a Clef server that the user runs, and jag holds
-  private text back from each model service. After MILESTONE-02, before release 2.
+  private text back from each model service. After release 1, before release 2 (DECISION-69).
 status: draft
 generated:
   by: prd/6.2.1
-  at: '2026-11-05T22:52:33Z'
+  at: '2026-11-05T23:32:18Z'
 traces:
 - to: prd:/scope/SCOPE-04.md
   hash: 17ed99
@@ -14,7 +14,7 @@ traces:
 
 # MILESTONE-04: Local model option
 
-The local model option: the user scores with a Clef server that the user runs, and jag holds private text back from each model service (SCOPE-04). This milestone comes after MILESTONE-02 (release 1), and before release 2 (DECISION-69).
+The local model option: the user scores with a Clef server that the user runs, and jag holds private text back from each model service (SCOPE-04). This milestone ships in the release after release 1, before release 2 and release 3 (DECISION-69).
 
 Source: the answer of the user through hitl, 2026-11-05: "A: now, as backlog". Each item is in `backlog`. No build starts before release 1.
 

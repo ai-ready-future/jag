@@ -24,7 +24,7 @@ Source: DECISION-74 (stable). The planner plan of SCOPE-04, 2026-11-05, after th
 ## Scope
 
 1. The report of the text that leaves the machine always names the host of the base URL: TypeSafe, an AI gateway, or a Clef server (DECISION-74).
-2. The report names the host only, not the full base URL, because an address can hold a user name and a password (CV-6).
+2. The report names the host only, not the full base URL, (DECISION-74).
 
 This story needs the report of CAPABILITY-09 ("Say which text leaves the machine"). CAPABILITY-09 is in SCOPE-01 (could) and SCOPE-02 (must), and it has no roadmap item yet. The planner asks the human about it.
 
