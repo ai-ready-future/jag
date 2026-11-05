@@ -15,7 +15,7 @@ item: /stories/STORY-81.md
 
 jag scores with the prompt of the old tool under a new prompt version id, with a threshold tuned on the development set, and the decoy AUC stays at the bar of METRIC-07.
 
-A variant of the prompt of the old tool counts, if the user chose it. On 2026-11-05 the user chose `jag-p2`, a generic variant of `noul-b-v1`: some words of the 2 criteria lines are generic words (STORY-81 spec, row 3; human:404pilo, 2026-11-05).
+A variant of the prompt of the old tool counts, if the user chose it. On 2026-11-05 the user chose a generic variant of `noul-b-v1`: some words of the 2 criteria lines are generic words (STORY-81 spec, row 3; human:404pilo, 2026-11-05). The spec names this version `jag-p2` (row 2).
 
 <!-- LINKS:START (generated, do not edit) -->
 
