@@ -313,7 +313,7 @@ The check shows `pass` or `fail` for five items, in this order:
 An item that jag cannot examine, because an earlier item failed, shows
 `not checked`. Each item that fails has its cause and its fix on the error
 stream. The check makes one small call to the model service. The call costs
-less than $0.00001. `--timeout`, `--retry-wait`, `--base-url`, and `--model` apply to the call. On a
+about $0.00001. `--timeout`, `--retry-wait`, `--base-url`, and `--model` apply to the call. On a
 gateway, item 1 names the gateway key, and the texts say "gateway".
 
 When all five items pass, the check shows this and exits with 0:
