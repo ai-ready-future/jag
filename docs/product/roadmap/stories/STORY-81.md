@@ -8,7 +8,7 @@ status: draft
 generated:
   by: prd/6.2.0
   at: '2026-11-04T14:10:26Z'
-state: backlog
+state: ready
 github:
   number: 316
   node_id: I_kwDOVKMnL88AAAABcdSeRA
@@ -17,6 +17,7 @@ github:
   synced:
     state: backlog
     owner: human:404pilo
+spec: docs/superpowers/specs/2026-11-04-STORY-81-score-with-the-old-prompt-as-a-new-prompt-version-design.md
 parent: /epics/EPIC-02.md
 milestone: /milestones/MILESTONE-02.md
 owner: human:404pilo
