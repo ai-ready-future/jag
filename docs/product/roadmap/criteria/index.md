@@ -388,7 +388,7 @@
 
 ## STORY-81: Score with the old prompt as a new prompt version
 
-* [CRITERION-146: jag uses the new prompt version and a tuned threshold](CRITERION-146.md) - jag scores with the prompt of the old tool under a new prompt version id, with a threshold tuned on the development set, and the decoy AUC stays at the bar of METRIC-07.
+* [CRITERION-146: jag uses the new prompt version and a tuned threshold](CRITERION-146.md) - jag scores with the old prompt, or a variant that the user chose, under a new prompt version id and a tuned threshold, and the decoy AUC stays at the bar of METRIC-07.
 * [CRITERION-147: The development test runs again with the frozen checks](CRITERION-147.md) - The development test of STORY-45 runs one more time with the new prompt, the same conversion rule, the same converter and the frozen 2 checks.
 
 ## STORY-82: Limit the keys of the merge ref step in the private-data test
