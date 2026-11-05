@@ -2,6 +2,8 @@
 
 ## 2026-11-05
 * **Learn**: MILESTONE-04, EPIC-07, FEATURE-30, FEATURE-31, STORY-87 to STORY-94 and CRITERION-158 to CRITERION-169: the plan of SCOPE-04 (local model option), after the answer of the user through hitl, 2026-11-05., by agent:jag-planner, at 2026-11-05T22:52:35Z
+* **Sync**: [STORY-86](stories/STORY-86.md) pushed to GitHub, by process:github, at 2026-11-05T22:49:12Z
+* **Sync**: [FEATURE-21](features/FEATURE-21.md) pushed to GitHub, by process:github, at 2026-11-05T22:49:12Z
 * **Learn**: STORY-86 from a reviewer finding: the code does not follow ADR-0028 and DECISION-71 (call with no key on the gateway route) and DECISION-75 (readiness check of a server with no key)., by agent:jag-planner, at 2026-11-05T21:35:50Z
 * **State**: [FEATURE-21](features/FEATURE-21.md) done -> ready, by human:404pilo, at 2026-11-05T21:35:50Z
 * **Sync**: [STORY-85](stories/STORY-85.md) pushed to GitHub, by process:github, at 2026-11-05T20:41:05Z
