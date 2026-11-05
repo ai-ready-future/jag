@@ -1,6 +1,7 @@
 # Log
 
 ## 2026-11-05
+* **State**: [EPIC-01](epics/EPIC-01.md) done -> ready, by human:404pilo, at 2026-11-05T20:26:06Z
 * **Learn**: FEATURE-29, STORY-84 and CRITERION-151 to CRITERION-153 from request REQ-config-timeout: config.timeout in the config file, and jag --setup writes each non-secret setting with its default., by agent:jag-planner, at 2026-11-05T19:51:13Z
 * **Sync**: [STORY-83](stories/STORY-83.md) pushed to GitHub, by process:github, at 2026-11-05T17:36:03Z
 * **State**: [STORY-83](stories/STORY-83.md) backlog -> done, by human:404pilo, at 2026-11-05T17:09:13Z

@@ -2,11 +2,12 @@
 type: Feature
 title: The config file holds the call timeout, and setup writes each setting
 description: The user sets the time of one model call in the config file one time,
-  and jag --setup writes each non-secret setting with its default value.
+  and jag --setup writes each non-secret setting that the answer to the open points
+  of STORY-84 names, with its default value.
 status: draft
 generated:
   by: prd/6.2.1
-  at: '2026-11-05T19:50:55Z'
+  at: '2026-11-05T20:26:06Z'
 state: backlog
 parent: /epics/EPIC-01.md
 milestone: /milestones/MILESTONE-02.md
@@ -17,7 +18,7 @@ traces:
 
 # FEATURE-29: The config file holds the call timeout, and setup writes each setting
 
-The user sets the time of one model call in the config file `~/.config/jag/config.yml` one time, and not in each shell or job. After `jag --setup`, the user sees each setting that jag supports in the file, with its default value.
+The user sets the time of one model call in the config file `~/.config/jag/config.yml` one time, and not in each shell or job. After `jag --setup`, the user sees each non-secret setting that the answer to the open points of STORY-84 names in the file, with its default value.
 
 Source: request REQ-config-timeout, 2026-11-05, from the requests session.
 

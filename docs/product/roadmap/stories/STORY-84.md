@@ -25,7 +25,7 @@ Source: request REQ-config-timeout, 2026-11-05, from the requests session. The h
 ## Scope
 
 1. A new file key `config.timeout`. It has the same meaning and the same valid values as `JAG_TIMEOUT`: a whole number of seconds from 1 to 60. The default is 4 seconds. The order is the order of CV-7 and ADR-0015: the option `--timeout`, then the variable `JAG_TIMEOUT`, then the file, then the default.
-2. `jag --setup` adds each non-secret setting that is not in the file yet, with its default value: `base-url`, `model`, `timeout` and `retry-wait`. It does not change a value that the user wrote. It writes no key (`api-key`, `gateway-api-key`) that the user did not enter in setup.
+2. `jag --setup` adds each non-secret setting that is not in the file yet, with its default value. The request names `base-url`, `model`, `timeout` and `retry-wait`; the list and the form wait for the open points. It does not change a value that the user wrote. It writes no key (`api-key`, `gateway-api-key`) that the user did not enter in setup.
 3. `jag --forget-key` keeps each of these settings, as ADR-0015 says for `config.base-url` and `config.model`.
 
 ## Open points (before the spec)
@@ -35,7 +35,7 @@ Source: request REQ-config-timeout, 2026-11-05, from the requests session. The h
 - `retry-wait`. The human chose to include it, so it needs a file key `config.retry-wait` with the rules of `JAG_RETRY_WAIT` (1 to 60 seconds, default 1). To confirm.
 - Other settings. jag also has a cost limit and a size limit (options and variables). The request names 4 settings. To confirm if setup also writes these 2.
 
-Until the answers, the criteria below use the 4 settings of the request and live values.
+The criteria below do not decide the list of settings or the form of the defaults. The planner updates CRITERION-152 after the answer.
 
 <!-- STATUS:START (generated, do not edit) -->
 
@@ -44,7 +44,7 @@ Until the answers, the criteria below use the 4 settings of the request and live
 | Item | State | Progress | Owner | Blocked by | Drift |
 | --- | --- | --- | --- | --- | --- |
 | [CRITERION-151: config.timeout sets the time of one model call](../criteria/CRITERION-151.md) | - | - | - | - | - |
-| [CRITERION-152: jag --setup writes each non-secret setting with its default](../criteria/CRITERION-152.md) | - | - | - | - | - |
+| [CRITERION-152: jag --setup shows each chosen non-secret setting with its default](../criteria/CRITERION-152.md) | - | - | - | - | - |
 | [CRITERION-153: A second jag --setup does not change the file](../criteria/CRITERION-153.md) | - | - | - | - | - |
 <!-- STATUS:END -->
 
@@ -56,6 +56,6 @@ Until the answers, the criteria below use the 4 settings of the request and live
 - milestone: [MILESTONE-02: Make it good](../milestones/MILESTONE-02.md)
 - traces: [CAPABILITY-01: Guided key setup and health check](../../prd/capabilities/CAPABILITY-01.md)
 - criterion or run of: [CRITERION-151: config.timeout sets the time of one model call](../criteria/CRITERION-151.md)
-- criterion or run of: [CRITERION-152: jag --setup writes each non-secret setting with its default](../criteria/CRITERION-152.md)
+- criterion or run of: [CRITERION-152: jag --setup shows each chosen non-secret setting with its default](../criteria/CRITERION-152.md)
 - criterion or run of: [CRITERION-153: A second jag --setup does not change the file](../criteria/CRITERION-153.md)
 <!-- LINKS:END -->
