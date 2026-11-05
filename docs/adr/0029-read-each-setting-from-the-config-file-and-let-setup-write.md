@@ -44,7 +44,7 @@ A setting is a value that jag reads from an option and from a `JAG_` variable, a
 
 The defaults in this table are the values of the code on 2026-11-05. A release can change a default.
 
-The key of a setting works as its variable. jag reads the key in each flow that reads the variable, and with the same text rules. The order is the option, then the variable, then the file, then the default (CV-7). A bad value in the file gives the usage error of a bad variable, with exit 2. The message names the key, and it never shows the value (CV-6). A file that is not valid YAML, or that other users can read, still gives exit 3 (ADR-0015).
+The key of a setting works as its variable. jag reads the key in each flow that reads the variable, and with the same text rules. The order is the option, then the variable, then the file, then the default (CV-7). A bad value in the file gives the usage error of a bad variable, with exit 2. The message names the key, and, as the message for a bad variable, it never shows the value. A file that is not valid YAML, or that other users can read, still gives exit 3 (ADR-0015).
 
 `jag --setup` writes 1 comment line for each setting that has no value in the file, in the form `# <name>: <default>`, under `config:`. A value that the user wrote stays as it is. A comment line is not a value. `--setup` and `--forget-key` keep each comment line. A second `--setup` of the same release does not change the file. The keys `api-key` and `gateway-api-key` get no comment line. jag writes a key only when the user enters it.
 
