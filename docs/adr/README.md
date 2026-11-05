@@ -49,7 +49,7 @@
 - [0025 — Use the body of the jag skill file as the one source of the agent instructions](./0025-use-the-body-of-the-jag-skill-file-as-the-one-source-of-the.md) — accepted — <!-- TODO: summary -->
 
 ### data — <!-- TODO: describe this area -->
-- [0029 — Read each setting from the config file, and let setup write each default as a comment line](./0029-read-each-setting-from-the-config-file-and-let-setup-write.md) — proposed — <!-- TODO: summary -->
+- [0029 — Read each setting from the config file, and let setup write each default as a comment line](./0029-read-each-setting-from-the-config-file-and-let-setup-write.md) — accepted — <!-- TODO: summary -->
 
 <!-- ADR-INDEX:END -->
 

@@ -3,7 +3,7 @@ type: adr
 title: Read each setting from the config file, and let setup write each default as a comment line
 description: Open this when you add a setting, change the keys of the config file, or change what --setup and --forget-key write or keep in it.
 area: data
-status: proposed
+status: accepted
 date: 2026-11-05
 supersedes: 0015-read-the-base-url-and-the-model-name-from-config-base-url.md # partial
 superseded_by: null

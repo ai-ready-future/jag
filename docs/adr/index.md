@@ -10,7 +10,7 @@ okf_version: "0.2"
 * [context](#context) - 1 decision: 1 accepted
 * [contracts](#contracts) - 11 decisions: 11 accepted
 * [conventions](#conventions) - 1 decision: 1 accepted
-* [data](#data) - 1 decision: 1 proposed
+* [data](#data) - 1 decision: 1 accepted
 * [deployment](#deployment) - 5 decisions: 5 accepted
 * [quality](#quality) - 2 decisions: 2 accepted
 * [strategy](#strategy) - 3 decisions: 3 accepted
@@ -55,9 +55,9 @@ okf_version: "0.2"
 
 ## data
 
-### proposed
+### accepted
 
-* [0029: Read each setting from the config file, and let setup write each default as a comment line](./0029-read-each-setting-from-the-config-file-and-let-setup-write.md) - proposed. Open this when you add a setting, change the keys of the config file, or change what --setup and --forget-key write or keep in it.
+* [0029: Read each setting from the config file, and let setup write each default as a comment line](./0029-read-each-setting-from-the-config-file-and-let-setup-write.md) - accepted. Open this when you add a setting, change the keys of the config file, or change what --setup and --forget-key write or keep in it.
 
 ## deployment
 
