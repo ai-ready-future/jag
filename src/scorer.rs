@@ -19,7 +19,7 @@ use client::{Attempt, Client};
 use cost::Usage;
 
 /// The version of the scoring prompt (ADR-0004).
-pub const PROMPT_VERSION: &str = "jag-p1";
+pub const PROMPT_VERSION: &str = "jag-p2";
 /// A top score below this is "no good answer" (ADR-0003).
 pub const THRESHOLD: f64 = 0.4;
 /// The calls that run at the same time.

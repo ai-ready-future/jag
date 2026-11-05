@@ -126,7 +126,7 @@ Standard output holds four lines, and only when each case ended:
 jag-bench: 4 cases, 1 with no answer
 jag-bench: ndcg@10 jag 0.903, grep 0.703
 jag-bench: bar pass (jag 0.70 or more, and higher than grep)
-jag-bench: prompt jag-p1, threshold 0.4, model <model>, jag <version>
+jag-bench: prompt jag-p2, threshold 0.4, model <model>, jag <version>
 ```
 
 The numbers are rounded to 3 places. The bar passes when the score of jag is
@@ -197,3 +197,43 @@ Exit codes: 0 when each case ended. The option has no bar, so it never gives
 
 This is not a run of the gate. Use it to learn if a fix to jag can reach the
 bar.
+
+## The decoy measure
+
+Use this option in the same run as the gate. It also runs the cases with no
+answer (the decoys), and measures how well the top model score tells a case
+with an answer from a decoy.
+
+```
+jag-bench --decoy CASES
+```
+
+The option needs the key and calls the model, as a gate run does. It does not
+work with `--detail` or `--best-order`: each pair gives exit 2. The 4 gate
+lines and the exit code do not change. The tool then prints 3 more lines, and
+no text of a case:
+
+```
+jag-bench: decoy auc <A>
+jag-bench: decoys with a model score: <D> of <V>
+jag-bench: cut <C>
+```
+
+- `<A>`: the decoy AUC, with 3 places. For each pair of a case with an answer
+  and a decoy, it counts 1 when the case with an answer has the higher top
+  score, and one half for a tie. `<A>` is the mean over the pairs. It is
+  `n/a` when no pair exists.
+- `<D>` and `<V>`: the decoys that got a top score, and all decoys. A case
+  with no window gets no model call and no top score. It is in neither group.
+- `<C>`: the cut of the rule of STORY-81. The rule examines each cut from 0.05
+  to 0.95 in steps of 0.05. The balanced accuracy of a cut is the mean of the
+  share of cases with an answer whose top score is the cut or more, and the
+  share of decoys whose top score is below the cut. The best cut is the one
+  with the highest balanced accuracy. On a tie, the rule takes the cut nearest
+  to 0.4, then the lower cut. The rule gives the best cut only when its
+  balanced accuracy is 0.06 or more above that of 0.4. Else it gives 0.4.
+  `<C>` has 2 places.
+
+The decoy result passes when `<A>` is 0.85 or more and `<D>` is 5 or more.
+The threshold does not change the rank, so it changes neither ndcg@10 nor
+`<A>`.

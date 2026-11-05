@@ -11,7 +11,8 @@ use std::sync::{Arc, Mutex};
 
 use clap::Parser;
 use jag::bench::{
-    BAR, Case, CaseScore, Setup, bar_passes, best_case, mean, parse_cases, round3, run_case,
+    BAR, Case, CaseScore, DecoyResult, Setup, bar_passes, best_case, mean, parse_cases, round3,
+    run_case, run_decoy,
 };
 use jag::config::{
     ConfigFile, DEFAULT_COST_LIMIT, Env, RealFs, SettingOptions, find_key, model_settings,
@@ -34,6 +35,11 @@ struct Args {
     /// with no model call. Not a gate run.
     #[arg(long, conflicts_with = "detail")]
     best_order: bool,
+    /// Also run the cases with no answer, and print the decoy AUC, the count
+    /// of decoys with a model score, and the cut of the rule of STORY-81.
+    /// The 4 gate lines and the exit code do not change.
+    #[arg(long, conflicts_with_all = ["detail", "best_order"])]
+    decoy: bool,
     /// The case file (YAML). See docs/bench.md.
     cases: PathBuf,
 }
@@ -180,9 +186,13 @@ fn run(args: &Args) -> Result<(bool, String, String), Failure> {
 
     let total = cases.len();
     let mut scores: Vec<Option<CaseScore>> = Vec::new();
+    let mut decoy_tops: Vec<Option<f64>> = Vec::new();
     for (index, case) in cases.iter().enumerate() {
         eprintln!("jag-bench: case {} of {total}", index + 1);
         if case.answers.is_empty() {
+            if args.decoy {
+                decoy_tops.push(run_decoy(case, &setup, &|_| {})?);
+            }
             scores.push(None);
             continue;
         }
@@ -203,6 +213,12 @@ fn run(args: &Args) -> Result<(bool, String, String), Failure> {
         score_settings.model,
         env!("CARGO_PKG_VERSION"),
     );
+    let summary = if args.decoy {
+        let answered: Vec<Option<f64>> = scored.iter().map(|score| score.top).collect();
+        summary + &DecoyResult::new(&answered, &decoy_tops).lines()
+    } else {
+        summary
+    };
     let mut detail = String::new();
     for (index, score) in scores.iter().enumerate() {
         let line = match score {

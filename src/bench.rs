@@ -19,7 +19,7 @@ use crate::prerank;
 use crate::scorer::cost::Usage;
 use crate::scorer::{ScoreSettings, rank, score_with_usage};
 use crate::search::snippet::{
-    ContextLines, SnippetLine, Window, match_texts, plan_windows, read_snippets,
+    ContextLines, Snippet, SnippetLine, Window, match_texts, plan_windows, read_snippets,
 };
 use crate::search::{ScanOptions, ScanReport, Source, scan};
 
@@ -78,6 +78,9 @@ pub struct CaseScore {
     /// For each answer, in the order of the case file: the rank in the
     /// results of jag, and the rank in the results of grep (1 is the first).
     pub ranks: Vec<(Option<usize>, Option<usize>)>,
+    /// The highest model score of the windows of the case. `None` when the
+    /// case has no window, so no model call.
+    pub top: Option<f64>,
 }
 
 fn case_failure(number: usize, field: &str, cause: &str, fix: &str) -> Failure {
@@ -383,6 +386,7 @@ pub fn score_case(jag: &[Hit], grep: &[Hit], answers: &[Answer]) -> CaseScore {
         jag: ndcg(&jag_ranks, answers),
         grep: ndcg(&grep_ranks, answers),
         ranks: jag_ranks.into_iter().zip(grep_ranks).collect(),
+        top: None,
     }
 }
 
@@ -515,20 +519,12 @@ pub fn run_case(
 
     // The search of jag, in the order of the search flow.
     let (snippets, _warnings) = read_snippets(&planned.kept, None);
-    let jag: Vec<Hit> = if snippets.is_empty() {
-        Vec::new()
+    let (jag, top): (Vec<Hit>, Option<f64>) = if snippets.is_empty() {
+        (Vec::new(), None)
     } else {
-        let scores = score_with_usage(
-            &snippets,
-            &case.question,
-            setup.key,
-            setup.settings,
-            setup.stop,
-            on_call_end,
-            setup.usage,
-        )
-        .map_err(|error| error.failure(setup.settings))?;
-        rank(snippets, scores)
+        let scores = score_snippets(&snippets, case, setup, on_call_end)?;
+        let top = top_score(&scores);
+        let hits = rank(snippets, scores)
             .into_iter()
             .take(TOP)
             .filter_map(|(snippet, _)| {
@@ -537,9 +533,165 @@ pub fn run_case(
                     match_lines: match_lines(&snippet.lines),
                 })
             })
-            .collect()
+            .collect();
+        (hits, top)
     };
-    Ok(score_case(&jag, &grep, &case.answers))
+    Ok(CaseScore {
+        top,
+        ..score_case(&jag, &grep, &case.answers)
+    })
+}
+
+/// The model scores of the results of a case.
+fn score_snippets(
+    snippets: &[Snippet],
+    case: &Case,
+    setup: &Setup,
+    on_call_end: &(dyn Fn(usize) + Sync),
+) -> Result<Vec<f64>, Failure> {
+    score_with_usage(
+        snippets,
+        &case.question,
+        setup.key,
+        setup.settings,
+        setup.stop,
+        on_call_end,
+        setup.usage,
+    )
+    .map_err(|error| error.failure(setup.settings))
+}
+
+/// The highest of the scores, or `None` for no score.
+fn top_score(scores: &[f64]) -> Option<f64> {
+    scores.iter().copied().reduce(f64::max)
+}
+
+/// Run one decoy (a case with no answer): the search of jag on the same scan,
+/// with no rank and no ndcg@10. Gives its top model score, or `None` when the
+/// case has no window (`--decoy`).
+pub fn run_decoy(
+    case: &Case,
+    setup: &Setup,
+    on_call_end: &(dyn Fn(usize) + Sync),
+) -> Result<Option<f64>, Failure> {
+    let planned = plan_case(case)?;
+    let (snippets, _warnings) = read_snippets(&planned.kept, None);
+    if snippets.is_empty() {
+        return Ok(None);
+    }
+    Ok(top_score(&score_snippets(
+        &snippets,
+        case,
+        setup,
+        on_call_end,
+    )?))
+}
+
+/// The cuts that the rule looks at: 0.05 to 0.95 in steps of 0.05. The cut
+/// of `k` is `k / 20`.
+const CUT_STEPS: std::ops::RangeInclusive<u32> = 1..=19;
+/// The step of the current threshold, 0.4 (`THRESHOLD`).
+const BASE_STEP: u32 = 8;
+/// The best cut must have a balanced accuracy this much higher than 0.4 to
+/// replace it (about the effect of 1 decoy in 9).
+const CUT_MARGIN: f64 = 0.06;
+
+/// The decoy AUC: over each pair of a case with an answer and a decoy, the
+/// share of pairs where the case with an answer has the higher top score. A
+/// tie counts one half. `None` when there is no pair.
+pub fn decoy_auc(answered: &[f64], decoys: &[f64]) -> Option<f64> {
+    let pairs = answered.len() * decoys.len();
+    if pairs == 0 {
+        return None;
+    }
+    let mut wins = 0.0;
+    for with_answer in answered {
+        for decoy in decoys {
+            wins += match with_answer.partial_cmp(decoy) {
+                Some(std::cmp::Ordering::Greater) => 1.0,
+                Some(std::cmp::Ordering::Equal) => 0.5,
+                _ => 0.0,
+            };
+        }
+    }
+    Some(wins / pairs as f64)
+}
+
+/// The mean of 2 shares at the cut `step / 20`: the cases with an answer whose
+/// top score is the cut or more, and the decoys whose top score is below it.
+fn balanced_accuracy(answered: &[f64], decoys: &[f64], step: u32) -> f64 {
+    let cut = f64::from(step) / 20.0;
+    let share = |count: usize, of: usize| count as f64 / of as f64;
+    let kept = answered.iter().filter(|top| **top >= cut).count();
+    let dropped = decoys.iter().filter(|top| **top < cut).count();
+    (share(kept, answered.len()) + share(dropped, decoys.len())) / 2.0
+}
+
+/// The cut of the rule of STORY-81 (decision 7): the cut with the best
+/// balanced accuracy, if it is `CUT_MARGIN` or more above that of 0.4. Else
+/// 0.4. On a tie, the cut nearest to 0.4, then the lower cut. 0.4 when a group
+/// has no top score.
+pub fn best_cut(answered: &[f64], decoys: &[f64]) -> f64 {
+    let base = f64::from(BASE_STEP) / 20.0;
+    if answered.is_empty() || decoys.is_empty() {
+        return base;
+    }
+    let accuracy = |step: u32| balanced_accuracy(answered, decoys, step);
+    let best = CUT_STEPS
+        .max_by(|a, b| {
+            accuracy(*a)
+                .total_cmp(&accuracy(*b))
+                .then(a.abs_diff(BASE_STEP).cmp(&b.abs_diff(BASE_STEP)).reverse())
+                .then(b.cmp(a))
+        })
+        .unwrap_or(BASE_STEP);
+    // The accuracies are sums of small whole shares: a tiny slack keeps a gap
+    // of exactly 0.06 from falling under the margin by a rounding error.
+    if accuracy(best) - accuracy(BASE_STEP) >= CUT_MARGIN - 1e-9 {
+        f64::from(best) / 20.0
+    } else {
+        base
+    }
+}
+
+/// The decoy measure of a run (`--decoy`): the top scores of the cases with
+/// an answer, and of the decoys. A case with no window has no top score and is
+/// in neither group.
+#[derive(Clone, Debug, PartialEq)]
+pub struct DecoyResult {
+    pub auc: Option<f64>,
+    /// The decoys with a top score.
+    pub scored: usize,
+    /// The decoys.
+    pub decoys: usize,
+    pub cut: f64,
+}
+
+impl DecoyResult {
+    pub fn new(answered: &[Option<f64>], decoys: &[Option<f64>]) -> DecoyResult {
+        let answered: Vec<f64> = answered.iter().flatten().copied().collect();
+        let scored: Vec<f64> = decoys.iter().flatten().copied().collect();
+        DecoyResult {
+            auc: decoy_auc(&answered, &scored),
+            scored: scored.len(),
+            decoys: decoys.len(),
+            cut: best_cut(&answered, &scored),
+        }
+    }
+
+    /// The 3 lines of the output. They hold no text of a case. The AUC is
+    /// `n/a` when no pair of cases has a top score.
+    pub fn lines(&self) -> String {
+        let auc = self
+            .auc
+            .map_or_else(|| "n/a".to_owned(), |auc| format!("{auc:.3}"));
+        format!(
+            "jag-bench: decoy auc {auc}\n\
+             jag-bench: decoys with a model score: {} of {}\n\
+             jag-bench: cut {:.2}\n",
+            self.scored, self.decoys, self.cut
+        )
+    }
 }
 
 /// The best score of one case, with no model call (`--best-order`).
@@ -749,6 +901,87 @@ mod tests {
         let kept = [hit("x", &[1]), hit("b", &[1]), hit("y", &[1])];
         let (score, _) = best_of(&kept, &[], &answers);
         assert!(close(score, 1.0));
+    }
+
+    #[test]
+    fn the_decoy_auc_has_a_known_value() {
+        // 0.9 beats 0.5 and 0.1, and 0.5 ties 0.5 and beats 0.1: 3.5 of 4.
+        assert!(close(
+            decoy_auc(&[0.9, 0.5], &[0.5, 0.1]).expect("pairs"),
+            0.875
+        ));
+    }
+
+    #[test]
+    fn the_decoy_auc_counts_a_tie_as_one_half() {
+        assert!(close(decoy_auc(&[0.5], &[0.5]).expect("pairs"), 0.5));
+        assert!(close(decoy_auc(&[0.1], &[0.9]).expect("pairs"), 0.0));
+    }
+
+    #[test]
+    fn the_decoy_auc_has_no_value_with_no_pair() {
+        assert_eq!(decoy_auc(&[], &[0.5]), None);
+        assert_eq!(decoy_auc(&[0.5], &[]), None);
+    }
+
+    #[test]
+    fn the_cut_stays_0_4_when_the_gain_is_under_the_margin() {
+        // 9 cases at 0.9, 1 decoy at 0.45 and 8 at 0.1. At 0.4 the balanced
+        // accuracy is (1 + 8/9) / 2, and at 0.5 it is 1: a gain of 1/18.
+        let answered = [0.9; 9];
+        let mut decoys = vec![0.1; 8];
+        decoys.push(0.45);
+        assert!(close(best_cut(&answered, &decoys), 0.4));
+    }
+
+    #[test]
+    fn the_cut_moves_when_the_gain_is_the_margin_or_more() {
+        // 2 decoys at 0.45 and 7 at 0.1: a gain of 1/9 at 0.5. Each cut from
+        // 0.5 to 0.9 gives 1, so the cut nearest to 0.4 is the best.
+        let answered = [0.9; 9];
+        let mut decoys = vec![0.1; 7];
+        decoys.extend([0.45, 0.45]);
+        assert!(close(best_cut(&answered, &decoys), 0.5));
+    }
+
+    #[test]
+    fn the_cut_stays_0_4_on_a_tie_at_0_4() {
+        assert!(close(best_cut(&[0.9; 3], &[0.1; 3]), 0.4));
+    }
+
+    #[test]
+    fn the_cut_on_an_equal_distance_is_the_lower_cut() {
+        // The cuts 0.35 and 0.45 give 0.5, and 0.4 gives 0.25.
+        let answered = [0.36, 0.95];
+        let decoys = [0.42, 0.99];
+        assert!(close(best_cut(&answered, &decoys), 0.35));
+    }
+
+    #[test]
+    fn the_cut_is_0_4_when_a_group_has_no_score() {
+        assert!(close(best_cut(&[], &[]), 0.4));
+        assert!(close(best_cut(&[0.9], &[]), 0.4));
+        assert!(close(best_cut(&[], &[0.1]), 0.4));
+    }
+
+    #[test]
+    fn the_decoy_result_counts_the_decoys_with_a_score() {
+        let result = DecoyResult::new(&[Some(0.9), None, Some(0.8)], &[Some(0.1), None, Some(0.2)]);
+        assert_eq!((result.scored, result.decoys), (2, 3));
+        assert!(close(result.auc.expect("pairs"), 1.0));
+        assert_eq!(
+            result.lines(),
+            "jag-bench: decoy auc 1.000\n\
+             jag-bench: decoys with a model score: 2 of 3\n\
+             jag-bench: cut 0.40\n"
+        );
+    }
+
+    #[test]
+    fn the_decoy_result_with_no_pair_gives_n_a() {
+        let result = DecoyResult::new(&[Some(0.9)], &[None]);
+        assert_eq!(result.auc, None);
+        assert!(result.lines().starts_with("jag-bench: decoy auc n/a\n"));
     }
 
     fn parse(text: &str) -> Result<Vec<Case>, Failure> {

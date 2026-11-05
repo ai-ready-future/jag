@@ -152,7 +152,7 @@ fn bench_summary() {
     );
     let version = env!("CARGO_PKG_VERSION");
     assert!(
-        lines[3].starts_with("jag-bench: prompt jag-p1, threshold 0.4, model ")
+        lines[3].starts_with("jag-bench: prompt jag-p2, threshold 0.4, model ")
             && lines[3].ends_with(&format!(", jag {version}")),
         "line: {}",
         lines[3]
@@ -738,4 +738,117 @@ fn bench_best_order_ctrl_c() {
     let output = output.join().expect("join");
     assert_eq!(output.status.code(), Some(130));
     assert!(output.stdout.is_empty());
+}
+
+/// The fake model of the decoy tests: the case with the question that names
+/// "sells" is the decoy, and its results get a low score.
+fn model_with_a_low_decoy() -> FakeServer {
+    FakeServer::start(|request| {
+        let decoy = request.json()["state"]["query"]
+            .as_str()
+            .is_some_and(|query| query.contains("sells"));
+        Reply::scores(request, move |text| {
+            if decoy {
+                0.1
+            } else if text.contains("KEEP-A") {
+                0.9
+            } else if text.contains("KEEP-B") {
+                0.6
+            } else {
+                0.1
+            }
+        })
+    })
+}
+
+fn decoy_run(temp: &tempfile::TempDir, server: &FakeServer) -> Run {
+    run({
+        let mut command = bench(temp.path(), &server.base_url());
+        command.arg("--decoy").arg(cases_path(temp));
+        command
+    })
+}
+
+// STORY-81: `--decoy` prints the 4 gate lines with no change, then 3 lines.
+#[test]
+fn bench_decoy_summary() {
+    let server = model_with_a_low_decoy();
+    let temp = fixtures();
+    let result = decoy_run(&temp, &server);
+    assert_eq!(result.code, 0, "stderr: {}", result.stderr);
+
+    let lines: Vec<&str> = result.stdout.lines().collect();
+    assert_eq!(lines.len(), 7, "stdout: {}", result.stdout);
+    assert_eq!(lines[0], "jag-bench: 4 cases, 1 with no answer");
+    assert_eq!(lines[1], "jag-bench: ndcg@10 jag 0.903, grep 0.703");
+    assert_eq!(
+        lines[2],
+        "jag-bench: bar pass (jag 0.70 or more, and higher than grep)"
+    );
+    assert!(lines[3].starts_with("jag-bench: prompt jag-p2, threshold 0.4, model "));
+    // Each case with an answer has a top score of 0.9 or 0.6. The decoy has
+    // 0.1, so no pair is lost.
+    assert_eq!(lines[4], "jag-bench: decoy auc 1.000");
+    assert_eq!(lines[5], "jag-bench: decoys with a model score: 1 of 1");
+    assert_eq!(lines[6], "jag-bench: cut 0.40");
+
+    // The model got 3 calls for the cases with an answer, and 1 for the decoy.
+    assert_eq!(server.requests().len(), 4);
+    let temp_name = temp.path().to_string_lossy().into_owned();
+    for text in [&result.stdout, &result.stderr] {
+        for word in CASE_WORDS {
+            assert!(!text.contains(word), "output holds {word}");
+        }
+        assert!(!text.contains(&temp_name));
+        assert!(!text.contains(KEY));
+    }
+}
+
+// The 4 gate lines and the exit code are the same with and without `--decoy`.
+#[test]
+fn bench_decoy_keeps_the_four_gate_lines() {
+    let temp = fixtures();
+    let plain = {
+        let server = model_with_a_low_decoy();
+        run({
+            let mut command = bench(temp.path(), &server.base_url());
+            command.arg(cases_path(&temp));
+            command
+        })
+    };
+    let with_decoy = decoy_run(&temp, &model_with_a_low_decoy());
+    assert_eq!(plain.code, with_decoy.code);
+    let gate: Vec<&str> = with_decoy.stdout.lines().take(4).collect();
+    assert_eq!(gate.join("\n") + "\n", plain.stdout);
+}
+
+// The decoy result does not change the exit code: a decoy that scores high
+// gives a low AUC, and the exit code is still 0 for `bar pass`.
+#[test]
+fn bench_decoy_result_does_not_change_the_exit_code() {
+    let server = model();
+    let temp = fixtures();
+    let result = decoy_run(&temp, &server);
+    assert_eq!(result.code, 0, "stderr: {}", result.stderr);
+    let lines: Vec<&str> = result.stdout.lines().collect();
+    assert_eq!(lines.len(), 7, "stdout: {}", result.stdout);
+    assert!(lines[4].starts_with("jag-bench: decoy auc "));
+}
+
+// `--decoy` with `--detail` or `--best-order` is refused with exit 2.
+#[test]
+fn bench_decoy_rejects_detail_and_best_order() {
+    let temp = fixtures();
+    let detail = temp.path().join("detail.jsonl");
+    let detail_text = detail.to_string_lossy().into_owned();
+    for extra in [vec!["--detail", detail_text.as_str()], vec!["--best-order"]] {
+        let result = run({
+            let mut command = bench_bare(temp.path());
+            command.arg("--decoy").args(&extra).arg(cases_path(&temp));
+            command
+        });
+        assert_eq!(result.code, 2, "args {extra:?}, stderr: {}", result.stderr);
+        assert!(result.stdout.is_empty());
+    }
+    assert!(!detail.exists());
 }
