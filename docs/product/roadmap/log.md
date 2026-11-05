@@ -1,6 +1,10 @@
 # Log
 
 ## 2026-11-05
+* **Sync**: [STORY-85](stories/STORY-85.md) pushed to GitHub, by process:github, at 2026-11-05T20:41:05Z
+* **Sync**: [STORY-84](stories/STORY-84.md) pushed to GitHub, by process:github, at 2026-11-05T20:41:05Z
+* **Sync**: [FEATURE-29](features/FEATURE-29.md) pushed to GitHub, by process:github, at 2026-11-05T20:41:05Z
+* **Sync**: [EPIC-01](epics/EPIC-01.md) pushed to GitHub, by process:github, at 2026-11-05T20:41:05Z
 * **Learn**: STORY-85 and CRITERION-154 from the answer to REQ-config-timeout (hitl, 2026-11-05): each non-secret setting is a config file key, and jag --setup shows each missing one as a comment line with its default. CRITERION-152 and CRITERION-153 move to STORY-85., by agent:jag-planner, at 2026-11-05T20:31:10Z
 * **State**: [EPIC-01](epics/EPIC-01.md) done -> ready, by human:404pilo, at 2026-11-05T20:26:06Z
 * **Learn**: FEATURE-29, STORY-84 and CRITERION-151 to CRITERION-153 from request REQ-config-timeout: config.timeout in the config file, and jag --setup writes each non-secret setting with its default., by agent:jag-planner, at 2026-11-05T19:51:13Z
