@@ -24,9 +24,9 @@ also after the pre-rank. So the gap is in the order that jag gives to the
 windows. The old tool used the prompt `noul-b-v1`. D-015 chooses this story,
 and gives a stop rule: the new prompt gets 1 development run.
 
-jag gets a variant of `noul-b-v1`, not the original text. The user changed
-some words in the 2 criteria lines to generic words, so that the prompt
-holds no word of the case material, and chose this version on 2026-11-05:
+jag gets a variant of `noul-b-v1`, not the original text. The variant has
+generic words in place of some words of the 2 criteria lines. The user chose
+this version on 2026-11-05:
 "lets go with this version and accept the variance in the score". The
 guidance line and the question line are the same as in the original. So the
 score of jag with the variant can differ from the old score of the earlier
