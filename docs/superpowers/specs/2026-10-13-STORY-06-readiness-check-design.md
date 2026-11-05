@@ -51,7 +51,7 @@ that other users can read (CONSTRAINT-02).
 | 2 | Code place | A new module `src/check.rs` for C-check. It uses C-config for the key and the key file, and C-scorer for the call | 0011-build-jag-as-one-cargo-package-with-one-module-per-component.md; system-design.md C-check (depends on C-config and C-scorer) |
 | 3 | Items and their order | The five items of DECISION-04, in its order: 1 a key is present, 2 the service accepts the key, 3 the account has credit, 4 the service is reachable, 5 other users cannot read the key file | DECISION-04; CRITERION-09 |
 | 4 | The call | One `POST <base>/systemone` call through a new `scorer::probe`. `probe` runs `score` on one fixed result of one short line, with one fixed question. So the call has the request form of a search, the model setting, the shared `ureq` agent, and the status map of a search. jag does not use `GET /v1/models`: that call evaluates nothing, so it cannot show the credit (item 3) | DECISION-04 (one call; the alternatives "only local items" and "a full sample search" are rejected); system-design.md C-check ("one free call"); 0014-call-the-model-service-with-ureq-and-serde-json-on-std.md (C-check uses the one shared agent); TypeSafe docs: no health endpoint, and their health-check example probes System One with one `noul` question |
-| 5 | Cost of the call | About 210 bytes of request, so about 70 input tokens by the estimate of FEATURE-04 decision 22. Output tokens are free. The call costs less than $0.00001 | TypeSafe docs, pricing ($0.042 for 1M input tokens); CRITERION-12 |
+| 5 | Cost of the call | With the prompt `jag-p2`, the request is 723 bytes, so about 241 input tokens by the estimate of FEATURE-04 decision 22. Output tokens are free. The call costs about $0.00001. (With `jag-p1` it was about 210 bytes and about 70 tokens. `jag-p2` adds the guidance and the 2 criteria, STORY-81 spec, rows 3 and 4) | TypeSafe docs, pricing ($0.042 for 1M input tokens); `DEFAULT_MODEL_PRICE` in `src/config/model.rs`; CRITERION-12; STORY-81 spec, rows 3 and 4 |
 | 6 | Retry and deadline | CV-5, as for a search: one retry after a timeout, a failed connection, HTTP 429, or HTTP 5xx, after the retry wait. One deadline of `2 x timeout + retry wait` (9 seconds with the defaults). `--timeout`, `--retry-wait`, `JAG_TIMEOUT`, and `JAG_RETRY_WAIT` apply. The TypeSafe health-check example has no retry, but CV-5 governs C-check | system-design.md CV-5 and C-check (governed by CV-5); docs/superpowers/specs/2026-10-13-STORY-09-clear-failure-when-the-model-is-not-available-design.md decisions 1, 5, and 14; CONSTRAINT-07; DECISION-52 |
 | 7 | "One live call" | When the call passes, the service gets exactly one request. A failure that CV-5 tries again adds the one retry of that call. With no key that jag can use, the check makes no call | CRITERION-12; system-design.md CV-5 |
 | 8 | Item 1 | `find_key` of FEATURE-01. The pass line names the source: `JAG_TYPESAFE_API_KEY`, `TYPESAFE_API_KEY`, or the path of the key file. It never shows the key | DECISION-03 ("The health check names the source that jag uses"); docs/superpowers/specs/2026-10-13-STORY-01-store-a-key-one-time-design.md decision 7; CV-6 |
@@ -353,7 +353,8 @@ service. Each end-to-end test also checks that no output holds `SENTINEL`,
     seconds. Item 4 fails with the timeout text, and the exit code is 6.
 - CRITERION-12 (one call that costs almost nothing):
   - End-to-end: when all items pass, the server gets exactly one request.
-    It is `POST /v1/systemone`, its body is less than 400 bytes, its JSON
+    It is `POST /v1/systemone`, its body is less than 1000 bytes (723
+    bytes with `jag-p2`), its JSON
     has exactly one question, and its `Authorization` header holds the
     key.
   - End-to-end: with no key, the server gets no request.
@@ -398,9 +399,12 @@ pass on the CI runs of `ubuntu-latest` and `macos-latest`.
   src/scorer/client.rs and the FEATURE-03 spec "Assumptions".
 - A 401 or a 403 comes from the service, so item 4 passes. From
   src/scorer/client.rs (the status is the answer of the service).
-- The call is about 210 bytes, so about 70 input tokens. From
-  src/scorer/prompt.rs (`request_body`) and FEATURE-04 decision 22 (bytes
-  divided by 3).
+- With the prompt `jag-p2`, the call is 723 bytes, so about 241 input
+  tokens. From src/scorer/prompt.rs (`request_body`), the constants of
+  `probe` in src/scorer.rs, `DEFAULT_MODEL`, and FEATURE-04 decision 22
+  (bytes divided by 3). The specifier computed the count on 2026-11-05 from
+  the code of commit 59c7a2a, and the verifier of PR #338 measured the same
+  count.
 - `Env::set_variable` gives the same answer as `find_key` for "a key
   variable is set". From src/config.rs.
 - An option that has no effect in a mode conflicts with that mode. From
@@ -421,7 +425,7 @@ pass on the CI runs of `ubuntu-latest` and `macos-latest`.
   Signal: a change on the TypeSafe pricing page. Mitigation: change only
   `probe`.
 - A failure that CV-5 tries again doubles the cost of the check. Signal:
-  none is necessary, because the cost stays less than $0.00001.
+  none is necessary, because the cost stays about $0.00002 or less.
 
 ## Out of scope
 

@@ -228,7 +228,7 @@ fn criterion_54_the_document_has_the_lines_and_no_score() {
     assert_eq!(document["results_found"], 3);
     assert_eq!(document["results_scored"], 0);
     assert_eq!(document["results_skipped"], 0);
-    assert_eq!(document["prompt_version"], "jag-p1");
+    assert_eq!(document["prompt_version"], "jag-p2");
     let results = document["results"].as_array().expect("a list");
     assert_eq!(results.len(), 3);
     let paths = ["dir/a.txt", "dir/a.txt", "dir/sub/b.txt"];
@@ -365,7 +365,7 @@ fn decision_2_the_option_ask_gives_the_question_in_each_place() {
         assert_eq!(run.code, Some(0), "{args:?}");
         let requests = server.requests();
         assert_eq!(requests.len(), 1, "{args:?}");
-        assert_eq!(requests[0].json()["state"]["question"], "which line?");
+        assert_eq!(requests[0].json()["state"]["query"], "which line?");
     }
 }
 
@@ -418,7 +418,7 @@ fn decision_2_a_question_that_starts_with_a_dash_needs_an_equals_sign() {
     let run = run(&server, root.path(), &["--ask=-v", "needle", "dir"]);
     assert_eq!(run.code, Some(0));
     assert_eq!(server.requests().len(), 1);
-    assert_eq!(server.requests()[0].json()["state"]["question"], "-v");
+    assert_eq!(server.requests()[0].json()["state"]["query"], "-v");
 
     let server = FakeServer::constant(0.9);
     let run = self::run(&server, root.path(), &["--ask", "-v", "needle", "dir"]);

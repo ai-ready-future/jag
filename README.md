@@ -632,7 +632,7 @@ Each document has these fields:
 | Field | Meaning |
 |---|---|
 | `version` | The version of this form. It is `1` |
-| `prompt_version` | The version of the scoring prompt, for example `jag-p1` |
+| `prompt_version` | The version of the scoring prompt, for example `jag-p2` |
 | `exit_code` | The exit code of jag |
 | `error` | `null`, or an object with `cause` and `fix` |
 | `no_good_answer` | `true` when the text mode shows the no-good-answer label |

@@ -143,11 +143,11 @@ fn the_request_has_the_model_the_question_and_one_question_for_each_snippet() {
     run(&server, &snippets(2), &settings(&server)).expect("scores");
     let body = server.requests()[0].json();
     assert_eq!(body["model"], "jev-1.13.0");
-    assert_eq!(body["state"]["question"], "which one answers?");
-    assert_eq!(body["questions"]["s1"]["type"], "noul");
+    assert_eq!(body["state"]["query"], "which one answers?");
+    assert_eq!(body["questions"]["s0"]["type"], "noul");
     assert_eq!(
-        body["questions"]["s2"]["instructions"],
-        "Does snippet 2 answer the question?"
+        body["questions"]["s1"]["instructions"],
+        "Does `snippets.s1` contain information that answers or directly helps answer `query`?"
     );
 }
 
@@ -202,7 +202,7 @@ fn a_body_that_jag_cannot_read_gives_exit_6_with_no_retry() {
     let bodies = [
         "not json".to_owned(),
         r#"{"answers":{}}"#.to_owned(),
-        r#"{"answers":{"s1":{"type":"noul","noul":1.5}}}"#.to_owned(),
+        r#"{"answers":{"s0":{"type":"noul","noul":1.5}}}"#.to_owned(),
     ];
     for body in bodies {
         let reply_body = body.clone();
