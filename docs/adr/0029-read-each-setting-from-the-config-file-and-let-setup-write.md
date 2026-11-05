@@ -48,7 +48,7 @@ The key of a setting works as its variable. jag reads the key in each flow that 
 
 `jag --setup` writes 1 comment line for each setting that has no value in the file, in the form `# <name>: <default>`, under `config:`. A value that the user wrote stays as it is. A comment line is not a value. `--setup` and `--forget-key` keep each comment line. A second `--setup` of the same release does not change the file. The keys `api-key` and `gateway-api-key` get no comment line. jag writes a key only when the user enters it.
 
-These items are not settings, and get no key: the keys, the private patterns of DECISION-68, the options of 1 search that have no `JAG_` variable (the rg options, `--ask`, `--json`, `--color`, `--no-max-chars`), and `NO_COLOR`.
+These items are not settings by this rule, and setup writes no comment line for them: the keys, the options of 1 search that have no `JAG_` variable (the rg options, `--ask`, `--json`, `--color`, `--no-max-chars`), and `NO_COLOR`. The private patterns of DECISION-68 are a list of the user, not a setting. This ADR does not decide their place in the file; the spec of CAPABILITY-14 decides it. A setting that a later feature adds, for example the switch of DECISION-80, gets a key by this rule when it has an option, a `JAG_` variable, and a default.
 
 This ADR replaces the sentence "jag writes no other setting to the file, except the gateway key of ADR-0017" of ADR-0015. The other parts of ADR-0015 stay: the nested `config.` form, the keys `config.base-url` and `config.model`, and the rule that `--setup` and `--forget-key` keep each value of the user.
 
