@@ -12,7 +12,9 @@ use std::process::Output;
 use std::sync::Mutex;
 
 use common::fake_server::{FakeServer, Reply, Request};
-use common::{jag, jag_std, write};
+#[cfg(target_os = "linux")]
+use common::jag_std;
+use common::{jag, write};
 use serde_json::{Value, json};
 use tempfile::TempDir;
 
