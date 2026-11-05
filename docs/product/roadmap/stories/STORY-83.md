@@ -9,6 +9,14 @@ generated:
   by: prd/6.2.1
   at: '2026-11-05T14:44:11Z'
 state: backlog
+github:
+  number: 343
+  node_id: I_kwDOVKMnL88AAAABczRgCA
+  url: https://github.com/ai-ready-future/jag/issues/343
+  pushed_hash: '430881'
+  synced:
+    state: backlog
+    owner: human:404pilo
 parent: /epics/EPIC-05.md
 milestone: /milestones/MILESTONE-02.md
 owner: human:404pilo
