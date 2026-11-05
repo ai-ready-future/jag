@@ -6,8 +6,8 @@ okf_version: '0.2'
 
 * [Project](projects/PROJECT-01.md) - The one GitHub Project of jag.
 * [projects/](projects/index.md) - 1 pages
-* [milestones/](milestones/index.md) - 3 pages
-* [epics/](epics/index.md) - 6 pages
-* [features/](features/index.md) - 27 pages
-* [stories/](stories/index.md) - 86 pages
-* [criteria/](criteria/index.md) - 157 pages
+* [milestones/](milestones/index.md) - 4 pages
+* [epics/](epics/index.md) - 7 pages
+* [features/](features/index.md) - 29 pages
+* [stories/](stories/index.md) - 94 pages
+* [criteria/](criteria/index.md) - 169 pages
