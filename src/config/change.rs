@@ -31,11 +31,7 @@ pub(crate) fn setting_table() -> [(&'static str, String); 6] {
 }
 
 /// The 8 keys that the file can hold, in the order of the file.
-pub(super) const fn key_names() -> [&'static str; 8] {
-    KEY_NAMES
-}
-
-const KEY_NAMES: [&str; 8] = [
+pub(super) const KEY_NAMES: [&str; 8] = [
     "api-key",
     "gateway-api-key",
     "base-url",
@@ -49,7 +45,7 @@ const KEY_NAMES: [&str; 8] = [
 /// The 8 keys that the file can hold, as the text of a list: `config.api-key,
 /// config.gateway-api-key, ..., and config.max-chars`.
 pub(crate) fn key_list_text() -> String {
-    let names = key_names();
+    let names = KEY_NAMES;
     let (last, first) = names.split_last().expect("the list has keys");
     let first: Vec<String> = first.iter().map(|name| format!("config.{name}")).collect();
     format!("{}, and config.{last}", first.join(", "))
@@ -588,7 +584,7 @@ mod tests {
             .iter()
             .map(|e| e.0)
             .collect();
-        assert_eq!(entries, key_names());
+        assert_eq!(entries, KEY_NAMES);
         for (name, default) in &table {
             assert!(entries.contains(name), "{name} has no field in FileValues");
             let home = tempfile::tempdir().unwrap();

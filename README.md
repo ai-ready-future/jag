@@ -343,6 +343,7 @@ when it has no value and no comment line left. jag changes only a file that has
 `config:` on its own line and each setting on its own line under it. For any
 other form, such as `config: {api-key: k}` or a value on two lines, `jag --setup`
 and `jag --forget-key` stop with exit code 2 and do not change the file.
+When `jag --forget-key` removes the whole file, the form does not matter.
 
 ## Check that jag is ready
 

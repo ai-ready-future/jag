@@ -10,7 +10,7 @@ use std::fmt;
 use std::path::Path;
 
 use super::ConfigError;
-use super::change::{key_names, setting_table, yaml_scalar};
+use super::change::{KEY_NAMES, setting_table, yaml_scalar};
 
 /// The text of the key file. It can hold a key, so it has no `Display`, and
 /// its `Debug` shows no text (CV-6).
@@ -77,7 +77,7 @@ fn value_line(line: &str) -> Option<(usize, &'static str)> {
     if indent == 0 {
         return None;
     }
-    key_names().into_iter().find_map(|name| {
+    KEY_NAMES.into_iter().find_map(|name| {
         let after = rest.strip_prefix(name)?.strip_prefix(':')?;
         (after.is_empty() || after.starts_with([' ', '\t'])).then_some((indent, name))
     })

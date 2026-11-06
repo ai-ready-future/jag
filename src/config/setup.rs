@@ -1121,6 +1121,51 @@ mod tests {
         }
     }
 
+    // Row 18: an edit whose check fails writes nothing. A file in which the
+    // line model and the YAML parse disagree is hard to make (a quoted value
+    // on 2 lines needs a deeper indent, so the form check refuses it, or the
+    // YAML parse refuses it first). So this test gives `store` the values that
+    // the new text cannot have.
+    #[test]
+    fn an_edit_whose_check_fails_writes_nothing() {
+        let text = "config:\n  api-key: k\n";
+        let home = tempfile::tempdir().unwrap();
+        write_file(home.path(), text, 0o600);
+        let vars = vars(&[]);
+        let env = Env {
+            vars: &vars,
+            home: Some(home.path().to_owned()),
+        };
+        let fs = Counting {
+            writes: std::cell::Cell::new(0),
+        };
+        let (path, state) = load_for_change(&env, &fs).unwrap();
+        let mut lines = state.text.lines(&path).unwrap();
+        lines.set("api-key", "new");
+        let mut wrong = state.values.clone();
+        wrong.api_key = Some("new".to_owned());
+        wrong.model = Some("m".to_owned());
+        let error = store(&env, &fs, &lines, &wrong, &path).unwrap_err();
+        assert!(
+            matches!(error, ConfigError::KeyFileNotEditable { .. }),
+            "{error:?}"
+        );
+        assert_eq!(fs.writes.get(), 0);
+        assert_eq!(std::fs::read_to_string(&path).unwrap(), text);
+        assert_eq!(
+            std::fs::read_dir(path.parent().unwrap()).unwrap().count(),
+            1
+        );
+        // The same lines with the right values are written.
+        wrong.model = None;
+        store(&env, &fs, &lines, &wrong, &path).unwrap();
+        assert_eq!(fs.writes.get(), 1);
+        assert_eq!(
+            std::fs::read_to_string(&path).unwrap(),
+            "config:\n  api-key: new\n"
+        );
+    }
+
     // Row 21: `--forget-key` that removes the file needs no edit, so the form
     // does not matter.
     #[test]
