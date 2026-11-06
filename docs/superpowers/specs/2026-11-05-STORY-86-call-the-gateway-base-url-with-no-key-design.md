@@ -52,7 +52,7 @@ The acceptance criteria:
 | 6 | A refusal of a call with no key | `HTTP 401` or `HTTP 403` to a call with no key gives a new error `ScoreError::KeyNeeded { status }`, exit 4, with no retry, as `KeyNotAccepted` now. The texts are in "Errors" | 0028 Decision (exit of DECISION-05, the message names `JAG_GATEWAY_API_KEY`); DECISION-71; the client of `src/scorer/client.rs` (401 and 403 stop the attempt) |
 | 7 | The words of the refusal | Cause: `the gateway did not accept a call with no key (HTTP <status>).` Fix with no `--base-url`: the 2 lines of the old `GatewayKeyMissing` fix. Fix with `--base-url`: `Set JAG_GATEWAY_API_KEY to the key of the gateway.` | Inferred: the cause of `KeyNotAccepted` on the gateway route (`gateway_text` in `src/scorer.rs`); the fixes of `GatewayKeyMissing` (FEATURE-21 spec decision 18 and its error table); with `--base-url`, `jag --setup` does not see the gateway, so that fix does not name `jag --setup` (FEATURE-21 spec, "Errors") |
 | 8 | `GatewayKeyMissing` | It goes away, because no path gives it now | 0028; CRITERION-156 |
-| 9 | The lines of `--check` with no gateway key | **Pending decision** (`BLOCKED · decision`, see "Pending decision"). The recommended option is in the Design. The Build order puts this part last | DECISION-75 and QUESTION-04 do not map the 5 items of DECISION-04 to the 2 server items |
+| 9 | The lines of `--check` with no gateway key | D-017: 6 lines. `a key is present` and `the service accepts the key` say `not needed`. `the account has credit` says `not available`. A new line `the server answers a scoring call` comes after `the service is reachable`. The key-file line does not change. A refusal of a call with no key (`KeyNeeded`) fails the new line (exit 4). A `402` fails the credit line (exit 5), and each cause of exit 6 fails `the service is reachable`, as now. The direct route and a gateway with a key keep their 5 lines | D-017 (decision-judge, 2026-11-06; detail, medium, reversible, visible): "the key items" of DECISION-75 is plural; FEATURE-02 spec (STORY-06) decision 16 (the line form is not a contract); FEATURE-02 spec decision 12 (the rules of exit 5 and exit 6 stay) |
 | 10 | The key-file item of `--check` | No change on each route: the item checks the mode of the config file, also when the file holds no key | Inferred: DECISION-04 item 5; 0015-read-the-base-url-and-the-model-name-from-config-base-url.md Consequences (the mode check applies to each read of the file); CONVENTION-06 |
 | 11 | The new status words | `not needed` and `not available`. An item with one of these words does not fail the check. `jag is ready.` shows when no item fails and no item is `not checked`. The exit code is the code of the first item that fails, as now | DECISION-75 ("A key item that is not needed does not fail the check"); CRITERION-157 ("the check passes"); DECISION-48 |
 | 12 | The status column | It stays 12 characters wide (`{:<12}` in `Report::lines`). A word of 12 characters or more (`not available`) gets 1 space after it. The lines of the other routes do not change | Inferred: `Report::lines` in `src/check.rs`; the check output of the other routes is released (FEATURE-02) |
@@ -61,6 +61,9 @@ The acceptance criteria:
 | 15 | Test strategy | End-to-end tests with the fake model server, which records each header of each request. Unit tests for `find_key`, the client, the texts, and the check report | FEATURE-21 spec; `tests/common/fake_server.rs` (`Request::header`); 0028 Consequences (an end-to-end case for the gateway route with no key) |
 | 16 | Docs | README: the gateway section and the check section. `--help` does not change | 0028; README "Use an AI gateway" ("With no gateway key, a search stops with exit 3 before the call") |
 | 17 | Outside crates | No new crate | 0012-use-clap-serde-saphyr-and-rpassword-as-the-outside-crates.md |
+| 18 | When the 6 lines show | Only when `find_key` gives no key. When `find_key` gives an error (for example bad YAML), or when item 5 fails and no gateway key variable is set, the check shows the 5 lines of today and makes no call, because jag cannot know if the file holds a gateway key | Inferred: FEATURE-02 spec decision 10; `criterion_10_an_open_key_file_that_is_the_source_shows_its_block_one_time`, `a_file_with_bad_yaml_fails_item_1_and_makes_no_call`, and `an_open_file_that_the_settings_need_fails_item_5_and_makes_no_call` in `tests/check.rs` |
+| 19 | The new line when the call gives no scores | A `402` and each cause of exit 6 give `not checked` with the note ` (the call to the service failed)`. Only a `200` with the scores gives `pass`, and only `KeyNeeded` gives `fail` | Inferred: FEATURE-02 spec decision 11 (an item that jag cannot examine shows `not checked` and the reason); `CALL_FAILED_NOTE` in `src/check.rs` |
+| 20 | A note after `not needed` and `not available` | None. The status word gives the reason, and the 3 lines keep the words of the other routes | Inferred: FEATURE-02 spec decision 11 (a note gives the reason of `not checked`); the D-017 card ("no line changes its words") |
 
 ## Design
 
@@ -113,38 +116,62 @@ The texts of `KeyNotAccepted` (a call with a key) do not change.
 
 ### The check
 
-`src/check.rs`. The recommended option of the pending decision (row 9):
-on the gateway route with no gateway key, the check keeps its 5 items, and
-item 2 examines the answer to the scoring call in place of the key:
+`src/check.rs`. Row 9 (D-017): on the gateway route, when `find_key` gives
+no key, the check shows 6 lines:
 
-| Item | Text on this route | Result |
+| Line | Text | Result |
 |---|---|---|
-| 1 | `a key is present` (` (no gateway key is set)`) | `not needed` |
-| 2 | `the server answers a scoring call` | The call: `pass` for a `200` with the scores. `KeyNeeded` fails it (exit 4). `NoCredit` gives `pass` (the server answered). Each cause of exit 6 gives `not checked` (` (the call to the service failed)`) |
-| 3 | `the account has credit` (` (jag sends no key, so there is no account)`) | `not available`. `NoCredit` (`402`) fails it (exit 5) |
-| 4 | `the service is reachable` | As now: `pass` for an answer from the server (also `401`, `402`, and `403`); each cause of exit 6 fails it |
-| 5 | `other users cannot read the key file` | No change (row 10) |
+| 1 | `a key is present` | `not needed` |
+| 2 | `the service accepts the key` | `not needed` |
+| 3 | `the account has credit` | `not available`. A `402` (`NoCredit`) fails it (exit 5) |
+| 4 | `the service is reachable` | As now: `pass` for an answer from the server (also `401`, `402`, and `403`). Each cause of exit 6 fails it |
+| 5 | `the server answers a scoring call` | `pass` for a `200` with the scores. `KeyNeeded` (`401`, `403`) fails it (exit 4). A `402` and each cause of exit 6 give `not checked` (` (the call to the service failed)`) (row 19) |
+| 6 | `other users cannot read the key file` | No change (row 10) |
 
-So each cause of exit 4 fails item 2, the cause of exit 5 fails item 3, and
-each cause of exit 6 fails item 4, as FEATURE-02 spec decision 12 says. When
-item 5 fails and no gateway key variable is set, item 1 shows `not checked`
-(` (jag cannot use the key file: see the last item)`), and jag makes no call,
-as now (FEATURE-02 spec decision 10).
+So the cause of exit 5 fails the credit line, and each cause of exit 6
+fails the reachable line, as FEATURE-02 spec decision 12 says. Exit 4 fails
+line 5. The exit code is the code of the first line that fails
+(DECISION-48). Lines 1 to 3 have no note (row 20).
 
-The output with a server that answers, and no config file:
+When `find_key` gives an error, or when item 5 fails and no gateway key
+variable is set, the check shows the 5 lines of today and makes no call
+(row 18).
+
+A server that answers, and no config file. Exit 0:
 
 ```
-not needed  a key is present (no gateway key is set)
-pass        the server answers a scoring call
-not available the account has credit (jag sends no key, so there is no account)
+not needed  a key is present
+not needed  the service accepts the key
+not available the account has credit
 pass        the service is reachable
+pass        the server answers a scoring call
 pass        other users cannot read the key file (no key file)
 jag is ready.
 ```
 
-`Status` gets `NotNeeded` and `NotAvailable`. The call closure of
-`check::run` takes `Option<&ApiKey>`. The other routes keep their lines and
-their bytes.
+A server that answers `401`, the base URL from `JAG_BASE_URL`, and no config
+file. Exit 4:
+
+```
+not needed  a key is present
+not needed  the service accepts the key
+not available the account has credit
+pass        the service is reachable
+fail        the server answers a scoring call
+pass        other users cannot read the key file (no key file)
+```
+
+The error stream:
+
+```
+jag: the gateway did not accept a call with no key (HTTP 401).
+Get a key from the gateway, then run `jag --setup`,
+or set JAG_GATEWAY_API_KEY.
+```
+
+`Status` gets `NotNeeded` and `NotAvailable`. `Report` holds a list of items
+in place of `[Item; 5]`. The call closure of `check::run` takes
+`Option<&ApiKey>`. The other routes keep their 5 lines and their bytes.
 
 ### Tests
 
@@ -156,10 +183,12 @@ their bytes.
 | CRITERION-156, a call with a key | `tests/gateway.rs`: with `JAG_GATEWAY_API_KEY` set, a `401` keeps the `KeyNotAccepted` text of today |
 | Row 2 | `src/config.rs` unit: the gateway route with no source gives `Ok(None)`; a blank `JAG_GATEWAY_API_KEY` gives `Ok(None)`; a bad gateway key still gives `KeyFormatBad`; the direct route with no source still gives `KeyMissing` |
 | Row 5 | `src/scorer/client.rs` unit, or `tests/score.rs`: a client with no key sends the same headers as a client with a key, less `Authorization` |
-| CRITERION-157 | `tests/check.rs`: change `the_key_of_the_direct_route_does_not_count_on_the_gateway_route`. With a fake server that answers, the output is the block in "The check", exit 0. A `401` server: item 2 fails, exit 4, and the error stream has the `KeyNeeded` texts. A server that does not answer: item 4 fails, exit 6. A `402` server: item 3 fails, exit 5 |
+| CRITERION-157 | `tests/check.rs`: change `the_key_of_the_direct_route_does_not_count_on_the_gateway_route`. With a fake server that answers: the first block of "The check", exit 0, and 1 request with no `Authorization` header. A `401` server and a `403` server: the second block, exit 4, and the error stream has the `KeyNeeded` texts. A server that does not answer: line 4 fails, line 5 is `not checked`, exit 6. A `402` server: line 3 fails, line 5 is `not checked`, exit 5 |
+| CRITERION-10, no key | `tests/check.rs`: `criterion_10_no_key_names_the_problem_and_the_fix_and_makes_no_call` runs on the gateway route, so it becomes a case of CRITERION-157 with no key (exit 0 and 1 call with no `Authorization` header). The case of the direct route with no key (exit 3, no call) stays in the `src/check.rs` unit test `the_lines_have_a_status_field_of_12_characters` |
 | Row 11 | `src/check.rs` unit: `jag is ready.` shows with items that are `not needed` and `not available`, and does not show with an item that is `not checked` |
-| Row 12 | `src/check.rs` unit: the lines of the direct route and of a gateway with a key keep their bytes |
-| Row 8 | Remove the unit tests of `GatewayKeyMissing` in `src/config.rs` and `src/check.rs`, and change the expected texts at about `src/check.rs` line 618 and line 716 |
+| Row 12 | `src/check.rs` unit: the lines of the direct route and of a gateway with a key keep their 5 lines and their bytes |
+| Row 8 | Remove the unit tests of `GatewayKeyMissing` in `src/config.rs` (at about line 1016) and `src/check.rs` (at about line 618). In `tests/gateway.rs`, the expected texts at about lines 383 and 400 (`a_typesafe_key_is_not_a_gateway_key`) change with the CRITERION-155 row. `the_lines_have_a_status_field_of_12_characters` keeps its bytes (row 12) |
+| Row 18 | `tests/check.rs`: `criterion_10_an_open_key_file_that_is_the_source_shows_its_block_one_time`, `a_file_with_bad_yaml_fails_item_1_and_makes_no_call`, and `an_open_file_that_the_settings_need_fails_item_5_and_makes_no_call` keep their 5 lines, their exit code, and no call |
 
 ### Docs
 
@@ -169,26 +198,11 @@ their bytes.
   exit 3 before the call." with: with no gateway key, jag calls the gateway
   with no key. When the gateway refuses the call, jag exits with 4, and the
   message names `JAG_GATEWAY_API_KEY`.
-- "Check that jag is ready": the lines for a server with no key, and the 2
-  new status words.
-
-## Pending decision
-
-Row 9 waits for 1 `BLOCKED · decision`: how does `--check` show a server with
-no key?
-
-- **5 lines, item 2 changes its words:** the recommended option, in the
-  Design. It keeps the 5 items of DECISION-04 and DECISION-48, and the rule of
-  FEATURE-02 spec decision 12 (exit 4 fails item 2). Only item 1 says "not
-  needed".
-- **6 lines, a new item:** items 1 and 2 say "not needed", item 3 says "not
-  available", and a new item `the server answers a scoring call` comes after
-  item 4. Each key item says "not needed", as DECISION-75 says. The check has
-  6 items on this route, and a refusal for a key fails the new item.
-
-When the answer is the other option, only "The check", its tests, and the
-README lines of the check change. Until the answer, STORY-86 stays in
-`backlog`.
+- "Check that jag is ready": on a gateway with no gateway key, the check
+  shows 6 lines. The 2 key items say `not needed`, the credit item says
+  `not available`, and the line `the server answers a scoring call` comes
+  after `the service is reachable`. Add the first block of "The check". In
+  the exit code table, the cause of `0` becomes "No item fails".
 
 ## Build order
 
@@ -196,8 +210,9 @@ README lines of the check change. Until the answer, STORY-86 stays in
 2. Scorer: the client with no key, `KeyNeeded`, and its texts. Tests of row 5
    and of CRITERION-156.
 3. Search and `jag-bench`: pass the key or no key. Tests of CRITERION-155.
-4. Check: the status words, the column rule, and the items of the answer of
-   row 9. Tests of CRITERION-157 and of rows 11 and 12.
+4. Check: the status words, the column rule, the 6 lines of row 9, and rows
+   18 to 20. Tests of CRITERION-157, of CRITERION-10, and of rows 11, 12,
+   and 18.
 5. README.
 
 ## Assumptions
@@ -211,6 +226,12 @@ README lines of the check change. Until the answer, STORY-86 stays in
   output of the other routes keeps its bytes.
 - A4 (row 13). `jag-bench` follows the search, because it uses the same
   `find_key` and the same client.
+- A5 (row 18). When jag cannot read the config file, it cannot know if the
+  file holds a gateway key, so the check keeps the lines of today.
+- A6 (row 19). A `402` or a failed call gives no scores, so jag cannot
+  examine line 5.
+- A7 (row 20). The status words `not needed` and `not available` give the
+  reason, so the 3 lines need no note.
 
 ## Risks
 
@@ -221,6 +242,10 @@ README lines of the check change. Until the answer, STORY-86 stays in
   Before this change, jag stopped before the call. The user chose the base
   URL, so this is the intended behavior. Signal: a report of a call to a base
   URL with a typing error.
+- On a gateway with no key, the check has 6 lines, and on the other routes 5.
+  A script that counts the lines can fail. The exit code is the contract
+  (FEATURE-02 spec decision 16). Signal: a report of a script that reads the
+  lines.
 - A gateway that answers a call with no key with a status other than `401` or
   `403` (for example `404`) gives the failure of that status, not
   `KeyNeeded`. Signal: a report of exit 6 from a gateway that needs a key.

@@ -33,7 +33,7 @@ The user can set a base URL and a model name, so that jag sends the same model c
 | --- | --- | --- | --- | --- | --- |
 | [STORY-57: Send the model calls through an AI gateway](../stories/STORY-57.md) | done | - | - | - | - |
 | [STORY-58: Set the gateway as an option, a variable, or in the config file](../stories/STORY-58.md) | done | - | - | - | - |
-| [STORY-86: Call the gateway base URL with no key when the user sets no gateway key](../stories/STORY-86.md) | backlog | - | - | - | - |
+| [STORY-86: Call the gateway base URL with no key when the user sets no gateway key](../stories/STORY-86.md) | ready | - | - | - | - |
 <!-- STATUS:END -->
 
 <!-- LINKS:START (generated, do not edit) -->
