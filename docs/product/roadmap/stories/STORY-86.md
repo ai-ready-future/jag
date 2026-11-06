@@ -7,7 +7,8 @@ status: draft
 generated:
   by: prd/6.2.1
   at: '2026-11-05T21:35:49Z'
-state: ready
+state: done
+actual_end_date: '2026-11-06'
 github:
   number: 356
   node_id: I_kwDOVKMnL88AAAABc4T9Bw
@@ -42,6 +43,14 @@ The gateway route is a base URL that is not TypeSafe (ADR-0015, ADR-0017).
 The other rules of ADR-0017 stay: the sources of the gateway key and their order, and the direct route. The direct route to TypeSafe still stops with exit 3 when jag finds no TypeSafe key.
 
 Not in scope: the other parts of CAPABILITY-13 (DECISION-65 and DECISION-76: a call or a snippet that is too long for the server; DECISION-74: the report names the host) and CAPABILITY-14 (private patterns). They are in SCOPE-04 and have no roadmap item yet. The planner asks the human about the plan of SCOPE-04 separately.
+
+## Result
+
+STORY-86 is done on 2026-11-06:
+
+- Code: PR #386 (merge `8282891`), with 4 approvals (reviewer, verifier, security, code-quality). Decisions D-017 and D-019.
+- Product proof: the verifier ran the release build in Docker with no network, a temporary home folder and fake model servers. With no gateway key, a search calls the base URL with no `Authorization` header, and the TypeSafe key goes in no header and no body. A 401 or a 403 to a call with no key gives exit 4 with the cause and the fix. `jag --check` shows the 6 lines of D-017. The direct route with no key keeps exit 3 ([comment](https://github.com/ai-ready-future/jag/pull/386#issuecomment-6687344927)).
+- e2e tests: PR #391 (merge `c9a25bf`).
 
 <!-- STATUS:START (generated, do not edit) -->
 

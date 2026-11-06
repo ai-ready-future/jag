@@ -1,6 +1,8 @@
 # Log
 
 ## 2026-11-06
+* **State**: [FEATURE-21](features/FEATURE-21.md) ready -> done, by agent:jag-planner, approved by #386, at 2026-11-06T16:48:35Z
+* **State**: [STORY-86](stories/STORY-86.md) ready -> done, by agent:jag-planner, approved by #386, at 2026-11-06T16:48:35Z
 * **Sync**: [STORY-85](stories/STORY-85.md) pushed to GitHub, by process:github, at 2026-11-06T16:10:49Z
 * **Sync**: [STORY-84](stories/STORY-84.md) pushed to GitHub, by process:github, at 2026-11-06T16:10:49Z
 * **Sync**: [FEATURE-29](features/FEATURE-29.md) pushed to GitHub, by process:github, at 2026-11-06T16:10:49Z
