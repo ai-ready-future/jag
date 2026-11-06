@@ -203,6 +203,7 @@ in place of `[Item; 5]`. The call closure of `check::run` takes
   `not available`, and the line `the server answers a scoring call` comes
   after `the service is reachable`. Add the first block of "The check". In
   the exit code table, the cause of `0` becomes "No item fails".
+  The cause of `4` becomes "The service does not accept the key, or a gateway refuses a call with no key". The sentence "The check shows `pass` or `fail` for five items, in this order:" becomes "The check shows a status for five items, in this order (six on a gateway with no gateway key):".
 
 ## Build order
 
