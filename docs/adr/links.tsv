@@ -12,6 +12,7 @@ source	relation	target	target_state	target_status	source_area	target_area	note
 0011-build-jag-as-one-cargo-package-with-one-module-per-component.md	superseded_by	0026-name-the-crates-io-package-jag-cli.md	live	accepted	building-blocks	building-blocks	partial
 0011-build-jag-as-one-cargo-package-with-one-module-per-component.md	parent_spec	docs/product/system-design.md	doc	-	building-blocks	-	anchor=building-blocks
 0011-build-jag-as-one-cargo-package-with-one-module-per-component.md	related	0005-build-jag-as-one-rust-binary.md	live	accepted	building-blocks	building-blocks	-
+0012-use-clap-serde-saphyr-and-rpassword-as-the-outside-crates.md	amended_by	0029-read-each-setting-from-the-config-file-and-let-setup-write.md	live	accepted	building-blocks	data	-
 0012-use-clap-serde-saphyr-and-rpassword-as-the-outside-crates.md	parent_spec	docs/product/system-design.md	doc	-	building-blocks	-	anchor=building-blocks
 0012-use-clap-serde-saphyr-and-rpassword-as-the-outside-crates.md	related	0011-build-jag-as-one-cargo-package-with-one-module-per-component.md	live	accepted	building-blocks	building-blocks	-
 0013-exit-2-when-setup-runs-with-no-terminal.md	refines	0007-number-the-exit-codes-above-2-from-3-to-8.md	live	accepted	contracts	contracts	-
@@ -67,6 +68,7 @@ source	relation	target	target_state	target_status	source_area	target_area	note
 0028-call-a-base-url-with-no-key-when-the-user-sets-no-gateway-key.md	supersedes	0017-use-a-separate-key-for-an-ai-gateway.md	live	accepted	contracts	contracts	partial
 0028-call-a-base-url-with-no-key-when-the-user-sets-no-gateway-key.md	related	0015-read-the-base-url-and-the-model-name-from-config-base-url.md	live	accepted	contracts	contracts	-
 0029-read-each-setting-from-the-config-file-and-let-setup-write.md	supersedes	0015-read-the-base-url-and-the-model-name-from-config-base-url.md	live	accepted	data	contracts	partial
+0029-read-each-setting-from-the-config-file-and-let-setup-write.md	amends	0012-use-clap-serde-saphyr-and-rpassword-as-the-outside-crates.md	live	accepted	data	building-blocks	-
 0029-read-each-setting-from-the-config-file-and-let-setup-write.md	related	0009-pin-the-jev-model-version-in-each-release.md	live	accepted	data	contracts	-
 0029-read-each-setting-from-the-config-file-and-let-setup-write.md	related	0012-use-clap-serde-saphyr-and-rpassword-as-the-outside-crates.md	live	accepted	data	building-blocks	-
 0029-read-each-setting-from-the-config-file-and-let-setup-write.md	related	0017-use-a-separate-key-for-an-ai-gateway.md	live	accepted	data	contracts	-
