@@ -7,7 +7,7 @@ status: draft
 generated:
   by: prd/6.2.1
   at: '2026-11-05T20:31:09Z'
-state: backlog
+state: blocked
 github:
   number: 350
   node_id: I_kwDOVKMnL88AAAABc2mtIQ
@@ -15,6 +15,7 @@ github:
   pushed_hash: 4a6a4d
   synced:
     state: backlog
+spec: docs/superpowers/specs/2026-11-05-STORY-84-each-setting-in-the-config-file-design.md
 parent: /features/FEATURE-29.md
 blocked_by:
 - /stories/STORY-84.md

@@ -7,7 +7,7 @@ status: draft
 generated:
   by: prd/6.2.1
   at: '2026-11-05T20:31:09Z'
-state: backlog
+state: ready
 github:
   number: 349
   node_id: I_kwDOVKMnL88AAAABc2mlpg
@@ -15,6 +15,7 @@ github:
   pushed_hash: 02883b
   synced:
     state: backlog
+spec: docs/superpowers/specs/2026-11-05-STORY-84-each-setting-in-the-config-file-design.md
 parent: /features/FEATURE-29.md
 milestone: /milestones/MILESTONE-02.md
 traces:
