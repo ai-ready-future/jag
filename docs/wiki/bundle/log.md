@@ -9,6 +9,7 @@
 * **Report**: Applied the 2 review fixes on the STORY-81 exit 6 page: facts 3 and 4, and the check note., by knowledge/1.1.3, at 2026-11-06T12:33:09Z
 * **Report**: Cited the STORY-86 spec row 9 on main in D-017, and STORY-96 on main in D-018, in place of the PR links., by knowledge/1.1.3, at 2026-11-06T13:21:02Z
 * **Report**: Wrote the body of the D-021 page: keep exit 3 for a readable config file on a search with --ask., by knowledge/1.1.3, at 2026-11-06T15:19:33Z
+* **Report**: Cited the STORY-84 code and spec on main in the D-021 page, in place of PR #385., by knowledge/1.1.3, at 2026-11-06T15:30:58Z
 
 ## 2026-11-05
 * **Report**: Wrote the body of the FEATURE-28 healthy window page., by knowledge/1.1.3, at 2026-11-05T13:54:17Z

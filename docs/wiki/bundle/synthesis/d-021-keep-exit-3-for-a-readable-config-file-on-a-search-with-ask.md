@@ -36,7 +36,8 @@ Keep it. Do not change the code.
 - STORY-84 spec, rows 7 to 9: the flows that read a key, when jag reads the file, and `--json` with no question.
 - STORY-57 spec, Risk 1.
 - Product decision DECISION-04, item 5 (the key-file item).
-- The code is in PR #385. The PR is not merged yet. Cite the code on `main` after the merge.
+- The code is on `main` (STORY-84, commit 7efc286): `src/config.rs` (the file checks and the `chmod 600` fix text) and `src/config/limit.rs` (the 4 variables).
+- STORY-84 spec on `main`: `docs/superpowers/specs/2026-11-05-STORY-84-each-setting-in-the-config-file-design.md`.
 
 <!-- LINKS:START (generated, do not edit) -->
 
