@@ -86,6 +86,9 @@ source	relation	target
 /criteria/CRITERION-168.md	item	/stories/STORY-93.md
 /criteria/CRITERION-169.md	item	/stories/STORY-94.md
 /criteria/CRITERION-17.md	item	/stories/STORY-12.md
+/criteria/CRITERION-170.md	item	/stories/STORY-95.md
+/criteria/CRITERION-171.md	item	/stories/STORY-95.md
+/criteria/CRITERION-172.md	item	/stories/STORY-96.md
 /criteria/CRITERION-18.md	item	/stories/STORY-13.md
 /criteria/CRITERION-19.md	item	/stories/STORY-13.md
 /criteria/CRITERION-20.md	item	/stories/STORY-13.md
@@ -363,6 +366,9 @@ source	relation	target
 /features/FEATURE-31.md	milestone	/milestones/MILESTONE-04.md
 /features/FEATURE-31.md	parent	/epics/EPIC-07.md
 /features/FEATURE-31.md	traces	prd:/capabilities/CAPABILITY-14.md
+/features/FEATURE-32.md	milestone	/milestones/MILESTONE-04.md
+/features/FEATURE-32.md	parent	/epics/EPIC-07.md
+/features/FEATURE-32.md	traces	prd:/capabilities/CAPABILITY-09.md
 /milestones/MILESTONE-01.md	traces	prd:/scope/SCOPE-01.md
 /milestones/MILESTONE-02.md	traces	prd:/capabilities/CAPABILITY-06.md
 /milestones/MILESTONE-02.md	traces	prd:/capabilities/CAPABILITY-11.md
@@ -620,6 +626,7 @@ source	relation	target
 /stories/STORY-88.md	milestone	/milestones/MILESTONE-04.md
 /stories/STORY-88.md	parent	/features/FEATURE-30.md
 /stories/STORY-88.md	traces	prd:/capabilities/CAPABILITY-13.md
+/stories/STORY-89.md	blocked_by	/stories/STORY-96.md
 /stories/STORY-89.md	milestone	/milestones/MILESTONE-04.md
 /stories/STORY-89.md	parent	/features/FEATURE-30.md
 /stories/STORY-89.md	traces	prd:/capabilities/CAPABILITY-13.md
@@ -640,6 +647,13 @@ source	relation	target
 /stories/STORY-93.md	parent	/features/FEATURE-31.md
 /stories/STORY-93.md	traces	prd:/capabilities/CAPABILITY-14.md
 /stories/STORY-94.md	blocked_by	/stories/STORY-91.md
+/stories/STORY-94.md	blocked_by	/stories/STORY-95.md
 /stories/STORY-94.md	milestone	/milestones/MILESTONE-04.md
 /stories/STORY-94.md	parent	/features/FEATURE-31.md
 /stories/STORY-94.md	traces	prd:/capabilities/CAPABILITY-14.md
+/stories/STORY-95.md	milestone	/milestones/MILESTONE-04.md
+/stories/STORY-95.md	parent	/features/FEATURE-32.md
+/stories/STORY-95.md	traces	prd:/capabilities/CAPABILITY-09.md
+/stories/STORY-96.md	milestone	/milestones/MILESTONE-04.md
+/stories/STORY-96.md	parent	/features/FEATURE-32.md
+/stories/STORY-96.md	traces	prd:/capabilities/CAPABILITY-09.md

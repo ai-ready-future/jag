@@ -29,4 +29,7 @@ jag tells the user which text it sends to the model service. The user can see th
 - subject of: [DECISION-81: The preview of the text that leaves the machine lists the held-back lines](../decisions/DECISION-81.md)
 - included by: [SCOPE-01: Release 1: first public release](../scope/SCOPE-01.md) (could)
 - included by: [SCOPE-02: Release 2: trust and cost](../scope/SCOPE-02.md) (must)
+- traced by: [FEATURE-32: Say which text leaves the machine](../../roadmap/features/FEATURE-32.md)
+- traced by: [STORY-95: See the text that a search sends before jag sends it](../../roadmap/stories/STORY-95.md)
+- traced by: [STORY-96: The report of each search tells which text left the machine](../../roadmap/stories/STORY-96.md)
 <!-- LINKS:END -->

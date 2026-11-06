@@ -41,7 +41,7 @@ The stories of this feature:
 | [STORY-91: Hold back each snippet that holds a key, a token or a password](../stories/STORY-91.md) | backlog | - | - | - | - |
 | [STORY-92: Add private patterns of the user in the config file](../stories/STORY-92.md) | backlog | - | - | STORY-91 | - |
 | [STORY-93: Turn the private-pattern check off with one setting](../stories/STORY-93.md) | backlog | - | - | STORY-91, STORY-84, STORY-85 | - |
-| [STORY-94: The preview lists the lines that the check holds back](../stories/STORY-94.md) | backlog | - | - | STORY-91 | - |
+| [STORY-94: The preview lists the lines that the check holds back](../stories/STORY-94.md) | backlog | - | - | STORY-91, STORY-95 | - |
 <!-- STATUS:END -->
 
 <!-- LINKS:START (generated, do not edit) -->

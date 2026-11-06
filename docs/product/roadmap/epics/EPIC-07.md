@@ -12,7 +12,7 @@ github:
   number: 359
   node_id: I_kwDOVKMnL88AAAABc5Feeg
   url: https://github.com/ai-ready-future/jag/issues/359
-  pushed_hash: '351235'
+  pushed_hash: c53e55
   synced:
     state: backlog
 milestone: /milestones/MILESTONE-04.md
@@ -27,6 +27,7 @@ The user scores each search with a Clef server that the user runs, so that no te
 
 - FEATURE-30: score with a Clef server that the user runs (CAPABILITY-13).
 - FEATURE-31: hold private text back from the model (CAPABILITY-14).
+- FEATURE-32: say which text leaves the machine (CAPABILITY-09). STORY-89 and STORY-94 need it. The user added it to this milestone through hitl, 2026-11-05: "A: now, in Local model option".
 
 <!-- LINKS:START (generated, do not edit) -->
 
@@ -36,4 +37,5 @@ The user scores each search with a Clef server that the user runs, so that no te
 - traces: [SCOPE-04: After release 1: local model option](../../prd/scope/SCOPE-04.md)
 - child: [FEATURE-30: Score with a Clef server that the user runs](../features/FEATURE-30.md)
 - child: [FEATURE-31: Hold private text back from the model](../features/FEATURE-31.md)
+- child: [FEATURE-32: Say which text leaves the machine](../features/FEATURE-32.md)
 <!-- LINKS:END -->
