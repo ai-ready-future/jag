@@ -387,18 +387,22 @@ mod tests {
 
     use Status::{Fail, NotChecked, Pass};
 
-    /// The key, and the two settings that need no file read.
+    /// The key, and the four settings that need no file read.
     const GOOD: &[(&str, &str)] = &[
         ("JAG_TYPESAFE_API_KEY", SENTINEL_KEY),
         ("JAG_BASE_URL", "https://api.typesafe.ai/v1"),
         ("JAG_MODEL", "jev-1.13.0"),
+        ("JAG_TIMEOUT", "4"),
+        ("JAG_RETRY_WAIT", "1"),
     ];
 
-    /// A gateway, the gateway key, and the model: no file read.
+    /// A gateway, the gateway key, the model, and the times: no file read.
     const GATEWAY: &[(&str, &str)] = &[
         ("JAG_GATEWAY_API_KEY", SENTINEL_KEY),
         ("JAG_BASE_URL", "https://openrouter.ai/api"),
         ("JAG_MODEL", "~typesafe/jev-latest"),
+        ("JAG_TIMEOUT", "4"),
+        ("JAG_RETRY_WAIT", "1"),
     ];
 
     #[test]
@@ -486,6 +490,8 @@ mod tests {
             ("JAG_TYPESAFE_API_KEY", "has a space"),
             ("JAG_BASE_URL", "https://api.typesafe.ai/v1"),
             ("JAG_MODEL", "jev-1.13.0"),
+            ("JAG_TIMEOUT", "4"),
+            ("JAG_RETRY_WAIT", "1"),
         ];
         let (report, calls) = check(&pairs, true, &file(0o644, KEY_FILE_TEXT), Ok(()));
         assert_eq!(

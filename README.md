@@ -248,7 +248,8 @@ uses the first source that is set:
 | The model name | `--model NAME` | `JAG_MODEL` | `config.model` |
 
 The default address is `https://api.typesafe.ai/v1`. The default model is
-`jev-1.13.0`. A blank value counts as not set. The address must be an `https`
+`jev-1.13.0`. The other settings are in [Settings](#settings). A blank value
+counts as not set. The address must be an `https`
 address, with no user name and no `?` or `#`. `http` is allowed only for
 `127.0.0.1`, `localhost`, and `[::1]`. jag adds `/v1` when the path of the
 address does not end with `/v1`.
@@ -296,6 +297,39 @@ command. For example, to store the TypeSafe key while a gateway is set:
 ```
 $ JAG_BASE_URL=https://api.typesafe.ai jag --setup
 ```
+
+## Settings
+
+You can set each setting that is not a key once, in `~/.config/jag/config.yml`,
+and not in each shell or job. For each setting, jag uses the first source that
+is set: the option, the variable, the config file, then the default.
+
+| Setting | Option | Variable | Config file | Default |
+|---|---|---|---|---|
+| The address | `--base-url URL` | `JAG_BASE_URL` | `config.base-url` | `https://api.typesafe.ai/v1` |
+| The model name | `--model NAME` | `JAG_MODEL` | `config.model` | `jev-1.13.0` |
+| The time of one call, in seconds | `--timeout N` | `JAG_TIMEOUT` | `config.timeout` | `4` |
+| The wait before the retry, in seconds | `--retry-wait N` | `JAG_RETRY_WAIT` | `config.retry-wait` | `1` |
+| The most results that the model scores | `--max-scored N` | `JAG_MAX_SCORED` | `config.max-scored` | `200` |
+| The most characters on standard output | `--max-chars N` | `JAG_MAX_CHARS` | `config.max-chars` | `20000` |
+
+```yaml
+config:
+  timeout: 10
+  retry-wait: 2
+  max-scored: 400
+  max-chars: 40000
+```
+
+A value in the config file follows the rules of its variable. A time is a
+whole number from 1 to 60. `max-scored` is a whole number from 1 to 2,000.
+`max-chars` is a whole number of 1,000 or more. A blank value counts as not
+set. A value that is not valid is a usage error with exit code 2. The message
+names the key and the file, and it does not show the value. An option or a
+variable that is set hides a bad value in the file. `--no-max-chars` turns the
+size limit off for one search. The file has no value for no limit.
+
+`jag --setup` and `jag --forget-key` keep these keys.
 
 ## Check that jag is ready
 
@@ -549,7 +583,8 @@ $ jag --ask="-v or --verbose?" verbose src
 - With no question, `--timeout`, `--retry-wait`, `--max-scored`,
   `--base-url`, and `--model` have no effect on the search. jag still checks
   their values before the search: a bad value is a usage error with exit code
-  2, and jag needs no key. jag reads none of the variables of these settings.
+  2, and jag needs no key. jag reads none of the variables and none of the
+  config file keys of these settings.
 
 ## Where jag searches
 
@@ -594,9 +629,10 @@ $ jag --max-chars 40000 --ask "QUESTION" TERM PATH...
 $ jag --no-max-chars TERM PATH...
 ```
 
-With `--ask` or `--json`, you can also set the variable `JAG_MAX_CHARS`. The
-option wins over the variable. With no question, jag does not read the
-variable. The smallest limit is 1,000. A value that is not a whole number of
+With `--ask` or `--json`, you can also set the variable `JAG_MAX_CHARS`, or
+`config.max-chars` in the config file (see [Settings](#settings)). The option
+wins over the variable, and the variable wins over the file. With no question
+and no `--json`, jag does not read the variable or the file. The smallest limit is 1,000. A value that is not a whole number of
 1,000 or more is a usage error with exit code 2. `--no-max-chars` turns the
 limit off.
 

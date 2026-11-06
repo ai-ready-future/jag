@@ -328,6 +328,46 @@ fn criterion_68_an_open_key_file_stops_a_question_search_and_not_plain_grep() {
     assert!(asked.stderr.contains("can be read by other users"));
 }
 
+// STORY-84, decision 9: `--json` with no question reads the config file only
+// when no option and no variable sets the size limit. Then the file checks
+// apply. A search with no question and no `--json` reads no file.
+#[test]
+fn json_with_no_question_stops_on_an_open_config_file_unless_the_limit_is_set() {
+    let root = example();
+    let home = folder();
+    let config = home.path().join(".config/jag");
+    std::fs::create_dir_all(&config).expect("make folder");
+    let file = config.join("config.yml");
+    std::fs::write(&file, "config:\n  api-key: SENTINEL-SENTINEL-SENTINEL\n").expect("write");
+    std::fs::set_permissions(&file, std::fs::Permissions::from_mode(0o644)).expect("mode");
+    let json = |extra: &[&str]| {
+        run_of(
+            jag_bare(home.path())
+                .current_dir(root.path())
+                .args(extra)
+                .args(["--json", "needle", "dir"])
+                .output()
+                .expect("run jag"),
+        )
+    };
+    let run = json(&[]);
+    assert_eq!(run.code, Some(3));
+    let document: Value = serde_json::from_str(&run.stdout).expect("one error document");
+    assert!(document.is_object());
+    assert!(!run.stdout.contains("SENTINEL"));
+    assert_eq!(json(&["--max-chars", "1000"]).code, Some(0));
+    assert_eq!(json(&["--no-max-chars"]).code, Some(0));
+    // No question and no `--json`: the file is not read.
+    let plain = run_of(
+        jag_bare(home.path())
+            .current_dir(root.path())
+            .args(["needle", "dir"])
+            .output()
+            .expect("run jag"),
+    );
+    assert_eq!(plain.code, Some(0));
+}
+
 #[test]
 fn criterion_68_the_variables_of_the_model_are_not_read() {
     let root = example();

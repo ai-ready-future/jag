@@ -83,3 +83,11 @@ pub fn write(root: &Path, relative: &str, bytes: &[u8]) {
     std::fs::create_dir_all(path.parent().expect("a file has a parent")).expect("make folders");
     std::fs::write(path, bytes).expect("write file");
 }
+
+/// Write `~/.config/jag/config.yml` under `home` with mode 0600.
+pub fn write_config(home: &Path, text: &str) {
+    use std::os::unix::fs::PermissionsExt;
+    write(home, ".config/jag/config.yml", text.as_bytes());
+    let path = home.join(".config/jag/config.yml");
+    std::fs::set_permissions(path, std::fs::Permissions::from_mode(0o600)).expect("set mode");
+}

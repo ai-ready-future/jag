@@ -52,6 +52,9 @@ fn check_with_key(server: &FakeServer, home: &Path, args: &[&str]) -> Run {
     finish(
         jag(home, &server.base_url())
             .env("JAG_MODEL", "jev-1.13.0")
+            // The times also read the config file, so a variable sets each.
+            .env("JAG_TIMEOUT", "4")
+            .env("JAG_RETRY_WAIT", "1")
             .arg("--check")
             .args(args),
         server,
@@ -64,6 +67,9 @@ fn check_without_key(server: &FakeServer, home: &Path, args: &[&str]) -> Run {
         jag_bare(home)
             .env("JAG_BASE_URL", server.base_url())
             .env("JAG_MODEL", "jev-1.13.0")
+            // The times also read the config file, so a variable sets each.
+            .env("JAG_TIMEOUT", "4")
+            .env("JAG_RETRY_WAIT", "1")
             .arg("--check")
             .args(args),
         server,

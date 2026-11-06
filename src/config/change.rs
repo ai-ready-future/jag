@@ -8,10 +8,36 @@ use std::path::{Path, PathBuf};
 use std::fmt;
 
 use super::fs::TEMP_PREFIX;
+use super::limit::{DEFAULT_COST_LIMIT, DEFAULT_SIZE_LIMIT};
+use super::model::{DEFAULT_BASE_URL, DEFAULT_MODEL, DEFAULT_RETRY_WAIT, DEFAULT_TIMEOUT};
 use super::{
     ConfigError, Env, File, Fs, StrictFile, has_yaml_content, open_key_file, parse_loose,
     read_open_file,
 };
+
+/// The non-secret settings that the file can hold under `config:`, in the
+/// order of the file, each with its default (ADR-0029). A later story that
+/// adds a setting adds 1 row here. STORY-85 writes the comment lines from it.
+pub(crate) fn setting_table() -> [(&'static str, String); 6] {
+    [
+        ("base-url", DEFAULT_BASE_URL.to_owned()),
+        ("model", DEFAULT_MODEL.to_owned()),
+        ("timeout", DEFAULT_TIMEOUT.as_secs().to_string()),
+        ("retry-wait", DEFAULT_RETRY_WAIT.as_secs().to_string()),
+        ("max-scored", DEFAULT_COST_LIMIT.to_string()),
+        ("max-chars", DEFAULT_SIZE_LIMIT.to_string()),
+    ]
+}
+
+/// The 8 keys that the file can hold, as the text of a list: `config.api-key,
+/// config.gateway-api-key, ..., and config.max-chars`.
+pub(crate) fn key_list_text() -> String {
+    let mut names = vec!["api-key", "gateway-api-key"];
+    names.extend(setting_table().map(|(name, _)| name));
+    let (last, first) = names.split_last().expect("the list has keys");
+    let first: Vec<String> = first.iter().map(|name| format!("config.{name}")).collect();
+    format!("{}, and config.{last}", first.join(", "))
+}
 
 /// The values of the file, to write them again. A blank or empty value counts
 /// as not set. `Debug` shows only which values are set, because two of them
@@ -22,9 +48,27 @@ pub struct FileValues {
     pub gateway_api_key: Option<String>,
     pub base_url: Option<String>,
     pub model: Option<String>,
+    pub timeout: Option<String>,
+    pub retry_wait: Option<String>,
+    pub max_scored: Option<String>,
+    pub max_chars: Option<String>,
 }
 
 impl FileValues {
+    /// Each key of the file with its value, in the order of the file.
+    fn entries(&self) -> [(&'static str, &Option<String>); 8] {
+        [
+            ("api-key", &self.api_key),
+            ("gateway-api-key", &self.gateway_api_key),
+            ("base-url", &self.base_url),
+            ("model", &self.model),
+            ("timeout", &self.timeout),
+            ("retry-wait", &self.retry_wait),
+            ("max-scored", &self.max_scored),
+            ("max-chars", &self.max_chars),
+        ]
+    }
+
     /// The values of a parse, as the file gives them: no trim and no check.
     fn of(file: &File) -> FileValues {
         let Some(section) = &file.config else {
@@ -41,6 +85,10 @@ impl FileValues {
             gateway_api_key: kept(&section.gateway_api_key),
             base_url: kept(&section.base_url),
             model: kept(&section.model),
+            timeout: kept(&section.timeout),
+            retry_wait: kept(&section.retry_wait),
+            max_scored: kept(&section.max_scored),
+            max_chars: kept(&section.max_chars),
         }
     }
 
@@ -58,6 +106,10 @@ impl fmt::Debug for FileValues {
             .field("gateway_api_key", &set(&self.gateway_api_key))
             .field("base_url", &set(&self.base_url))
             .field("model", &set(&self.model))
+            .field("timeout", &set(&self.timeout))
+            .field("retry_wait", &set(&self.retry_wait))
+            .field("max_scored", &set(&self.max_scored))
+            .field("max_chars", &set(&self.max_chars))
             .finish()
     }
 }
@@ -159,12 +211,7 @@ fn random_u64() -> u64 {
 /// set, in a fixed order.
 fn file_text(values: &FileValues) -> String {
     let mut text = String::from("config:\n");
-    for (name, value) in [
-        ("api-key", &values.api_key),
-        ("gateway-api-key", &values.gateway_api_key),
-        ("base-url", &values.base_url),
-        ("model", &values.model),
-    ] {
+    for (name, value) in values.entries() {
         if let Some(value) = value {
             text.push_str(&format!("  {name}: {}\n", yaml_scalar(value)));
         }
@@ -432,6 +479,10 @@ mod tests {
             gateway_api_key: Some("gateway-key".to_owned()),
             base_url: Some("https://openrouter.ai/api".to_owned()),
             model: Some("~typesafe/jev-latest".to_owned()),
+            timeout: Some("9".to_owned()),
+            retry_wait: Some("3".to_owned()),
+            max_scored: Some("50".to_owned()),
+            max_chars: Some("5000".to_owned()),
         }
     }
 
@@ -440,7 +491,7 @@ mod tests {
         assert_eq!(
             file_text(&all_values()),
             format!(
-                "config:\n  api-key: {SENTINEL_KEY}\n  gateway-api-key: gateway-key\n  base-url: \"https://openrouter.ai/api\"\n  model: \"~typesafe/jev-latest\"\n"
+                "config:\n  api-key: {SENTINEL_KEY}\n  gateway-api-key: gateway-key\n  base-url: \"https://openrouter.ai/api\"\n  model: \"~typesafe/jev-latest\"\n  timeout: \"9\"\n  retry-wait: \"3\"\n  max-scored: \"50\"\n  max-chars: \"5000\"\n"
             )
         );
         assert_eq!(
@@ -450,6 +501,77 @@ mod tests {
             }),
             "config:\n  base-url: \"https://openrouter.ai/api\"\n"
         );
+    }
+
+    // Row 5: the 4 numbers are plain text. A tagged number or a list is a YAML
+    // error, as for the other keys.
+    #[test]
+    fn a_number_key_is_read_as_text_and_a_tagged_number_or_a_list_is_refused() {
+        let home = tempfile::tempdir().unwrap();
+        write_file(
+            home.path(),
+            "config:\n  timeout: 4\n  max-chars: 05000\n",
+            0o600,
+        );
+        let (_, state) = load(Some(home.path())).unwrap();
+        assert_eq!(state.values.timeout.as_deref(), Some("4"));
+        assert_eq!(state.values.max_chars.as_deref(), Some("05000"));
+        for text in ["config:\n  timeout: !!int 4\n", "config:\n  timeout: [4]\n"] {
+            write_file(home.path(), text, 0o600);
+            let error = load(Some(home.path())).unwrap_err();
+            assert!(matches!(error, ConfigError::KeyFileBad { .. }), "{text}");
+            assert_eq!(crate::failure::Failure::from(error).exit_code, 3);
+        }
+    }
+
+    // Row 11: the table of the settings, the strict parse, and `FileValues`.
+    #[test]
+    fn each_key_of_the_table_passes_the_strict_parse_and_has_a_file_value() {
+        let table = setting_table();
+        assert_eq!(
+            table.iter().map(|(name, _)| *name).collect::<Vec<_>>(),
+            [
+                "base-url",
+                "model",
+                "timeout",
+                "retry-wait",
+                "max-scored",
+                "max-chars"
+            ]
+        );
+        let entries: Vec<&str> = FileValues::default()
+            .entries()
+            .iter()
+            .map(|e| e.0)
+            .collect();
+        for (name, default) in &table {
+            assert!(entries.contains(name), "{name} has no field in FileValues");
+            let home = tempfile::tempdir().unwrap();
+            write_file(home.path(), &format!("config:\n  {name}: x\n"), 0o600);
+            let (_, state) = load(Some(home.path())).unwrap();
+            let value = state
+                .values
+                .entries()
+                .iter()
+                .find(|entry| entry.0 == *name)
+                .and_then(|entry| entry.1.clone());
+            assert_eq!(value.as_deref(), Some("x"), "{name}");
+            assert!(!default.is_empty(), "{name}");
+        }
+        assert_eq!(table[2].1, "4");
+        assert_eq!(table[3].1, "1");
+        assert_eq!(table[4].1, "200");
+        assert_eq!(table[5].1, "20000");
+    }
+
+    #[test]
+    fn the_other_keys_text_names_the_8_keys() {
+        let home = tempfile::tempdir().unwrap();
+        write_file(home.path(), "config:\n  other: 1\n", 0o600);
+        let error = load(Some(home.path())).unwrap_err();
+        let cause = crate::failure::Failure::from(error).cause;
+        let keys = "config.api-key, config.gateway-api-key, config.base-url, config.model, config.timeout, config.retry-wait, config.max-scored, and config.max-chars.";
+        assert!(cause.ends_with(keys), "{cause}");
     }
 
     #[test]

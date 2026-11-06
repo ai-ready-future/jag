@@ -10,9 +10,10 @@ sources:
 - resource: prd:/decisions/DECISION-80.md
 - resource: roadmap:/stories/STORY-91.md
 - resource: roadmap:/stories/STORY-93.md
+- resource: roadmap:/stories/STORY-96.md
 generated:
   by: claude-code/sonnet-5.5
-  at: '2026-11-06T07:09:10Z'
+  at: '2026-11-06T13:08:34Z'
 ---
 
 # D-018: STORY-91 and STORY-93 do not wait for STORY-96
@@ -34,7 +35,7 @@ No.
 ## Pages used
 
 - Product decisions: DECISION-42, DECISION-74, DECISION-79, DECISION-80.
-- Roadmap: STORY-91, STORY-93, and STORY-96. STORY-96 is in the open PR #375. Cite the page on `main` after the merge.
+- Roadmap: STORY-91, STORY-93, and STORY-96. STORY-96 is on `main` (merged in commit 4fe2d69 with FEATURE-32).
 
 <!-- LINKS:START (generated, do not edit) -->
 
@@ -46,4 +47,5 @@ No.
 - sources: [prd:/decisions/DECISION-80.md](../../../product/prd/decisions/DECISION-80.md)
 - sources: [roadmap:/stories/STORY-91.md](../../../product/roadmap/stories/STORY-91.md)
 - sources: [roadmap:/stories/STORY-93.md](../../../product/roadmap/stories/STORY-93.md)
+- sources: [roadmap:/stories/STORY-96.md](../../../product/roadmap/stories/STORY-96.md)
 <!-- LINKS:END -->

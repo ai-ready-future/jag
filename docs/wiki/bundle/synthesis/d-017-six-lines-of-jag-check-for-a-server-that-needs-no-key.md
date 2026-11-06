@@ -43,7 +43,7 @@ The other routes keep 5 lines.
 
 - Product decisions: DECISION-75, DECISION-04, DECISION-48. Question: QUESTION-04.
 - STORY-06 spec, decisions 12 and 16.
-- STORY-86 spec, row 9 (PR #374). The PR is not merged yet. Cite the spec on `main` after the merge.
+- STORY-86 spec, row 9, on `main`: `docs/superpowers/specs/2026-11-05-STORY-86-call-the-gateway-base-url-with-no-key-design.md` (merged in commit 082eca7). The row holds this decision.
 
 <!-- LINKS:START (generated, do not edit) -->
 

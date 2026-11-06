@@ -9,7 +9,7 @@ use std::time::Duration;
 
 use ureq::http::Uri;
 
-use super::{ConfigError, ConfigFile, Env};
+use super::{ConfigError, ConfigFile, Env, Section, file_setting};
 
 pub const BASE_URL_VARIABLE: &str = "JAG_BASE_URL";
 pub const MODEL_VARIABLE: &str = "JAG_MODEL";
@@ -43,7 +43,8 @@ pub enum TimeSetting {
     RetryWait,
 }
 
-/// Where a value of a setting came from, for a setting that has no file key.
+/// Where a value of an option or a variable came from. The file has its own
+/// errors, which name the path.
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
 pub enum SettingSource {
     Option,
@@ -198,16 +199,20 @@ pub fn model_settings(
     let (model, model_origin) = model(env, file, options)?;
     let timeout = time(
         env,
+        file,
         options.times.0,
         TIMEOUT_VARIABLE,
         TimeSetting::Timeout,
+        |section| section.timeout.as_ref(),
         DEFAULT_TIMEOUT,
     )?;
     let retry_wait = time(
         env,
+        file,
         options.times.1,
         RETRY_WAIT_VARIABLE,
         TimeSetting::RetryWait,
+        |section| section.retry_wait.as_ref(),
         DEFAULT_RETRY_WAIT,
     )?;
     let route = route_of(&base_url);
@@ -284,31 +289,40 @@ fn model(
     Ok((DEFAULT_MODEL.to_owned(), Origin::Default))
 }
 
-/// The option, else the variable, else the default.
+/// The option, else the variable, else the key of the config file, else the
+/// default. A blank variable, or a blank value in the file, counts as not set.
+/// jag opens the file only at the third step (decision 8).
 fn time(
     env: &Env,
+    file: &ConfigFile,
     option: Option<Duration>,
     name: &str,
     setting: TimeSetting,
+    pick: fn(&Section) -> Option<&String>,
     default: Duration,
 ) -> Result<Duration, ConfigError> {
     if let Some(option) = option {
         return Ok(option);
     }
-    match (env.vars)(name) {
-        None => Ok(default),
-        Some(value) => {
-            let bad = ConfigError::TimeBad {
-                setting,
-                source: SettingSource::Variable,
-            };
-            let text = value.to_str().ok_or(bad)?;
-            if text.trim().is_empty() {
-                return Ok(default);
-            }
-            parse_seconds(text, setting, SettingSource::Variable)
+    if let Some(value) = (env.vars)(name) {
+        let bad = ConfigError::TimeBad {
+            setting,
+            source: SettingSource::Variable,
+        };
+        let text = value.to_str().ok_or(bad)?;
+        if !text.trim().is_empty() {
+            return parse_seconds(text, setting, SettingSource::Variable);
         }
     }
+    if let Some((path, text)) = file_setting(file, pick)? {
+        return parse_seconds(text, setting, SettingSource::Variable).map_err(|_| {
+            ConfigError::FileTimeBad {
+                setting,
+                path: path.to_owned(),
+            }
+        });
+    }
+    Ok(default)
 }
 
 /// The trimmed text of a variable, or `None` when it is not set or blank. A
@@ -355,7 +369,7 @@ mod tests {
     use std::path::Path;
 
     use super::super::RealFs;
-    use super::super::testing::{vars, write_file};
+    use super::super::testing::{home_with, vars, write_file};
     use super::*;
 
     fn run(
@@ -389,13 +403,6 @@ mod tests {
             ..SettingOptions::default()
         };
         run(pairs, Some(Path::new("/nowhere")), &options)
-    }
-
-    /// A home with a config file of this text and mode 0600.
-    fn home_with(text: &str) -> tempfile::TempDir {
-        let home = tempfile::tempdir().expect("temporary folder");
-        write_file(home.path(), text, 0o600);
-        home
     }
 
     #[test]
@@ -660,8 +667,11 @@ mod tests {
         let both = [
             (BASE_URL_VARIABLE, "https://gw.example.com"),
             (MODEL_VARIABLE, "m"),
+            (TIMEOUT_VARIABLE, "5"),
+            (RETRY_WAIT_VARIABLE, "2"),
         ];
         assert!(run(&both, Some(home.path()), &SettingOptions::default()).is_ok());
+        // The 2 times also read the file, so a variable must set each.
         let one = [(BASE_URL_VARIABLE, "https://gw.example.com")];
         assert!(matches!(
             run(&one, Some(home.path()), &SettingOptions::default()),
@@ -796,5 +806,133 @@ mod tests {
                 source: SettingSource::Variable
             })
         );
+    }
+
+    fn file_time_bad(home: &Path, setting: TimeSetting) -> ConfigError {
+        ConfigError::FileTimeBad {
+            setting,
+            path: home.join(".config").join("jag").join("config.yml"),
+        }
+    }
+
+    fn timeout_of(
+        pairs: &[(&str, &str)],
+        home: &Path,
+        option: Option<Duration>,
+    ) -> Result<Duration, ConfigError> {
+        run(
+            pairs,
+            Some(home),
+            &SettingOptions {
+                times: (option, None),
+                ..SettingOptions::default()
+            },
+        )
+        .map(|settings| settings.times.timeout)
+    }
+
+    // CRITERION-151: the option, the variable, the file, then the default.
+    #[test]
+    fn the_timeout_comes_from_the_option_then_the_variable_then_the_file_then_the_default() {
+        let file = home_with("config:\n  timeout: 30\n  retry-wait: 7\n");
+        let secs = Duration::from_secs;
+        let variable = [(TIMEOUT_VARIABLE, "20")];
+        assert_eq!(timeout_of(&[], file.path(), Some(secs(10))), Ok(secs(10)));
+        assert_eq!(
+            timeout_of(&variable, file.path(), Some(secs(10))),
+            Ok(secs(10))
+        );
+        assert_eq!(timeout_of(&variable, file.path(), None), Ok(secs(20)));
+        assert_eq!(timeout_of(&[], file.path(), None), Ok(secs(30)));
+        // A blank variable counts as not set.
+        assert_eq!(
+            timeout_of(&[(TIMEOUT_VARIABLE, " ")], file.path(), None),
+            Ok(secs(30))
+        );
+        let settings = run(&[], Some(file.path()), &SettingOptions::default()).expect("settings");
+        assert_eq!(settings.times.retry_wait, secs(7));
+        let nowhere = Path::new("/nowhere");
+        assert_eq!(timeout_of(&[], nowhere, None), Ok(DEFAULT_TIMEOUT));
+    }
+
+    #[test]
+    fn a_bad_time_in_the_file_is_refused_and_a_higher_source_hides_it() {
+        for text in ["abc", "0", "61", "1.5", "4.0", "0x0A", "-1", "1e1", "2_0"] {
+            let home = home_with(&format!("config:\n  timeout: {text}\n"));
+            assert_eq!(
+                timeout_of(&[], home.path(), None),
+                Err(file_time_bad(home.path(), TimeSetting::Timeout)),
+                "{text}"
+            );
+            // An option, or a variable, hides the bad value.
+            assert_eq!(
+                timeout_of(&[], home.path(), Some(Duration::from_secs(3))),
+                Ok(Duration::from_secs(3))
+            );
+            assert_eq!(
+                timeout_of(&[(TIMEOUT_VARIABLE, "5")], home.path(), None),
+                Ok(Duration::from_secs(5))
+            );
+            let home = home_with(&format!("config:\n  retry-wait: {text}\n"));
+            let result = run(&[], Some(home.path()), &SettingOptions::default());
+            assert_eq!(
+                result.unwrap_err(),
+                file_time_bad(home.path(), TimeSetting::RetryWait),
+                "{text}"
+            );
+            let hidden = [(RETRY_WAIT_VARIABLE, "2")];
+            assert!(run(&hidden, Some(home.path()), &SettingOptions::default()).is_ok());
+        }
+    }
+
+    // The text rules of the file are the text rules of the variable.
+    #[test]
+    fn the_text_rules_of_a_time_in_the_file() {
+        let secs = Duration::from_secs;
+        for (line, expected) in [
+            ("timeout: 4", secs(4)),
+            ("timeout: 04", secs(4)),
+            ("timeout: \"9\"", secs(9)),
+            ("timeout:", DEFAULT_TIMEOUT),
+            ("timeout: ~", DEFAULT_TIMEOUT),
+            ("timeout: null", DEFAULT_TIMEOUT),
+            ("timeout: \"  \"", DEFAULT_TIMEOUT),
+            ("# timeout: 9", DEFAULT_TIMEOUT),
+        ] {
+            let home = home_with(&format!("config:\n  {line}\n"));
+            assert_eq!(timeout_of(&[], home.path(), None), Ok(expected), "{line}");
+        }
+    }
+
+    // CRITERION-152: a file with only comment lines gives each default.
+    #[test]
+    fn a_file_with_only_comment_lines_gives_each_default() {
+        let home = home_with(
+            "config:\n  # base-url: https://api.typesafe.ai/v1\n  # model: jev-1.13.0\n  # timeout: 9\n  # retry-wait: 9\n",
+        );
+        let settings = run(&[], Some(home.path()), &SettingOptions::default()).expect("settings");
+        assert_eq!(settings.base_url_origin, Origin::Default);
+        assert_eq!(settings.model_origin, Origin::Default);
+        assert_eq!(settings.times, Times::default());
+    }
+
+    #[test]
+    fn the_file_error_texts_name_the_key_and_never_show_the_value() {
+        use crate::failure::Failure;
+        let home = home_with("config:\n  timeout: SENTINEL-1\n  retry-wait: SENTINEL-2\n");
+        let timeout = timeout_of(&[], home.path(), None).unwrap_err();
+        let retry = run(
+            &[(TIMEOUT_VARIABLE, "5")],
+            Some(home.path()),
+            &SettingOptions::default(),
+        )
+        .unwrap_err();
+        for (error, key) in [(timeout, "config.timeout"), (retry, "config.retry-wait")] {
+            let failure = Failure::from(error);
+            assert_eq!(failure.exit_code, 2);
+            assert!(failure.cause.starts_with(key), "{}", failure.cause);
+            assert!(failure.fix.contains(key), "{}", failure.fix);
+            assert!(!failure.cause.contains("SENTINEL") && !failure.fix.contains("SENTINEL"));
+        }
     }
 }
