@@ -27,3 +27,6 @@ source	relation	target
 /synthesis/story-45-test-the-labeling-rule-on-the-development-set-first.md	sources	prd:/metrics/METRIC-01.md
 /synthesis/story-45-test-the-labeling-rule-on-the-development-set-first.md	sources	roadmap:/stories/STORY-45.md
 /synthesis/story-77-fork-prs-need-an-approval-before-the-private-data-scan.md	sources	roadmap:/stories/STORY-77.md
+/synthesis/story-81-exit-6-the-scoring-deadline-the-timeout-settings-and-the-size-of-a-call.md	sources	roadmap:/stories/STORY-13.md
+/synthesis/story-81-exit-6-the-scoring-deadline-the-timeout-settings-and-the-size-of-a-call.md	sources	roadmap:/stories/STORY-81.md
+/synthesis/story-81-exit-6-the-scoring-deadline-the-timeout-settings-and-the-size-of-a-call.md	sources	roadmap:/stories/STORY-84.md
