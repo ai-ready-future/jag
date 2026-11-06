@@ -93,6 +93,7 @@ generated:
 * [STORY-82: Limit the keys of the merge ref step in the private-data test](STORY-82.md) - As a maintainer, I want the private-data test to fail when the merge ref step gets a key other than name, if, env or run, so that the step cannot change without a test failure.
 * [STORY-83: Install jag from a local clone with cargo, guided by chores](STORY-83.md) - As the maintainer, I want the chores session to guide me through the install of jag with cargo from a local clone, so that I can run the jag of the current code on my machine.
 * [STORY-84: Set each non-secret setting in the config file](STORY-84.md) - As an agent builder, I want each non-secret setting of jag as a key in the config file, so that I set it one time, and not in each shell or job.
+* [STORY-85: jag --setup shows each missing setting as a comment line with its default](STORY-85.md) - As an agent builder, I want jag --setup to show each non-secret setting in the config file as a comment line with its default, so that I see each setting.
 * [STORY-86: Call the gateway base URL with no key when the user sets no gateway key](STORY-86.md) - As an operator, I want jag to call my model server with no key when I set no gateway key, so that a server with no key check works with no extra setting.
 
 ## MILESTONE-03: Make it fast

@@ -5,7 +5,7 @@ description: The features that are done or cancelled.
 status: stable
 generated:
   by: process:prd-regen
-  at: '1970-01-01T00:00:00Z'
+  at: '2026-11-05T20:31:09Z'
 ---
 
 # Closed features
@@ -39,6 +39,7 @@ generated:
 * [FEATURE-25: Copy the same teaching as a snippet](FEATURE-25.md) - For an agent that can't install a skill, the agent builder copies a snippet that holds the same teaching as the jag skill.
 * [FEATURE-26: Prove that an agent with the skill uses jag well](FEATURE-26.md) - A repeatable test runs an agent with the jag skill and shows that it uses jag in place of rg, sets the limit, reads the results, and gives the user the cause and the fix when jag fails.
 * [FEATURE-28: A maintainer approves the private-data check of a fork pull request](FEATURE-28.md) - The private-data check of a fork pull request runs only after a maintainer approves each run, and the required check stops the merge until an approved run passes.
+* [FEATURE-29: The config file holds each non-secret setting, and setup shows each default](FEATURE-29.md) - The user sets each non-secret setting of jag in the config file one time, and jag --setup shows each missing setting as a comment line with its default.
 
 ## MILESTONE-03: Make it fast
 
