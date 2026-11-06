@@ -7,7 +7,7 @@ status: draft
 generated:
   by: prd/6.2.1
   at: '2026-11-05T20:31:09Z'
-state: backlog
+state: ready
 github:
   number: 348
   node_id: I_kwDOVKMnL88AAAABc2medg
@@ -33,7 +33,7 @@ The rule of the user: each non-secret setting that jag accepts as a parameter (a
 - STORY-84: the config file holds each non-secret setting.
 - STORY-85: `jag --setup` shows each missing setting as a comment line with its default.
 
-This feature changes the contract of the config file. ADR-0015 says that jag writes no other setting to the file, and DF-1 of the system design keeps the times and the limits out of the file. The architect changes ADR-0015 and DF-1 before the build. The 2 stories stay in `backlog` until that ADR change merges.
+This feature changes the contract of the config file. ADR-0015 says that jag writes no other setting to the file, and DF-1 of the system design keeps the times and the limits out of the file. ADR-0029 (PR #352, merged 2026-11-05) amends ADR-0015 and DF-1 for this feature, so the build can start.
 
 <!-- STATUS:START (generated, do not edit) -->
 
@@ -41,8 +41,8 @@ This feature changes the contract of the config file. ADR-0015 says that jag wri
 
 | Item | State | Progress | Owner | Blocked by | Drift |
 | --- | --- | --- | --- | --- | --- |
-| [STORY-84: Set each non-secret setting in the config file](../stories/STORY-84.md) | ready | - | - | - | - |
-| [STORY-85: jag --setup shows each missing setting as a comment line with its default](../stories/STORY-85.md) | blocked | - | - | STORY-84 | - |
+| [STORY-84: Set each non-secret setting in the config file](../stories/STORY-84.md) | done | - | - | - | - |
+| [STORY-85: jag --setup shows each missing setting as a comment line with its default](../stories/STORY-85.md) | ready | - | - | STORY-84 | - |
 <!-- STATUS:END -->
 
 <!-- LINKS:START (generated, do not edit) -->

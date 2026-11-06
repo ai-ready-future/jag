@@ -32,7 +32,7 @@ One roadmap bundle is one GitHub Project. The Project is
 | [EPIC-06: An agent uses jag well](../epics/EPIC-06.md) | done | 3/3 (100%) | - | - | - |
 | [EPIC-07: Local model option](../epics/EPIC-07.md) | backlog | 0/3 (0%) | - | - | - |
 | [MILESTONE-01: Make it work](../milestones/MILESTONE-01.md) | - | 36/38 (94%) | - | - | - |
-| [MILESTONE-02: Make it good](../milestones/MILESTONE-02.md) | - | 65/78 (83%) | - | - | - |
+| [MILESTONE-02: Make it good](../milestones/MILESTONE-02.md) | - | 66/78 (84%) | - | - | - |
 | [MILESTONE-03: Make it fast](../milestones/MILESTONE-03.md) | - | 2/2 (100%) | - | - | - |
 | [MILESTONE-04: Local model option](../milestones/MILESTONE-04.md) | - | 0/14 (0%) | - | - | - |
 <!-- STATUS:END -->

@@ -7,7 +7,8 @@ status: draft
 generated:
   by: prd/6.2.1
   at: '2026-11-05T20:31:09Z'
-state: ready
+state: done
+actual_end_date: '2026-11-06'
 github:
   number: 349
   node_id: I_kwDOVKMnL88AAAABc2mlpg
@@ -52,6 +53,16 @@ Not settings, so not in scope: the keys (`config.api-key`, `config.gateway-api-k
 A setting that a later story adds with an option and a `JAG_` variable (for example the setting of DECISION-80 that turns off the private-pattern check) also gets a file key and a comment line, by the rule of the user.
 
 The spec decides the file form of "no limit" for `config.max-chars`.
+
+## Result
+
+STORY-84 is done on 2026-11-06:
+
+- Code: PR #385 (merge `7efc286`), with 4 approvals (reviewer, verifier, security, code-quality). Decisions D-020 and D-021.
+- Product proof: the verifier ran the release build in Docker with a temporary home folder and fake model servers. Each of the 4 new file keys sets its value. The order is option, then variable, then file, then default. A bad value gives exit 2. The verifier also ran `--setup` in a terminal, `--forget-key` and `--check` ([comment](https://github.com/ai-ready-future/jag/pull/385#issuecomment-6686468548)).
+- e2e tests: PR #387 (merge `9bb3ebf`).
+
+Decision D-021: a search with `--ask` now reads the config file for the times and the sizes. If the key, the base URL and the model come from variables, but no time or size variable is set, and other users can read the config file, the search stops with exit 3. The fix is `chmod 600` on the file, or set `JAG_TIMEOUT`, `JAG_RETRY_WAIT`, `JAG_MAX_SCORED` and `JAG_MAX_CHARS`.
 
 <!-- STATUS:START (generated, do not edit) -->
 

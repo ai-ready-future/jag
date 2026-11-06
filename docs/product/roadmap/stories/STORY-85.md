@@ -7,7 +7,7 @@ status: draft
 generated:
   by: prd/6.2.1
   at: '2026-11-05T20:31:09Z'
-state: blocked
+state: ready
 github:
   number: 350
   node_id: I_kwDOVKMnL88AAAABc2mtIQ
