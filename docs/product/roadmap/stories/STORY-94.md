@@ -13,9 +13,9 @@ github:
   number: 369
   node_id: I_kwDOVKMnL88AAAABc5GO-w
   url: https://github.com/ai-ready-future/jag/issues/369
-  pushed_hash: 5758fd
   synced:
     state: backlog
+  pushed_hash: 26eac8
 parent: /features/FEATURE-31.md
 blocked_by:
 - /stories/STORY-91.md
