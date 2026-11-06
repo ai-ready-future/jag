@@ -247,3 +247,22 @@ fn a_bad_value_of_a_settings_key_is_never_shown() {
         assert_never_shows_the_key(command, 2);
     }
 }
+
+// STORY-85: a key in a file that jag cannot change is never in the output.
+#[test]
+fn a_key_in_a_file_that_is_not_editable_is_never_shown() {
+    let home = tempfile::tempdir().unwrap();
+    write_key_file(
+        home.path(),
+        "config: {api-key: SENTINEL-SENTINEL-SENTINEL, model: m}\n",
+        0o600,
+    );
+    let mut command = jag(home.path());
+    command.arg("--forget-key");
+    assert_never_shows_the_key(command, 2);
+    let mut command = jag(home.path());
+    command
+        .arg("--setup")
+        .write_stdin("SENTINEL-SENTINEL-SENTINEL\n");
+    assert_never_shows_the_key(command, 2);
+}

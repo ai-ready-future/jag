@@ -319,3 +319,45 @@ fn forget_key_keeps_the_keys_of_the_settings() {
         jag::config::model_settings(&env, &file, &jag::config::SettingOptions::default()).unwrap();
     assert_eq!(settings.times.timeout, std::time::Duration::from_secs(9));
 }
+
+const COMMENT_LINES: &str = "  # base-url: https://api.typesafe.ai/v1\n  # model: jev-1.13.0\n  # timeout: 4\n  # retry-wait: 1\n  # max-scored: 200\n  # max-chars: 20000\n";
+
+// CRITERION-152: `--forget-key` keeps each comment line and adds none.
+#[test]
+fn forget_key_keeps_each_comment_line() {
+    let home = tempfile::tempdir().unwrap();
+    write_key_file(
+        home.path(),
+        &format!("config:\n  api-key: SENTINEL-SENTINEL-SENTINEL\n{COMMENT_LINES}"),
+    );
+    jag(home.path()).arg("--forget-key").assert().code(0);
+    let text = std::fs::read_to_string(key_path(home.path())).unwrap();
+    assert_eq!(text, format!("config:\n{COMMENT_LINES}"));
+    // A file with only the key line is removed.
+    write_key_file(
+        home.path(),
+        "config:\n  api-key: SENTINEL-SENTINEL-SENTINEL\n",
+    );
+    jag(home.path()).arg("--forget-key").assert().code(0);
+    assert!(!key_path(home.path()).exists());
+}
+
+// STORY-85 row 18: a file in another form stops `--forget-key` with exit 2,
+// and the file stays as it is.
+#[test]
+fn a_file_in_another_form_stops_forget_key_with_exit_2() {
+    let home = tempfile::tempdir().unwrap();
+    let text = "config: {api-key: SENTINEL-SENTINEL-SENTINEL, model: m}\n";
+    write_key_file(home.path(), text);
+    jag(home.path())
+        .arg("--forget-key")
+        .assert()
+        .code(2)
+        .stdout(predicate::str::is_empty())
+        .stderr(predicate::str::contains("not in the form that jag writes"))
+        .stderr(predicate::str::contains("SENTINEL").not());
+    assert_eq!(
+        std::fs::read_to_string(key_path(home.path())).unwrap(),
+        text
+    );
+}
