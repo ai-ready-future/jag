@@ -715,8 +715,9 @@ fn search(
     // read at most once.
     let file = ConfigFile::new(env, &RealFs);
     let settings = model_settings(env, &file, &args.settings).map_err(Failure::from)?;
-    let (key, _source) =
-        find_key(env, &file, settings.route, &settings.base_url_origin).map_err(Failure::from)?;
+    let key = find_key(env, &file, settings.route)
+        .map_err(Failure::from)?
+        .map(|(key, _source)| key);
     let limit = cost_limit(env, &file, args.cost_limit).map_err(Failure::from)?;
     let size = size_limit(env, &file, args.size_limit)
         .map_err(Failure::from)?
@@ -786,7 +787,7 @@ fn search(
         score_with_usage(
             &snippets,
             question,
-            &key,
+            key.as_ref(),
             &score_settings,
             stop.flag(),
             &|count| progress.advance(count),

@@ -54,7 +54,7 @@ fn run(
     score(
         snippets,
         "which one answers?",
-        &key,
+        Some(&key),
         settings,
         &AtomicBool::new(false),
         &|_| {},
@@ -134,6 +134,54 @@ fn the_key_goes_only_in_the_authorization_header() {
         if name != "authorization" {
             assert!(!value.contains("SENTINEL"), "key in header {name}");
         }
+    }
+}
+
+/// `run`, with no key.
+fn run_no_key(snippets: &[Snippet], settings: &ScoreSettings) -> Result<Vec<f64>, ScoreError> {
+    score(
+        snippets,
+        "which one answers?",
+        None,
+        settings,
+        &AtomicBool::new(false),
+        &|_| {},
+    )
+}
+
+#[test]
+fn a_call_with_no_key_sends_the_same_headers_less_authorization() {
+    let with_key = FakeServer::constant(0.5);
+    run(&with_key, &snippets(3), &settings(&with_key)).expect("scores");
+    let without_key = FakeServer::constant(0.5);
+    run_no_key(&snippets(3), &settings(&without_key)).expect("scores");
+
+    let names = |server: &FakeServer| -> Vec<String> {
+        let requests = server.requests();
+        assert_eq!(requests.len(), 1);
+        let mut names: Vec<String> = requests[0]
+            .headers
+            .iter()
+            .map(|(name, _)| name.clone())
+            .filter(|name| name != "authorization" && name != "host")
+            .collect();
+        names.sort();
+        names
+    };
+    assert_eq!(names(&with_key), names(&without_key));
+    let request = &without_key.requests()[0];
+    assert_eq!(request.header("authorization"), None);
+    assert_eq!(request.header("content-type"), Some("application/json"));
+    assert_eq!(with_key.requests()[0].body_text(), request.body_text());
+}
+
+#[test]
+fn a_401_or_a_403_to_a_call_with_no_key_is_key_needed_with_no_retry() {
+    for status in [401, 403] {
+        let server = FakeServer::start(move |_| Reply::status(status));
+        let error = run_no_key(&snippets(1), &settings(&server)).unwrap_err();
+        assert_eq!(error, ScoreError::KeyNeeded { status });
+        assert_eq!(server.requests().len(), 1, "no retry");
     }
 }
 
@@ -260,7 +308,7 @@ fn no_connection_gives_exit_6() {
     let error = score(
         &snippets(1),
         "q",
-        &key,
+        Some(&key),
         &settings,
         &AtomicBool::new(false),
         &|_| {},
@@ -475,7 +523,7 @@ fn the_usage_holds_each_answered_attempt_also_after_a_failure() {
     let error = score_with_usage(
         &snippets(224),
         "which one answers?",
-        &key,
+        Some(&key),
         &settings(&server),
         &AtomicBool::new(false),
         &|_| {},
@@ -499,7 +547,7 @@ fn run_with(
     score(
         snippets,
         "which one answers?",
-        &key,
+        Some(&key),
         settings,
         stop,
         on_call_end,

@@ -377,7 +377,8 @@ mod tests {
             home: Some(home.to_owned()),
         };
         let file = ConfigFile::new(&env, &RealFs);
-        find_key(&env, &file, Route::Direct, &Origin::Default)
+        find_key(&env, &file, Route::Direct)
+            .map(|found| found.expect("the direct route gives a key or an error"))
             .map(|(key, source)| (key.expose().to_owned(), source))
     }
 

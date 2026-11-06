@@ -7,7 +7,7 @@ use std::os::unix::fs::PermissionsExt;
 use std::path::{Path, PathBuf};
 
 use assert_cmd::Command;
-use jag::config::{ConfigError, ConfigFile, Env, Origin, RealFs, Route, find_key};
+use jag::config::{ConfigError, ConfigFile, Env, RealFs, Route, find_key};
 use predicates::prelude::*;
 
 fn jag(home: &Path) -> Command {
@@ -81,7 +81,7 @@ fn forget_key_removes_the_stored_key() {
     };
     let file = ConfigFile::new(&env, &RealFs);
     assert_eq!(
-        find_key(&env, &file, Route::Direct, &Origin::Default).unwrap_err(),
+        find_key(&env, &file, Route::Direct).unwrap_err(),
         ConfigError::KeyMissing
     );
 }

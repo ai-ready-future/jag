@@ -283,7 +283,7 @@ mod tests {
 
     use super::*;
     use crate::config::testing::*;
-    use crate::config::{ConfigFile, KeySource, Origin, RealFs, Route, find_key};
+    use crate::config::{ConfigFile, KeySource, RealFs, Route, find_key};
 
     fn only_key(text: &str) -> FileValues {
         FileValues {
@@ -467,7 +467,7 @@ mod tests {
                 home: Some(home.path().to_owned()),
             };
             let file = ConfigFile::new(&env, &RealFs);
-            let (found, source) = find_key(&env, &file, Route::Direct, &Origin::Default).unwrap();
+            let (found, source) = find_key(&env, &file, Route::Direct).unwrap().unwrap();
             assert_eq!(found.expose(), text, "key {text:?}");
             assert_eq!(source, KeySource::ConfigFile(path));
         }

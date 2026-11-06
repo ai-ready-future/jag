@@ -413,7 +413,7 @@ pub fn bar_passes(jag: f64, grep: f64) -> bool {
 /// What a run of cases needs. The made-up key of a test and the real key go
 /// the same way.
 pub struct Setup<'a> {
-    pub key: &'a ApiKey,
+    pub key: Option<&'a ApiKey>,
     pub settings: &'a ScoreSettings,
     /// Set by a Ctrl-C.
     pub stop: &'a AtomicBool,

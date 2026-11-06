@@ -464,13 +464,13 @@ fn criterion_51_an_invalid_term_gives_an_error_document_with_exit_2() {
 
 #[test]
 fn criterion_51_no_key_gives_an_error_document_with_exit_3() {
-    let server = FakeServer::constant(0.8);
+    // The direct route (the default address) needs a key. A gateway with no
+    // key gets a call (ADR-0028), so this case uses no base URL.
     let root = two_results();
     let home = folder();
     let command = |options: &[&str]| {
         finish(
             jag_bare(home.path())
-                .env("JAG_BASE_URL", server.base_url())
                 .current_dir(root.path())
                 .args(options)
                 .args(["--ask", QUESTION, "needle", "dir"])
@@ -480,7 +480,6 @@ fn criterion_51_no_key_gives_an_error_document_with_exit_3() {
     };
     let text = command(&[]);
     assert_error_document(&command(&["--json"]), 3, &text.stderr);
-    assert!(server.requests().is_empty());
 }
 
 fn failing(status: u16) -> FakeServer {

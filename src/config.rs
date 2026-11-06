@@ -133,11 +133,6 @@ impl Env<'_> {
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub enum ConfigError {
     KeyMissing,
-    /// No key for the gateway route (decision 11). `by_option` is true when
-    /// the base URL came from `--base-url`.
-    GatewayKeyMissing {
-        by_option: bool,
-    },
     KeyFileOpen {
         path: PathBuf,
         mode: u32,
@@ -243,18 +238,6 @@ impl From<ConfigError> for Failure {
                 format!(
                     "Get a key at {KEYS_PAGE}, then run `jag --setup`,\nor set {JAG_VARIABLE}."
                 ),
-                3,
-            ),
-            ConfigError::GatewayKeyMissing { by_option: false } => (
-                "no gateway key found.".to_owned(),
-                format!(
-                    "Get a key from the gateway, then run `jag --setup`,\nor set {GATEWAY_VARIABLE}."
-                ),
-                3,
-            ),
-            ConfigError::GatewayKeyMissing { by_option: true } => (
-                "no gateway key found.".to_owned(),
-                format!("Set {GATEWAY_VARIABLE} to the key of the gateway."),
                 3,
             ),
             ConfigError::KeyFileOpen { path, mode } => (
@@ -765,13 +748,12 @@ fn key_from_variable(
     }
 }
 
-/// The key sources of a route: the variables, the reader of the file, the
-/// source of a key of the file, and the error for no key.
+/// The key sources of a route: the variables, the reader of the file, and the
+/// source of a key of the file.
 type RouteSources<'a> = (
     &'a [(&'a str, KeySource)],
     fn(&File) -> Option<&str>,
     fn(PathBuf) -> KeySource,
-    ConfigError,
 );
 
 /// Find the key of the route (decision 11). The first set source wins. A
@@ -779,14 +761,17 @@ type RouteSources<'a> = (
 /// the other route.
 ///
 /// - Direct: `JAG_TYPESAFE_API_KEY`, `TYPESAFE_API_KEY`, then `config.api-key`.
-/// - Gateway: `JAG_GATEWAY_API_KEY`, then `config.gateway-api-key`.
+/// - Gateway: `JAG_GATEWAY_API_KEY`, then `config.gateway-api-key`. When
+///   neither is set, the result is `Ok(None)`: jag calls the gateway with no
+///   key (ADR-0028).
+///
+/// The direct route never gives `Ok(None)`: no key is `KeyMissing`.
 pub fn find_key(
     env: &Env,
     file: &ConfigFile,
     route: Route,
-    base_url_origin: &Origin,
-) -> Result<(ApiKey, KeySource), ConfigError> {
-    let (variables, file_text, file_source, missing): RouteSources = match route {
+) -> Result<Option<(ApiKey, KeySource)>, ConfigError> {
+    let (variables, file_text, file_source): RouteSources = match route {
         Route::Direct => (
             &[
                 (JAG_VARIABLE, KeySource::JagVariable),
@@ -794,20 +779,16 @@ pub fn find_key(
             ],
             file_key_text,
             KeySource::ConfigFile,
-            ConfigError::KeyMissing,
         ),
         Route::Gateway => (
             &[(GATEWAY_VARIABLE, KeySource::GatewayVariable)],
             file_gateway_key_text,
             KeySource::GatewayConfigFile,
-            ConfigError::GatewayKeyMissing {
-                by_option: matches!(base_url_origin, Origin::Option),
-            },
         ),
     };
     for (name, source) in variables {
         if let Some(found) = key_from_variable(env, name, source.clone())? {
-            return Ok(found);
+            return Ok(Some(found));
         }
     }
     if let Some((path, parsed)) = file.get()?
@@ -815,11 +796,14 @@ pub fn find_key(
     {
         let source = file_source(path.to_owned());
         return match ApiKey::parse(raw) {
-            Ok(key) => Ok((key, source)),
+            Ok(key) => Ok(Some((key, source))),
             Err(KeyFormatError) => Err(ConfigError::KeyFormatBad { source }),
         };
     }
-    Err(missing)
+    match route {
+        Route::Direct => Err(ConfigError::KeyMissing),
+        Route::Gateway => Ok(None),
+    }
 }
 
 #[cfg(test)]
@@ -983,21 +967,12 @@ mod tests {
             vars: &vars,
             home: home.map(Path::to_owned),
         };
-        find_key(
-            &env,
-            &ConfigFile::new(&env, &RealFs),
-            Route::Direct,
-            &Origin::Default,
-        )
+        find_direct(&env)
     }
 
     fn find_direct(env: &Env) -> Result<(ApiKey, KeySource), ConfigError> {
-        find_key(
-            env,
-            &ConfigFile::new(env, &RealFs),
-            Route::Direct,
-            &Origin::Default,
-        )
+        find_key(env, &ConfigFile::new(env, &RealFs), Route::Direct)
+            .map(|found| found.expect("the direct route gives a key or an error"))
     }
 
     fn key_text(result: Result<(ApiKey, KeySource), ConfigError>) -> (String, KeySource) {
@@ -1069,19 +1044,19 @@ mod tests {
     fn find_gateway(
         pairs: &[(&str, &str)],
         home: Option<&Path>,
-        origin: &Origin,
-    ) -> Result<(ApiKey, KeySource), ConfigError> {
+    ) -> Result<Option<(ApiKey, KeySource)>, ConfigError> {
         let vars = vars(pairs);
         let env = Env {
             vars: &vars,
             home: home.map(Path::to_owned),
         };
-        find_key(
-            &env,
-            &ConfigFile::new(&env, &RealFs),
-            Route::Gateway,
-            origin,
-        )
+        find_key(&env, &ConfigFile::new(&env, &RealFs), Route::Gateway)
+    }
+
+    fn gateway_text(
+        result: Result<Option<(ApiKey, KeySource)>, ConfigError>,
+    ) -> (String, KeySource) {
+        key_text(Ok(result.unwrap().expect("a gateway key")))
     }
 
     #[test]
@@ -1094,11 +1069,11 @@ mod tests {
         );
         let pairs = [(GATEWAY_VARIABLE, "variable-gateway")];
         assert_eq!(
-            key_text(find_gateway(&pairs, Some(home.path()), &Origin::Variable)),
+            gateway_text(find_gateway(&pairs, Some(home.path()))),
             ("variable-gateway".to_owned(), KeySource::GatewayVariable)
         );
         assert_eq!(
-            key_text(find_gateway(&[], Some(home.path()), &Origin::Variable)),
+            gateway_text(find_gateway(&[], Some(home.path()))),
             (
                 "file-gateway".to_owned(),
                 KeySource::GatewayConfigFile(path)
@@ -1111,12 +1086,21 @@ mod tests {
         let home = tempfile::tempdir().expect("temporary folder");
         write_file(home.path(), "config:\n  api-key: direct-key\n", 0o600);
         let pairs = [(JAG_VARIABLE, "a"), (TYPESAFE_VARIABLE, "b")];
-        for (origin, by_option) in [(Origin::Option, true), (Origin::Variable, false)] {
-            let error = find_gateway(&pairs, Some(home.path()), &origin)
-                .err()
-                .unwrap();
-            assert_eq!(error, ConfigError::GatewayKeyMissing { by_option });
-        }
+        // No gateway source is set: the result is no key, not an error.
+        assert!(find_gateway(&pairs, Some(home.path())).unwrap().is_none());
+    }
+
+    #[test]
+    fn a_blank_gateway_variable_and_a_blank_file_value_count_as_not_set() {
+        let home = tempfile::tempdir().expect("temporary folder");
+        assert!(
+            find_gateway(&[(GATEWAY_VARIABLE, "  ")], Some(home.path()))
+                .unwrap()
+                .is_none()
+        );
+        assert!(find_gateway(&[], None).unwrap().is_none());
+        write_file(home.path(), "config:\n  gateway-api-key: \"  \"\n", 0o600);
+        assert!(find_gateway(&[], Some(home.path())).unwrap().is_none());
     }
 
     #[test]
@@ -1133,7 +1117,7 @@ mod tests {
     #[test]
     fn a_bad_gateway_variable_stops_the_lookup_and_names_the_variable() {
         let pairs = [(GATEWAY_VARIABLE, "has a space")];
-        let error = find_gateway(&pairs, None, &Origin::Variable).err().unwrap();
+        let error = find_gateway(&pairs, None).err().unwrap();
         let ConfigError::KeyFormatBad { source } = &error else {
             panic!("want KeyFormatBad, got {error:?}");
         };
@@ -1192,7 +1176,7 @@ mod tests {
         let file = ConfigFile::new(&env, &fs);
         let settings = model_settings(&env, &file, &SettingOptions::default()).unwrap();
         assert_eq!(settings.route, Route::Gateway);
-        find_key(&env, &file, settings.route, &settings.base_url_origin).unwrap();
+        find_key(&env, &file, settings.route).unwrap();
         assert_eq!(fs.0.get(), 1);
     }
 
@@ -1234,7 +1218,7 @@ mod tests {
         let fs = CountingFs(std::cell::Cell::new(0));
         let file = ConfigFile::new(&env, &fs);
         let settings = model_settings(&env, &file, &SettingOptions::default()).unwrap();
-        find_key(&env, &file, settings.route, &settings.base_url_origin).unwrap();
+        find_key(&env, &file, settings.route).unwrap();
         assert_eq!(fs.0.get(), 0);
     }
 

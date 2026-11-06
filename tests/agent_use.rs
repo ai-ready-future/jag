@@ -727,7 +727,16 @@ const PROXY_VARIABLES: [&str; 8] = [
 /// in a new folder `<task_dir>/jag-runs/<n>`, and it runs `jag` with the
 /// environment of the service of the task. The agent shell never holds that
 /// environment.
-fn write_wrapper(task_dir: &Path, jag: &Path, base_url: &str, jag_home: &Path, key: Option<&str>) {
+/// `base_url` is `None` for a jag that uses the TypeSafe address (the direct
+/// route). A gateway with no key gets a call now (ADR-0028), so the scenario
+/// with no key needs the direct route to get exit code 3.
+fn write_wrapper(
+    task_dir: &Path,
+    jag: &Path,
+    base_url: Option<&str>,
+    jag_home: &Path,
+    key: Option<&str>,
+) {
     let bin = task_dir.join("bin");
     fs::create_dir_all(&bin).expect("make the bin folder");
     fs::create_dir_all(jag_home).expect("make the jag home");
@@ -739,6 +748,9 @@ fn write_wrapper(task_dir: &Path, jag: &Path, base_url: &str, jag_home: &Path, k
     let key = key.map_or(String::new(), |key| {
         format!("JAG_GATEWAY_API_KEY={} ", sh_quote(key))
     });
+    let url = base_url.map_or(String::new(), |url| {
+        format!("JAG_BASE_URL={} ", sh_quote(url))
+    });
     let script = format!(
         "#!/bin/sh\n\
          runs={runs}\n\
@@ -749,14 +761,13 @@ fn write_wrapper(task_dir: &Path, jag: &Path, base_url: &str, jag_home: &Path, k
          : > \"$dir/argv\"\n\
          for argument in \"$@\"; do printf '%s\\0' \"$argument\" >> \"$dir/argv\"; done\n\
          if [ \"${{JAG_MAX_CHARS+set}}\" = set ]; then printf '%s' \"$JAG_MAX_CHARS\" > \"$dir/max_chars_variable\"; fi\n\
-         env {removed}HOME={home} JAG_BASE_URL={url} {key}JAG_TIMEOUT=1 JAG_RETRY_WAIT=1 {jag} \"$@\" > \"$dir/stdout\"\n\
+         env {removed}HOME={home} {url}{key}JAG_TIMEOUT=1 JAG_RETRY_WAIT=1 {jag} \"$@\" > \"$dir/stdout\"\n\
          code=$?\n\
          printf '%s' \"$code\" > \"$dir/exit\"\n\
          cat \"$dir/stdout\"\n\
          exit \"$code\"\n",
         runs = sh_quote(&runs.to_string_lossy()),
         home = sh_quote(&jag_home.to_string_lossy()),
-        url = sh_quote(base_url),
         jag = sh_quote(&jag.to_string_lossy()),
     );
     let path = bin.join("jag");
@@ -992,13 +1003,10 @@ fn run_task(task: &Task, config: &Config, folder: &Path, jag: &Path) -> Result<V
     fs::create_dir_all(&bin).expect("make the bin folder");
     if let Some(server) = &server {
         let key = (task.service != "no-key").then_some(KEY);
-        write_wrapper(
-            task_dir,
-            jag,
-            &server.base_url(),
-            &task_dir.join("jag-home"),
-            key,
-        );
+        // No key on the direct route stops with exit code 3 before a call.
+        let base_url = server.base_url();
+        let base_url = (task.service != "no-key").then_some(base_url.as_str());
+        write_wrapper(task_dir, jag, base_url, &task_dir.join("jag-home"), key);
     }
     let vars: Vec<(String, String)> = std::env::vars().collect();
     let environment = agent_environment(&vars, &bin, &task_dir.join("scratch"));
@@ -1691,7 +1699,7 @@ mod rules {
         write_wrapper(
             work.path(),
             &jag,
-            &server.base_url(),
+            Some(&server.base_url()),
             &work.path().join("home"),
             Some(KEY),
         );

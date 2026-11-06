@@ -12,7 +12,7 @@ use std::sync::Mutex;
 use std::sync::atomic::{AtomicBool, AtomicUsize, Ordering};
 use std::time::{Duration, Instant};
 
-use crate::config::{ApiKey, KEYS_PAGE, ModelSettings, Origin, Route};
+use crate::config::{ApiKey, GATEWAY_VARIABLE, KEYS_PAGE, ModelSettings, Origin, Route};
 use crate::failure::Failure;
 use crate::search::snippet::{Snippet, SnippetLine, Source};
 use client::{Attempt, Client};
@@ -72,6 +72,9 @@ impl ScoreSettings {
 pub enum ScoreError {
     /// HTTP 401 or 403. Exit 4.
     KeyNotAccepted { status: u16 },
+    /// HTTP 401 or 403 to a call with no key, on the gateway route (ADR-0028).
+    /// Exit 4.
+    KeyNeeded { status: u16 },
     /// HTTP 402. Exit 5.
     NoCredit,
     /// A timeout, or the deadline. Exit 6.
@@ -113,7 +116,9 @@ impl ScoreError {
         let base = settings.base_url_origin.base_url_name();
         let model = settings.model_origin.model_name();
         match self {
-            ScoreError::KeyNotAccepted { status } => (
+            // The direct route always has a key, so `KeyNeeded` does not come
+            // here. It has the text of a key that the service refuses.
+            ScoreError::KeyNotAccepted { status } | ScoreError::KeyNeeded { status } => (
                 format!("the TypeSafe API did not accept the key (HTTP {status})."),
                 format!("Check the key at {KEYS_PAGE}, then run jag --setup."),
                 4,
@@ -191,6 +196,17 @@ impl ScoreError {
                     "Check that the key is a key of the gateway.".to_owned()
                 } else {
                     "Check that the key is a key of the gateway, then run jag --setup.".to_owned()
+                },
+                4,
+            ),
+            ScoreError::KeyNeeded { status } => (
+                format!("the gateway did not accept a call with no key (HTTP {status})."),
+                if settings.base_url_origin == Origin::Option {
+                    format!("Set {GATEWAY_VARIABLE} to the key of the gateway.")
+                } else {
+                    format!(
+                        "Get a key from the gateway, then run `jag --setup`,\nor set {GATEWAY_VARIABLE}."
+                    )
                 },
                 4,
             ),
@@ -342,7 +358,7 @@ pub const CHECK_LINE: &[u8] = b"jag is ready";
 /// One small call that tests the key, the credit, and the service
 /// (FEATURE-02). It has the CV-5 retry and the deadline of `score`. Any score
 /// passes: the check tests the service, not the answer.
-pub fn probe(key: &ApiKey, settings: &ScoreSettings) -> Result<(), ScoreError> {
+pub fn probe(key: Option<&ApiKey>, settings: &ScoreSettings) -> Result<(), ScoreError> {
     let snippet = Snippet {
         source: Source::File(PathBuf::from(CHECK_PATH)),
         lines: vec![SnippetLine::new(1, CHECK_LINE, true)],
@@ -370,7 +386,7 @@ pub fn probe(key: &ApiKey, settings: &ScoreSettings) -> Result<(), ScoreError> {
 pub fn score(
     snippets: &[Snippet],
     question: &str,
-    key: &ApiKey,
+    key: Option<&ApiKey>,
     settings: &ScoreSettings,
     stop: &AtomicBool,
     on_call_end: &(dyn Fn(usize) + Sync),
@@ -384,7 +400,7 @@ pub fn score(
 pub fn score_with_usage(
     snippets: &[Snippet],
     question: &str,
-    key: &ApiKey,
+    key: Option<&ApiKey>,
     settings: &ScoreSettings,
     stop: &AtomicBool,
     on_call_end: &(dyn Fn(usize) + Sync),
@@ -540,6 +556,8 @@ mod tests {
         let cases = [
             (ScoreError::KeyNotAccepted { status: 401 }, 4),
             (ScoreError::KeyNotAccepted { status: 403 }, 4),
+            (ScoreError::KeyNeeded { status: 401 }, 4),
+            (ScoreError::KeyNeeded { status: 403 }, 4),
             (ScoreError::NoCredit, 5),
             (ScoreError::TimedOut, 6),
             (ScoreError::CannotConnect, 6),
@@ -624,6 +642,28 @@ mod tests {
         assert_eq!(
             texts(ScoreError::UnexpectedStatus { status: 404 }, &option).1,
             "Check --base-url and --model."
+        );
+    }
+
+    #[test]
+    fn a_refused_call_with_no_key_names_the_gateway_key_variable() {
+        let cause = "the gateway did not accept a call with no key (HTTP 403).";
+        let variable = settings_of(Route::Gateway, Origin::Variable, Origin::Default);
+        assert_eq!(
+            texts(ScoreError::KeyNeeded { status: 403 }, &variable),
+            (
+                cause.to_owned(),
+                "Get a key from the gateway, then run `jag --setup`,\nor set JAG_GATEWAY_API_KEY."
+                    .to_owned()
+            )
+        );
+        let option = settings_of(Route::Gateway, Origin::Option, Origin::Option);
+        assert_eq!(
+            texts(ScoreError::KeyNeeded { status: 403 }, &option),
+            (
+                cause.to_owned(),
+                "Set JAG_GATEWAY_API_KEY to the key of the gateway.".to_owned()
+            )
         );
     }
 
