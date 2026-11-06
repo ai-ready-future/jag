@@ -23,11 +23,11 @@ Source: the answer of the user through hitl, 2026-11-05: "A: now, in Local model
 
 ## Scope
 
-1. After each search that calls the model service, jag reports the number of results and the number of lines that it sent.
+1. After each search that calls the model service, jag reports the number of results and the number of lines that it sent. The report of DECISION-42 (FEATURE-20) already counts the scored results. The spec decides how the 2 reports relate.
 2. A search with no question makes no model call (DECISION-32), so it gives no report.
 3. The spec decides if the report shows by default or only on request, where it goes, and its field in the structured output (CAPABILITY-05).
 
-STORY-89 adds the host that gets the text to this report (DECISION-74). STORY-91 adds the count of held-back lines (DECISION-79), and STORY-93 adds the line that tells that the check is off (DECISION-80).
+STORY-89 adds the host that gets the text to this report (DECISION-74), so STORY-96 blocks it. The count of held-back lines (DECISION-79) and the line that tells that the check is off (DECISION-80) go in the report of DECISION-42 (FEATURE-20), not in this report (D-018).
 
 <!-- STATUS:START (generated, do not edit) -->
 
