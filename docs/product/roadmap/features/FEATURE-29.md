@@ -41,8 +41,8 @@ This feature changes the contract of the config file. ADR-0015 says that jag wri
 
 | Item | State | Progress | Owner | Blocked by | Drift |
 | --- | --- | --- | --- | --- | --- |
-| [STORY-84: Set each non-secret setting in the config file](../stories/STORY-84.md) | backlog | - | - | - | - |
-| [STORY-85: jag --setup shows each missing setting as a comment line with its default](../stories/STORY-85.md) | backlog | - | - | STORY-84 | - |
+| [STORY-84: Set each non-secret setting in the config file](../stories/STORY-84.md) | ready | - | - | - | - |
+| [STORY-85: jag --setup shows each missing setting as a comment line with its default](../stories/STORY-85.md) | blocked | - | - | STORY-84 | - |
 <!-- STATUS:END -->
 
 <!-- LINKS:START (generated, do not edit) -->
