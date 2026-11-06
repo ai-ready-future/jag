@@ -48,7 +48,7 @@ This milestone holds the capabilities that make jag better to use and easier to 
 | [FEATURE-25: Copy the same teaching as a snippet](../features/FEATURE-25.md) | done | 2/2 (100%) | - | FEATURE-24 | - |
 | [FEATURE-26: Prove that an agent with the skill uses jag well](../features/FEATURE-26.md) | done | 2/2 (100%) | - | FEATURE-24 | - |
 | [FEATURE-28: A maintainer approves the private-data check of a fork pull request](../features/FEATURE-28.md) | done | 1/1 (100%) | human:404pilo | - | - |
-| [FEATURE-29: The config file holds each non-secret setting, and setup shows each default](../features/FEATURE-29.md) | backlog | 0/2 (0%) | - | - | - |
+| [FEATURE-29: The config file holds each non-secret setting, and setup shows each default](../features/FEATURE-29.md) | ready | 1/2 (50%) | - | - | - |
 <!-- STATUS:END -->
 
 <!-- LINKS:START (generated, do not edit) -->

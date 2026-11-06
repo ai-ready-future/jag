@@ -1,6 +1,9 @@
 # Log
 
 ## 2026-11-06
+* **State**: [FEATURE-29](features/FEATURE-29.md) backlog -> ready, by agent:jag-planner, approved by #371, at 2026-11-06T15:35:15Z
+* **State**: [STORY-85](stories/STORY-85.md) blocked -> ready, by process:regen, at 2026-11-06T15:33:58Z
+* **State**: [STORY-84](stories/STORY-84.md) ready -> done, by agent:jag-planner, approved by #385, at 2026-11-06T15:33:54Z
 * **Sync**: [STORY-86](stories/STORY-86.md) pushed to GitHub, by process:github, at 2026-11-06T13:08:52Z
 * **State**: [STORY-86](stories/STORY-86.md) backlog -> ready, by agent:jag-specifier, approved by #355, at 2026-11-06T11:01:49Z
 * **Sync**: [STORY-94](stories/STORY-94.md) pushed to GitHub, by process:github, at 2026-11-06T08:07:30Z
