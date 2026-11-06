@@ -163,7 +163,7 @@ The first result is the best.
 | 1 | No match, or no good answer | If `no_good_answer` is true, the term matched, but no result answers the question: say so. If `results_found` is 0, the term matched nothing: try a broader term, or another path |
 | 2 | Usage error, or a path that does not exist | Read `error.fix`. If `error` is null, read `warnings`. Fix the command and run it again |
 | 3 | The key is missing or cannot be used | jag cannot run: see the next section |
-| 4 | The service does not accept the key, or a gateway refuses a call with no key | jag cannot run: see the next section |
+| 4 | The service does not accept the key | jag cannot run: see the next section |
 | 5 | The account has no credit | jag cannot run: see the next section |
 | 6 | The service is down | jag cannot run: see the next section |
 | 7 | The cost limit was reached | The results are valid. Use them. For more, use a narrower term or path |
@@ -350,7 +350,7 @@ Exit codes:
 | 0 | No item fails |
 | 2 | The command line or a setting is not valid |
 | 3 | No key, a bad key, or a config file that others can read or that jag cannot use |
-| 4 | The service does not accept the key |
+| 4 | The service does not accept the key, or a gateway refuses a call with no key |
 | 5 | The account has no credit |
 | 6 | The service is not reachable |
 
