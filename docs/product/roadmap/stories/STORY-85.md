@@ -7,7 +7,8 @@ status: draft
 generated:
   by: prd/6.2.1
   at: '2026-11-05T20:31:09Z'
-state: ready
+state: done
+actual_end_date: '2026-11-06'
 github:
   number: 350
   node_id: I_kwDOVKMnL88AAAABc2mtIQ
@@ -40,6 +41,16 @@ Source: request REQ-config-timeout, 2026-11-05, and the answer of the user throu
 5. `jag --setup` and `jag --forget-key` keep each comment line when they write the file again.
 
 This story needs STORY-84, because the comment lines show the file keys of STORY-84.
+
+## Result
+
+STORY-85 is done on 2026-11-06:
+
+- Code: PR #396 (merge `a3a8a8c`), with 4 approvals (reviewer, verifier, security, code-quality). Decision D-022.
+- Product proof: the verifier ran the debug build in a terminal with a temporary home folder and fake keys. The verifier ran a new file, a second setup (the answers "n" and "y" give the same bytes), a user edit that stays, `--forget-key`, 6 file forms that setup cannot edit (exit 2, the file does not change), CRLF line ends and the file mode ([comment](https://github.com/ai-ready-future/jag/pull/396#issuecomment-6691702208)).
+- e2e tests: PR #399 (merge `eb02292`). Decision D-024.
+
+Security issue #397 (low) stays open. It is not a part of the done criterion of this story.
 
 <!-- STATUS:START (generated, do not edit) -->
 

@@ -1,6 +1,10 @@
 # Log
 
 ## 2026-11-06
+* **Report**: [EPIC-01](epics/EPIC-01.md) ready -> done: each of its 5 features (FEATURE-01, FEATURE-02, FEATURE-03, FEATURE-21, FEATURE-29) is done; by the standing user rule of 2026-10-14 ("always allow"): the planner sets each epic whose features are all done to done as human:404pilo, with no card, by agent:jag-planner, at 2026-11-06T20:03:14Z
+* **State**: [EPIC-01](epics/EPIC-01.md) ready -> done, by human:404pilo, approved by #396, at 2026-11-06T20:03:14Z
+* **State**: [FEATURE-29](features/FEATURE-29.md) ready -> done, by agent:jag-planner, approved by #396, at 2026-11-06T20:03:08Z
+* **State**: [STORY-85](stories/STORY-85.md) ready -> done, by agent:jag-planner, approved by #396, at 2026-11-06T20:02:45Z
 * **Sync**: [STORY-81](stories/STORY-81.md) pushed to GitHub, by process:github, at 2026-11-06T18:43:38Z
 * **Sync**: [STORY-45](stories/STORY-45.md) pushed to GitHub, by process:github, at 2026-11-06T18:43:38Z
 * **Learn**: STORY-81 cancelled and STORY-45 to backlog: the second practice test failed check 2, so STORY-81 spec row 21 does not allow done and STORY-45 spec row 23 allows no private run; the human chose option C through hitl on 2026-11-06 (stop, write result in graph), so no fix story comes; STORY-45 waits for a new decision of the human; planner decision D-023; the states were set as human:404pilo by D-013, by agent:jag-planner, at 2026-11-06T18:07:27Z

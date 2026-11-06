@@ -7,7 +7,8 @@ status: draft
 generated:
   by: prd/6.2.1
   at: '2026-11-05T20:31:09Z'
-state: ready
+state: done
+actual_end_date: '2026-11-06'
 github:
   number: 348
   node_id: I_kwDOVKMnL88AAAABc2medg
@@ -42,7 +43,7 @@ This feature changes the contract of the config file. ADR-0015 says that jag wri
 | Item | State | Progress | Owner | Blocked by | Drift |
 | --- | --- | --- | --- | --- | --- |
 | [STORY-84: Set each non-secret setting in the config file](../stories/STORY-84.md) | done | - | - | - | - |
-| [STORY-85: jag --setup shows each missing setting as a comment line with its default](../stories/STORY-85.md) | ready | - | - | STORY-84 | - |
+| [STORY-85: jag --setup shows each missing setting as a comment line with its default](../stories/STORY-85.md) | done | - | - | STORY-84 | - |
 <!-- STATUS:END -->
 
 <!-- LINKS:START (generated, do not edit) -->
