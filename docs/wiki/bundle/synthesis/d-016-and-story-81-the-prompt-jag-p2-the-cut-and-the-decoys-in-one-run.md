@@ -46,4 +46,5 @@ The implementer builds the code, then chores guides the 1 development run. The s
 
 - sources: [roadmap:/stories/STORY-81.md](../../../product/roadmap/stories/STORY-81.md)
 - sources: [D-015: bring back the old prompt first (STORY-79 conclusion)](d-015-bring-back-the-old-prompt-first-story-79-conclusion.md)
+- fed: [STORY-81 result: check 2 failed, the human stops work on the prompt (2026-11-06)](story-81-result-and-the-decision-to-stop-on-the-prompt.md)
 <!-- LINKS:END -->
