@@ -329,7 +329,20 @@ names the key and the file, and it does not show the value. An option or a
 variable that is set hides a bad value in the file. `--no-max-chars` turns the
 size limit off for one search. The file has no value for no limit.
 
-`jag --setup` and `jag --forget-key` keep these keys.
+`jag --setup` adds one comment line for each of these settings that the file
+does not have yet. The line shows the default, for example `# timeout: 4`.
+To set a value, remove `# ` from the line and change the value. A comment line
+is not a value: with only the comment line, jag uses the default. A comment
+line shows the default of the release that wrote it, and `jag --setup` does not
+change it. The next release can change the default, and the file then still
+works.
+
+`jag --setup` and `jag --forget-key` keep each value and each comment line, and
+they change only the line of the key. `jag --forget-key` removes the file only
+when it has no value and no comment line left. jag changes only a file that has
+`config:` on its own line and each setting on its own line under it. For any
+other form, such as `config: {api-key: k}` or a value on two lines, `jag --setup`
+and `jag --forget-key` stop with exit code 2 and do not change the file.
 
 ## Check that jag is ready
 

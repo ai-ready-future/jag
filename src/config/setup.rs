@@ -6,10 +6,12 @@ use std::sync::atomic::{AtomicBool, Ordering};
 
 use signal_hook::consts::SIGINT;
 
-use std::path::Path;
+use std::path::{Path, PathBuf};
 
 use super::model::{BASE_URL_VARIABLE, Origin, Route, SettingSource, normalize_base_url, route_of};
-use super::{ApiKey, ConfigError, Env, FileValues, Fs, load_for_change, write_key_file};
+use super::{
+    ApiKey, ConfigError, Env, FileValues, Fs, Lines, checked_text, load_for_change, write_key_file,
+};
 
 /// The questions of setup. A fake gives the answers in a unit test.
 pub trait Prompter {
@@ -107,11 +109,33 @@ fn key_of(values: &FileValues, route: Route) -> &Option<String> {
     }
 }
 
+/// The name of the key of the route in the file.
+fn key_name(route: Route) -> &'static str {
+    match route {
+        Route::Direct => "api-key",
+        Route::Gateway => "gateway-api-key",
+    }
+}
+
 fn key_of_mut(values: &mut FileValues, route: Route) -> &mut Option<String> {
     match route {
         Route::Direct => &mut values.api_key,
         Route::Gateway => &mut values.gateway_api_key,
     }
+}
+
+/// Check the changed lines, then write them. The check is the only way to a
+/// write: the new text must have exactly the expected values.
+fn store(
+    env: &Env,
+    fs: &dyn Fs,
+    lines: &Lines,
+    expected: &FileValues,
+    path: &Path,
+) -> Result<PathBuf, ConfigError> {
+    let text = checked_text(lines, expected, path)?;
+    let home = env.home.as_deref().ok_or(ConfigError::NoHome)?;
+    write_key_file(fs, home, &text)
 }
 
 /// Store the key of the route. The caller says if standard input is a
@@ -136,10 +160,12 @@ pub fn setup(
             mode: state.mode & 0o777,
         });
     }
-    // 4. The route. A bad value stops setup, and the file does not change.
+    // 4. A file that jag cannot change stops setup before the question.
+    let mut lines = state.text.lines(&path)?;
+    // 5. The route. A bad value stops setup, and the file does not change.
     let (route, origin) = change_route(env, &path, &state.values)?;
     let gateway = route == Route::Gateway;
-    // 5. The line before the question, on the gateway route.
+    // 6. The line before the question, on the gateway route.
     if gateway {
         let source = match &origin {
             Origin::ConfigFile(path) => format!("config.base-url in {}", path.display()),
@@ -150,7 +176,7 @@ pub fn setup(
             "{source} names an AI gateway, so jag stores a gateway key."
         );
     }
-    // 6. Ask before a replace (CRITERION-03).
+    // 7. Ask before a replace (CRITERION-03).
     if key_of(&state.values, route).is_some() {
         let question = if gateway {
             format!(
@@ -167,6 +193,11 @@ pub fn setup(
             .confirm(&question)
             .map_err(|error| ConfigError::PromptFailed { kind: error.kind() })?;
         if !replace {
+            // Add the comment lines that are missing. A file that has them
+            // all stays as it is (CRITERION-153).
+            if lines.add_missing_comments() {
+                store(env, fs, &lines, &state.values, &path)?;
+            }
             let _ = writeln!(
                 out,
                 "{}",
@@ -179,7 +210,7 @@ pub fn setup(
             return Ok(());
         }
     }
-    // 7. Read the key with no echo.
+    // 8. Read the key with no echo.
     let typed = prompter
         .secret(if gateway {
             "Gateway API key: "
@@ -187,15 +218,17 @@ pub fn setup(
             "TypeSafe API key: "
         })
         .map_err(|error| ConfigError::PromptFailed { kind: error.kind() })?;
-    // 8. Check the format. The error holds no text.
+    // 9. Check the format. The error holds no text.
     let key = ApiKey::parse(&typed).map_err(|_| ConfigError::KeyTypedBad { route })?;
-    // 9. Write the file, with each other value as it was. `load_for_change`
-    //    found a path, so there is a home.
-    let home = env.home.as_deref().ok_or(ConfigError::NoHome)?;
+    // 10. Write the file: the line of the key, and the missing comment lines.
+    //     Each other line stays. `load_for_change` found a path, so there is
+    //     a home.
     let mut values = state.values;
     *key_of_mut(&mut values, route) = Some(key.expose().to_owned());
-    let path = write_key_file(fs, home, &values)?;
-    // 10. Report.
+    lines.set(key_name(route), key.expose());
+    lines.add_missing_comments();
+    let path = store(env, fs, &lines, &values, &path)?;
+    // 11. Report.
     let _ = writeln!(
         out,
         "{} {}.",
@@ -256,19 +289,23 @@ pub fn forget_key(env: &Env, fs: &dyn Fs, out: &mut dyn Write) -> Result<(), Con
         remove_stale_copies(fs, &path)?;
         return Ok(());
     }
-    // 5. Clear the field of the route. When no value is left, remove the
-    //    file. Else write the file again with the other values.
+    // 5. Remove the line of the key of the route. When no value and no
+    //    comment line is left, remove the file. Else write the other lines
+    //    again as they are. The file form matters only for the write.
     let mut values = state.values;
     *key_of_mut(&mut values, route) = None;
-    if values.is_empty() {
+    if values.is_empty() && !state.text.has_comment_line() {
         fs.remove_file(&path)
             .map_err(|error| ConfigError::KeyFileWrite {
                 path: path.clone(),
                 kind: error.kind(),
             })?;
     } else {
+        let mut lines = state.text.lines(&path)?;
+        lines.remove(key_name(route));
+        let text = checked_text(&lines, &values, &path)?;
         let home = env.home.as_deref().ok_or(ConfigError::NoHome)?;
-        write_key_file(fs, home, &values)?;
+        write_key_file(fs, home, &text)?;
     }
     // 6. Report.
     let _ = writeln!(
@@ -438,6 +475,9 @@ mod tests {
         assert_eq!(run.calls, 0);
     }
 
+    /// The 6 comment lines of a file with no setting.
+    const ALL_COMMENTS: &str = "  # base-url: https://api.typesafe.ai/v1\n  # model: jev-1.13.0\n  # timeout: 4\n  # retry-wait: 1\n  # max-scored: 200\n  # max-chars: 20000\n";
+
     // CRITERION-03
     #[test]
     fn setup_asks_before_it_replaces_a_key() {
@@ -454,7 +494,11 @@ mod tests {
         );
         run.result.unwrap();
         assert!(run.out.contains("Kept the stored key."));
-        assert_eq!(std::fs::read_to_string(path).unwrap(), old);
+        // The answer "no" keeps the key and adds the comment lines.
+        assert_eq!(
+            std::fs::read_to_string(path).unwrap(),
+            format!("{old}{ALL_COMMENTS}")
+        );
 
         let home = tempfile::tempdir().unwrap();
         write_file(home.path(), old, 0o600);
@@ -710,14 +754,14 @@ mod tests {
         assert_eq!(
             text_of(home.path()),
             format!(
-                "config:\n  api-key: direct-key\n  gateway-api-key: {SENTINEL_KEY}\n  model: m\n"
+                "config:\n  gateway-api-key: {SENTINEL_KEY}\n  api-key: direct-key\n  model: m\n  # base-url: https://api.typesafe.ai/v1\n  # timeout: 4\n  # retry-wait: 1\n  # max-scored: 200\n  # max-chars: 20000\n"
             )
         );
         assert!(!run.out.contains("SENTINEL"));
     }
 
-    // STORY-84: setup and forget keep the keys of the settings. The interim
-    // `file_text` writes a number in quotes; STORY-85 edits the lines instead.
+    // CRITERION-154: setup and forget keep the keys of the settings, with
+    // their lines as they were.
     #[test]
     fn setup_and_forget_keep_the_keys_of_the_settings() {
         let home = tempfile::tempdir().unwrap();
@@ -883,5 +927,253 @@ mod tests {
             run.out
                 .contains("Note: JAG_GATEWAY_API_KEY is set, and it wins over the stored key.")
         );
+    }
+
+    // CRITERION-152: a new file gets the key and 1 comment line for each
+    // setting, on the direct route and on the gateway route.
+    #[test]
+    fn setup_on_a_new_file_writes_the_key_and_the_6_comment_lines() {
+        let home = tempfile::tempdir().unwrap();
+        run_setup(&[], Some(home.path()), Fake::secret("K"), true)
+            .result
+            .unwrap();
+        assert_eq!(
+            text_of(home.path()),
+            format!("config:\n  api-key: K\n{ALL_COMMENTS}")
+        );
+        let home = tempfile::tempdir().unwrap();
+        run_setup(&[GATEWAY_URL], Some(home.path()), Fake::secret("K"), true)
+            .result
+            .unwrap();
+        assert_eq!(
+            text_of(home.path()),
+            format!("config:\n  gateway-api-key: K\n{ALL_COMMENTS}")
+        );
+    }
+
+    // CRITERION-152: an older file keeps its lines and gets the missing
+    // comment lines, not one for `base-url`.
+    #[test]
+    fn setup_on_an_older_file_adds_the_missing_comment_lines_only() {
+        let old = "config:\n  api-key: k\n  base-url: \"https://api.typesafe.ai\"\n";
+        let missing = "  # model: jev-1.13.0\n  # timeout: 4\n  # retry-wait: 1\n  # max-scored: 200\n  # max-chars: 20000\n";
+        // The answer "no": the 2 lines stay, and the 5 lines are added.
+        let home = tempfile::tempdir().unwrap();
+        write_file(home.path(), old, 0o600);
+        run_setup(&[], Some(home.path()), Fake::answering(false, "x"), true)
+            .result
+            .unwrap();
+        assert_eq!(text_of(home.path()), format!("{old}{missing}"));
+        // The answer "yes": only the key line changes.
+        let before = text_of(home.path());
+        run_setup(&[], Some(home.path()), Fake::answering(true, "new"), true)
+            .result
+            .unwrap();
+        assert_eq!(
+            text_of(home.path()),
+            before.replace("api-key: k", "api-key: new")
+        );
+    }
+
+    // CRITERION-152: with only the comment lines, jag uses the defaults.
+    #[test]
+    fn a_file_with_only_comment_lines_gives_the_defaults() {
+        let home = tempfile::tempdir().unwrap();
+        write_file(home.path(), &format!("config:\n{ALL_COMMENTS}"), 0o600);
+        let vars = vars(&[]);
+        let env = Env {
+            vars: &vars,
+            home: Some(home.path().to_owned()),
+        };
+        let file = ConfigFile::new(&env, &RealFs);
+        let settings =
+            crate::config::model_settings(&env, &file, &crate::config::SettingOptions::default())
+                .unwrap();
+        assert_eq!(settings.base_url_origin, Origin::Default);
+        assert_eq!(settings.model_origin, Origin::Default);
+        assert_eq!(
+            settings.times.timeout,
+            crate::config::model::DEFAULT_TIMEOUT
+        );
+    }
+
+    /// A file system that counts the files that it writes.
+    struct Counting {
+        writes: std::cell::Cell<u32>,
+    }
+
+    impl Fs for Counting {
+        fn open(&self, path: &Path) -> io::Result<Box<dyn crate::config::OpenFile>> {
+            RealFs.open(path)
+        }
+        fn is_symlink(&self, path: &Path) -> io::Result<bool> {
+            RealFs.is_symlink(path)
+        }
+        fn is_special(&self, path: &Path) -> io::Result<bool> {
+            RealFs.is_special(path)
+        }
+        fn create_dir_all(&self, path: &Path) -> io::Result<()> {
+            RealFs.create_dir_all(path)
+        }
+        fn create_private_dir(&self, path: &Path) -> io::Result<()> {
+            RealFs.create_private_dir(path)
+        }
+        fn create_private_file(&self, path: &Path, text: &str) -> io::Result<()> {
+            self.writes.set(self.writes.get() + 1);
+            RealFs.create_private_file(path, text)
+        }
+        fn rename(&self, from: &Path, to: &Path) -> io::Result<()> {
+            RealFs.rename(from, to)
+        }
+        fn remove_file(&self, path: &Path) -> io::Result<()> {
+            RealFs.remove_file(path)
+        }
+        fn remove_stale_temporary_files(&self, dir: &Path) -> io::Result<usize> {
+            RealFs.remove_stale_temporary_files(dir)
+        }
+    }
+
+    fn setup_with(fs: &dyn Fs, home: &Path, mut fake: Fake) {
+        let vars = vars(&[]);
+        let env = Env {
+            vars: &vars,
+            home: Some(home.to_owned()),
+        };
+        setup(&env, fs, &mut fake, &mut Vec::new(), true).unwrap();
+    }
+
+    // CRITERION-153: a second setup with the same answers does not change the
+    // bytes, and on the keep path with no missing line it writes nothing.
+    #[test]
+    fn a_second_setup_with_the_same_answers_does_not_change_the_file() {
+        let home = tempfile::tempdir().unwrap();
+        let fs = Counting {
+            writes: std::cell::Cell::new(0),
+        };
+        setup_with(&fs, home.path(), Fake::secret("K"));
+        let first = text_of(home.path());
+        assert_eq!(fs.writes.get(), 1);
+        // The keep path: no line is missing, so no write.
+        setup_with(&fs, home.path(), Fake::answering(false, "x"));
+        assert_eq!(fs.writes.get(), 1);
+        assert_eq!(text_of(home.path()), first);
+        // The store path with the same key: a write with the same bytes.
+        setup_with(&fs, home.path(), Fake::answering(true, "K"));
+        assert_eq!(fs.writes.get(), 2);
+        assert_eq!(text_of(home.path()), first);
+    }
+
+    // Row 14: a comment line stays, also one with an old default.
+    #[test]
+    fn a_comment_line_with_another_default_stays_as_it_is() {
+        let home = tempfile::tempdir().unwrap();
+        write_file(
+            home.path(),
+            "config:\n  api-key: k\n  # timeout: 3\n",
+            0o600,
+        );
+        run_setup(&[], Some(home.path()), Fake::answering(false, "x"), true)
+            .result
+            .unwrap();
+        let text = text_of(home.path());
+        assert!(text.contains("  # timeout: 3\n"), "{text}");
+        assert!(!text.contains("# timeout: 4"), "{text}");
+        run_setup(&[], Some(home.path()), Fake::answering(true, "k"), true)
+            .result
+            .unwrap();
+        assert_eq!(text_of(home.path()), text);
+    }
+
+    // Row 18: a form that jag cannot change stops setup before the question,
+    // and the file stays byte for byte. No temporary file stays.
+    #[test]
+    fn setup_and_forget_refuse_a_file_in_another_form_and_leave_it_as_it_is() {
+        for text in [
+            "config: {api-key: SENTINEL-KEY, model: m}\n",
+            "config:\n  api-key: |\n    SENTINEL-KEY\n  model: m\n",
+            "config:\n  api-key: SENTINEL-KEY\n  model: m\n...\n",
+            "config:\n  model: \"a\n    b\"\n  api-key: SENTINEL-KEY\n",
+        ] {
+            let home = tempfile::tempdir().unwrap();
+            let path = write_file(home.path(), text, 0o600);
+            let run = run_setup(&[], Some(home.path()), Fake::default(), true);
+            let error = run.result.unwrap_err();
+            assert!(
+                matches!(error, ConfigError::KeyFileNotEditable { .. }),
+                "{text}: {error:?}"
+            );
+            assert_eq!(run.calls, 0);
+            let failure = Failure::from(error);
+            assert_eq!(failure.exit_code, 2);
+            assert!(!failure.render().contains("SENTINEL"));
+            let (result, out) = run_forget(&[], Some(home.path()));
+            let error = result.unwrap_err();
+            assert!(
+                matches!(error, ConfigError::KeyFileNotEditable { .. }),
+                "{text}: {error:?}"
+            );
+            assert!(!out.contains("SENTINEL"));
+            assert_eq!(std::fs::read_to_string(&path).unwrap(), text);
+            assert_eq!(
+                std::fs::read_dir(path.parent().unwrap()).unwrap().count(),
+                1
+            );
+        }
+    }
+
+    // Row 21: `--forget-key` that removes the file needs no edit, so the form
+    // does not matter.
+    #[test]
+    fn forget_removes_a_file_in_another_form_when_only_the_key_is_in_it() {
+        let home = tempfile::tempdir().unwrap();
+        let path = write_file(home.path(), "config: {api-key: k}\n", 0o600);
+        let (result, _) = run_forget(&[], Some(home.path()));
+        result.unwrap();
+        assert!(!path.exists());
+    }
+
+    // CRITERION-152: `--forget-key` keeps each comment line and each setting.
+    #[test]
+    fn forget_keeps_the_comment_lines_and_adds_none() {
+        let home = tempfile::tempdir().unwrap();
+        write_file(
+            home.path(),
+            &format!("# my notes\nconfig:\n  api-key: k  # mine\n{ALL_COMMENTS}"),
+            0o600,
+        );
+        let (result, _) = run_forget(&[], Some(home.path()));
+        result.unwrap();
+        assert_eq!(
+            text_of(home.path()),
+            format!("# my notes\nconfig:\n{ALL_COMMENTS}")
+        );
+        // A comment line anywhere keeps the file when the key is gone.
+        let home = tempfile::tempdir().unwrap();
+        write_file(home.path(), "# note\nconfig:\n  api-key: k\n", 0o600);
+        let (result, _) = run_forget(&[], Some(home.path()));
+        result.unwrap();
+        assert_eq!(text_of(home.path()), "# note\nconfig:\n");
+        // A second forget finds no key.
+        let (result, out) = run_forget(&[], Some(home.path()));
+        result.unwrap();
+        assert!(out.contains("No stored key in"));
+    }
+
+    #[test]
+    fn a_failed_setup_writes_nothing() {
+        let home = tempfile::tempdir().unwrap();
+        let old = "config:\n  api-key: k\n";
+        let path = write_file(home.path(), old, 0o600);
+        let run = run_setup(
+            &[],
+            Some(home.path()),
+            Fake::answering(true, "has a space"),
+            true,
+        );
+        assert!(matches!(
+            run.result.unwrap_err(),
+            ConfigError::KeyTypedBad { .. }
+        ));
+        assert_eq!(std::fs::read_to_string(path).unwrap(), old);
     }
 }

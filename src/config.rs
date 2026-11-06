@@ -5,6 +5,7 @@
 //! quote a value (spec decision 19).
 
 mod change;
+mod edit;
 mod fs;
 mod limit;
 mod model;
@@ -18,7 +19,8 @@ use serde::Deserialize;
 
 use crate::failure::Failure;
 
-pub use change::{ChangeState, FileValues, load_for_change, write_key_file};
+pub use change::{ChangeState, FileValues, checked_text, load_for_change, write_key_file};
+pub use edit::{FileText, Lines};
 pub use fs::{Fs, OpenFile, RealFs};
 pub use limit::{
     COST_LIMIT_OPTION, COST_LIMIT_VARIABLE, DEFAULT_COST_LIMIT, DEFAULT_SIZE_LIMIT, MAX_COST_LIMIT,
@@ -159,6 +161,10 @@ pub enum ConfigError {
         path: PathBuf,
     },
     KeyFileHasOtherKeys {
+        path: PathBuf,
+    },
+    /// The file is not in the form that `--setup` and `--forget-key` write.
+    KeyFileNotEditable {
         path: PathBuf,
     },
     NoTerminal,
@@ -332,6 +338,15 @@ impl From<ConfigError> for Failure {
                     change::key_list_text()
                 ),
                 "Remove the other settings, or edit the file by hand.".to_owned(),
+                2,
+            ),
+            ConfigError::KeyFileNotEditable { path } => (
+                format!(
+                    "jag cannot change {}, because it is not in the form that jag writes.",
+                    path.display()
+                ),
+                "Edit the file by hand. Put config: on its own line, and each setting on its own line under it."
+                    .to_owned(),
                 2,
             ),
             ConfigError::NoTerminal => (
