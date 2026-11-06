@@ -79,4 +79,5 @@ No private set is converted and no run occurs. The failed check is named in a `B
 - sources: [roadmap:/stories/STORY-45.md](../../../product/roadmap/stories/STORY-45.md)
 - sources: [prd:/decisions/DECISION-70.md](../../../product/prd/decisions/DECISION-70.md)
 - sources: [Evaluation method of the earlier search tool](../concepts/evaluation-method-of-the-earlier-search-tool.md)
+- fed: [STORY-81 result: check 2 failed, the human stops work on the prompt (2026-11-06)](story-81-result-and-the-decision-to-stop-on-the-prompt.md)
 <!-- LINKS:END -->
