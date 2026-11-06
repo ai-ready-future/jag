@@ -997,6 +997,8 @@ mod tests {
                 .is_none()
         );
         assert!(find_gateway(&[], None).unwrap().is_none());
+        write_file(home.path(), "config:\n  gateway-api-key: \"  \"\n", 0o600);
+        assert!(find_gateway(&[], Some(home.path())).unwrap().is_none());
     }
 
     #[test]
