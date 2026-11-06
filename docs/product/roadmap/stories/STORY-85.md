@@ -14,7 +14,7 @@ github:
   url: https://github.com/ai-ready-future/jag/issues/350
   pushed_hash: 4a6a4d
   synced:
-    state: backlog
+    state: blocked
 spec: docs/superpowers/specs/2026-11-05-STORY-84-each-setting-in-the-config-file-design.md
 parent: /features/FEATURE-29.md
 blocked_by:
