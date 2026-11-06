@@ -62,7 +62,7 @@ STORY-84 is done on 2026-11-06:
 - Product proof: the verifier ran the release build in Docker with a temporary home folder and fake model servers. Each of the 4 new file keys sets its value. The order is option, then variable, then file, then default. A bad value gives exit 2. The verifier also ran `--setup` in a terminal, `--forget-key` and `--check` ([comment](https://github.com/ai-ready-future/jag/pull/385#issuecomment-6686468548)).
 - e2e tests: PR #387 (merge `9bb3ebf`).
 
-Decision D-021: a search with `--ask` now reads the config file for the times and the sizes. If the key, the base URL and the model come from variables, but no time or size variable is set, and other users can read the config file, the search stops with exit 3. The fix is `chmod 600` on the file, or set `JAG_TIMEOUT`, `JAG_RETRY_WAIT`, `JAG_MAX_SCORED` and `JAG_MAX_CHARS`.
+Decision D-021: a search with `--ask` now reads the config file for the times and the sizes. If the key, the base URL and the model come from variables, but no option and no variable sets 1 of the 4 time and size settings, and other users can read the config file, the search stops with exit 3. The fix is `chmod 600` on the file, or set `JAG_TIMEOUT`, `JAG_RETRY_WAIT`, `JAG_MAX_SCORED` and `JAG_MAX_CHARS`.
 
 <!-- STATUS:START (generated, do not edit) -->
 

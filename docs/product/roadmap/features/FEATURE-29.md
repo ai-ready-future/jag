@@ -33,7 +33,7 @@ The rule of the user: each non-secret setting that jag accepts as a parameter (a
 - STORY-84: the config file holds each non-secret setting.
 - STORY-85: `jag --setup` shows each missing setting as a comment line with its default.
 
-This feature changes the contract of the config file. ADR-0015 says that jag writes no other setting to the file, and DF-1 of the system design keeps the times and the limits out of the file. ADR-0029 (PR #352, merged 2026-11-05) amends ADR-0015 and DF-1 for this feature, so the build can start.
+This feature changes the contract of the config file. ADR-0015 says that jag writes no other setting to the file, and DF-1 of the system design keeps the times and the limits out of the file. ADR-0029 (PR #352, merged 2026-11-05) partly supersedes ADR-0015 and closes DF-1 for this feature, so the build can start.
 
 <!-- STATUS:START (generated, do not edit) -->
 
