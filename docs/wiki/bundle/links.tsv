@@ -17,6 +17,7 @@ source	relation	target
 /synthesis/d-018-story-91-and-story-93-do-not-wait-for-story-96.md	sources	prd:/decisions/DECISION-80.md
 /synthesis/d-018-story-91-and-story-93-do-not-wait-for-story-96.md	sources	roadmap:/stories/STORY-91.md
 /synthesis/d-018-story-91-and-story-93-do-not-wait-for-story-96.md	sources	roadmap:/stories/STORY-93.md
+/synthesis/d-018-story-91-and-story-93-do-not-wait-for-story-96.md	sources	roadmap:/stories/STORY-96.md
 /synthesis/feature-28-the-healthy-window-passed-the-feature-is-not-released.md	sources	/synthesis/story-77-fork-prs-need-an-approval-before-the-private-data-scan.md
 /synthesis/feature-28-the-healthy-window-passed-the-feature-is-not-released.md	sources	roadmap:/features/FEATURE-28.md
 /synthesis/story-45-practice-gate-and-conversion-rule.md	sources	/concepts/evaluation-method-of-the-earlier-search-tool.md
