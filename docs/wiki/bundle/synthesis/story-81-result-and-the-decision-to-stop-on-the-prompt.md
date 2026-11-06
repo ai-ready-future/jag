@@ -46,6 +46,7 @@ Source: the STORY-81 spec on `main`, `docs/superpowers/specs/2026-11-04-STORY-81
 - Check 2 failed.
 - The decoy result passed.
 - The threshold rule of STORY-81 spec row 7 gave a cut higher than the default cut of that row (D-016).
+
 ## Decision (human, through hitl, 2026-11-06, option C, veracity 90)
 
 - Stop this line of work on the prompt.
