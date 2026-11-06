@@ -1,6 +1,8 @@
 # Log
 
 ## 2026-11-06
+* **Sync**: [STORY-81](stories/STORY-81.md) pushed to GitHub, by process:github, at 2026-11-06T18:43:38Z
+* **Sync**: [STORY-45](stories/STORY-45.md) pushed to GitHub, by process:github, at 2026-11-06T18:43:38Z
 * **Learn**: STORY-81 cancelled and STORY-45 to backlog: the second practice test failed check 2, so STORY-81 spec row 21 does not allow done and STORY-45 spec row 23 allows no private run; the human chose option C through hitl on 2026-11-06 (stop, write result in graph), so no fix story comes; STORY-45 waits for a new decision of the human; planner decision D-023; the states were set as human:404pilo by D-013, by agent:jag-planner, at 2026-11-06T18:07:27Z
 * **State**: [STORY-81](stories/STORY-81.md) ready -> cancelled, by human:404pilo, at 2026-11-06T17:56:55Z
 * **State**: [STORY-45](stories/STORY-45.md) blocked -> backlog, by human:404pilo, at 2026-11-06T17:56:55Z

@@ -13,9 +13,9 @@ github:
   number: 316
   node_id: I_kwDOVKMnL88AAAABcdSeRA
   url: https://github.com/ai-ready-future/jag/issues/316
-  pushed_hash: 4774bc
+  pushed_hash: d2e60a
   synced:
-    state: ready
+    state: cancelled
     owner: human:404pilo
 spec: docs/superpowers/specs/2026-11-04-STORY-81-score-with-the-old-prompt-as-a-new-prompt-version-design.md
 parent: /epics/EPIC-02.md
