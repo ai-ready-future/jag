@@ -144,4 +144,10 @@ fn the_check_on_the_direct_route_with_no_key_keeps_five_lines_and_exit_3() {
          not checked the service is reachable (jag has no key to send)\n\
          pass        other users cannot read the key file (no key file)\n"
     );
+    assert_eq!(
+        stderr(&output),
+        "jag: no TypeSafe API key found.\n\
+         Get a key at https://console.typesafe.ai/keys, then run `jag --setup`,\n\
+         or set JAG_TYPESAFE_API_KEY.\n"
+    );
 }
