@@ -13,9 +13,9 @@ github:
   number: 349
   node_id: I_kwDOVKMnL88AAAABc2mlpg
   url: https://github.com/ai-ready-future/jag/issues/349
-  pushed_hash: 02883b
+  pushed_hash: '744729'
   synced:
-    state: ready
+    state: done
 spec: docs/superpowers/specs/2026-11-05-STORY-84-each-setting-in-the-config-file-design.md
 parent: /features/FEATURE-29.md
 milestone: /milestones/MILESTONE-02.md

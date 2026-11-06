@@ -12,9 +12,9 @@ github:
   number: 348
   node_id: I_kwDOVKMnL88AAAABc2medg
   url: https://github.com/ai-ready-future/jag/issues/348
-  pushed_hash: 406add
+  pushed_hash: 31686c
   synced:
-    state: backlog
+    state: ready
 parent: /epics/EPIC-01.md
 milestone: /milestones/MILESTONE-02.md
 traces:
