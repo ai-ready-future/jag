@@ -7,6 +7,16 @@ source	relation	target
 /synthesis/d-015-bring-back-the-old-prompt-first-story-79-conclusion.md	sources	roadmap:/stories/STORY-81.md
 /synthesis/d-016-and-story-81-the-prompt-jag-p2-the-cut-and-the-decoys-in-one-run.md	sources	/synthesis/d-015-bring-back-the-old-prompt-first-story-79-conclusion.md
 /synthesis/d-016-and-story-81-the-prompt-jag-p2-the-cut-and-the-decoys-in-one-run.md	sources	roadmap:/stories/STORY-81.md
+/synthesis/d-017-six-lines-of-jag-check-for-a-server-that-needs-no-key.md	sources	prd:/decisions/DECISION-04.md
+/synthesis/d-017-six-lines-of-jag-check-for-a-server-that-needs-no-key.md	sources	prd:/decisions/DECISION-48.md
+/synthesis/d-017-six-lines-of-jag-check-for-a-server-that-needs-no-key.md	sources	prd:/decisions/DECISION-75.md
+/synthesis/d-017-six-lines-of-jag-check-for-a-server-that-needs-no-key.md	sources	prd:/questions/QUESTION-04.md
+/synthesis/d-018-story-91-and-story-93-do-not-wait-for-story-96.md	sources	prd:/decisions/DECISION-42.md
+/synthesis/d-018-story-91-and-story-93-do-not-wait-for-story-96.md	sources	prd:/decisions/DECISION-74.md
+/synthesis/d-018-story-91-and-story-93-do-not-wait-for-story-96.md	sources	prd:/decisions/DECISION-79.md
+/synthesis/d-018-story-91-and-story-93-do-not-wait-for-story-96.md	sources	prd:/decisions/DECISION-80.md
+/synthesis/d-018-story-91-and-story-93-do-not-wait-for-story-96.md	sources	roadmap:/stories/STORY-91.md
+/synthesis/d-018-story-91-and-story-93-do-not-wait-for-story-96.md	sources	roadmap:/stories/STORY-93.md
 /synthesis/feature-28-the-healthy-window-passed-the-feature-is-not-released.md	sources	/synthesis/story-77-fork-prs-need-an-approval-before-the-private-data-scan.md
 /synthesis/feature-28-the-healthy-window-passed-the-feature-is-not-released.md	sources	roadmap:/features/FEATURE-28.md
 /synthesis/story-45-practice-gate-and-conversion-rule.md	sources	/concepts/evaluation-method-of-the-earlier-search-tool.md

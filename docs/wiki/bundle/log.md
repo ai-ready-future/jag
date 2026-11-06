@@ -2,6 +2,9 @@
 
 ## 2026-11-06
 * **Report**: Wrote the body of the serde-saphyr 2.0.0 plain scalar page., by knowledge/1.1.3, at 2026-11-06T01:50:59Z
+* **Report**: Wrote the body of the D-017 page: the 6 lines of jag --check for a server that needs no key., by knowledge/1.1.3, at 2026-11-06T06:55:44Z
+* **Report**: Wrote the body of the D-018 page: STORY-91 and STORY-93 do not wait for STORY-96., by knowledge/1.1.3, at 2026-11-06T07:09:20Z
+* **Report**: Applied the 2 review fixes: D-017 Why line on exit 4 and decision 12; D-018 report text on FEATURE-20 and STORY-91., by knowledge/1.1.3, at 2026-11-06T07:37:17Z
 
 ## 2026-11-05
 * **Report**: Wrote the body of the FEATURE-28 healthy window page., by knowledge/1.1.3, at 2026-11-05T13:54:17Z
