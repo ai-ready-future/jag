@@ -371,6 +371,18 @@ for this spec. DF-1 is closed, and COMPONENT-02 names ADR-0029.
   other users can read, when no option and no variable sets the size limit.
   Signal: an agent report of exit 3 in a search with no question. The fix in
   the message (`chmod 600`) stays.
+- A search with `--ask` now stops with exit 3 on a config file that other
+  users can read, also when a variable sets the key, the base URL, and the
+  model. Before this change, such a search did not open the file (row 8).
+  Now it opens the file when no option and no variable sets 1 of the 4 new
+  settings: the timeout, the retry wait, the cost limit, or the size limit
+  (row 7). Signal: an agent report of exit 3 in a search with `--ask`. Fix:
+  `chmod 600 <path>`, as the message says. Or set the 4 variables:
+  `JAG_TIMEOUT`, `JAG_RETRY_WAIT`, `JAG_MAX_SCORED`, and `JAG_MAX_CHARS`.
+  Decision D-021 (decision-judge, 2026-11-06) keeps this behavior. The
+  reasons are in the knowledge page
+  `knowledge:/synthesis/d-021-keep-exit-3-for-a-readable-config-file-on-a-search-with-ask`
+  (PR #388).
 - A comment line of the user that holds an old key (for example
   `# api-key: <old key>`) now stays after `--forget-key`, because jag keeps
   each comment line. Before this change, `--forget-key` removed a file that
