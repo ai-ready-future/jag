@@ -18,6 +18,10 @@ source	relation	target
 /synthesis/d-018-story-91-and-story-93-do-not-wait-for-story-96.md	sources	roadmap:/stories/STORY-91.md
 /synthesis/d-018-story-91-and-story-93-do-not-wait-for-story-96.md	sources	roadmap:/stories/STORY-93.md
 /synthesis/d-018-story-91-and-story-93-do-not-wait-for-story-96.md	sources	roadmap:/stories/STORY-96.md
+/synthesis/d-021-keep-exit-3-for-a-readable-config-file-on-a-search-with-ask.md	sources	adr:/0029-read-each-setting-from-the-config-file-and-let-setup-write.md
+/synthesis/d-021-keep-exit-3-for-a-readable-config-file-on-a-search-with-ask.md	sources	prd:/decisions/DECISION-04.md
+/synthesis/d-021-keep-exit-3-for-a-readable-config-file-on-a-search-with-ask.md	sources	roadmap:/stories/STORY-57.md
+/synthesis/d-021-keep-exit-3-for-a-readable-config-file-on-a-search-with-ask.md	sources	roadmap:/stories/STORY-84.md
 /synthesis/feature-28-the-healthy-window-passed-the-feature-is-not-released.md	sources	/synthesis/story-77-fork-prs-need-an-approval-before-the-private-data-scan.md
 /synthesis/feature-28-the-healthy-window-passed-the-feature-is-not-released.md	sources	roadmap:/features/FEATURE-28.md
 /synthesis/story-45-practice-gate-and-conversion-rule.md	sources	/concepts/evaluation-method-of-the-earlier-search-tool.md
