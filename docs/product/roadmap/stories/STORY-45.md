@@ -8,7 +8,7 @@ status: draft
 generated:
   by: prd/6.2.0
   at: '2026-11-04T14:10:27Z'
-state: blocked
+state: backlog
 github:
   number: 70
   node_id: I_kwDOVKMnL88AAAABXTMnlA
@@ -43,6 +43,10 @@ The run follows DECISION-70:
 - Only a summary of the numbers goes public: the release notes and one README line. The data path, the key, and the per-case results stay on the maintainer's machine.
 - If the score is below 0.70, or not higher than blind grep, there is no release tag. A fix story comes first.
 - The run uses the run tool of STORY-78.
+
+## On hold
+
+STORY-45 is in `backlog` since 2026-11-06. The second practice test failed check 2, so spec row 23 allows no private run. The human chose to stop the work on the prompt (hitl option C, 2026-11-06), so no fix story comes, and STORY-81 is cancelled. The `blocked_by` list stays as it is. STORY-45 goes back to `ready` only after a new decision of the human.
 
 <!-- STATUS:START (generated, do not edit) -->
 
