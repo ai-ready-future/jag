@@ -81,7 +81,7 @@ fn forget_key_removes_the_stored_key() {
     };
     let file = ConfigFile::new(&env, &RealFs);
     assert_eq!(
-        find_key(&env, &file, Route::Direct, &Origin::Default).unwrap_err(),
+        find_key(&env, &file, Route::Direct).unwrap_err(),
         ConfigError::KeyMissing
     );
 }

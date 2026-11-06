@@ -163,7 +163,7 @@ The first result is the best.
 | 1 | No match, or no good answer | If `no_good_answer` is true, the term matched, but no result answers the question: say so. If `results_found` is 0, the term matched nothing: try a broader term, or another path |
 | 2 | Usage error, or a path that does not exist | Read `error.fix`. If `error` is null, read `warnings`. Fix the command and run it again |
 | 3 | The key is missing or cannot be used | jag cannot run: see the next section |
-| 4 | The service does not accept the key | jag cannot run: see the next section |
+| 4 | The service does not accept the key, or a gateway refuses a call with no key | jag cannot run: see the next section |
 | 5 | The account has no credit | jag cannot run: see the next section |
 | 6 | The service is down | jag cannot run: see the next section |
 | 7 | The cost limit was reached | The results are valid. Use them. For more, use a narrower term or path |
@@ -285,8 +285,9 @@ $ jag --base-url https://openrouter.ai/api --model "~typesafe/jev-latest" --ask 
 
 When `JAG_BASE_URL` or `config.base-url` names a gateway, `jag --setup` and
 `jag --forget-key` work on the gateway key. They keep the other values of the
-file. With no gateway key, a search stops with exit 3 before the call.
-`--check` follows the same settings and the same key as a search, and it
+file. With no gateway key, jag calls the gateway with no key. When the
+gateway refuses the call, jag exits with 4, and the message names
+`JAG_GATEWAY_API_KEY`. `--check` follows the same settings and the same key as a search, and it
 accepts `--base-url` and `--model`.
 
 To store or remove the key of the other route, name that route for the one
@@ -302,7 +303,7 @@ $ JAG_BASE_URL=https://api.typesafe.ai jag --setup
 $ jag --check [--base-url URL] [--model NAME]
 ```
 
-The check shows `pass` or `fail` for five items, in this order:
+The check shows a status for five items, in this order (six on a gateway with no gateway key):
 
 1. a key is present
 2. the service accepts the key
@@ -327,11 +328,26 @@ pass        other users cannot read the key file (no key file)
 jag is ready.
 ```
 
+On a gateway with no gateway key, the check shows six lines. The two key
+items say `not needed`, and the credit item says `not available`. The line
+`the server answers a scoring call` comes after `the service is reachable`.
+When the server answers, the check shows this and exits with 0:
+
+```
+not needed  a key is present
+not needed  the service accepts the key
+not available the account has credit
+pass        the service is reachable
+pass        the server answers a scoring call
+pass        other users cannot read the key file (no key file)
+jag is ready.
+```
+
 Exit codes:
 
 | Code | Cause |
 |---|---|
-| 0 | All five items pass |
+| 0 | No item fails |
 | 2 | The command line or a setting is not valid |
 | 3 | No key, a bad key, or a config file that others can read or that jag cannot use |
 | 4 | The service does not accept the key |

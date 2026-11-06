@@ -5,6 +5,11 @@
 //! other users cannot read the key file. One small call to the service
 //! examines items 2, 3, and 4. The exit code is the code of the first item
 //! that fails.
+//!
+//! On the gateway route with no gateway key (ADR-0028, decision D-017), the
+//! check shows six items. Items 1 and 2 say `not needed`, item 3 says `not
+//! available`, and the item `the server answers a scoring call` comes after
+//! the reachable item.
 
 use crate::config::{ApiKey, ConfigError, ConfigFile, Env, KeySource, find_key, key_file_mode};
 use crate::failure::Failure;
@@ -15,19 +20,25 @@ const ITEM_2: &str = "the service accepts the key";
 const ITEM_3: &str = "the account has credit";
 const ITEM_4: &str = "the service is reachable";
 const ITEM_5: &str = "other users cannot read the key file";
+const ITEM_SCORING: &str = "the server answers a scoring call";
 
 const NO_KEY_NOTE: &str = " (jag has no key to send)";
 const CALL_FAILED_NOTE: &str = " (the call to the service failed)";
 const KEY_REFUSED_NOTE: &str = " (the service did not accept the key)";
 const KEY_FILE_NOTE: &str = " (jag cannot use the key file: see the last item)";
 
-/// The words of the status field are `pass`, `fail`, and `not checked`.
+/// The words of the status field are `pass`, `fail`, `not checked`, `not
+/// needed`, and `not available`.
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
 pub enum Status {
     Pass,
     Fail,
     /// jag cannot examine the item, because an item before it failed.
     NotChecked,
+    /// The item has no use on this route: a call with no key needs no key.
+    NotNeeded,
+    /// The route gives no answer for the item: a gateway has no credit item.
+    NotAvailable,
 }
 
 impl Status {
@@ -36,6 +47,8 @@ impl Status {
             Status::Pass => "pass",
             Status::Fail => "fail",
             Status::NotChecked => "not checked",
+            Status::NotNeeded => "not needed",
+            Status::NotAvailable => "not available",
         }
     }
 }
@@ -66,6 +79,14 @@ impl Item {
         }
     }
 
+    fn without_result(status: Status, text: &str) -> Item {
+        Item {
+            status,
+            text: text.to_owned(),
+            failure: None,
+        }
+    }
+
     fn not_checked(text: &str, note: &str) -> Item {
         Item {
             status: Status::NotChecked,
@@ -75,21 +96,33 @@ impl Item {
     }
 }
 
-/// The result of the check: the five items, in the order of DECISION-04.
+/// The result of the check: the five items, in the order of DECISION-04. A
+/// gateway with no gateway key has six items.
 #[derive(Clone, Debug, PartialEq, Eq)]
 pub struct Report {
-    pub items: [Item; 5],
+    pub items: Vec<Item>,
 }
 
 impl Report {
-    /// The lines for standard output, and `jag is ready.` when all items
-    /// pass.
+    /// The lines for standard output, and `jag is ready.` when no item fails
+    /// and no item is `not checked`. The status field is 12 characters wide,
+    /// and a longer word gets 1 space.
     pub fn lines(&self) -> String {
         let mut text = String::new();
         for item in &self.items {
-            text.push_str(&format!("{:<12}{}\n", item.status.word(), item.text));
+            let word = item.status.word();
+            text.push_str(word);
+            text.push_str(&" ".repeat(12usize.saturating_sub(word.len()).max(1)));
+            text.push_str(&item.text);
+            text.push('\n');
         }
-        if self.items.iter().all(|item| item.status == Status::Pass) {
+        let examined = |item: &Item| {
+            matches!(
+                item.status,
+                Status::Pass | Status::NotNeeded | Status::NotAvailable
+            )
+        };
+        if self.items.iter().all(examined) {
             text.push_str("jag is ready.\n");
         }
         text
@@ -121,6 +154,9 @@ fn source_note(source: &KeySource) -> String {
     }
 }
 
+/// The call of the check: the key, or no key on the gateway route.
+type Call<'a> = &'a dyn Fn(Option<&ApiKey>, &ScoreSettings) -> Result<(), ScoreError>;
+
 /// Examine the five items. `settings` is the result of the read of the
 /// settings: a file error shows on item 1 or item 5. `call` makes the one
 /// call to the service.
@@ -128,7 +164,7 @@ pub fn run(
     env: &Env,
     file: &ConfigFile,
     settings: Result<ScoreSettings, ConfigError>,
-    call: &dyn Fn(&ApiKey, &ScoreSettings) -> Result<(), ScoreError>,
+    call: Call,
 ) -> Report {
     // Item 5.
     let (item_5, key_file_failed) = match key_file_mode(env, file.fs()) {
@@ -161,11 +197,12 @@ pub fn run(
             if key_file_failed && env.set_key_variable(settings.route).is_none() {
                 no_key(Item::not_checked(ITEM_1, KEY_FILE_NOTE))
             } else {
-                match find_key(env, file, settings.route, &settings.base_url_origin) {
-                    Ok((key, source)) => (
+                match find_key(env, file, settings.route) {
+                    Ok(Some((key, source))) => (
                         Item::pass(ITEM_1, &source_note(&source)),
-                        call_items(&key, &settings, call),
+                        call_items(Some(&key), &settings, call),
                     ),
+                    Ok(None) => return no_key_report(&settings, call, item_5),
                     Err(error) => no_key(Item::fail(ITEM_1, error.into())),
                 }
             }
@@ -173,17 +210,53 @@ pub fn run(
     };
     let [item_2, item_3, item_4] = items_234;
     Report {
-        items: [item_1, item_2, item_3, item_4, item_5],
+        items: vec![item_1, item_2, item_3, item_4, item_5],
+    }
+}
+
+/// The six items of a gateway with no gateway key (decision D-017). The call
+/// sends no key.
+fn no_key_report(settings: &ScoreSettings, call: Call, item_5: Item) -> Report {
+    let failure = |error: ScoreError| error.failure(settings);
+    let not_available = Item::without_result(Status::NotAvailable, ITEM_3);
+    let call_failed = Item::not_checked(ITEM_SCORING, CALL_FAILED_NOTE);
+    let (item_3, item_4, scoring) = match call(None, settings) {
+        Ok(()) => (
+            not_available,
+            Item::pass(ITEM_4, ""),
+            Item::pass(ITEM_SCORING, ""),
+        ),
+        Err(error @ ScoreError::KeyNeeded { .. }) => (
+            not_available,
+            Item::pass(ITEM_4, ""),
+            Item::fail(ITEM_SCORING, failure(error)),
+        ),
+        Err(ScoreError::NoCredit) => (
+            Item::fail(ITEM_3, failure(ScoreError::NoCredit)),
+            Item::pass(ITEM_4, ""),
+            call_failed,
+        ),
+        Err(error) => (
+            not_available,
+            Item::fail(ITEM_4, failure(error)),
+            call_failed,
+        ),
+    };
+    Report {
+        items: vec![
+            Item::without_result(Status::NotNeeded, ITEM_1),
+            Item::without_result(Status::NotNeeded, ITEM_2),
+            item_3,
+            item_4,
+            scoring,
+            item_5,
+        ],
     }
 }
 
 /// Items 2, 3, and 4 from the one call (see "The call results" of the spec).
 /// A 401 or a 402 comes from the service, so the service is reachable.
-fn call_items(
-    key: &ApiKey,
-    settings: &ScoreSettings,
-    call: &dyn Fn(&ApiKey, &ScoreSettings) -> Result<(), ScoreError>,
-) -> [Item; 3] {
+fn call_items(key: Option<&ApiKey>, settings: &ScoreSettings, call: Call) -> [Item; 3] {
     let failure = |error: ScoreError| error.failure(settings);
     match call(key, settings) {
         Ok(()) => [
@@ -600,22 +673,153 @@ mod tests {
         );
     }
 
+    /// A gateway, no gateway key, and a key of the other route.
+    const NO_GATEWAY_KEY: &[(&str, &str)] = &[
+        ("JAG_TYPESAFE_API_KEY", SENTINEL_KEY),
+        ("JAG_BASE_URL", "https://openrouter.ai/api"),
+        ("JAG_MODEL", "~typesafe/jev-latest"),
+    ];
+
+    /// Run the check on a gateway with no gateway key. The call fails the
+    /// test when it gets a key.
+    fn check_no_key(fs: &FakeFs, result: Result<(), ScoreError>) -> (Report, usize) {
+        let vars = vars(NO_GATEWAY_KEY);
+        let env = Env {
+            vars: &vars,
+            home: Some(PathBuf::from("/home/user")),
+        };
+        let calls = Cell::new(0);
+        let file = ConfigFile::new(&env, fs);
+        let settings =
+            model_settings(&env, &file, &SettingOptions::default()).map(ScoreSettings::new);
+        let report = run(&env, &file, settings, &|key, _| {
+            assert!(key.is_none(), "the call must get no key");
+            calls.set(calls.get() + 1);
+            result.clone()
+        });
+        (report, calls.get())
+    }
+
+    use Status::{NotAvailable, NotNeeded};
+
     #[test]
-    fn the_key_of_the_other_route_is_not_a_key_of_the_gateway() {
-        let pairs = [
-            ("JAG_TYPESAFE_API_KEY", SENTINEL_KEY),
-            ("JAG_BASE_URL", "https://openrouter.ai/api"),
-            ("JAG_MODEL", "~typesafe/jev-latest"),
-        ];
-        let (report, calls) = check(&pairs, true, &no_file(), Ok(()));
+    fn a_gateway_with_no_gateway_key_shows_six_lines_and_calls_with_no_key() {
+        let (report, calls) = check_no_key(&no_file(), Ok(()));
+        assert_eq!(calls, 1);
         assert_eq!(
             statuses(&report),
-            [Fail, NotChecked, NotChecked, NotChecked, Pass]
+            [NotNeeded, NotNeeded, NotAvailable, Pass, Pass, Pass]
         );
-        assert_eq!(calls, 0);
-        assert_eq!(report.exit_code(), 3);
-        let failure = report.items[0].failure.as_ref().expect("a failure");
-        assert!(failure.cause.contains("no gateway key found"));
+        assert_eq!(report.exit_code(), 0);
+        assert_eq!(
+            report.lines(),
+            "not needed  a key is present\n\
+             not needed  the service accepts the key\n\
+             not available the account has credit\n\
+             pass        the service is reachable\n\
+             pass        the server answers a scoring call\n\
+             pass        other users cannot read the key file (no key file)\n\
+             jag is ready.\n"
+        );
+    }
+
+    #[test]
+    fn a_refused_call_with_no_key_fails_the_scoring_line_with_exit_4() {
+        for status in [401, 403] {
+            let (report, calls) = check_no_key(&no_file(), Err(ScoreError::KeyNeeded { status }));
+            assert_eq!(calls, 1);
+            assert_eq!(
+                statuses(&report),
+                [NotNeeded, NotNeeded, NotAvailable, Pass, Fail, Pass]
+            );
+            assert_eq!(report.exit_code(), 4);
+            let failure = report.items[4].failure.as_ref().expect("a failure");
+            assert_eq!(
+                failure.cause,
+                format!("the gateway did not accept a call with no key (HTTP {status}).")
+            );
+            assert!(!report.lines().contains("jag is ready."));
+        }
+    }
+
+    #[test]
+    fn no_credit_fails_the_credit_line_of_a_call_with_no_key() {
+        let (report, _) = check_no_key(&no_file(), Err(ScoreError::NoCredit));
+        assert_eq!(
+            statuses(&report),
+            [NotNeeded, NotNeeded, Fail, Pass, NotChecked, Pass]
+        );
+        assert_eq!(report.exit_code(), 5);
+        assert!(
+            report.items[4]
+                .text
+                .ends_with("(the call to the service failed)")
+        );
+    }
+
+    #[test]
+    fn each_failure_of_the_service_fails_the_reachable_line_of_a_call_with_no_key() {
+        let errors = [
+            ScoreError::TimedOut,
+            ScoreError::CannotConnect,
+            ScoreError::RateLimited,
+            ScoreError::ServerFailed { status: 503 },
+            ScoreError::Redirect,
+            ScoreError::UnexpectedStatus { status: 404 },
+            ScoreError::BadResponse,
+        ];
+        for error in errors {
+            let (report, _) = check_no_key(&no_file(), Err(error.clone()));
+            assert_eq!(
+                statuses(&report),
+                [NotNeeded, NotNeeded, NotAvailable, Fail, NotChecked, Pass],
+                "{error:?}"
+            );
+            assert_eq!(report.exit_code(), 6);
+        }
+    }
+
+    #[test]
+    fn jag_is_ready_needs_no_item_that_fails_or_is_not_checked() {
+        let item = |status| Item {
+            status,
+            text: "t".to_owned(),
+            failure: None,
+        };
+        let ready = |items: Vec<Item>| Report { items }.lines().contains("jag is ready.");
+        assert!(ready(vec![item(NotNeeded), item(NotAvailable), item(Pass)]));
+        assert!(!ready(vec![item(NotNeeded), item(NotChecked)]));
+        assert!(!ready(vec![item(NotAvailable), item(Fail)]));
+    }
+
+    #[test]
+    fn a_gateway_with_a_key_and_the_direct_route_keep_their_five_lines() {
+        let (report, _) = check(GATEWAY, true, &no_file(), Ok(()));
+        assert_eq!(report.items.len(), 5);
+        let (report, _) = check(GOOD, true, &no_file(), Ok(()));
+        assert_eq!(report.items.len(), 5);
+    }
+
+    #[test]
+    fn a_gateway_with_no_gateway_key_and_an_open_key_file_shows_five_lines_and_no_call() {
+        // jag does not read a file that it refuses, so it cannot know if the
+        // file holds a gateway key (spec row 18).
+        let vars = vars(&[
+            ("JAG_BASE_URL", "https://openrouter.ai/api"),
+            ("JAG_MODEL", "~typesafe/jev-latest"),
+        ]);
+        let env = Env {
+            vars: &vars,
+            home: Some(PathBuf::from("/home/user")),
+        };
+        let fs = file(0o644, KEY_FILE_TEXT);
+        let file = ConfigFile::new(&env, &fs);
+        let settings =
+            model_settings(&env, &file, &SettingOptions::default()).map(ScoreSettings::new);
+        let report = run(&env, &file, settings, &|_, _| {
+            panic!("the check must make no call")
+        });
+        assert_eq!(report.items.len(), 5);
     }
 
     #[test]
@@ -690,18 +894,20 @@ mod tests {
     fn exit_code_is_0_3_4_5_6_3_for_no_failure_and_for_one_failed_item() {
         let codes = [3, 4, 5, 6, 3];
         let none = Report {
-            items: std::array::from_fn(|_| item(Pass, None)),
+            items: (0..5).map(|_| item(Pass, None)).collect(),
         };
         assert_eq!(none.exit_code(), 0);
         for (index, code) in codes.into_iter().enumerate() {
             let report = Report {
-                items: std::array::from_fn(|i| {
-                    if i == index {
-                        item(Fail, Some(code))
-                    } else {
-                        item(Pass, None)
-                    }
-                }),
+                items: (0..5)
+                    .map(|i| {
+                        if i == index {
+                            item(Fail, Some(code))
+                        } else {
+                            item(Pass, None)
+                        }
+                    })
+                    .collect(),
             };
             assert_eq!(report.exit_code(), code, "item {}", index + 1);
         }

@@ -110,7 +110,7 @@ fn read_cases(path: &Path) -> Result<Vec<Case>, Failure> {
     Ok(cases)
 }
 
-fn settings() -> Result<(jag::config::ApiKey, ScoreSettings), Failure> {
+fn settings() -> Result<(Option<jag::config::ApiKey>, ScoreSettings), Failure> {
     let vars = |name: &str| std::env::var_os(name);
     let home = std::env::var_os("HOME")
         .filter(|home| !home.is_empty())
@@ -123,8 +123,9 @@ fn settings() -> Result<(jag::config::ApiKey, ScoreSettings), Failure> {
         times: (None, None),
     };
     let settings = model_settings(&env, &file, &options).map_err(Failure::from)?;
-    let (key, _source) =
-        find_key(&env, &file, settings.route, &settings.base_url_origin).map_err(Failure::from)?;
+    let key = find_key(&env, &file, settings.route)
+        .map_err(Failure::from)?
+        .map(|(key, _source)| key);
     Ok((key, ScoreSettings::new(settings)))
 }
 
@@ -178,7 +179,7 @@ fn run(args: &Args) -> Result<(bool, String, String), Failure> {
 
     let usage = Mutex::new(Usage::default());
     let setup = Setup {
-        key: &key,
+        key: key.as_ref(),
         settings: &score_settings,
         stop: &stop,
         usage: &usage,

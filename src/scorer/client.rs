@@ -44,15 +44,16 @@ struct Answer {
     noul: f64,
 }
 
-/// One agent for the search, with the address and the key.
+/// One agent for the search, with the address and the key. With no key, the
+/// client sends no `Authorization` header (ADR-0028).
 pub(super) struct Client {
     agent: Agent,
     url: String,
-    authorization: String,
+    authorization: Option<String>,
 }
 
 impl Client {
-    pub fn new(key: &ApiKey, settings: &ScoreSettings) -> Self {
+    pub fn new(key: Option<&ApiKey>, settings: &ScoreSettings) -> Self {
         let builder = Agent::config_builder()
             .tls_config(
                 TlsConfig::builder()
@@ -76,7 +77,7 @@ impl Client {
         Self {
             agent,
             url: format!("{}/systemone", settings.base_url),
-            authorization: format!("Bearer {}", key.expose()),
+            authorization: key.map(|key| format!("Bearer {}", key.expose())),
         }
     }
 
@@ -88,10 +89,12 @@ impl Client {
         count: usize,
         timeout: Duration,
     ) -> (Result<Vec<f64>, Attempt>, Bill) {
-        let sent = self
-            .agent
-            .post(&self.url)
-            .header("Authorization", &self.authorization)
+        let request = self.agent.post(&self.url);
+        let request = match &self.authorization {
+            Some(authorization) => request.header("Authorization", authorization),
+            None => request,
+        };
+        let sent = request
             .header("Content-Type", "application/json")
             .header("Accept", "application/json")
             .config()
@@ -111,7 +114,14 @@ impl Client {
         let refused = |attempt| (Err(attempt), Bill::NoAnswer);
         match status {
             200 => {}
-            401 | 403 => return refused(Attempt::stop(ScoreError::KeyNotAccepted { status })),
+            401 | 403 => {
+                let error = if self.authorization.is_some() {
+                    ScoreError::KeyNotAccepted { status }
+                } else {
+                    ScoreError::KeyNeeded { status }
+                };
+                return refused(Attempt::stop(error));
+            }
             402 => return refused(Attempt::stop(ScoreError::NoCredit)),
             429 => return refused(Attempt::retry(ScoreError::RateLimited)),
             500..=599 => return refused(Attempt::retry(ScoreError::ServerFailed { status })),

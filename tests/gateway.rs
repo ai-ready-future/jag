@@ -7,7 +7,7 @@ mod common;
 use std::path::Path;
 use std::process::Output;
 
-use common::fake_server::FakeServer;
+use common::fake_server::{FakeServer, Reply};
 use common::{KEY, jag_bare, write};
 use tempfile::TempDir;
 
@@ -364,9 +364,10 @@ fn criterion_96_a_source_that_wins_hides_a_bad_lower_value() {
     assert_eq!(server.requests().len(), 2);
 }
 
-// The key of each route: the key of the other route does not count.
+// The key of each route: the key of the other route does not count. With no
+// gateway key, jag calls the gateway with no key (ADR-0028, CRITERION-155).
 #[test]
-fn a_typesafe_key_is_not_a_gateway_key() {
+fn a_typesafe_key_is_not_sent_to_a_gateway() {
     let dir = folder();
     let server = FakeServer::constant(0.8);
     let home = home();
@@ -376,30 +377,151 @@ fn a_typesafe_key_is_not_a_gateway_key() {
         ("TYPESAFE_API_KEY", KEY),
         ("JAG_BASE_URL", &server.root()),
     ];
-    let output = search(home.path(), dir.path(), &variables, &[]);
-    assert_eq!(output.status.code(), Some(3));
+    let by_variable = search(home.path(), dir.path(), &variables, &[]);
     assert_eq!(
-        text(&output.stderr),
-        "jag: no gateway key found.\n\
-         Get a key from the gateway, then run `jag --setup`,\n\
-         or set JAG_GATEWAY_API_KEY.\n"
+        by_variable.status.code(),
+        Some(0),
+        "{}",
+        text(&by_variable.stderr)
     );
-    assert!(server.requests().is_empty());
-    no_secret(&output);
+    no_secret(&by_variable);
 
-    // With the option, the fix names only the variable.
-    let output = search(
+    // The same with the option.
+    let by_option = search(
         home.path(),
         dir.path(),
         &variables[..2],
         &["--base-url", &server.root()],
     );
-    assert_eq!(output.status.code(), Some(3));
     assert_eq!(
-        text(&output.stderr),
-        "jag: no gateway key found.\nSet JAG_GATEWAY_API_KEY to the key of the gateway.\n"
+        by_option.status.code(),
+        Some(0),
+        "{}",
+        text(&by_option.stderr)
     );
-    assert!(server.requests().is_empty());
+    no_secret(&by_option);
+
+    let requests = server.requests();
+    assert_eq!(requests.len(), 2);
+    for request in requests {
+        assert_eq!(request.header("authorization"), None);
+        assert!(!request.body_text().contains("SENTINEL"));
+        for (name, value) in &request.headers {
+            assert!(!value.contains("SENTINEL"), "key in header {name}");
+        }
+    }
+}
+
+#[test]
+fn a_search_with_no_gateway_key_gives_the_result_of_a_search_with_a_key() {
+    let dir = folder();
+    let server = FakeServer::constant(0.8);
+    let home = home();
+    let base = ("JAG_BASE_URL", server.root());
+    let with_key = search(
+        home.path(),
+        dir.path(),
+        &[("JAG_GATEWAY_API_KEY", KEY), (base.0, &base.1)],
+        &[],
+    );
+    let no_key = search(home.path(), dir.path(), &[(base.0, &base.1)], &[]);
+    assert_eq!(with_key.status.code(), Some(0));
+    assert_eq!(no_key.status.code(), Some(0));
+    assert_eq!(with_key.stdout, no_key.stdout);
+    assert!(!no_key.stdout.is_empty());
+    let requests = server.requests();
+    assert_eq!(requests.len(), 2);
+    assert!(requests[0].header("authorization").is_some());
+    assert_eq!(requests[1].header("authorization"), None);
+}
+
+// CRITERION-156: a refused call with no key.
+#[test]
+fn a_401_or_a_403_to_a_call_with_no_key_gives_exit_4_and_names_the_variable() {
+    let dir = folder();
+    let home = home();
+    for status in [401, 403] {
+        let server = FakeServer::start(move |_| Reply::status(status));
+        let cause =
+            format!("jag: the gateway did not accept a call with no key (HTTP {status}).\n");
+
+        let output = search(
+            home.path(),
+            dir.path(),
+            &[("JAG_BASE_URL", &server.root())],
+            &[],
+        );
+        assert_eq!(output.status.code(), Some(4));
+        // The line of the cost follows the error.
+        assert!(
+            text(&output.stderr).starts_with(&format!(
+                "{cause}Get a key from the gateway, then run `jag --setup`,\n\
+                 or set JAG_GATEWAY_API_KEY.\n"
+            )),
+            "{}",
+            text(&output.stderr)
+        );
+        assert_eq!(server.requests().len(), 1, "no retry");
+
+        let output = search(
+            home.path(),
+            dir.path(),
+            &[],
+            &["--base-url", &server.root()],
+        );
+        assert_eq!(output.status.code(), Some(4));
+        assert!(
+            text(&output.stderr).starts_with(&format!(
+                "{cause}Set JAG_GATEWAY_API_KEY to the key of the gateway.\n"
+            )),
+            "{}",
+            text(&output.stderr)
+        );
+        assert_eq!(server.requests().len(), 2, "no retry");
+    }
+}
+
+#[test]
+fn a_refused_call_with_no_key_in_json_mode_is_an_error_document() {
+    let dir = folder();
+    let home = home();
+    let server = FakeServer::start(|_| Reply::status(401));
+    let output = search(
+        home.path(),
+        dir.path(),
+        &[("JAG_BASE_URL", &server.root())],
+        &["--json"],
+    );
+    assert_eq!(output.status.code(), Some(4));
+    let document: serde_json::Value =
+        serde_json::from_slice(&output.stdout).expect("a JSON document");
+    assert_eq!(document["exit_code"], 4);
+    assert_eq!(
+        document["error"]["cause"],
+        "the gateway did not accept a call with no key (HTTP 401)."
+    );
+}
+
+#[test]
+fn a_401_to_a_call_with_a_key_keeps_the_text_of_a_refused_key() {
+    let dir = folder();
+    let home = home();
+    let server = FakeServer::start(|_| Reply::status(401));
+    let output = search(
+        home.path(),
+        dir.path(),
+        &[
+            ("JAG_GATEWAY_API_KEY", KEY),
+            ("JAG_BASE_URL", &server.root()),
+        ],
+        &[],
+    );
+    assert_eq!(output.status.code(), Some(4));
+    assert!(text(&output.stderr).starts_with(
+        "jag: the gateway did not accept the key (HTTP 401).\n\
+         Check that the key is a key of the gateway, then run jag --setup.\n"
+    ));
+    no_secret(&output);
 }
 
 #[test]

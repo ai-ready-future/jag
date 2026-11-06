@@ -165,28 +165,98 @@ fn criterion_09_each_item_is_examined_with_a_402_and_an_open_key_file() {
     );
 }
 
-// CRITERION-10 and CRITERION-67: no key (item 1), exit 3, and no call.
+const NO_KEY_READY: &str = "not needed  a key is present\n\
+                            not needed  the service accepts the key\n\
+                            not available the account has credit\n\
+                            pass        the service is reachable\n\
+                            pass        the server answers a scoring call\n\
+                            pass        other users cannot read the key file (no key file)\n\
+                            jag is ready.\n";
+
+// CRITERION-157 (ADR-0028, D-017): a gateway with no gateway key. The check
+// shows six lines, calls with no key, and passes.
 #[test]
-fn criterion_10_no_key_names_the_problem_and_the_fix_and_makes_no_call() {
+fn criterion_157_a_gateway_with_no_key_shows_six_lines_and_passes() {
     let server = FakeServer::constant(0.8);
     let home = home();
     let run = check_without_key(&server, home.path(), &[]);
-    assert_eq!(run.code, Some(3));
+    assert_eq!(run.code, Some(0));
+    assert_eq!(run.stdout, NO_KEY_READY);
+    assert_eq!(run.stderr, "");
+    let requests = server.requests();
+    assert_eq!(requests.len(), 1);
+    assert_eq!(requests[0].header("authorization"), None);
+}
+
+// CRITERION-157: a refusal of a call with no key fails the new line, exit 4.
+#[test]
+fn criterion_157_a_refused_call_with_no_key_fails_the_scoring_line_with_exit_4() {
+    for status in [401, 403] {
+        let server = answer(status);
+        let home = home();
+        let run = check_without_key(&server, home.path(), &[]);
+        assert_eq!(run.code, Some(4));
+        assert_eq!(
+            run.stdout,
+            "not needed  a key is present\n\
+             not needed  the service accepts the key\n\
+             not available the account has credit\n\
+             pass        the service is reachable\n\
+             fail        the server answers a scoring call\n\
+             pass        other users cannot read the key file (no key file)\n"
+        );
+        assert_eq!(
+            run.stderr,
+            format!(
+                "jag: the gateway did not accept a call with no key (HTTP {status}).\n\
+                 Get a key from the gateway, then run `jag --setup`,\n\
+                 or set JAG_GATEWAY_API_KEY.\n"
+            )
+        );
+        assert_eq!(server.requests().len(), 1);
+    }
+}
+
+// CRITERION-157: a 402 fails the credit line, exit 5.
+#[test]
+fn criterion_157_a_402_to_a_call_with_no_key_fails_the_credit_line_with_exit_5() {
+    let server = answer(402);
+    let home = home();
+    let run = check_without_key(&server, home.path(), &[]);
+    assert_eq!(run.code, Some(5));
     assert_eq!(
         run.stdout,
-        "fail        a key is present\n\
-         not checked the service accepts the key (jag has no key to send)\n\
-         not checked the account has credit (jag has no key to send)\n\
-         not checked the service is reachable (jag has no key to send)\n\
+        "not needed  a key is present\n\
+         not needed  the service accepts the key\n\
+         fail        the account has credit\n\
+         pass        the service is reachable\n\
+         not checked the server answers a scoring call (the call to the service failed)\n\
          pass        other users cannot read the key file (no key file)\n"
     );
-    assert_eq!(
-        run.stderr,
-        "jag: no gateway key found.\n\
-         Get a key from the gateway, then run `jag --setup`,\n\
-         or set JAG_GATEWAY_API_KEY.\n"
+    assert_eq!(run.stderr, NO_CREDIT_BLOCK);
+}
+
+// CRITERION-157: a server that gives no answer fails the reachable line.
+#[test]
+fn criterion_157_a_server_that_does_not_answer_fails_the_reachable_line_with_exit_6() {
+    let server =
+        FakeServer::start(|request| Reply::scores(request, |_| 0.8).after(Duration::from_secs(3)));
+    let home = home();
+    let run = check_without_key(
+        &server,
+        home.path(),
+        &["--timeout", "1", "--retry-wait", "1"],
     );
-    assert!(server.requests().is_empty());
+    assert_eq!(run.code, Some(6));
+    assert_eq!(
+        run.stdout,
+        "not needed  a key is present\n\
+         not needed  the service accepts the key\n\
+         not available the account has credit\n\
+         fail        the service is reachable\n\
+         not checked the server answers a scoring call (the call to the service failed)\n\
+         pass        other users cannot read the key file (no key file)\n"
+    );
 }
 
 // CRITERION-10 and CRITERION-67: a refused key (item 2), exit 4.
@@ -471,28 +541,18 @@ fn an_open_file_that_the_settings_need_fails_item_5_and_makes_no_call() {
     assert!(server.requests().is_empty());
 }
 
-// FEATURE-21 example 3: the key of the direct route is not a gateway key.
+// FEATURE-21 example 3: the key of the direct route is not a gateway key. A
+// gateway with no gateway key gets a call with no key (ADR-0028).
 #[test]
-fn the_key_of_the_direct_route_does_not_count_on_the_gateway_route() {
+fn the_key_of_the_direct_route_is_not_sent_to_a_gateway() {
     let server = FakeServer::constant(0.8);
     let home = home();
     let run = check_reading_the_file(&server, home.path());
-    assert_eq!(run.code, Some(3));
-    assert_eq!(
-        run.stdout,
-        "fail        a key is present\n\
-         not checked the service accepts the key (jag has no key to send)\n\
-         not checked the account has credit (jag has no key to send)\n\
-         not checked the service is reachable (jag has no key to send)\n\
-         pass        other users cannot read the key file (no key file)\n"
-    );
-    assert_eq!(
-        run.stderr,
-        "jag: no gateway key found.\n\
-         Get a key from the gateway, then run `jag --setup`,\n\
-         or set JAG_GATEWAY_API_KEY.\n"
-    );
-    assert!(server.requests().is_empty());
+    assert_eq!(run.code, Some(0));
+    assert_eq!(run.stdout, NO_KEY_READY);
+    let requests = server.requests();
+    assert_eq!(requests.len(), 1);
+    assert_eq!(requests[0].header("authorization"), None);
 }
 
 #[test]
