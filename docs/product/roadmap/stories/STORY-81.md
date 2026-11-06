@@ -51,9 +51,9 @@ The stop rule (D-015). The specifier writes it into the STORY-81 spec before the
 
 ## Result
 
-STORY-81 is cancelled on 2026-11-06. The second practice test ran with `jag-p2` (code PR #338). Check 1 passed, check 2 failed, and the decoy result passed. The rule cut that STORY-45 spec rows 23 and 25 need is higher than the cut of the spec.
+STORY-81 is cancelled on 2026-11-06. The second practice test ran with `jag-p2` (code PR #338). Check 1 passed, check 2 failed, and the decoy result passed. The threshold rule of STORY-81 spec row 7 gave a cut higher than the default cut of that row (D-016).
 
-By the stop rule (spec row 9), rows 23 and 25 went back to the human as a `revisit:` card. The human chose option C through hitl on 2026-11-06: "stop, write result in graph". This line of work on the prompt stops, and STORY-45 spec rows 23 and 25 do not change. The scribe records the result in the knowledge graph. Options not chosen: A (keep the rows and close STORY-81) and B (study the higher cut).
+By the stop rule (spec row 9), rows 23 and 25 went back to the human as a `revisit:` card. The human chose option C through hitl on 2026-11-06: "stop, write result in graph". This line of work on the prompt stops, and STORY-45 spec rows 23 and 25 do not change. The scribe records the result in the knowledge graph. Options not chosen: A (keep the rows and close STORY-81) and B (study the higher cut that the row 7 rule gives).
 
 STORY-81 is not `done`, because spec row 21 says that it is `done` only when check 2 also passes.
 
