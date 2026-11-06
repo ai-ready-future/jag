@@ -133,8 +133,9 @@ impl Report {
         self.items.iter().filter_map(|item| item.failure.as_ref())
     }
 
-    /// 0 when all items pass. Else the code of the first item that fails, in
-    /// the order of DECISION-04 (decision 13).
+    /// 0 when no item fails (an item that is `not needed` or `not available`
+    /// does not fail). Else the code of the first item that fails, in the
+    /// order of DECISION-04 (decision 13).
     pub fn exit_code(&self) -> u8 {
         self.failures()
             .next()
@@ -157,9 +158,10 @@ fn source_note(source: &KeySource) -> String {
 /// The call of the check: the key, or no key on the gateway route.
 type Call<'a> = &'a dyn Fn(Option<&ApiKey>, &ScoreSettings) -> Result<(), ScoreError>;
 
-/// Examine the five items. `settings` is the result of the read of the
-/// settings: a file error shows on item 1 or item 5. `call` makes the one
-/// call to the service.
+/// Examine the items: five, or six on a gateway with no gateway key (the
+/// last item is always the key-file item). `settings` is the result of the
+/// read of the settings: a file error shows on item 1 or the key-file item.
+/// `call` makes the one call to the service.
 pub fn run(
     env: &Env,
     file: &ConfigFile,

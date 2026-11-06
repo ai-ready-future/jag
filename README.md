@@ -263,8 +263,8 @@ These gateways take the TypeSafe model:
 | Pydantic AI Gateway | `https://gateway-us.pydantic.dev/proxy/typesafe` | `jev-latest` |
 
 The TypeSafe key goes only to the TypeSafe API. For any other address, jag
-sends a gateway key, and it never sends the TypeSafe key. jag uses the first
-gateway key that it finds:
+sends a gateway key when it finds one, and it never sends the TypeSafe key.
+jag uses the first gateway key that it finds:
 
 1. the variable `JAG_GATEWAY_API_KEY`
 2. `config.gateway-api-key` in `~/.config/jag/config.yml`
