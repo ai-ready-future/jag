@@ -615,8 +615,8 @@ $ jag --no-max-chars TERM PATH...
 
 With `--ask` or `--json`, you can also set the variable `JAG_MAX_CHARS`, or
 `config.max-chars` in the config file (see [Settings](#settings)). The option
-wins over the variable, and the variable wins over the file. With no question,
-jag does not read the variable or the file. The smallest limit is 1,000. A value that is not a whole number of
+wins over the variable, and the variable wins over the file. With no question
+and no `--json`, jag does not read the variable or the file. The smallest limit is 1,000. A value that is not a whole number of
 1,000 or more is a usage error with exit code 2. `--no-max-chars` turns the
 limit off.
 
