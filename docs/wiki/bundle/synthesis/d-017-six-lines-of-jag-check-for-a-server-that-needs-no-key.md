@@ -36,6 +36,7 @@ The other routes keep 5 lines.
 ## Why
 
 - DECISION-75 says "the key items" in the plural, so it covers more than one line.
+- STORY-06 spec decision 12 maps each cause of exit 4 to item 2 (the key is accepted). On this route item 2 says "not needed", so a refused call with no key fails the new line in its place. The other routes keep decision 12.
 - The line form is not a contract (STORY-06 spec, decision 16).
 
 ## Pages used

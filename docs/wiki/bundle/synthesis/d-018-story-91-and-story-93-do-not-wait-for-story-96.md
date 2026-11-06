@@ -27,7 +27,7 @@ Do STORY-91 and STORY-93 need `blocked_by` STORY-96, because they add to "the re
 
 No.
 
-- "The report of each search" in DECISION-79 and DECISION-80 is the existing report of DECISION-42. It holds one count for each reason that jag did not score a result. FEATURE-20 built it.
+- "The report of each search" in DECISION-79 and DECISION-80 is the existing report of DECISION-42. It holds one count for each reason that jag did not score a result. FEATURE-20 built the report. STORY-91 adds the count for a private pattern to it.
 - STORY-96 is another report: the one of DECISION-74, "the report of the text that leaves the machine". Only STORY-89 extends it.
 - Links follow only if the STORY-96 spec makes the 2 reports one.
 
