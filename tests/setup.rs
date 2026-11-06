@@ -7,7 +7,7 @@ use std::os::unix::fs::PermissionsExt;
 use std::path::{Path, PathBuf};
 
 use assert_cmd::Command;
-use jag::config::{ConfigError, ConfigFile, Env, Origin, RealFs, Route, find_key};
+use jag::config::{ConfigError, ConfigFile, Env, RealFs, Route, find_key};
 use predicates::prelude::*;
 
 fn jag(home: &Path) -> Command {
