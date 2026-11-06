@@ -5,7 +5,7 @@ description: STORY-81 scored the old prompt as a new prompt version. Check 1 pas
 status: draft
 generated:
   by: knowledge/1.4.8
-  at: '2026-11-06T17:45:53Z'
+  at: '2026-11-06T17:51:14Z'
 sources:
 - id: STORY-81
   resource: roadmap:/stories/STORY-81.md
@@ -23,6 +23,10 @@ sources:
   resource: /synthesis/story-45-practice-gate-and-conversion-rule.md
   title: STORY-45 practice gate and conversion rule
   last_modified: '2026-11-03'
+- id: d-015-bring-back-the-old-prompt-first-story-79-conclusion
+  resource: /synthesis/d-015-bring-back-the-old-prompt-first-story-79-conclusion.md
+  title: 'D-015: bring back the old prompt first (STORY-79 conclusion)'
+  last_modified: '2026-11-04'
 ---
 
 # STORY-81 result: check 2 failed, the human stops work on the prompt (2026-11-06)
@@ -41,14 +45,13 @@ Source: the STORY-81 spec on `main`, `docs/superpowers/specs/2026-11-04-STORY-81
 - Check 1 passed.
 - Check 2 failed.
 - The decoy result passed.
-- The rule cut that rows 23 and 25 of the STORY-45 spec need is higher than the cut in the spec.
-
+- The threshold rule of STORY-81 spec row 7 gave a cut higher than the default cut of that row (D-016).
 ## Decision (human, through hitl, 2026-11-06, option C, veracity 90)
 
 - Stop this line of work on the prompt.
 - Record the result in the knowledge graph only.
 - Do not change rows 23 and 25 of the STORY-45 spec now.
-- The other options were A (keep the rows and close) and B (study the higher cut). The human did not choose them.
+- The other options were A (keep the rows and close) and B (study the higher cut that the row 7 rule gives). The human did not choose them.
 
 ## Related pages
 
@@ -65,4 +68,5 @@ Source: the STORY-81 spec on `main`, `docs/superpowers/specs/2026-11-04-STORY-81
 - sources: [roadmap:/stories/STORY-79.md](../../../product/roadmap/stories/STORY-79.md)
 - sources: [D-016 and STORY-81: the prompt jag-p2, the cut, and the decoys in one run](d-016-and-story-81-the-prompt-jag-p2-the-cut-and-the-decoys-in-one-run.md)
 - sources: [STORY-45 practice gate and conversion rule](story-45-practice-gate-and-conversion-rule.md)
+- sources: [D-015: bring back the old prompt first (STORY-79 conclusion)](d-015-bring-back-the-old-prompt-first-story-79-conclusion.md)
 <!-- LINKS:END -->
