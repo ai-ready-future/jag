@@ -14,7 +14,7 @@ github:
   url: https://github.com/ai-ready-future/jag/issues/356
   pushed_hash: 2e8b4c
   synced:
-    state: backlog
+    state: ready
 spec: docs/superpowers/specs/2026-11-05-STORY-86-call-the-gateway-base-url-with-no-key-design.md
 parent: /features/FEATURE-21.md
 milestone: /milestones/MILESTONE-02.md
