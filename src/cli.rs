@@ -717,8 +717,8 @@ fn search(
     let settings = model_settings(env, &file, &args.settings).map_err(Failure::from)?;
     let (key, _source) =
         find_key(env, &file, settings.route, &settings.base_url_origin).map_err(Failure::from)?;
-    let limit = cost_limit(env, args.cost_limit).map_err(Failure::from)?;
-    let size = size_limit(env, args.size_limit)
+    let limit = cost_limit(env, &file, args.cost_limit).map_err(Failure::from)?;
+    let size = size_limit(env, &file, args.size_limit)
         .map_err(Failure::from)?
         .chars();
     stop.set_size_limit(size);
@@ -862,8 +862,10 @@ fn plain_json(
     stderr: &mut dyn Write,
 ) -> Result<u8, Failure> {
     let Context { stop, .. } = *context;
-    // This flow reads no key, so a bad variable gives exit 2 at once.
-    let size = size_limit(env, args.size_limit)
+    // This flow reads no key. The config file is read only when no option and
+    // no variable sets the size limit (decision 9).
+    let file = ConfigFile::new(env, &RealFs);
+    let size = size_limit(env, &file, args.size_limit)
         .map_err(Failure::from)?
         .chars();
     stop.set_size_limit(size);

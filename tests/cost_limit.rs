@@ -9,7 +9,7 @@ use std::path::Path;
 use std::process::Output;
 
 use common::fake_server::{FakeServer, Reply};
-use common::{jag, write};
+use common::{jag, write, write_config};
 use jag::output::NO_GOOD_ANSWER;
 use tempfile::TempDir;
 
@@ -252,4 +252,34 @@ fn two_runs_send_the_same_requests() {
         runs.push(bodies);
     }
     assert_eq!(runs[0], runs[1]);
+}
+
+// STORY-84, CRITERION-154: `config.max-scored` sets the cost limit, below the
+// option and the variable.
+#[test]
+fn the_config_file_sets_the_limit_below_the_option_and_the_variable() {
+    for (extra, environment, count) in [
+        (vec![], vec![], 10),
+        (vec![], vec![("JAG_MAX_SCORED", "20")], 20),
+        (
+            vec!["--max-scored", "30"],
+            vec![("JAG_MAX_SCORED", "20")],
+            30,
+        ),
+    ] {
+        let server = FakeServer::constant(0.8);
+        let dir = large_folder();
+        let home = tempfile::tempdir().expect("temporary folder");
+        write_config(home.path(), "config:\n  max-scored: 10\n");
+        let output = jag(home.path(), &server.base_url())
+            .envs(environment.clone())
+            .args(&extra)
+            .args(["--no-max-chars", "--ask", QUESTION, "needle"])
+            .arg(dir.path())
+            .output()
+            .expect("run jag");
+        // Exit 7 says that jag skipped results.
+        assert_eq!(output.status.code(), Some(7), "{extra:?} {environment:?}");
+        assert_eq!(sent(&server), count, "{extra:?} {environment:?}");
+    }
 }

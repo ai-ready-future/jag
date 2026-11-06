@@ -11,7 +11,7 @@ use std::sync::{Arc, Mutex};
 use std::time::{Duration, Instant};
 
 use common::fake_server::{FakeServer, Reply};
-use common::{jag, jag_bare, write};
+use common::{jag, jag_bare, write, write_config};
 use tempfile::TempDir;
 
 const QUESTION: &str = "which line says how to retry";
@@ -464,4 +464,64 @@ fn a_500_during_the_search_fails_the_full_search() {
         "Try again later.",
         Some("jag: cost $0.000000: scored 40 of 40 results, skipped 0."),
     );
+}
+
+/// Like `search`, with this text in the config file of a new home.
+fn search_with_config(
+    server: &FakeServer,
+    dir: &Path,
+    config: &str,
+    extra: &[&str],
+    environment: &[(&str, &str)],
+) -> Output {
+    let home = tempfile::tempdir().expect("temporary folder");
+    write_config(home.path(), config);
+    let mut command = jag(home.path(), &server.base_url());
+    for (name, value) in environment {
+        command.env(name, value);
+    }
+    let output = command
+        .args(extra)
+        .args(["--ask", QUESTION, "needle"])
+        .arg(dir)
+        .output()
+        .expect("run jag");
+    assert_no_secret(&output);
+    output
+}
+
+// STORY-84, CRITERION-151: `config.timeout` sets the time of one call, below
+// the option and the variable.
+#[test]
+fn the_timeout_in_the_config_file_sets_the_time_of_one_call() {
+    let server = slow_server();
+    let dir = folder_with_a_match();
+    let started = Instant::now();
+    let output = search_with_config(&server, dir.path(), "config:\n  timeout: 1\n", &[], &[]);
+    assert_timed_out_after_two_calls(&server, &output, started);
+}
+
+#[test]
+fn the_timeout_variable_and_the_option_win_over_the_config_file() {
+    let file = "config:\n  timeout: 30\n";
+    let server = slow_server();
+    let dir = folder_with_a_match();
+    let started = Instant::now();
+    let output = search_with_config(&server, dir.path(), file, &[], &[("JAG_TIMEOUT", "1")]);
+    assert_timed_out_after_two_calls(&server, &output, started);
+
+    let server = slow_server();
+    let started = Instant::now();
+    let output = search_with_config(&server, dir.path(), file, &["--timeout", "1"], &[]);
+    assert_timed_out_after_two_calls(&server, &output, started);
+}
+
+// STORY-84, CRITERION-154: `config.retry-wait` sets the wait before the retry.
+#[test]
+fn the_retry_wait_in_the_config_file_sets_the_wait() {
+    let (server, times) = failing_once_server();
+    let dir = folder_with_a_match();
+    let output = search_with_config(&server, dir.path(), "config:\n  retry-wait: 2\n", &[], &[]);
+    assert_eq!(output.status.code(), Some(0));
+    assert!(gap(&times) >= Duration::from_secs(2));
 }

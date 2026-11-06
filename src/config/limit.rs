@@ -6,7 +6,7 @@
 //! `--max-chars`, or `JAG_MAX_CHARS` (CV-6).
 
 use super::model::SettingSource;
-use super::{ConfigError, Env};
+use super::{ConfigError, ConfigFile, Env, file_setting};
 
 pub const COST_LIMIT_OPTION: &str = "--max-scored";
 pub const COST_LIMIT_VARIABLE: &str = "JAG_MAX_SCORED";
@@ -52,24 +52,33 @@ pub fn parse_cost_limit(text: &str, source: SettingSource) -> Result<usize, Conf
     }
 }
 
-/// The option, else `JAG_MAX_SCORED`, else the default. A blank variable
+/// The option, else `JAG_MAX_SCORED`, else `config.max-scored` in the config
+/// file, else the default. A blank variable, or a blank value in the file,
 /// counts as not set.
-pub fn cost_limit(env: &Env, option: Option<usize>) -> Result<usize, ConfigError> {
+pub fn cost_limit(
+    env: &Env,
+    file: &ConfigFile,
+    option: Option<usize>,
+) -> Result<usize, ConfigError> {
     if let Some(option) = option {
         return Ok(option);
     }
-    match (env.vars)(COST_LIMIT_VARIABLE) {
-        None => Ok(DEFAULT_COST_LIMIT),
-        Some(value) => {
-            let bad = ConfigError::CostLimitBad {
-                source: SettingSource::Variable,
-            };
-            let text = value.to_str().ok_or(bad)?;
-            if text.trim().is_empty() {
-                return Ok(DEFAULT_COST_LIMIT);
-            }
-            parse_cost_limit(text, SettingSource::Variable)
+    if let Some(value) = (env.vars)(COST_LIMIT_VARIABLE) {
+        let bad = ConfigError::CostLimitBad {
+            source: SettingSource::Variable,
+        };
+        let text = value.to_str().ok_or(bad)?;
+        if !text.trim().is_empty() {
+            return parse_cost_limit(text, SettingSource::Variable);
         }
+    }
+    match file_setting(file, |section| section.max_scored.as_ref())? {
+        Some((path, text)) => parse_cost_limit(text, SettingSource::Variable).map_err(|_| {
+            ConfigError::FileCostLimitBad {
+                path: path.to_owned(),
+            }
+        }),
+        None => Ok(DEFAULT_COST_LIMIT),
     }
 }
 
@@ -105,35 +114,55 @@ fn size_limit_variable(env: &Env) -> Result<Option<usize>, ConfigError> {
     parse_size_limit(text, SettingSource::Variable).map(Some)
 }
 
-/// The option, else `JAG_MAX_CHARS`, else the default. A blank variable counts
-/// as not set.
-pub fn size_limit(env: &Env, option: Option<SizeLimit>) -> Result<SizeLimit, ConfigError> {
+/// The option, else `JAG_MAX_CHARS`, else `config.max-chars` in the config
+/// file, else the default. A blank variable, or a blank value in the file,
+/// counts as not set. The file has no value for no limit (decision 10).
+pub fn size_limit(
+    env: &Env,
+    file: &ConfigFile,
+    option: Option<SizeLimit>,
+) -> Result<SizeLimit, ConfigError> {
     if let Some(option) = option {
         return Ok(option);
     }
-    Ok(SizeLimit::Chars(
-        size_limit_variable(env)?.unwrap_or(DEFAULT_SIZE_LIMIT),
-    ))
+    if let Some(count) = size_limit_variable(env)? {
+        return Ok(SizeLimit::Chars(count));
+    }
+    match file_setting(file, |section| section.max_chars.as_ref())? {
+        Some((path, text)) => parse_size_limit(text, SettingSource::Variable)
+            .map(SizeLimit::Chars)
+            .map_err(|_| ConfigError::FileSizeLimitBad {
+                path: path.to_owned(),
+            }),
+        None => Ok(SizeLimit::Chars(DEFAULT_SIZE_LIMIT)),
+    }
 }
 
 #[cfg(test)]
 mod tests {
-    use std::path::PathBuf;
+    use std::path::{Path, PathBuf};
 
-    use super::super::testing::vars;
+    use super::super::RealFs;
+    use super::super::testing::{home_with, vars, write_file};
     use super::*;
 
     const SOURCES: [SettingSource; 2] = [SettingSource::Option, SettingSource::Variable];
 
     fn limit(pairs: &[(&str, &str)], option: Option<usize>) -> Result<usize, ConfigError> {
+        limit_at(pairs, Path::new("/nowhere"), option)
+    }
+
+    fn limit_at(
+        pairs: &[(&str, &str)],
+        home: &Path,
+        option: Option<usize>,
+    ) -> Result<usize, ConfigError> {
         let vars = vars(pairs);
-        cost_limit(
-            &Env {
-                vars: &vars,
-                home: Some(PathBuf::from("/nowhere")),
-            },
-            option,
-        )
+        let env = Env {
+            vars: &vars,
+            home: Some(home.to_owned()),
+        };
+        cost_limit(&env, &ConfigFile::new(&env, &RealFs), option)
     }
 
     #[test]
@@ -211,13 +240,11 @@ mod tests {
         use std::ffi::OsString;
         use std::os::unix::ffi::OsStringExt;
         let vars = |_: &str| Some(OsString::from_vec(vec![0xff]));
-        let result = cost_limit(
-            &Env {
-                vars: &vars,
-                home: None,
-            },
-            None,
-        );
+        let env = Env {
+            vars: &vars,
+            home: None,
+        };
+        let result = cost_limit(&env, &ConfigFile::new(&env, &RealFs), None);
         assert_eq!(
             result,
             Err(ConfigError::CostLimitBad {
@@ -227,14 +254,20 @@ mod tests {
     }
 
     fn size(pairs: &[(&str, &str)], option: Option<SizeLimit>) -> Result<SizeLimit, ConfigError> {
+        size_at(pairs, Path::new("/nowhere"), option)
+    }
+
+    fn size_at(
+        pairs: &[(&str, &str)],
+        home: &Path,
+        option: Option<SizeLimit>,
+    ) -> Result<SizeLimit, ConfigError> {
         let vars = vars(pairs);
-        size_limit(
-            &Env {
-                vars: &vars,
-                home: Some(PathBuf::from("/nowhere")),
-            },
-            option,
-        )
+        let env = Env {
+            vars: &vars,
+            home: Some(home.to_owned()),
+        };
+        size_limit(&env, &ConfigFile::new(&env, &RealFs), option)
     }
 
     fn size_bad(source: SettingSource) -> ConfigError {
@@ -334,8 +367,158 @@ mod tests {
             home: Some(PathBuf::from("/nowhere")),
         };
         assert_eq!(
-            size_limit(&env, None),
+            size_limit(&env, &ConfigFile::new(&env, &RealFs), None),
             Err(size_bad(SettingSource::Variable))
         );
+    }
+
+    fn file_cost_bad(home: &Path) -> ConfigError {
+        ConfigError::FileCostLimitBad {
+            path: home.join(".config").join("jag").join("config.yml"),
+        }
+    }
+
+    fn file_size_bad(home: &Path) -> ConfigError {
+        ConfigError::FileSizeLimitBad {
+            path: home.join(".config").join("jag").join("config.yml"),
+        }
+    }
+
+    #[test]
+    fn the_cost_limit_comes_from_the_file_when_no_option_or_variable_sets_it() {
+        let home = home_with("config:\n  max-scored: 10\n");
+        assert_eq!(limit_at(&[], home.path(), None), Ok(10));
+        // The variable and the option win over the file.
+        let variable = [(COST_LIMIT_VARIABLE, "20")];
+        assert_eq!(limit_at(&variable, home.path(), None), Ok(20));
+        assert_eq!(limit_at(&variable, home.path(), Some(30)), Ok(30));
+        // A blank variable counts as not set.
+        assert_eq!(
+            limit_at(&[(COST_LIMIT_VARIABLE, " ")], home.path(), None),
+            Ok(10)
+        );
+    }
+
+    #[test]
+    fn a_bad_cost_limit_in_the_file_is_refused_and_a_higher_source_hides_it() {
+        for text in [
+            "abc", "0", "2001", "1.5", "4.0", "0x10", "-1", "1e3", "2_00",
+        ] {
+            let home = home_with(&format!("config:\n  max-scored: {text}\n"));
+            assert_eq!(
+                limit_at(&[], home.path(), None),
+                Err(file_cost_bad(home.path())),
+                "{text}"
+            );
+            assert_eq!(limit_at(&[], home.path(), Some(5)), Ok(5));
+            assert_eq!(
+                limit_at(&[(COST_LIMIT_VARIABLE, "7")], home.path(), None),
+                Ok(7)
+            );
+        }
+    }
+
+    #[test]
+    fn the_cost_limit_text_rules_of_the_file_are_the_rules_of_the_variable() {
+        let home = home_with("config:\n  max-scored: 0400\n");
+        assert_eq!(limit_at(&[], home.path(), None), Ok(400));
+        for text in [
+            "max-scored:",
+            "max-scored: ~",
+            "max-scored: \"  \"",
+            "# max-scored: 9",
+        ] {
+            let home = home_with(&format!("config:\n  {text}\n"));
+            assert_eq!(
+                limit_at(&[], home.path(), None),
+                Ok(DEFAULT_COST_LIMIT),
+                "{text}"
+            );
+        }
+    }
+
+    #[test]
+    fn the_size_limit_comes_from_the_file_when_no_option_or_variable_sets_it() {
+        let home = home_with("config:\n  max-chars: 5000\n");
+        assert_eq!(size_at(&[], home.path(), None), Ok(SizeLimit::Chars(5_000)));
+        let variable = [(SIZE_LIMIT_VARIABLE, "40000")];
+        assert_eq!(
+            size_at(&variable, home.path(), None),
+            Ok(SizeLimit::Chars(40_000))
+        );
+        assert_eq!(
+            size_at(&variable, home.path(), Some(SizeLimit::Chars(2_000))),
+            Ok(SizeLimit::Chars(2_000))
+        );
+        // `--no-max-chars` wins over the file.
+        assert_eq!(
+            size_at(&[], home.path(), Some(SizeLimit::Off)),
+            Ok(SizeLimit::Off)
+        );
+        // A number that is too large for `usize` gives `usize::MAX`.
+        let home = home_with("config:\n  max-chars: 99999999999999999999999\n");
+        assert_eq!(
+            size_at(&[], home.path(), None),
+            Ok(SizeLimit::Chars(usize::MAX))
+        );
+    }
+
+    #[test]
+    fn a_bad_size_limit_in_the_file_is_refused_and_a_higher_source_hides_it() {
+        for text in [
+            "abc", "0", "999", "off", "none", "1000.0", "-1", "0x3E8", "20_000",
+        ] {
+            let home = home_with(&format!("config:\n  max-chars: {text}\n"));
+            assert_eq!(
+                size_at(&[], home.path(), None),
+                Err(file_size_bad(home.path())),
+                "{text}"
+            );
+            assert_eq!(
+                size_at(&[], home.path(), Some(SizeLimit::Off)),
+                Ok(SizeLimit::Off)
+            );
+            assert_eq!(
+                size_at(&[(SIZE_LIMIT_VARIABLE, "3000")], home.path(), None),
+                Ok(SizeLimit::Chars(3_000))
+            );
+        }
+    }
+
+    #[test]
+    fn a_higher_source_does_not_open_the_file() {
+        // A file that other users can read is an error only when jag opens it.
+        let home = tempfile::tempdir().expect("temporary folder");
+        write_file(home.path(), "config:\n  max-chars: 5000\n", 0o644);
+        assert_eq!(
+            size_at(&[(SIZE_LIMIT_VARIABLE, "3000")], home.path(), None),
+            Ok(SizeLimit::Chars(3_000))
+        );
+        assert!(matches!(
+            size_at(&[], home.path(), None),
+            Err(ConfigError::KeyFileOpen { .. })
+        ));
+    }
+
+    #[test]
+    fn the_file_error_texts_name_the_key_and_never_show_the_value() {
+        use crate::failure::Failure;
+        let home = home_with("config:\n  max-scored: SENTINEL-1\n  max-chars: SENTINEL-2\n");
+        for (error, key) in [
+            (
+                limit_at(&[], home.path(), None).unwrap_err(),
+                "config.max-scored",
+            ),
+            (
+                size_at(&[], home.path(), None).unwrap_err(),
+                "config.max-chars",
+            ),
+        ] {
+            let failure = Failure::from(error);
+            assert_eq!(failure.exit_code, 2);
+            assert!(failure.cause.starts_with(key), "{}", failure.cause);
+            assert!(failure.fix.contains(key), "{}", failure.fix);
+            assert!(!failure.cause.contains("SENTINEL") && !failure.fix.contains("SENTINEL"));
+        }
     }
 }

@@ -228,3 +228,22 @@ fn a_model_name_that_is_the_key_is_never_shown() {
     assert_never_shows_the_key(command, 6);
     let _ = handle.join();
 }
+
+// STORY-84: a bad value of a settings key is never in the output.
+#[test]
+fn a_bad_value_of_a_settings_key_is_never_shown() {
+    for key in ["timeout", "retry-wait", "max-scored", "max-chars"] {
+        let home = tempfile::tempdir().unwrap();
+        write_key_file(
+            home.path(),
+            &format!("config:\n  {key}: SENTINEL-SENTINEL-SENTINEL\n"),
+            0o600,
+        );
+        let mut command = jag(home.path());
+        command.args(["--ask", "which line?", "needle", "."]);
+        // A gateway and its key, so that the key step passes before the limits.
+        command.env("JAG_GATEWAY_API_KEY", "k");
+        command.env("JAG_BASE_URL", "https://gateway.example.com");
+        assert_never_shows_the_key(command, 2);
+    }
+}
