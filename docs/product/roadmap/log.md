@@ -1,6 +1,7 @@
 # Log
 
 ## 2026-11-06
+* **State**: [STORY-86](stories/STORY-86.md) backlog -> ready, by agent:jag-specifier, approved by #355, at 2026-11-06T11:01:49Z
 * **Sync**: [STORY-94](stories/STORY-94.md) pushed to GitHub, by process:github, at 2026-11-06T08:07:30Z
 * **Sync**: [STORY-89](stories/STORY-89.md) pushed to GitHub, by process:github, at 2026-11-06T08:07:30Z
 * **Sync**: [STORY-96](stories/STORY-96.md) pushed to GitHub, by process:github, at 2026-11-06T08:06:16Z
