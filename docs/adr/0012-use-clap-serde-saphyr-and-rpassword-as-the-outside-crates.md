@@ -8,6 +8,7 @@ date: 2026-10-13
 supersedes: null
 superseded_by: null
 amends: null
+amended_by: 0029-read-each-setting-from-the-config-file-and-let-setup-write.md # serde-saphyr reads the file; jag does not write it with serde-saphyr
 refines: null
 deviates_from: null
 related: [0011-build-jag-as-one-cargo-package-with-one-module-per-component.md]

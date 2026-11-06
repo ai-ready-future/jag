@@ -7,7 +7,7 @@ status: accepted
 date: 2026-11-05
 supersedes: 0015-read-the-base-url-and-the-model-name-from-config-base-url.md # partial
 superseded_by: null
-amends: null
+amends: 0012-use-clap-serde-saphyr-and-rpassword-as-the-outside-crates.md # serde-saphyr reads the file; jag does not write it with serde-saphyr
 refines: null
 deviates_from: null
 related: [0009-pin-the-jev-model-version-in-each-release.md, 0012-use-clap-serde-saphyr-and-rpassword-as-the-outside-crates.md, 0017-use-a-separate-key-for-an-ai-gateway.md]
