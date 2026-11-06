@@ -182,6 +182,22 @@ pub enum ConfigError {
     FileBaseUrlBad {
         path: PathBuf,
     },
+    /// `config.timeout` or `config.retry-wait` is not a whole number of
+    /// seconds from 1 to 60. The text never shows the value.
+    FileTimeBad {
+        setting: TimeSetting,
+        path: PathBuf,
+    },
+    /// `config.max-scored` is not a whole number from 1 to 2,000. The text
+    /// never shows the value.
+    FileCostLimitBad {
+        path: PathBuf,
+    },
+    /// `config.max-chars` is not a whole number of 1,000 or more. The text
+    /// never shows the value.
+    FileSizeLimitBad {
+        path: PathBuf,
+    },
     /// A model name of an option is blank, or `JAG_MODEL` is not text. The
     /// text never shows it.
     ModelBad {
@@ -328,8 +344,9 @@ impl From<ConfigError> for Failure {
             ),
             ConfigError::KeyFileHasOtherKeys { path } => (
                 format!(
-                    "{} holds settings other than config.api-key, config.gateway-api-key, config.base-url, and config.model.",
-                    path.display()
+                    "{} holds settings other than {}.",
+                    path.display(),
+                    change::key_list_text()
                 ),
                 "Remove the other settings, or edit the file by hand.".to_owned(),
                 2,
@@ -382,6 +399,45 @@ impl From<ConfigError> for Failure {
                 ),
                 format!(
                     "Set config.base-url in {} to an https address, or remove it.",
+                    path.display()
+                ),
+                2,
+            ),
+            ConfigError::FileTimeBad { setting, path } => {
+                let (key, example) = match setting {
+                    TimeSetting::Timeout => ("config.timeout", 10),
+                    TimeSetting::RetryWait => ("config.retry-wait", 2),
+                };
+                (
+                    format!(
+                        "{key} in {} is not a whole number of seconds from 1 to 60.",
+                        path.display()
+                    ),
+                    format!(
+                        "Set {key} in {} to a number such as {example}, or remove it.",
+                        path.display()
+                    ),
+                    2,
+                )
+            }
+            ConfigError::FileCostLimitBad { path } => (
+                format!(
+                    "config.max-scored in {} is not a whole number from 1 to 2,000.",
+                    path.display()
+                ),
+                format!(
+                    "Set config.max-scored in {} to a number such as 400, or remove it.",
+                    path.display()
+                ),
+                2,
+            ),
+            ConfigError::FileSizeLimitBad { path } => (
+                format!(
+                    "config.max-chars in {} is not a whole number of 1,000 or more.",
+                    path.display()
+                ),
+                format!(
+                    "Set config.max-chars in {} to a number such as 40000, or remove it.",
                     path.display()
                 ),
                 2,
@@ -482,6 +538,15 @@ pub(crate) struct Section {
     #[serde(rename = "base-url")]
     pub(crate) base_url: Option<String>,
     pub(crate) model: Option<String>,
+    // The 4 numbers are read as text, and the parse of the variable checks
+    // them (STORY-84, decision 4).
+    pub(crate) timeout: Option<String>,
+    #[serde(rename = "retry-wait")]
+    pub(crate) retry_wait: Option<String>,
+    #[serde(rename = "max-scored")]
+    pub(crate) max_scored: Option<String>,
+    #[serde(rename = "max-chars")]
+    pub(crate) max_chars: Option<String>,
 }
 
 #[derive(Deserialize)]
@@ -505,6 +570,17 @@ pub(crate) struct StrictSection {
     base_url: Option<String>,
     #[allow(dead_code)]
     model: Option<String>,
+    #[allow(dead_code)]
+    timeout: Option<String>,
+    #[serde(rename = "retry-wait")]
+    #[allow(dead_code)]
+    retry_wait: Option<String>,
+    #[serde(rename = "max-scored")]
+    #[allow(dead_code)]
+    max_scored: Option<String>,
+    #[serde(rename = "max-chars")]
+    #[allow(dead_code)]
+    max_chars: Option<String>,
 }
 
 /// True when the text holds more than blank lines, comments, and a document marker.
@@ -545,6 +621,25 @@ pub(crate) fn file_gateway_key_text(file: &File) -> Option<&str> {
         .as_deref()
         .map(str::trim)
         .filter(|text| !text.is_empty())
+}
+
+/// The trimmed text of a setting key of the file, with the path of the file.
+/// `None` when there is no file, no key, or a blank or null value. jag opens
+/// the file at the first call of a run.
+pub(crate) fn file_setting<'a>(
+    file: &'a ConfigFile,
+    pick: fn(&Section) -> Option<&String>,
+) -> Result<Option<(&'a Path, &'a str)>, ConfigError> {
+    let Some((path, parsed)) = file.get()? else {
+        return Ok(None);
+    };
+    let text = parsed
+        .config
+        .as_ref()
+        .and_then(pick)
+        .map(|text| text.trim())
+        .filter(|text| !text.is_empty());
+    Ok(text.map(|text| (path, text)))
 }
 
 /// A variable is blank when it is UTF-8 and holds only white space.
@@ -734,6 +829,13 @@ pub(crate) mod testing {
     use std::collections::HashMap;
 
     pub const SENTINEL_KEY: &str = "SENTINEL-SENTINEL-SENTINEL";
+
+    /// A home with a config file of this text and mode 0600.
+    pub fn home_with(text: &str) -> tempfile::TempDir {
+        let home = tempfile::tempdir().expect("temporary folder");
+        write_file(home.path(), text, 0o600);
+        home
+    }
 
     /// True when the tests run as root: a mode 0o000 file is then readable.
     pub fn is_root() -> bool {
@@ -1122,6 +1224,8 @@ mod tests {
             (JAG_VARIABLE, "k"),
             ("JAG_BASE_URL", "https://api.typesafe.ai/v1"),
             ("JAG_MODEL", "m"),
+            ("JAG_TIMEOUT", "5"),
+            ("JAG_RETRY_WAIT", "2"),
         ]);
         let env = Env {
             vars: &vars,

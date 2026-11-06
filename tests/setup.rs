@@ -289,3 +289,33 @@ fn forget_key_removes_the_gateway_key_only_on_a_gateway() {
     let text = std::fs::read_to_string(key_path(home.path())).unwrap();
     assert_eq!(text, "config:\n  api-key: SENTINEL-SENTINEL-SENTINEL\n");
 }
+
+// STORY-84, CRITERION-154: `--forget-key` keeps the keys of the settings.
+#[test]
+fn forget_key_keeps_the_keys_of_the_settings() {
+    let home = tempfile::tempdir().unwrap();
+    write_key_file(
+        home.path(),
+        "config:\n  api-key: SENTINEL-SENTINEL-SENTINEL\n  timeout: 9\n  max-chars: 5000\n",
+    );
+    jag(home.path()).arg("--forget-key").assert().code(0);
+    let text = std::fs::read_to_string(key_path(home.path())).unwrap();
+    assert!(
+        !text.contains("api-key") && !text.contains("SENTINEL"),
+        "{text}"
+    );
+    assert!(
+        text.contains("timeout: ") && text.contains("max-chars: "),
+        "{text}"
+    );
+    // A search still reads the two values (exit 0 needs no model call here).
+    let vars = |_: &str| None;
+    let env = Env {
+        vars: &vars,
+        home: Some(home.path().to_owned()),
+    };
+    let file = ConfigFile::new(&env, &RealFs);
+    let settings =
+        jag::config::model_settings(&env, &file, &jag::config::SettingOptions::default()).unwrap();
+    assert_eq!(settings.times.timeout, std::time::Duration::from_secs(9));
+}

@@ -4,7 +4,7 @@
 mod common;
 
 use common::fake_server::FakeServer;
-use common::{jag, jag_bare, write};
+use common::{jag, jag_bare, write, write_config};
 use predicates::prelude::*;
 
 const FIXED_LINE: &str = "jag: the command line is not valid. Run jag --help to see the usage.\n";
@@ -734,4 +734,81 @@ fn json_with_no_term_gives_an_error_document() {
     let document: serde_json::Value = serde_json::from_slice(&output.stdout).expect("a document");
     assert_eq!(document["error"]["cause"], "a search needs a term.");
     assert_eq!(document["exit_code"], 2);
+}
+
+// STORY-84: a bad value of a key in the config file gives exit 2. The
+// message names the key and the file, and never shows the value.
+#[test]
+fn a_bad_value_in_the_config_file_exits_2_and_names_the_key_and_the_file() {
+    type Case<'a> = (&'a str, &'a [&'a str], &'a str, &'a str);
+    let cases: [Case; 4] = [
+        (
+            "timeout",
+            &["abc", "0", "61", "1.5", "4.0", "0x0A", "-1"],
+            "is not a whole number of seconds from 1 to 60.",
+            "Set config.timeout in",
+        ),
+        (
+            "retry-wait",
+            &["abc", "0", "61", "1.5", "4.0", "0x0A", "-1"],
+            "is not a whole number of seconds from 1 to 60.",
+            "Set config.retry-wait in",
+        ),
+        (
+            "max-scored",
+            &["abc", "0", "2001", "1.5", "-1", "2,000"],
+            "is not a whole number from 1 to 2,000.",
+            "Set config.max-scored in",
+        ),
+        (
+            "max-chars",
+            &["abc", "0", "999", "-1", "1e4", "off"],
+            "is not a whole number of 1,000 or more.",
+            "Set config.max-chars in",
+        ),
+    ];
+    for (key, bad_values, message, fix) in cases {
+        for bad in bad_values {
+            let server = FakeServer::constant(0.8);
+            let home = home();
+            write_config(home.path(), &format!("config:\n  {key}: {bad}\n"));
+            let dir = tempfile::tempdir().expect("temporary folder");
+            write(dir.path(), "a.txt", b"needle\n");
+            let output = jag(home.path(), &server.base_url())
+                .args(["--ask", "which line?", "needle"])
+                .arg(dir.path())
+                .output()
+                .expect("run jag");
+            let err = String::from_utf8_lossy(&output.stderr).into_owned();
+            let path = home.path().join(".config/jag/config.yml");
+            let cause = format!("jag: config.{key} in {} {message}\n", path.display());
+            assert_eq!(output.status.code(), Some(2), "{key} {bad}");
+            assert!(output.stdout.is_empty(), "{key} {bad}");
+            assert!(err.starts_with(&cause), "{key} {bad}: {err}");
+            assert!(err.contains(fix) && err.contains("or remove it."), "{err}");
+            assert!(!err.contains(&format!("{key}: {bad}")), "{err}");
+            assert!(server.requests().is_empty(), "{key} {bad}");
+        }
+    }
+}
+
+#[test]
+fn a_bad_value_in_the_config_file_is_hidden_by_the_option_or_the_variable() {
+    let server = FakeServer::constant(0.8);
+    let home = home();
+    write_config(
+        home.path(),
+        "config:\n  timeout: abc\n  retry-wait: abc\n  max-scored: abc\n  max-chars: abc\n",
+    );
+    let dir = tempfile::tempdir().expect("temporary folder");
+    write(dir.path(), "a.txt", b"needle\n");
+    let output = jag(home.path(), &server.base_url())
+        .env("JAG_TIMEOUT", "5")
+        .env("JAG_RETRY_WAIT", "1")
+        .env("JAG_MAX_SCORED", "10")
+        .args(["--max-chars", "5000", "--ask", "which line?", "needle"])
+        .arg(dir.path())
+        .output()
+        .expect("run jag");
+    assert_eq!(output.status.code(), Some(0));
 }

@@ -13,7 +13,7 @@ use std::path::Path;
 use std::process::Output;
 
 use common::fake_server::{FakeServer, Reply};
-use common::{jag, jag_bare, write};
+use common::{jag, jag_bare, write, write_config};
 use serde_json::Value;
 use tempfile::TempDir;
 
@@ -712,4 +712,82 @@ fn plain_grep_does_not_read_the_variable_of_the_size_limit() {
             .expect("run jag"),
     );
     assert_eq!(run.code, Some(3));
+}
+
+/// Run `jag --ask q needle d` in `cwd`, with this text in the config file.
+fn ask_with_config(
+    server: &FakeServer,
+    cwd: &Path,
+    config: &str,
+    extra: &[&str],
+    env: &[(&str, &str)],
+) -> Run {
+    let home = folder();
+    write_config(home.path(), config);
+    let mut command = jag(home.path(), &server.base_url());
+    for (name, value) in env {
+        command.env(name, value);
+    }
+    run_of(
+        command
+            .current_dir(cwd)
+            .args(extra)
+            .args(["--ask", "q", "needle", "d"])
+            .output()
+            .expect("run jag"),
+    )
+}
+
+// STORY-84, CRITERION-154: `config.max-chars` sets the size limit, below the
+// option and the variable. Only `--no-max-chars` turns the limit off.
+#[test]
+fn the_config_file_sets_the_size_limit_below_the_option_and_the_variable() {
+    let server = ranked_server();
+    let root = ranked_folder();
+    let file = "config:\n  max-chars: 1000\n";
+    let run = ask_with_config(&server, root.path(), file, &[], &[]);
+    assert_eq!(run.chars(), 925);
+    assert_eq!(run.code, Some(8));
+    let run = ask_with_config(
+        &server,
+        root.path(),
+        file,
+        &[],
+        &[("JAG_MAX_CHARS", "40000")],
+    );
+    assert_eq!(shown_names(&run.stdout).len(), 30);
+    assert_eq!(run.code, Some(0));
+    let run = ask_with_config(&server, root.path(), file, &["--max-chars", "40000"], &[]);
+    assert_eq!(shown_names(&run.stdout).len(), 30);
+    let run = ask_with_config(&server, root.path(), file, &["--no-max-chars"], &[]);
+    assert_eq!(shown_names(&run.stdout).len(), 30);
+    assert_eq!(run.code, Some(0));
+}
+
+#[test]
+fn the_config_file_sets_the_size_limit_of_json_with_no_question() {
+    let root = ranked_folder();
+    let home = folder();
+    write_config(home.path(), "config:\n  max-chars: 1000\n");
+    let json = |extra: &[&str], variable: Option<&str>| {
+        let mut command = jag_bare(home.path());
+        if let Some(value) = variable {
+            command.env("JAG_MAX_CHARS", value);
+        }
+        run_of(
+            command
+                .current_dir(root.path())
+                .args(extra)
+                .args(["--json", "needle", "d"])
+                .output()
+                .expect("run jag"),
+        )
+    };
+    let run = json(&[], None);
+    assert_eq!(run.code, Some(8));
+    let document: Value = serde_json::from_str(&run.stdout).expect("one document");
+    assert!(document["left_out"].as_u64().unwrap_or(0) > 0);
+    assert_eq!(json(&[], Some("40000")).code, Some(0));
+    assert_eq!(json(&["--max-chars", "40000"], None).code, Some(0));
+    assert_eq!(json(&["--no-max-chars"], None).code, Some(0));
 }

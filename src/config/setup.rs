@@ -715,6 +715,50 @@ mod tests {
         assert!(!run.out.contains("SENTINEL"));
     }
 
+    // STORY-84: setup and forget keep the keys of the settings. The interim
+    // `file_text` writes a number in quotes; STORY-85 edits the lines instead.
+    #[test]
+    fn setup_and_forget_keep_the_keys_of_the_settings() {
+        let home = tempfile::tempdir().unwrap();
+        write_file(
+            home.path(),
+            "config:\n  api-key: old-key\n  timeout: 9\n  max-chars: 5000\n",
+            0o600,
+        );
+        let run = run_setup(
+            &[],
+            Some(home.path()),
+            Fake::answering(true, SENTINEL_KEY),
+            true,
+        );
+        run.result.unwrap();
+        let (_, state) = load_for_change(
+            &Env {
+                vars: &vars(&[]),
+                home: Some(home.path().to_owned()),
+            },
+            &RealFs,
+        )
+        .unwrap();
+        assert_eq!(state.values.api_key.as_deref(), Some(SENTINEL_KEY));
+        assert_eq!(state.values.timeout.as_deref(), Some("9"));
+        assert_eq!(state.values.max_chars.as_deref(), Some("5000"));
+        let (result, _) = run_forget(&[], Some(home.path()));
+        result.unwrap();
+        let text = text_of(home.path());
+        assert!(!text.contains("api-key"), "{text}");
+        let (_, state) = load_for_change(
+            &Env {
+                vars: &vars(&[]),
+                home: Some(home.path().to_owned()),
+            },
+            &RealFs,
+        )
+        .unwrap();
+        assert_eq!(state.values.timeout.as_deref(), Some("9"));
+        assert_eq!(state.values.max_chars.as_deref(), Some("5000"));
+    }
+
     #[test]
     fn the_gateway_base_url_of_the_file_makes_setup_store_the_gateway_key() {
         let home = tempfile::tempdir().unwrap();
