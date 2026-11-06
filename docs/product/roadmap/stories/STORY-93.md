@@ -8,6 +8,13 @@ generated:
   by: prd/6.2.1
   at: '2026-11-05T22:52:35Z'
 state: backlog
+github:
+  number: 368
+  node_id: I_kwDOVKMnL88AAAABc5GJPA
+  url: https://github.com/ai-ready-future/jag/issues/368
+  pushed_hash: 4906fd
+  synced:
+    state: backlog
 parent: /features/FEATURE-31.md
 blocked_by:
 - /stories/STORY-91.md

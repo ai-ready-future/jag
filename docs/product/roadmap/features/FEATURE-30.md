@@ -8,6 +8,13 @@ generated:
   by: prd/6.2.1
   at: '2026-11-05T22:52:33Z'
 state: backlog
+github:
+  number: 360
+  node_id: I_kwDOVKMnL88AAAABc5Fjhg
+  url: https://github.com/ai-ready-future/jag/issues/360
+  pushed_hash: 0bdcd3
+  synced:
+    state: backlog
 parent: /epics/EPIC-07.md
 milestone: /milestones/MILESTONE-04.md
 traces:

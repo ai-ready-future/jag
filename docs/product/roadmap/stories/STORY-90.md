@@ -8,6 +8,13 @@ generated:
   by: prd/6.2.1
   at: '2026-11-05T22:52:34Z'
 state: backlog
+github:
+  number: 365
+  node_id: I_kwDOVKMnL88AAAABc5F5qQ
+  url: https://github.com/ai-ready-future/jag/issues/365
+  pushed_hash: a9ea18
+  synced:
+    state: backlog
 parent: /features/FEATURE-30.md
 milestone: /milestones/MILESTONE-04.md
 traces:
