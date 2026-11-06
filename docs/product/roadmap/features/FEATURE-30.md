@@ -45,7 +45,7 @@ The stories of this feature:
 | --- | --- | --- | --- | --- | --- |
 | [STORY-87: A search works when a call is too long for the server](../stories/STORY-87.md) | backlog | - | - | - | - |
 | [STORY-88: Show the cost and the failure of a Clef server correctly](../stories/STORY-88.md) | backlog | - | - | - | - |
-| [STORY-89: The report of the text that leaves the machine names the host](../stories/STORY-89.md) | backlog | - | - | - | - |
+| [STORY-89: The report of the text that leaves the machine names the host](../stories/STORY-89.md) | backlog | - | - | STORY-96 | - |
 | [STORY-90: The README tells how to use a Clef server](../stories/STORY-90.md) | backlog | - | - | - | - |
 <!-- STATUS:END -->
 

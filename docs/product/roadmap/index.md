@@ -8,6 +8,6 @@ okf_version: '0.2'
 * [projects/](projects/index.md) - 1 pages
 * [milestones/](milestones/index.md) - 4 pages
 * [epics/](epics/index.md) - 7 pages
-* [features/](features/index.md) - 29 pages
-* [stories/](stories/index.md) - 94 pages
-* [criteria/](criteria/index.md) - 169 pages
+* [features/](features/index.md) - 30 pages
+* [stories/](stories/index.md) - 96 pages
+* [criteria/](criteria/index.md) - 172 pages
