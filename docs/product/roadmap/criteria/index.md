@@ -450,3 +450,12 @@
 ## STORY-94: The preview lists the lines that the check holds back
 
 * [CRITERION-169: The preview lists each held-back line with the reason](CRITERION-169.md) - The preview of the text that leaves the machine lists each line that the check holds back, with the reason.
+
+## STORY-95: See the text that a search sends before jag sends it
+
+* [CRITERION-170: The preview shows the text that the search sends](CRITERION-170.md) - For a search with a question, the preview shows the question and the text of each result that jag sends, and makes no model call.
+* [CRITERION-171: A search with no question has nothing to preview](CRITERION-171.md) - For a search with no question, the preview tells that no text leaves the machine, and jag makes no model call.
+
+## STORY-96: The report of each search tells which text left the machine
+
+* [CRITERION-172: The report counts the text that left the machine](CRITERION-172.md) - After a search that calls the model service, the report gives the number of results and the number of lines that jag sent.

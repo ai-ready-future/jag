@@ -26,9 +26,10 @@ STORY-86 (the call with no gateway key, ADR-0028) is a part of CAPABILITY-13, bu
 
 | Item | State | Progress | Owner | Blocked by | Drift |
 | --- | --- | --- | --- | --- | --- |
-| [EPIC-07: Local model option](../epics/EPIC-07.md) | backlog | 0/2 (0%) | - | - | - |
+| [EPIC-07: Local model option](../epics/EPIC-07.md) | backlog | 0/3 (0%) | - | - | - |
 | [FEATURE-30: Score with a Clef server that the user runs](../features/FEATURE-30.md) | backlog | 0/4 (0%) | - | - | - |
 | [FEATURE-31: Hold private text back from the model](../features/FEATURE-31.md) | backlog | 0/4 (0%) | - | - | - |
+| [FEATURE-32: Say which text leaves the machine](../features/FEATURE-32.md) | backlog | 0/2 (0%) | - | - | - |
 <!-- STATUS:END -->
 
 <!-- LINKS:START (generated, do not edit) -->
@@ -39,6 +40,7 @@ STORY-86 (the call with no gateway key, ADR-0028) is a part of CAPABILITY-13, bu
 - item of: [EPIC-07: Local model option](../epics/EPIC-07.md)
 - item of: [FEATURE-30: Score with a Clef server that the user runs](../features/FEATURE-30.md)
 - item of: [FEATURE-31: Hold private text back from the model](../features/FEATURE-31.md)
+- item of: [FEATURE-32: Say which text leaves the machine](../features/FEATURE-32.md)
 - item of: [STORY-87: A search works when a call is too long for the server](../stories/STORY-87.md)
 - item of: [STORY-88: Show the cost and the failure of a Clef server correctly](../stories/STORY-88.md)
 - item of: [STORY-89: The report of the text that leaves the machine names the host](../stories/STORY-89.md)
@@ -47,4 +49,6 @@ STORY-86 (the call with no gateway key, ADR-0028) is a part of CAPABILITY-13, bu
 - item of: [STORY-92: Add private patterns of the user in the config file](../stories/STORY-92.md)
 - item of: [STORY-93: Turn the private-pattern check off with one setting](../stories/STORY-93.md)
 - item of: [STORY-94: The preview lists the lines that the check holds back](../stories/STORY-94.md)
+- item of: [STORY-95: See the text that a search sends before jag sends it](../stories/STORY-95.md)
+- item of: [STORY-96: The report of each search tells which text left the machine](../stories/STORY-96.md)
 <!-- LINKS:END -->
