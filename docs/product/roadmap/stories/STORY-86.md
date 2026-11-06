@@ -7,7 +7,8 @@ status: draft
 generated:
   by: prd/6.2.1
   at: '2026-11-05T21:35:49Z'
-state: ready
+state: done
+actual_end_date: '2026-11-06'
 github:
   number: 356
   node_id: I_kwDOVKMnL88AAAABc4T9Bw
